@@ -49,13 +49,17 @@ This repo includes [render.yaml](./render.yaml), so it is ready for Render deplo
 
 ### One-click deploy
 
-After this project is pushed to GitHub, you can use this URL pattern:
+This repo is now hosted at:
+
+`https://github.com/stefanielizeth73-art/toursim-system`
+
+You can open Render's deploy flow with:
 
 ```text
-https://render.com/deploy?repo=<YOUR_GITHUB_REPO_URL>
+https://render.com/deploy?repo=https://github.com/stefanielizeth73-art/toursim-system
 ```
 
-Replace `<YOUR_GITHUB_REPO_URL>` with your public GitHub repository URL.
+Because this repository is private, Render deployment works only after you connect the same GitHub account or grant Render access to this repo.
 
 ## Production notes
 
