@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>场所查询</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统 - 场所查询</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>附近设施查询</h2>
+        <p class="subtitle">按道路图上的最短路径距离排序，不使用直线距离，符合课程设计对场所查询的算法要求。</p>
+
+        <form method="get" class="filter-form facilities-filter-form">
+            <select name="start_node">
+                {% for node in nodes %}
+                    <option value="{{ node.id }}" {% if start_node == node.id %}selected{% endif %}>当前位置：{{ node.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="type">
+                <option value="">全部设施类别</option>
+                {% for t in facility_types %}
+                    <option value="{{ t }}" {% if facility_type == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="keyword" placeholder="输入设施名称或描述关键字" value="{{ keyword }}">
+
+            <button type="submit">查询附近设施</button>
+        </form>
+
+        <div class="result-info">
+            共找到 {{ facilities|length }} 条结果，已按道路最短距离升序排列。
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>设施名称</th>
+                    <th>类别</th>
+                    <th>所属地点</th>
+                    <th>最近节点</th>
+                    <th>道路距离</th>
+                    <th>路径</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for facility in facilities %}
+                <tr>
+                    <td>{{ facility.id }}</td>
+                    <td>{{ facility.name }}</td>
+                    <td>{{ facility.type }}</td>
+                    <td>{{ facility.parent_place }}</td>
+                    <td>{{ facility.nearest_node }}</td>
+                    <td>{{ facility.distance }} 米</td>
+                    <td>{{ facility.path_names }}</td>
+                    <td>{{ facility.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "default_start": "gate",
+  "nodes": [
+    {"id": "gate", "name": "南门", "category": "出入口", "x": 80, "y": 320},
+    {"id": "square", "name": "中心广场", "category": "景点", "x": 220, "y": 300},
+    {"id": "library", "name": "图书馆", "category": "教学楼", "x": 350, "y": 180},
+    {"id": "teaching_a", "name": "教学楼A", "category": "教学楼", "x": 420, "y": 300},
+    {"id": "lab", "name": "实验中心", "category": "教学楼", "x": 520, "y": 200},
+    {"id": "dorm", "name": "宿舍区", "category": "宿舍", "x": 540, "y": 380},
+    {"id": "canteen", "name": "第一食堂", "category": "食堂", "x": 330, "y": 390},
+    {"id": "gym", "name": "体育馆", "category": "场馆", "x": 650, "y": 320},
+    {"id": "lake", "name": "观景湖", "category": "景点", "x": 240, "y": 120},
+    {"id": "museum", "name": "校史馆", "category": "场馆", "x": 610, "y": 110},
+    {"id": "shop", "name": "校园超市", "category": "超市", "x": 460, "y": 450},
+    {"id": "service", "name": "游客服务站", "category": "服务点", "x": 180, "y": 420}
+  ],
+  "edges": [
+    {"from": "gate", "to": "square", "distance": 160, "congestion": 0.95, "walk": true, "bike": true},
+    {"from": "gate", "to": "service", "distance": 140, "congestion": 0.9, "walk": true, "bike": true},
+    {"from": "square", "to": "library", "distance": 170, "congestion": 0.75, "walk": true, "bike": true},
+    {"from": "square", "to": "teaching_a", "distance": 200, "congestion": 0.82, "walk": true, "bike": true},
+    {"from": "square", "to": "canteen", "distance": 140, "congestion": 0.88, "walk": true, "bike": true},
+    {"from": "square", "to": "lake", "distance": 190, "congestion": 0.7, "walk": true, "bike": false},
+    {"from": "library", "to": "lake", "distance": 130, "congestion": 0.72, "walk": true, "bike": false},
+    {"from": "library", "to": "teaching_a", "distance": 150, "congestion": 0.8, "walk": true, "bike": true},
+    {"from": "library", "to": "lab", "distance": 190, "congestion": 0.76, "walk": true, "bike": true},
+    {"from": "teaching_a", "to": "lab", "distance": 150, "congestion": 0.84, "walk": true, "bike": true},
+    {"from": "teaching_a", "to": "dorm", "distance": 160, "congestion": 0.86, "walk": true, "bike": true},
+    {"from": "teaching_a", "to": "canteen", "distance": 130, "congestion": 0.9, "walk": true, "bike": true},
+    {"from": "lab", "to": "museum", "distance": 130, "congestion": 0.68, "walk": true, "bike": true},
+    {"from": "lab", "to": "gym", "distance": 180, "congestion": 0.78, "walk": true, "bike": true},
+    {"from": "dorm", "to": "shop", "distance": 90, "congestion": 0.92, "walk": true, "bike": true},
+    {"from": "dorm", "to": "gym", "distance": 150, "congestion": 0.85, "walk": true, "bike": true},
+    {"from": "canteen", "to": "service", "distance": 170, "congestion": 0.9, "walk": true, "bike": true},
+    {"from": "canteen", "to": "shop", "distance": 150, "congestion": 0.88, "walk": true, "bike": true},
+    {"from": "gym", "to": "museum", "distance": 220, "congestion": 0.74, "walk": true, "bike": true},
+    {"from": "service", "to": "shop", "distance": 290, "congestion": 0.83, "walk": true, "bike": true}
+  ]
+}

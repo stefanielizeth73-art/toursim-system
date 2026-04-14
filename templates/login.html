@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>个性化旅游系统 - 登录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body class="login-page">
+    <!-- 顶部装饰 -->
+    <div class="login-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="main-title">✈️ 个性化旅游系统</h1>
+                <p class="subtitle">探索世界，发现精彩</p>
+            </div>
+        </div>
+        <div class="header-decoration"></div>
+    </div>
+
+    <!-- 登录容器 -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <h2>用户登录</h2>
+                <p class="card-subtitle">输入账号密码登录系统</p>
+            </div>
+
+            <!-- 错误消息 -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message error">
+                            <span class="error-icon">⚠️</span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- 登录表单 -->
+            <form method="post" class="login-form">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                </div>
+                
+                <button type="submit" class="submit-btn">登录</button>
+            </form>
+
+            <!-- 分隔线 -->
+            <div class="divider">
+                <span>或</span>
+            </div>
+
+            <!-- 注册链接 -->
+            <div class="auth-links">
+                <p class="auth-text">
+                    还没有账号？
+                    <a href="{{ url_for('register') }}" class="auth-link">立即注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部装饰 -->
+    <div class="login-footer">
+        <p class="footer-text">© 2024 个性化旅游系统 | 让旅游更美好</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美食推荐</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统 - 美食推荐</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>美食列表</h2>
+
+        <form method="get" class="filter-form foods-filter-form">
+            <input type="text" name="keyword" placeholder="按美食名称搜索" value="{{ keyword }}">
+
+            <select name="category">
+                <option value="">全部菜系/类型</option>
+                {% for c in categories %}
+                    <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="place_name">
+                <option value="">全部所属地点</option>
+                {% for p in places %}
+                    <option value="{{ p }}" {% if place_name == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="sort_by">
+                <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
+                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
+                <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
+                <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
+                <option value="popularity_asc" {% if sort_by == 'popularity_asc' %}selected{% endif %}>热度从低到高</option>
+                <option value="avg_cost_desc" {% if sort_by == 'avg_cost_desc' %}selected{% endif %}>人均消费从高到低</option>
+                <option value="avg_cost_asc" {% if sort_by == 'avg_cost_asc' %}selected{% endif %}>人均消费从低到高</option>
+            </select>
+
+            <button type="submit">查询</button>
+        </form>
+
+        <div class="result-info">
+            共找到 {{ foods|length }} 条结果
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>所属地点</th>
+                    <th>菜系/类型</th>
+                    <th>评分</th>
+                    <th>热度</th>
+                    <th>人均消费</th>
+                    <th>标签</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for food in foods %}
+                <tr>
+                    <td>{{ food.id }}</td>
+                    <td>{{ food.name }}</td>
+                    <td>{{ food.place_name }}</td>
+                    <td>{{ food.category }}</td>
+                    <td>{{ food.rating }}</td>
+                    <td>{{ food.popularity }}</td>
+                    <td>{{ food.avg_cost }}</td>
+                    <td>{{ food.tags }}</td>
+                    <td>
+                        <a class="detail-btn" href="{{ url_for('food_detail', food_id=food.id) }}">查看详情</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

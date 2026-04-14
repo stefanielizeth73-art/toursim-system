@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="container auth-box">
+        <h2>用户注册</h2>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message error">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <input type="text" name="username" placeholder="请输入用户名">
+            <input type="password" name="password" placeholder="请输入密码">
+            <input type="password" name="confirm_password" placeholder="请再次输入密码">
+            <button type="submit">注册</button>
+        </form>
+
+        <p class="tips">
+            已有账号？
+            <a href="{{ url_for('login') }}">去登录</a>
+        </p>
+    </div>
+</body>
+</html>

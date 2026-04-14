@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Top-10 推荐</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>Top-10 推荐</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="nav-link" href="{{ url_for('places') }}">查看全部地点</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>个性化推荐结果</h2>
+        <p class="subtitle">可根据兴趣标签生成前 10 名推荐结果</p>
+
+        <form method="post" class="recommend-form">
+            <div class="tag-box">
+                {% for tag in all_available_tags %}
+                    <label class="tag-item">
+                        <input type="checkbox" name="preferred_tags" value="{{ tag }}"
+                               {% if tag in selected_tags %}checked{% endif %}>
+                        {{ tag }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit">生成推荐结果</button>
+        </form>
+
+        <div class="result-info">
+            当前已选择标签：
+            {% if selected_tags %}
+                {{ selected_tags|join('、') }}
+            {% else %}
+                未选择，显示默认热门推荐
+            {% endif %}
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>排名</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>城市</th>
+                    <th>评分</th>
+                    <th>热度</th>
+                    <th>标签</th>
+                    <th>推荐分数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for place in recommended_places %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ place.name }}</td>
+                    <td>{{ place.type }}</td>
+                    <td>{{ place.city }}</td>
+                    <td>{{ place.rating }}</td>
+                    <td>{{ place.popularity }}</td>
+                    <td>{{ place.tags }}</td>
+                    <td>{{ "%.1f"|format(place.recommend_score) }}</td>
+                    <td>
+                        <a class="detail-btn" href="{{ url_for('place_detail', place_id=place.id) }}">查看详情</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

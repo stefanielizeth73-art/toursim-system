@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>景点推荐 / 校园查询</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统 - 景点推荐 / 校园查询</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="nav-link" href="{{ url_for('recommend_places') }}">进入推荐页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>景点 / 校园列表</h2>
+
+        <form method="get" class="filter-form places-filter-form">
+            <input type="text" name="keyword" placeholder="按名称搜索" value="{{ keyword }}">
+            <input type="text" name="tag_keyword" placeholder="按标签搜索，如历史/校园/学术" value="{{ tag_keyword }}">
+
+            <select name="type">
+                <option value="">全部类型</option>
+                <option value="景区" {% if place_type == '景区' %}selected{% endif %}>景区</option>
+                <option value="校园" {% if place_type == '校园' %}selected{% endif %}>校园</option>
+            </select>
+
+            <select name="sort_by">
+                <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
+                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
+                <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
+                <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
+                <option value="popularity_asc" {% if sort_by == 'popularity_asc' %}selected{% endif %}>热度从低到高</option>
+            </select>
+
+            <button type="submit">查询</button>
+        </form>
+
+        <div class="result-info">
+            共找到 {{ places|length }} 条结果
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>城市</th>
+                    <th>评分</th>
+                    <th>热度</th>
+                    <th>标签</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for place in places %}
+                <tr>
+                    <td>{{ place.id }}</td>
+                    <td>{{ place.name }}</td>
+                    <td>{{ place.type }}</td>
+                    <td>{{ place.city }}</td>
+                    <td>{{ place.rating }}</td>
+                    <td>{{ place.popularity }}</td>
+                    <td>{{ place.tags }}</td>
+                    <td>
+                        <a class="detail-btn" href="{{ url_for('place_detail', place_id=place.id) }}">查看详情</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

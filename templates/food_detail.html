@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ food.name }} - 美食详情</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>美食详情</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('foods') }}">返回美食列表</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container detail-container">
+        <h2>{{ food.name }}</h2>
+
+        <div class="detail-card">
+            <p><strong>ID：</strong>{{ food.id }}</p>
+            <p><strong>所属地点：</strong>{{ food.place_name }}</p>
+            <p><strong>菜系 / 类型：</strong>{{ food.category }}</p>
+            <p><strong>评分：</strong>{{ food.rating }}</p>
+            <p><strong>热度：</strong>{{ food.popularity }}</p>
+            <p><strong>人均消费：</strong>{{ food.avg_cost }}</p>
+            <p><strong>标签：</strong>{{ food.tags }}</p>
+            <p><strong>简介：</strong>{{ food.description }}</p>
+        </div>
+
+        <div class="detail-actions">
+            <a class="action-card" href="{{ url_for('facilities') }}">
+                <h3>查看附近设施</h3>
+                <p>结合场所查询模块，查看周边厕所、商店等设施</p>
+            </a>
+
+            <a class="action-card" href="{{ url_for('diaries', destination=food.place_name) }}">
+                <h3>查看相关日记</h3>
+                <p>检索该地点相关游记，辅助安排餐饮和路线</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

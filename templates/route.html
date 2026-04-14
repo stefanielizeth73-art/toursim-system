@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>路线规划</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统 - 路线规划</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>路线规划模块</h2>
+        <p class="subtitle">使用图的邻接表存储道路，并用 Dijkstra 算法计算最短距离或最短时间路线。</p>
+
+        <form method="get" class="route-form advanced-form">
+            <select name="route_type">
+                <option value="single" {% if route_type == 'single' %}selected{% endif %}>单目标路线</option>
+                <option value="multi" {% if route_type == 'multi' %}selected{% endif %}>多目标往返路线</option>
+            </select>
+
+            <select name="start">
+                {% for node in nodes %}
+                    <option value="{{ node.id }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="end">
+                <option value="">选择终点（单目标）</option>
+                {% for node in nodes %}
+                    <option value="{{ node.id }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="strategy">
+                <option value="distance" {% if strategy == 'distance' %}selected{% endif %}>最短距离</option>
+                <option value="time" {% if strategy == 'time' %}selected{% endif %}>最短时间</option>
+            </select>
+
+            <select name="transport">
+                <option value="walk" {% if transport == 'walk' %}selected{% endif %}>步行</option>
+                <option value="bike" {% if transport == 'bike' %}selected{% endif %}>自行车</option>
+                <option value="mixed" {% if transport == 'mixed' %}selected{% endif %}>混合交通</option>
+            </select>
+
+            <button type="submit">开始规划</button>
+
+            <div class="multi-target-box">
+                <strong>多目标途经点：</strong>
+                {% for node in nodes %}
+                    {% if node.id != start %}
+                    <label class="tag-item">
+                        <input type="checkbox" name="targets" value="{{ node.id }}"
+                               {% if node.id in targets %}checked{% endif %}>
+                        {{ node.name }}
+                    </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="route-result">
+            <h3>单目标规划结果</h3>
+            <p><strong>路径：</strong>{{ result.path_names|join(' -> ') }}</p>
+            <p><strong>总成本：</strong>{{ "%.1f"|format(result.total) }}{% if strategy == 'distance' %} 米{% else %} 秒{% endif %}</p>
+            <ol>
+                {% for edge in result.edges %}
+                    <li>{{ edge["from"] }} -> {{ edge["to"] }}，道路长度 {{ edge.distance }} 米，拥挤度 {{ edge.congestion }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        {% elif end or route_type == 'single' %}
+            {% if end %}
+            <div class="message error">没有找到可达路线，请尝试切换交通方式或策略。</div>
+            {% endif %}
+        {% endif %}
+
+        {% if multi_result %}
+        <div class="route-result">
+            <h3>多目标往返规划结果</h3>
+            <p><strong>总成本：</strong>{{ "%.1f"|format(multi_result.total) }}{% if strategy == 'distance' %} 米{% else %} 秒{% endif %}</p>
+            {% for segment in multi_result.segments %}
+                <p>{{ loop.index }}. {{ segment.path_names|join(' -> ') }}，成本 {{ "%.1f"|format(segment.total) }}</p>
+            {% endfor %}
+        </div>
+        {% elif route_type == 'multi' and targets %}
+            <div class="message error">当前多目标组合不可达，请减少目标或更换交通方式。</div>
+        {% endif %}
+
+        <h3>地图节点</h3>
+        <div class="node-grid">
+            {% for node in nodes %}
+            <div class="node-card">
+                <strong>{{ node.name }}</strong>
+                <span>{{ node.category }}</span>
+                <small>坐标：({{ node.x }}, {{ node.y }})</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>系统主页</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>欢迎来到系统主页</h2>
+        <p class="subtitle">请选择你想进入的功能模块</p>
+
+        <div class="menu-grid">
+            <a class="menu-card" href="{{ url_for('places') }}">
+                <h3>景点推荐 / 校园查询</h3>
+                <p>查看景区与校园列表，支持搜索、筛选、排序</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('recommend_places') }}">
+                <h3>Top-10 推荐</h3>
+                <p>根据评分、热度和兴趣标签生成推荐结果</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('route') }}">
+                <h3>路线规划</h3>
+                <p>基于道路图和 Dijkstra 算法，支持单目标与多目标路线规划</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('facilities') }}">
+                <h3>场所查询</h3>
+                <p>按道路最短距离查询厕所、商店、超市等服务设施</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('diaries') }}">
+                <h3>旅游日记</h3>
+                <p>支持日记发布、检索、浏览热度统计与评分排序</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('foods') }}">
+                <h3>美食推荐</h3>
+                <p>支持美食搜索、菜系筛选与评分/热度/消费排序</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

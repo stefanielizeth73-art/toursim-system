@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ place.name }} - 详情页</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>景点 / 校园详情</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('places') }}">返回列表</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container detail-container">
+        <h2>{{ place.name }}</h2>
+
+        <div class="detail-card">
+            <p><strong>ID：</strong>{{ place.id }}</p>
+            <p><strong>类型：</strong>{{ place.type }}</p>
+            <p><strong>城市：</strong>{{ place.city }}</p>
+            <p><strong>评分：</strong>{{ place.rating }}</p>
+            <p><strong>热度：</strong>{{ place.popularity }}</p>
+            <p><strong>标签：</strong>{{ place.tags }}</p>
+            <p><strong>简介：</strong>{{ place.description }}</p>
+        </div>
+
+        <div class="detail-actions">
+            <a class="action-card" href="{{ url_for('route') }}">
+                <h3>进入路线规划</h3>
+                <p>进入道路图导航页面，演示最短路径与多目标路线规划</p>
+            </a>
+
+            <a class="action-card" href="{{ url_for('facilities') }}">
+                <h3>查看附近设施</h3>
+                <p>根据当前位置，按道路距离查询附近服务设施</p>
+            </a>
+
+            <a class="action-card" href="{{ url_for('foods', place_name=place.name) }}">
+                <h3>查看相关美食</h3>
+                <p>查看该景点或校园相关的餐饮推荐</p>
+            </a>
+
+            <a class="action-card" href="{{ url_for('diaries', destination=place.name) }}">
+                <h3>查看旅游日记</h3>
+                <p>检索目的地相关日记和游览体验</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

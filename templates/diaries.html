@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>旅游日记</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>个性化旅游系统 - 旅游日记</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container large-container">
+        <h2>旅游日记管理与交流</h2>
+        <p class="subtitle">支持发布、关键字检索、目的地过滤，并按浏览热度或评分排序。</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" class="diary-form">
+            <h3>发布新日记</h3>
+            <input type="text" name="title" placeholder="日记标题">
+            <input type="text" name="destination" placeholder="旅游目的地">
+            <textarea name="content" placeholder="记录你的旅游过程、路线体验、景点印象等"></textarea>
+            <button type="submit">发布日记</button>
+        </form>
+
+        <form method="get" class="filter-form diaries-filter-form">
+            <input type="text" name="keyword" placeholder="按标题、正文、目的地全文检索" value="{{ keyword }}">
+            <input type="text" name="destination" placeholder="按目的地过滤" value="{{ destination }}">
+            <select name="sort_by">
+                <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>按发布时间</option>
+                <option value="views_desc" {% if sort_by == 'views_desc' %}selected{% endif %}>按浏览热度</option>
+                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>按评分</option>
+                <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>按标题</option>
+            </select>
+            <button type="submit">检索日记</button>
+        </form>
+
+        <div class="diary-grid">
+            {% for diary in diaries %}
+            <a class="diary-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                <h3>{{ diary.title }}</h3>
+                <p><strong>目的地：</strong>{{ diary.destination }}</p>
+                <p>{{ diary.content_preview }}</p>
+                <div class="diary-meta">
+                    <span>作者：{{ diary.author }}</span>
+                    <span>浏览：{{ diary.views }}</span>
+                    <span>评分：{{ diary.avg_rating }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

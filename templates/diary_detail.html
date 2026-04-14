@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ diary.title }} - 旅游日记</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div>旅游日记详情</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('diaries') }}">返回日记列表</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <div class="container detail-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>{{ diary.title }}</h2>
+
+        <div class="detail-card">
+            <p><strong>目的地：</strong>{{ diary.destination }}</p>
+            <p><strong>作者：</strong>{{ diary.author }}</p>
+            <p><strong>发布时间：</strong>{{ diary.created_at }}</p>
+            <p><strong>浏览热度：</strong>{{ diary.views }}</p>
+            <p><strong>平均评分：</strong>{{ diary.avg_rating }}（{{ diary.rating_count }} 人评分）</p>
+            <hr>
+            <p>{{ diary.content }}</p>
+        </div>
+
+        <form method="post" class="rating-form">
+            <select name="rating">
+                <option value="5">5 分 - 很推荐</option>
+                <option value="4">4 分 - 不错</option>
+                <option value="3">3 分 - 一般</option>
+                <option value="2">2 分 - 较弱</option>
+                <option value="1">1 分 - 不推荐</option>
+            </select>
+            <button type="submit">提交评分</button>
+        </form>
+    </div>
+</body>
+</html>
