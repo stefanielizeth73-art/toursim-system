@@ -28,10 +28,37 @@ python app.py
 
 Open `http://127.0.0.1:5000`.
 
+## Data and graph workflow
+
+The course project is developed in the same order as the PPT requirements:
+recommendation data first, then route graphs, facilities, diaries, and food.
+
+Fetch candidate place data:
+
+```powershell
+python scripts/data/fetch_places.py --limit 20
+```
+
+Build a candidate internal graph and facility table from OpenStreetMap:
+
+```powershell
+python scripts/data/build_osm_graph.py --place "北京邮电大学沙河校区, 北京, 中国" --max-edges 300
+```
+
+Generated files are written under `data/generated/` and raw API responses under
+`data/raw/`. Review generated data before merging it into `data/places.csv`,
+`data/route_graph.json`, or `data/facilities.csv`.
+
+More details are in:
+
+- `docs/project_structure.md`
+- `docs/module_sequence.md`
+- `docs/data_and_graph_pipeline.md`
+
 ## Share temporarily from your own computer
 
 ```powershell
-.\share_project.bat
+.\scripts\share\share_project.bat
 ```
 
 This creates a temporary public link while your computer stays online.
@@ -68,4 +95,4 @@ Because this repository is private, Render deployment works only after you conne
 - Render free web services provide a stable URL, but their filesystem is not persistent by default.
 - If you want user and diary data to survive restarts and redeploys, use a persistent disk or move to PostgreSQL.
 
-More deployment details are in [DEPLOY_RENDER.md](./DEPLOY_RENDER.md).
+More deployment details are in [DEPLOY_RENDER.md](./docs/deployment/DEPLOY_RENDER.md).

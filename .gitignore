@@ -1,5 +1,6 @@
 venv/
 __pycache__/
+**/__pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
@@ -8,8 +9,11 @@ __pycache__/
 .idea/
 .env
 .env.*
-user.json
+data/legacy/
 users.json
-toursim.db
+tourism.db
+*.db-journal
 .share_*
 *.log
+data/raw/
+data/generated/

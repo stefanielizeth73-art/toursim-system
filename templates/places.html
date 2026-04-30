@@ -19,16 +19,25 @@
     </div>
 
     <div class="container large-container">
-        <h2>景点 / 校园列表</h2>
+        <h2>景点 / 校园检索</h2>
+        <p class="subtitle">支持名称、城市、类别、兴趣标签检索，并可按评分、热度和推荐分排序。</p>
 
         <form method="get" class="filter-form places-filter-form">
-            <input type="text" name="keyword" placeholder="按名称搜索" value="{{ keyword }}">
-            <input type="text" name="tag_keyword" placeholder="按标签搜索，如历史/校园/学术" value="{{ tag_keyword }}">
+            <input type="text" name="keyword" placeholder="按名称、城市、简介关键字搜索" value="{{ keyword }}">
+            <input type="text" name="tag_keyword" placeholder="按标签搜索，多个标签用分号分隔" value="{{ tag_keyword }}">
 
             <select name="type">
                 <option value="">全部类型</option>
-                <option value="景区" {% if place_type == '景区' %}selected{% endif %}>景区</option>
-                <option value="校园" {% if place_type == '校园' %}selected{% endif %}>校园</option>
+                {% for item in place_types %}
+                    <option value="{{ item }}" {% if place_type == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="city">
+                <option value="">全部城市</option>
+                {% for item in cities %}
+                    <option value="{{ item }}" {% if city == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
             </select>
 
             <select name="sort_by">
@@ -43,7 +52,7 @@
         </form>
 
         <div class="result-info">
-            共找到 {{ places|length }} 条结果
+            当前显示 {{ places|length }} 条结果，数据集中共有 {{ total_places }} 个景点/校园。
         </div>
 
         <table>

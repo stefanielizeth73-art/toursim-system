@@ -526,6 +526,13 @@ tbody tr:last-child td {
     margin-bottom: 25px;
 }
 
+.recommend-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
 .tag-box {
     display: flex;
     flex-wrap: wrap;
@@ -690,7 +697,8 @@ body.is-pointer-active:has(a:hover, button:hover, input:hover, select:hover, tex
     .facilities-filter-form,
     .diaries-filter-form,
     .foods-filter-form,
-    .places-filter-form {
+    .places-filter-form,
+    .recommend-controls {
         grid-template-columns: 1fr;
     }
 }
@@ -806,6 +814,10 @@ body.is-pointer-active:has(a:hover, button:hover, input:hover, select:hover, tex
     color: #a8bfca;
     margin: 16px 0 0;
     animation: rise-in 800ms ease both 200ms;
+}
+
+.login-header .subtitle {
+    text-align: center;
 }
 
 .header-decoration {

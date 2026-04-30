@@ -148,6 +148,12 @@ def load_places():
     with open(PLACES_FILE, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            row = {
+                (key.strip() if isinstance(key, str) else key):
+                (value.strip() if isinstance(value, str) else value)
+                for key, value in row.items()
+            }
+
             try:
                 row["id"] = int(row["id"])
             except (ValueError, KeyError):
@@ -429,27 +435,42 @@ def filter_and_sort_foods(foods, keyword="", category="", place_name="", sort_by
 
     return result
 
-def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", sort_by="default"):
+def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", city="", sort_by="default"):
     result = places
 
     if keyword:
         keyword_lower = keyword.lower()
         result = [
             place for place in result
-            if keyword_lower in place["name"].lower()
+            if keyword_lower in (
+                place.get("name", "")
+                + place.get("city", "")
+                + place.get("tags", "")
+                + place.get("description", "")
+            ).lower()
         ]
 
     if tag_keyword:
-        tag_keyword_lower = tag_keyword.lower()
+        query_tags = [
+            item.strip().lower()
+            for item in tag_keyword.replace("；", ";").replace("，", ";").replace(",", ";").split(";")
+            if item.strip()
+        ]
         result = [
             place for place in result
-            if tag_keyword_lower in place.get("tags", "").lower()
+            if all(tag in place.get("tags", "").lower() for tag in query_tags)
         ]
 
     if place_type:
         result = [
             place for place in result
             if place["type"] == place_type
+        ]
+
+    if city:
+        result = [
+            place for place in result
+            if place["city"] == city
         ]
 
     if sort_by == "rating_desc":
@@ -464,6 +485,18 @@ def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", so
         result = sorted(result, key=lambda x: x.get("recommend_score", 0), reverse=True)
 
     return result
+
+
+def get_place_filter_options(places):
+    return {
+        "cities": sorted({place["city"] for place in places if place.get("city")}),
+        "place_types": sorted({place["type"] for place in places if place.get("type")}),
+        "tags": sorted({
+            tag
+            for place in places
+            for tag in place.get("tags_list", [])
+        }),
+    }
 
 
 # =========================
@@ -492,19 +525,40 @@ def calculate_personalized_score(place, preferred_tags):
     return score
 
 
-def get_top_k_recommendations(places, preferred_tags=None, k=10):
-    result = []
-
+def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", city=""):
     if preferred_tags is None:
         preferred_tags = []
 
-    for place in places:
+    heap = []
+    scanned_count = 0
+    candidate_count = 0
+
+    for index, place in enumerate(places):
+        scanned_count += 1
+        if place_type and place.get("type") != place_type:
+            continue
+        if city and place.get("city") != city:
+            continue
+
+        candidate_count += 1
         place_copy = place.copy()
         place_copy["recommend_score"] = calculate_personalized_score(place_copy, preferred_tags)
-        result.append(place_copy)
 
-    result = sorted(result, key=lambda x: x["recommend_score"], reverse=True)
-    return result[:k]
+        item = (place_copy["recommend_score"], index, place_copy)
+        if len(heap) < k:
+            heapq.heappush(heap, item)
+        elif item[0] > heap[0][0]:
+            heapq.heapreplace(heap, item)
+
+    # Only the k selected records are sorted for display.
+    result = [item[2] for item in sorted(heap, key=lambda x: x[0], reverse=True)]
+    stats = {
+        "scanned_count": scanned_count,
+        "candidate_count": candidate_count,
+        "returned_count": len(result),
+        "algorithm": "小根堆 Top-K",
+    }
+    return result, stats
 
 
 # =========================
@@ -686,6 +740,7 @@ def places():
     keyword = request.args.get("keyword", "").strip()
     tag_keyword = request.args.get("tag_keyword", "").strip()
     place_type = request.args.get("type", "").strip()
+    city = request.args.get("city", "").strip()
     sort_by = request.args.get("sort_by", "default").strip()
 
     all_places = load_places()
@@ -694,17 +749,23 @@ def places():
         keyword=keyword,
         tag_keyword=tag_keyword,
         place_type=place_type,
+        city=city,
         sort_by=sort_by
     )
+    filter_options = get_place_filter_options(all_places)
 
     return render_template(
         "places.html",
         username=session["username"],
         places=filtered_places,
+        total_places=len(all_places),
         keyword=keyword,
         tag_keyword=tag_keyword,
         place_type=place_type,
-        sort_by=sort_by
+        city=city,
+        sort_by=sort_by,
+        cities=filter_options["cities"],
+        place_types=filter_options["place_types"],
     )
 
 
@@ -739,29 +800,36 @@ def recommend_places():
         return redirect(url_for("login"))
 
     all_places = load_places()
-    selected_tags = []
+    filter_options = get_place_filter_options(all_places)
+    selected_tags = request.form.getlist("preferred_tags") if request.method == "POST" else request.args.getlist("preferred_tags")
+    place_type = request.values.get("type", "").strip()
+    city = request.values.get("city", "").strip()
+    try:
+        k = int(request.values.get("k", "10"))
+    except ValueError:
+        k = 10
+    k = max(1, min(k, 20))
 
-    if request.method == "POST":
-        selected_tags = request.form.getlist("preferred_tags")
-
-    recommended_places = get_top_k_recommendations(
+    recommended_places, recommendation_stats = get_top_k_recommendations(
         all_places,
         preferred_tags=selected_tags,
-        k=10
+        k=k,
+        place_type=place_type,
+        city=city
     )
-
-    all_available_tags = sorted({
-        tag
-        for place in all_places
-        for tag in place["tags_list"]
-    })
 
     return render_template(
         "recommend_places.html",
         username=session["username"],
         recommended_places=recommended_places,
+        recommendation_stats=recommendation_stats,
         selected_tags=selected_tags,
-        all_available_tags=all_available_tags
+        all_available_tags=filter_options["tags"],
+        cities=filter_options["cities"],
+        place_types=filter_options["place_types"],
+        place_type=place_type,
+        city=city,
+        k=k,
     )
 
 

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Top-10 推荐</title>
+    <title>Top-K 旅游推荐</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body>
     <div class="topbar">
-        <div>Top-10 推荐</div>
+        <div>个性化旅游系统 - Top-K 推荐</div>
         <div>
             当前用户：{{ username }}
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
@@ -19,10 +19,32 @@
     </div>
 
     <div class="container large-container">
-        <h2>个性化推荐结果</h2>
-        <p class="subtitle">可根据兴趣标签生成前 10 名推荐结果</p>
+        <h2>个性化旅游推荐</h2>
+        <p class="subtitle">综合评分、热度和兴趣标签，使用小根堆 Top-K 算法保留前 K 个推荐结果。</p>
 
         <form method="post" class="recommend-form">
+            <div class="recommend-controls">
+                <select name="type">
+                    <option value="">全部类型</option>
+                    {% for item in place_types %}
+                        <option value="{{ item }}" {% if place_type == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="city">
+                    <option value="">全部城市</option>
+                    {% for item in cities %}
+                        <option value="{{ item }}" {% if city == item %}selected{% endif %}>{{ item }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="k">
+                    {% for item in [5, 10, 15, 20] %}
+                        <option value="{{ item }}" {% if k == item %}selected{% endif %}>推荐前 {{ item }} 个</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="tag-box">
                 {% for tag in all_available_tags %}
                     <label class="tag-item">
@@ -37,11 +59,14 @@
         </form>
 
         <div class="result-info">
-            当前已选择标签：
+            算法：{{ recommendation_stats.algorithm }}；
+            扫描 {{ recommendation_stats.scanned_count }} 条数据；
+            候选 {{ recommendation_stats.candidate_count }} 条；
+            返回 {{ recommendation_stats.returned_count }} 条。
             {% if selected_tags %}
-                {{ selected_tags|join('、') }}
+                兴趣标签：{{ selected_tags|join('、') }}
             {% else %}
-                未选择，显示默认热门推荐
+                未选择兴趣标签，按基础推荐分排序。
             {% endif %}
         </div>
 
