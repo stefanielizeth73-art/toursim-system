@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import csv
@@ -22,6 +22,8 @@ PLACES_FILE = os.path.join(APP_DIR, "data", "places.csv")
 FOODS_FILE = os.path.join(APP_DIR, "data", "foods.csv")
 FACILITIES_FILE = os.path.join(APP_DIR, "data", "facilities.csv")
 ROUTE_GRAPH_FILE = os.path.join(APP_DIR, "data", "route_graph.json")
+ROUTE_GRAPHS_DIR = os.path.join(APP_DIR, "data", "graphs")
+DEFAULT_PLACE_ID = "xmu_xiang_an"
 
 
 # =========================
@@ -231,12 +233,29 @@ def get_food_by_id(food_id):
 # =========================
 # 图结构、设施与路线算法
 # =========================
-def load_route_graph():
-    if not os.path.exists(ROUTE_GRAPH_FILE):
+def get_route_graph_path(place_id=None):
+    if place_id:
+        safe_place_id = "".join(ch for ch in place_id if ch.isalnum() or ch in ("_", "-"))
+        graph_path = os.path.join(ROUTE_GRAPHS_DIR, f"{safe_place_id}.json")
+        if os.path.exists(graph_path):
+            return graph_path
+    return ROUTE_GRAPH_FILE
+
+
+def load_route_graph(place_id=None):
+    graph_path = get_route_graph_path(place_id or DEFAULT_PLACE_ID)
+    if not os.path.exists(graph_path):
         return {"default_start": "", "nodes": [], "edges": [], "node_map": {}, "adjacency": {}}
 
-    with open(ROUTE_GRAPH_FILE, "r", encoding="utf-8-sig") as f:
+    with open(graph_path, "r", encoding="utf-8-sig") as f:
         graph = json.load(f)
+
+    graph.setdefault("place_id", place_id or DEFAULT_PLACE_ID)
+    graph.setdefault("place_name", "当前路线图")
+    graph.setdefault("bounds", [])
+    graph.setdefault("campus_bounds", graph.get("bounds", []))
+    graph.setdefault("center", [])
+    graph.setdefault("image_overlay", None)
 
     node_map = {node["id"]: node for node in graph.get("nodes", [])}
     adjacency = {node_id: [] for node_id in node_map}
@@ -246,12 +265,92 @@ def load_route_graph():
         end = edge["to"]
         if start not in adjacency or end not in adjacency:
             continue
+        if not edge.get("geometry"):
+            edge["geometry"] = [
+                [node_map[start].get("lat"), node_map[start].get("lon")],
+                [node_map[end].get("lat"), node_map[end].get("lon")],
+            ]
         adjacency[start].append({**edge, "neighbor": end})
-        adjacency[end].append({**edge, "from": end, "to": start, "neighbor": start})
+        adjacency[end].append({
+            **edge,
+            "from": end,
+            "to": start,
+            "geometry": list(reversed(edge["geometry"])),
+            "neighbor": start
+        })
 
     graph["node_map"] = node_map
     graph["adjacency"] = adjacency
     return graph
+
+
+def is_selectable_node(node):
+    return node.get("selectable", node.get("kind") != "road")
+
+
+def get_selectable_nodes(graph):
+    return [node for node in graph.get("nodes", []) if is_selectable_node(node)]
+
+
+def get_display_path_names(graph, path_ids):
+    names = []
+    for node_id in path_ids:
+        node = graph["node_map"].get(node_id)
+        if not node:
+            continue
+        if not is_selectable_node(node) and node_id not in (path_ids[0], path_ids[-1]):
+            continue
+        if not names or names[-1] != node["name"]:
+            names.append(node["name"])
+    return names
+
+
+def serialize_graph_for_map(graph):
+    return {
+        "place_id": graph.get("place_id", DEFAULT_PLACE_ID),
+        "place_name": graph.get("place_name", "当前路线图"),
+        "default_start": graph.get("default_start", ""),
+        "center": graph.get("center", []),
+        "bounds": graph.get("bounds", []),
+        "campus_bounds": graph.get("campus_bounds", graph.get("bounds", [])),
+        "image_overlay": graph.get("image_overlay"),
+        "nodes": graph.get("nodes", []),
+        "edges": graph.get("edges", []),
+        "selectable_nodes": get_selectable_nodes(graph),
+    }
+
+
+def serialize_route_result(result):
+    if not result:
+        return None
+    return {
+        "path_ids": result["path_ids"],
+        "path_names": result["path_names"],
+        "display_path_names": result.get("display_path_names", result["path_names"]),
+        "edges": result["edges"],
+        "total": round(result["total"], 1),
+        "geometry": [
+            point
+            for edge in result["edges"]
+            for point in edge.get("geometry", [])
+        ],
+    }
+
+
+def serialize_multi_route_result(multi_result):
+    if not multi_result:
+        return None
+    return {
+        "order": list(multi_result["order"]),
+        "total": round(multi_result["total"], 1),
+        "segments": [serialize_route_result(segment) for segment in multi_result["segments"]],
+        "geometry": [
+            point
+            for segment in multi_result["segments"]
+            for edge in segment.get("edges", [])
+            for point in edge.get("geometry", [])
+        ],
+    }
 
 
 def calculate_edge_weight(edge, strategy="distance", transport="walk"):
@@ -321,6 +420,7 @@ def dijkstra_shortest_path(graph, start, end, strategy="distance", transport="wa
     return {
         "path_ids": path_ids,
         "path_names": [graph["node_map"][node_id]["name"] for node_id in path_ids],
+        "display_path_names": get_display_path_names(graph, path_ids),
         "edges": edges,
         "total": distances[end],
     }
@@ -357,7 +457,7 @@ def plan_multi_target_route(graph, start, targets, strategy="distance", transpor
     return best_plan
 
 
-def load_facilities():
+def load_facilities(parent_place=None):
     facilities = []
     if not os.path.exists(FACILITIES_FILE):
         return facilities
@@ -365,6 +465,8 @@ def load_facilities():
     with open(FACILITIES_FILE, "r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            if parent_place and row.get("parent_place") != parent_place:
+                continue
             try:
                 row["id"] = int(row["id"])
             except (ValueError, KeyError):
@@ -378,7 +480,7 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword=""):
     result = []
     keyword_lower = keyword.lower()
 
-    for facility in load_facilities():
+    for facility in load_facilities(graph.get("place_id")):
         if facility_type and facility.get("type") != facility_type:
             continue
         if keyword and keyword_lower not in (facility.get("name", "") + facility.get("description", "")).lower():
@@ -391,7 +493,7 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword=""):
 
         item = facility.copy()
         item["distance"] = round(path["total"], 1)
-        item["path_names"] = " -> ".join(path["path_names"])
+        item["path_names"] = " -> ".join(path.get("display_path_names", path["path_names"]))
         result.append(item)
 
     return sorted(result, key=lambda item: item["distance"])
@@ -839,7 +941,8 @@ def route():
         flash("请先登录")
         return redirect(url_for("login"))
 
-    graph = load_route_graph()
+    place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
+    graph = load_route_graph(place_id)
     start = request.args.get("start", graph.get("default_start", "")).strip()
     end = request.args.get("end", "").strip()
     strategy = request.args.get("strategy", "distance").strip()
@@ -869,7 +972,9 @@ def route():
     return render_template(
         "route.html",
         username=session["username"],
-        nodes=graph["nodes"],
+        place_id=place_id,
+        graph=serialize_graph_for_map(graph),
+        nodes=get_selectable_nodes(graph),
         start=start,
         end=end,
         targets=targets,
@@ -877,8 +982,56 @@ def route():
         transport=transport,
         route_type=route_type,
         result=result,
-        multi_result=multi_result
+        multi_result=multi_result,
+        map_result=serialize_route_result(result),
+        map_multi_result=serialize_multi_route_result(multi_result)
     )
+
+
+@app.route("/api/route")
+def route_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+
+    place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
+    graph = load_route_graph(place_id)
+    start = request.args.get("start", graph.get("default_start", "")).strip()
+    end = request.args.get("end", "").strip()
+    strategy = request.args.get("strategy", "distance").strip()
+    transport = request.args.get("transport", "walk").strip()
+    targets = request.args.getlist("targets")
+    route_type = request.args.get("route_type", "single").strip()
+
+    result = None
+    multi_result = None
+    if route_type == "multi" and start and targets:
+        multi_result = plan_multi_target_route(
+            graph,
+            start,
+            targets[:5],
+            strategy=strategy,
+            transport=transport
+        )
+    elif start and end:
+        result = dijkstra_shortest_path(
+            graph,
+            start,
+            end,
+            strategy=strategy,
+            transport=transport
+        )
+
+    return jsonify({
+        "graph": serialize_graph_for_map(graph),
+        "route_type": route_type,
+        "strategy": strategy,
+        "transport": transport,
+        "start": start,
+        "end": end,
+        "targets": targets,
+        "result": serialize_route_result(result),
+        "multi_result": serialize_multi_route_result(multi_result),
+    })
 
 
 @app.route("/facilities")
@@ -887,11 +1040,12 @@ def facilities():
         flash("请先登录")
         return redirect(url_for("login"))
 
-    graph = load_route_graph()
+    place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
+    graph = load_route_graph(place_id)
     start_node = request.args.get("start_node", graph.get("default_start", "")).strip()
     facility_type = request.args.get("type", "").strip()
     keyword = request.args.get("keyword", "").strip()
-    all_facilities = load_facilities()
+    all_facilities = load_facilities(graph.get("place_id"))
     facility_types = sorted({facility["type"] for facility in all_facilities})
     facilities_result = find_nearby_facilities(
         graph,
@@ -903,7 +1057,8 @@ def facilities():
     return render_template(
         "facilities.html",
         username=session["username"],
-        nodes=graph["nodes"],
+        place_id=place_id,
+        nodes=get_selectable_nodes(graph),
         start_node=start_node,
         facility_type=facility_type,
         keyword=keyword,
