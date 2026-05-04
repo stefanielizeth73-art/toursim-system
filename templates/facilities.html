@@ -18,10 +18,12 @@
     </div>
 
     <div class="container large-container">
-        <h2>附近设施查询</h2>
-        <p class="subtitle">按道路图上的最短路径距离排序，不使用直线距离，符合课程设计对场所查询的算法要求。</p>
+        <h2>附近场所查询</h2>
+        <p class="subtitle">从选定路线点出发，使用自建道路图上的 Dijkstra 距离排序，不使用直线距离。</p>
 
         <form method="get" class="filter-form facilities-filter-form">
+            <input type="hidden" name="place_id" value="{{ place_id }}">
+
             <select name="start_node">
                 {% for node in nodes %}
                     <option value="{{ node.id }}" {% if start_node == node.id %}selected{% endif %}>当前位置：{{ node.name }}</option>
@@ -29,15 +31,22 @@
             </select>
 
             <select name="type">
-                <option value="">全部设施类别</option>
+                <option value="">全部场所类别</option>
                 {% for t in facility_types %}
                     <option value="{{ t }}" {% if facility_type == t %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>
 
-            <input type="text" name="keyword" placeholder="输入设施名称或描述关键字" value="{{ keyword }}">
+            <select name="max_distance">
+                <option value="" {% if not max_distance %}selected{% endif %}>不限范围</option>
+                <option value="300" {% if max_distance == "300" %}selected{% endif %}>300 米内</option>
+                <option value="500" {% if max_distance == "500" %}selected{% endif %}>500 米内</option>
+                <option value="1000" {% if max_distance == "1000" %}selected{% endif %}>1000 米内</option>
+            </select>
 
-            <button type="submit">查询附近设施</button>
+            <input type="text" name="keyword" placeholder="输入卫生间、超市、餐饮等关键词" value="{{ keyword }}">
+
+            <button type="submit">查询附近场所</button>
         </form>
 
         <div class="result-info">
@@ -48,11 +57,11 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>设施名称</th>
+                    <th>场所名称</th>
                     <th>类别</th>
-                    <th>所属地点</th>
-                    <th>最近节点</th>
+                    <th>最近图节点</th>
                     <th>道路距离</th>
+                    <th>预计步行</th>
                     <th>路径</th>
                     <th>说明</th>
                 </tr>
@@ -63,11 +72,15 @@
                     <td>{{ facility.id }}</td>
                     <td>{{ facility.name }}</td>
                     <td>{{ facility.type }}</td>
-                    <td>{{ facility.parent_place }}</td>
                     <td>{{ facility.nearest_node }}</td>
                     <td>{{ facility.distance }} 米</td>
+                    <td>{{ facility.walk_minutes }} 分钟</td>
                     <td>{{ facility.path_names }}</td>
                     <td>{{ facility.description }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">暂无可达场所。请先在 /route?collect=1 中采集路线点、道路、吸附连接和场所。</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -18,9 +18,17 @@
     </div>
 
     <div class="container large-container">
-        <h2>美食列表</h2>
+        <h2>美食推荐</h2>
+        {% if food_context %}
+            <p class="subtitle">当前校区：{{ food_context.place_name }}，默认从 {{ food_context.origin_node_name or food_context.origin_node }} 出发，按图距离和综合分优先推荐前 {{ food_context.top_k }} 个结果。</p>
+        {% else %}
+            <p class="subtitle">支持美食搜索、菜系筛选与评分/热度/消费排序。</p>
+        {% endif %}
 
         <form method="get" class="filter-form foods-filter-form">
+            {% if place_id %}
+                <input type="hidden" name="place_id" value="{{ place_id }}">
+            {% endif %}
             <input type="text" name="keyword" placeholder="按美食名称搜索" value="{{ keyword }}">
 
             <select name="category">
@@ -39,6 +47,10 @@
 
             <select name="sort_by">
                 <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
+                {% if food_context %}
+                    <option value="recommend_score_desc" {% if sort_by == 'recommend_score_desc' %}selected{% endif %}>综合推荐分从高到低</option>
+                    <option value="distance_asc" {% if sort_by == 'distance_asc' %}selected{% endif %}>按距离从近到远</option>
+                {% endif %}
                 <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
                 <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
                 <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
@@ -52,6 +64,9 @@
 
         <div class="result-info">
             共找到 {{ foods|length }} 条结果
+            {% if food_stats %}
+                ，扫描 {{ food_stats.scanned_count }} 条，候选 {{ food_stats.candidate_count }} 条，返回 {{ food_stats.returned_count }} 条，算法：{{ food_stats.algorithm }}
+            {% endif %}
         </div>
 
         <table>
@@ -64,6 +79,11 @@
                     <th>评分</th>
                     <th>热度</th>
                     <th>人均消费</th>
+                    {% if food_context %}
+                        <th>道路距离</th>
+                        <th>推荐分</th>
+                        <th>来源</th>
+                    {% endif %}
                     <th>标签</th>
                     <th>操作</th>
                 </tr>
@@ -78,9 +98,14 @@
                     <td>{{ food.rating }}</td>
                     <td>{{ food.popularity }}</td>
                     <td>{{ food.avg_cost }}</td>
+                    {% if food_context %}
+                        <td>{{ food.distance_text or '暂未映射' }}</td>
+                        <td>{{ food.recommend_score }}</td>
+                        <td>{{ food.source_label }}</td>
+                    {% endif %}
                     <td>{{ food.tags }}</td>
                     <td>
-                        <a class="detail-btn" href="{{ url_for('food_detail', food_id=food.id) }}">查看详情</a>
+                        <a class="detail-btn" href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id) }}">查看详情</a>
                     </td>
                 </tr>
                 {% endfor %}

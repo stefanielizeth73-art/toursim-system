@@ -2,13 +2,9 @@
 
 ## 数据源选择
 
-本项目优先使用 OpenStreetMap 生态的数据源。
+路线规划模块当前采用“手动采集 + 自建图”的方案。高德地图只作为可视化底图和采集画布，POI 与道路折线由用户在地图上点击确认后保存到本地 JSON，再由系统生成 `nodes/edges` 图结构。
 
-- Nominatim：用于将景点/校园名称解析为经纬度、边界和 OSM 标识。
-- Overpass API：用于按区域抓取道路、建筑物、服务设施和兴趣点。
-- OSMnx：后续可选，用于更方便地从 OSM 构建道路图；当前脚本先使用 Python 标准库实现，减少依赖。
-
-使用公开接口时要控制频率。Nominatim 适合少量地名解析；批量道路、建筑和设施数据应使用 Overpass。
+这样做的好处是：图中每个地点、每条路都可解释、可修改，避免自动地图数据与校园实际标注不一致。
 
 ## 图网络设计
 
@@ -54,25 +50,24 @@ data/raw/nominatim/
 
 ### 2. 构建单个景区/校园内部图
 
-示例：
-
-```powershell
-python scripts/data/build_osm_graph.py --place "北京邮电大学沙河校区, 北京, 中国" --max-edges 300
-```
-
-输出：
+打开采集页面：
 
 ```text
-data/generated/route_graph_北京邮电大学沙河校区_北京_中国.json
-data/generated/facilities_北京邮电大学沙河校区_北京_中国.csv
-data/raw/overpass/
+http://127.0.0.1:5005/route?collect=1
 ```
 
-确认道路图和设施映射合理后，可以替换或合并到：
+采集数据保存到：
 
 ```text
-data/route_graph.json
-data/facilities.csv
+data/manual/xmu_collector_nodes.json
+data/manual/xmu_collector_edges.json
+data/manual/xmu_collector_meta.json
+```
+
+后台会自动重建正式图：
+
+```text
+data/graphs/xmu_manual.json
 ```
 
 ## 人工校对规则
@@ -88,7 +83,7 @@ data/facilities.csv
 
 ## 后续接入方向
 
-当前系统只读取单个 `data/route_graph.json`。路线模块进一步完善时，可以改为：
+当前路线模块默认读取 `data/graphs/xmu_manual.json`，其原始采集草稿保存在 `data/manual/xmu_collector_*`。如果后续要扩展到多个景区/校园，可以继续沿用同样结构：
 
 ```text
 data/graphs/
@@ -98,3 +93,44 @@ data/graphs/
 ```
 
 页面上先选择景点/校园，再加载对应图。这样就能同时支持多个景区和校区的内部路线规划。
+
+## 厦门大学翔安校区手动采集流程
+
+翔安校区当前正式图位于：
+
+```text
+data/graphs/xmu_manual.json
+```
+
+它只包含手动采集数据：
+
+- 手动 POI：校门、图书馆、食堂、宿舍、教学楼等可选择节点。
+- 手动道路：沿高德底图点击采集的道路折线。
+- 自动图生成：后台把道路折线拆成 road 节点和 edge。
+
+高德只用于显示底图；最终路线仍由项目自己的邻接表和 Dijkstra 算法计算。
+
+### 1. 配置高德 JS Key
+
+在本地 `.env` 中添加或确认：
+
+```powershell
+AMAP_JS_KEY=你的高德JSKey
+AMAP_SECURITY_JS_CODE=你的安全密钥
+```
+
+`.env` 已被 `.gitignore` 忽略，不要把真实 Key 写入仓库文件。
+
+### 2. 采集 POI 和道路
+
+打开路线页并启用编辑模式：
+
+```text
+http://127.0.0.1:5005/route?collect=1
+```
+
+POI 模式点击地图保存地点；道路模式沿路连续点击，双击保存道路。保存后后台自动重建正式图。
+
+### 3. 验证图结构
+
+刷新 `/route`，选择已采集的起点和终点。若 Dijkstra 可以返回路径，说明对应道路已经连通。

@@ -19,7 +19,7 @@
 
     <div class="container large-container">
         <h2>旅游日记管理与交流</h2>
-        <p class="subtitle">支持发布、关键字检索、目的地过滤，并按浏览热度或评分排序。</p>
+        <p class="subtitle">支持发布、图片/视频上传、标题精确与前缀查询、正文全文检索，并按热度或评分排序。</p>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -29,19 +29,33 @@
             {% endif %}
         {% endwith %}
 
-        <form method="post" class="diary-form">
+        <form method="post" enctype="multipart/form-data" class="diary-form">
             <h3>发布新日记</h3>
-            <input type="text" name="title" placeholder="日记标题">
-            <input type="text" name="destination" placeholder="旅游目的地">
-            <textarea name="content" placeholder="记录你的旅游过程、路线体验、景点印象等"></textarea>
+            <div class="diary-upload-grid">
+                <input type="text" name="title" placeholder="日记标题" required>
+                <input type="text" name="destination" placeholder="旅游目的地" required>
+                <select name="compression_algorithm">
+                    <option value="huffman">哈夫曼压缩</option>
+                    <option value="dictionary">字典压缩</option>
+                </select>
+                <input class="full-span" type="file" name="attachments" multiple accept="image/*,video/*">
+                <textarea class="full-span" name="content" placeholder="记录你的旅游过程、路线体验、景点印象等" required></textarea>
+            </div>
             <button type="submit">发布日记</button>
         </form>
 
         <form method="get" class="filter-form diaries-filter-form">
-            <input type="text" name="keyword" placeholder="按标题、正文、目的地全文检索" value="{{ keyword }}">
-            <input type="text" name="destination" placeholder="按目的地过滤" value="{{ destination }}">
+            <input type="text" name="title_query" placeholder="按标题检索（精确或前缀）" value="{{ title_query }}">
+            <select name="search_mode">
+                <option value="exact" {% if search_mode == 'exact' %}selected{% endif %}>精确查询</option>
+                <option value="prefix" {% if search_mode == 'prefix' %}selected{% endif %}>前缀查询</option>
+                <option value="contains" {% if search_mode == 'contains' %}selected{% endif %}>包含查询</option>
+            </select>
+            <input type="text" name="keyword" placeholder="按正文全文检索" value="{{ keyword }}">
+            <input type="text" name="destination" placeholder="联动目的地" value="{{ destination }}">
             <select name="sort_by">
                 <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>按发布时间</option>
+                <option value="hot_rating_desc" {% if sort_by == 'hot_rating_desc' %}selected{% endif %}>按热度+评分</option>
                 <option value="views_desc" {% if sort_by == 'views_desc' %}selected{% endif %}>按浏览热度</option>
                 <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>按评分</option>
                 <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>按标题</option>
@@ -49,16 +63,23 @@
             <button type="submit">检索日记</button>
         </form>
 
+        <div class="result-info">
+            当前显示 {{ diaries|length }} 条结果，支持对目的地相关日记按热度和评分联动排序。
+        </div>
+
         <div class="diary-grid">
             {% for diary in diaries %}
             <a class="diary-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
                 <h3>{{ diary.title }}</h3>
                 <p><strong>目的地：</strong>{{ diary.destination }}</p>
                 <p>{{ diary.content_preview }}</p>
-                <div class="diary-meta">
-                    <span>作者：{{ diary.author }}</span>
-                    <span>浏览：{{ diary.views }}</span>
-                    <span>评分：{{ diary.avg_rating }}</span>
+                <div class="diary-meta-grid">
+                    <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
+                    <div class="diary-meta-chip"><span>浏览</span><span>{{ diary.views }}</span></div>
+                    <div class="diary-meta-chip"><span>评分</span><span>{{ diary.avg_rating }}</span></div>
+                    <div class="diary-meta-chip"><span>附件</span><span>{{ diary.media_count }}</span></div>
+                    <div class="diary-meta-chip"><span>压缩</span><span>{{ diary.compression.algorithm }}</span></div>
+                    <div class="diary-meta-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
                 </div>
             </a>
             {% endfor %}

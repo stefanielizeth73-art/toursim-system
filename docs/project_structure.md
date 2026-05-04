@@ -12,10 +12,10 @@ toursim_system/
 │
 ├── data/                         # 运行时数据
 │   ├── places.csv                # 景点/校园主数据
-│   ├── foods.csv                 # 美食数据
 │   ├── facilities.csv            # 设施数据
-│   ├── route_graph.json          # 当前内部路线图
-│   ├── generated/                # 脚本生成的候选数据
+│   ├── graphs/                   # 正式路线图，包含 xmu_xiang_an.json
+│   ├── manual/                   # 手动采集 POI 和道路草稿
+│   ├── generated/                # 脚本生成的候选数据，美食模块会读取翔安校区候选场所
 │   ├── raw/                      # 原始接口返回数据
 │   └── legacy/                   # 遗留测试文件
 │

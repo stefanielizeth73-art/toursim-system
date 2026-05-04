@@ -17,3 +17,4 @@ tourism.db
 *.log
 data/raw/
 data/generated/
+data/uploads/

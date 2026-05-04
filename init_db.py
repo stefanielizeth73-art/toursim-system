@@ -47,7 +47,12 @@ def init_db():
         views INTEGER NOT NULL DEFAULT 0,
         rating_total REAL NOT NULL DEFAULT 0,
         rating_count INTEGER NOT NULL DEFAULT 0,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        media_json TEXT NOT NULL DEFAULT '[]',
+        compressed_content TEXT NOT NULL DEFAULT '',
+        compression_algorithm TEXT NOT NULL DEFAULT 'plain',
+        compression_original_length INTEGER NOT NULL DEFAULT 0,
+        compression_compressed_length INTEGER NOT NULL DEFAULT 0
     )
     """)
 
@@ -62,8 +67,8 @@ def init_db():
         cursor.executemany(
             """
             INSERT INTO diaries
-            (title, destination, content, author, views, rating_total, rating_count, created_at)
-            VALUES (?, ?, ?, ?, 0, 0, 0, ?)
+            (title, destination, content, author, views, rating_total, rating_count, created_at, media_json, compressed_content, compression_algorithm, compression_original_length, compression_compressed_length)
+            VALUES (?, ?, ?, ?, 0, 0, 0, ?, '[]', '', 'plain', 0, 0)
             """,
             [(title, destination, content, author, now) for title, destination, content, author in samples]
         )

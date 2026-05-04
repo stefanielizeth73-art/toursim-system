@@ -1,0 +1,3060 @@
+{
+  "nodes": [
+    {
+      "amap_lat": 24.609649,
+      "amap_lng": 118.304774,
+      "category": "宿舍",
+      "id": "route_point_4号楼_001",
+      "kind": "dorm",
+      "lat": 24.609649,
+      "lon": 118.304774,
+      "name": "笃行4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609971,
+      "amap_lng": 118.304906,
+      "category": "宿舍",
+      "id": "route_point_笃行5号楼_002",
+      "kind": "dorm",
+      "lat": 24.609971,
+      "lon": 118.304906,
+      "name": "笃行5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609292,
+      "amap_lng": 118.304767,
+      "category": "宿舍",
+      "id": "route_point_笃行3号楼_003",
+      "kind": "dorm",
+      "lat": 24.609292,
+      "lon": 118.304767,
+      "name": "笃行3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608965,
+      "amap_lng": 118.30474,
+      "category": "宿舍",
+      "id": "route_point_笃行2号楼_004",
+      "kind": "dorm",
+      "lat": 24.608965,
+      "lon": 118.30474,
+      "name": "笃行2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608685,
+      "amap_lng": 118.304759,
+      "category": "宿舍",
+      "id": "route_point_笃行1号楼_005",
+      "kind": "dorm",
+      "lat": 24.608685,
+      "lon": 118.304759,
+      "name": "笃行1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608695,
+      "amap_lng": 118.303775,
+      "category": "宿舍",
+      "id": "route_point_笃行6号楼_006",
+      "kind": "dorm",
+      "lat": 24.608695,
+      "lon": 118.303775,
+      "name": "笃行6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609292,
+      "amap_lng": 118.303743,
+      "category": "宿舍",
+      "id": "route_point_笃行8号楼_007",
+      "kind": "dorm",
+      "lat": 24.609292,
+      "lon": 118.303743,
+      "name": "笃行8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608987,
+      "amap_lng": 118.303748,
+      "category": "宿舍",
+      "id": "route_point_笃行7号楼_008",
+      "kind": "dorm",
+      "lat": 24.608987,
+      "lon": 118.303748,
+      "name": "笃行7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609668,
+      "amap_lng": 118.303751,
+      "category": "宿舍",
+      "id": "route_point_笃行9号楼_009",
+      "kind": "dorm",
+      "lat": 24.609668,
+      "lon": 118.303751,
+      "name": "笃行9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609965,
+      "amap_lng": 118.303753,
+      "category": "宿舍",
+      "id": "route_point_笃行10号楼_010",
+      "kind": "dorm",
+      "lat": 24.609965,
+      "lon": 118.303753,
+      "name": "笃行10号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610321,
+      "amap_lng": 118.30537,
+      "category": "宿舍",
+      "id": "route_point_国光1号楼_011",
+      "kind": "dorm",
+      "lat": 24.610321,
+      "lon": 118.30537,
+      "name": "国光1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610611,
+      "amap_lng": 118.305249,
+      "category": "宿舍",
+      "id": "route_point_国光2号楼_012",
+      "kind": "dorm",
+      "lat": 24.610611,
+      "lon": 118.305249,
+      "name": "国光2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610303,
+      "amap_lng": 118.304689,
+      "category": "宿舍",
+      "id": "route_point_国光3号楼_013",
+      "kind": "dorm",
+      "lat": 24.610303,
+      "lon": 118.304689,
+      "name": "国光3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610601,
+      "amap_lng": 118.304536,
+      "category": "宿舍",
+      "id": "route_point_国光4号楼_014",
+      "kind": "dorm",
+      "lat": 24.610601,
+      "lon": 118.304536,
+      "name": "国光4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610294,
+      "amap_lng": 118.303578,
+      "category": "宿舍",
+      "id": "route_point_国光8号楼_015",
+      "kind": "dorm",
+      "lat": 24.610294,
+      "lon": 118.303578,
+      "name": "国光8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610592,
+      "amap_lng": 118.303723,
+      "category": "宿舍",
+      "id": "route_point_国光9号楼_016",
+      "kind": "dorm",
+      "lat": 24.610592,
+      "lon": 118.303723,
+      "name": "国光9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608162,
+      "amap_lng": 118.302806,
+      "category": "食堂",
+      "id": "route_point_丰庭餐厅_017",
+      "kind": "canteen",
+      "lat": 24.608162,
+      "lon": 118.302806,
+      "name": "丰庭餐厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.608233,
+      "amap_lng": 118.303058,
+      "category": "服务点",
+      "id": "route_point_鹭银海超市_018",
+      "kind": "service",
+      "lat": 24.608233,
+      "lon": 118.303058,
+      "name": "鹭银海超市",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.6079,
+      "amap_lng": 118.303965,
+      "category": "宿舍",
+      "id": "route_point_丰庭3号楼_021",
+      "kind": "dorm",
+      "lat": 24.6079,
+      "lon": 118.303965,
+      "name": "丰庭3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608268,
+      "amap_lng": 118.303726,
+      "category": "宿舍",
+      "id": "route_point_丰庭4号楼_022",
+      "kind": "dorm",
+      "lat": 24.608268,
+      "lon": 118.303726,
+      "name": "丰庭4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.60758,
+      "amap_lng": 118.303839,
+      "category": "宿舍",
+      "id": "route_point_丰庭2号楼_022",
+      "kind": "dorm",
+      "lat": 24.60758,
+      "lon": 118.303839,
+      "name": "丰庭2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.607217,
+      "amap_lng": 118.303734,
+      "category": "宿舍",
+      "id": "route_point_丰庭1号楼_022",
+      "kind": "dorm",
+      "lat": 24.607217,
+      "lon": 118.303734,
+      "name": "丰庭1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609406,
+      "amap_lng": 118.302634,
+      "category": "体育",
+      "id": "route_point_二期运动场_023",
+      "kind": "sports",
+      "lat": 24.609406,
+      "lon": 118.302634,
+      "name": "二期运动场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.607856,
+      "amap_lng": 118.301954,
+      "category": "宿舍",
+      "id": "route_point_至善4号楼_024",
+      "kind": "dorm",
+      "lat": 24.607856,
+      "lon": 118.301954,
+      "name": "至善4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.607391,
+      "amap_lng": 118.302038,
+      "category": "宿舍",
+      "id": "route_point_至善3号楼_025",
+      "kind": "dorm",
+      "lat": 24.607391,
+      "lon": 118.302038,
+      "name": "至善3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.606842,
+      "amap_lng": 118.301953,
+      "category": "宿舍",
+      "id": "route_point_至善2号楼_026",
+      "kind": "dorm",
+      "lat": 24.606842,
+      "lon": 118.301953,
+      "name": "至善2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.605654,
+      "amap_lng": 118.301531,
+      "category": "教学楼",
+      "id": "route_point_信息学院5号楼智信楼_029",
+      "kind": "teaching",
+      "lat": 24.605654,
+      "lon": 118.301531,
+      "name": "信息学院5号楼智信楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.604591,
+      "amap_lng": 118.301035,
+      "category": "教学楼",
+      "id": "route_point_益海嘉里楼_030",
+      "kind": "teaching",
+      "lat": 24.604591,
+      "lon": 118.301035,
+      "name": "益海嘉里楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.604359,
+      "amap_lng": 118.30066,
+      "category": "教学楼",
+      "id": "route_point_信息学院_031",
+      "kind": "teaching",
+      "lat": 24.604359,
+      "lon": 118.30066,
+      "name": "信息学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606482,
+      "amap_lng": 118.301882,
+      "category": "建筑",
+      "id": "route_point_至善1号楼_032",
+      "kind": "building",
+      "lat": 24.606482,
+      "lon": 118.301882,
+      "name": "至善1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604859,
+      "amap_lng": 118.299758,
+      "category": "校门",
+      "id": "route_point_西门_034",
+      "kind": "gate",
+      "lat": 24.604859,
+      "lon": 118.299758,
+      "name": "西门",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.606503,
+      "amap_lng": 118.300656,
+      "category": "教学楼",
+      "id": "route_point_西部片区6号楼_035",
+      "kind": "teaching",
+      "lat": 24.606503,
+      "lon": 118.300656,
+      "name": "西部片区6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.608244,
+      "amap_lng": 118.300036,
+      "category": "宿舍",
+      "id": "route_point_毓秀1号楼_036",
+      "kind": "dorm",
+      "lat": 24.608244,
+      "lon": 118.300036,
+      "name": "毓秀1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608627,
+      "amap_lng": 118.300321,
+      "category": "宿舍",
+      "id": "route_point_毓秀2号楼_037",
+      "kind": "dorm",
+      "lat": 24.608627,
+      "lon": 118.300321,
+      "name": "毓秀2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.608627,
+      "amap_lng": 118.300321,
+      "category": "宿舍",
+      "id": "route_point_毓秀2号楼_038",
+      "kind": "dorm",
+      "lat": 24.608627,
+      "lon": 118.300321,
+      "name": "毓秀2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609205,
+      "amap_lng": 118.300557,
+      "category": "宿舍",
+      "id": "route_point_毓秀3号楼_039",
+      "kind": "dorm",
+      "lat": 24.609205,
+      "lon": 118.300557,
+      "name": "毓秀3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611294,
+      "amap_lng": 118.304025,
+      "category": "宿舍",
+      "id": "route_point_国光11号楼_039",
+      "kind": "dorm",
+      "lat": 24.611294,
+      "lon": 118.304025,
+      "name": "国光11号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610999,
+      "amap_lng": 118.303945,
+      "category": "宿舍",
+      "id": "route_point_国光10号楼_040",
+      "kind": "dorm",
+      "lat": 24.610999,
+      "lon": 118.303945,
+      "name": "国光10号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610987,
+      "amap_lng": 118.304471,
+      "category": "宿舍",
+      "id": "route_point_国光6号楼_041",
+      "kind": "dorm",
+      "lat": 24.610987,
+      "lon": 118.304471,
+      "name": "国光6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610979,
+      "amap_lng": 118.305093,
+      "category": "宿舍",
+      "id": "route_point_国光5号楼_042",
+      "kind": "dorm",
+      "lat": 24.610979,
+      "lon": 118.305093,
+      "name": "国光5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611284,
+      "amap_lng": 118.304747,
+      "category": "宿舍",
+      "id": "route_point_国光7号楼_043",
+      "kind": "dorm",
+      "lat": 24.611284,
+      "lon": 118.304747,
+      "name": "国光7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.61165,
+      "amap_lng": 118.303846,
+      "category": "宿舍",
+      "id": "route_point_国光13号楼_044",
+      "kind": "dorm",
+      "lat": 24.61165,
+      "lon": 118.303846,
+      "name": "国光13号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611684,
+      "amap_lng": 118.304506,
+      "category": "宿舍",
+      "id": "route_point_国光12号楼_045",
+      "kind": "dorm",
+      "lat": 24.611684,
+      "lon": 118.304506,
+      "name": "国光12号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612215,
+      "amap_lng": 118.304023,
+      "category": "宿舍",
+      "id": "route_point_国光14号楼_046",
+      "kind": "dorm",
+      "lat": 24.612215,
+      "lon": 118.304023,
+      "name": "国光14号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612562,
+      "amap_lng": 118.304603,
+      "category": "宿舍",
+      "id": "route_point_国光15号楼_047",
+      "kind": "dorm",
+      "lat": 24.612562,
+      "lon": 118.304603,
+      "name": "国光15号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612109,
+      "amap_lng": 118.305662,
+      "category": "宿舍",
+      "id": "route_point_凌云1号楼_048",
+      "kind": "dorm",
+      "lat": 24.612109,
+      "lon": 118.305662,
+      "name": "凌云1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612394,
+      "amap_lng": 118.3057,
+      "category": "宿舍",
+      "id": "route_point_凌云2号楼_049",
+      "kind": "dorm",
+      "lat": 24.612394,
+      "lon": 118.3057,
+      "name": "凌云2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612702,
+      "amap_lng": 118.305702,
+      "category": "宿舍",
+      "id": "route_point_凌云3号楼_050",
+      "kind": "dorm",
+      "lat": 24.612702,
+      "lon": 118.305702,
+      "name": "凌云3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612016,
+      "amap_lng": 118.305069,
+      "category": "宿舍",
+      "id": "route_point_凌云5号楼_052",
+      "kind": "dorm",
+      "lat": 24.612016,
+      "lon": 118.305069,
+      "name": "凌云5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612404,
+      "amap_lng": 118.305152,
+      "category": "宿舍",
+      "id": "route_point_凌云6号楼_053",
+      "kind": "dorm",
+      "lat": 24.612404,
+      "lon": 118.305152,
+      "name": "凌云6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612729,
+      "amap_lng": 118.30519,
+      "category": "宿舍",
+      "id": "route_point_凌云7号楼_054",
+      "kind": "dorm",
+      "lat": 24.612729,
+      "lon": 118.30519,
+      "name": "凌云7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611437,
+      "amap_lng": 118.307149,
+      "category": "宿舍",
+      "id": "route_point_博学1号楼_055",
+      "kind": "dorm",
+      "lat": 24.611437,
+      "lon": 118.307149,
+      "name": "博学1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611734,
+      "amap_lng": 118.307171,
+      "category": "宿舍",
+      "id": "route_point_博学2号楼_056",
+      "kind": "dorm",
+      "lat": 24.611734,
+      "lon": 118.307171,
+      "name": "博学2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612122,
+      "amap_lng": 118.307136,
+      "category": "宿舍",
+      "id": "route_point_博学3号楼_057",
+      "kind": "dorm",
+      "lat": 24.612122,
+      "lon": 118.307136,
+      "name": "博学3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612441,
+      "amap_lng": 118.307139,
+      "category": "宿舍",
+      "id": "route_point_博学4号楼_058",
+      "kind": "dorm",
+      "lat": 24.612441,
+      "lon": 118.307139,
+      "name": "博学4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612771,
+      "amap_lng": 118.307157,
+      "category": "宿舍",
+      "id": "route_point_博学5号楼_059",
+      "kind": "dorm",
+      "lat": 24.612771,
+      "lon": 118.307157,
+      "name": "博学5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611127,
+      "amap_lng": 118.306162,
+      "category": "宿舍",
+      "id": "route_point_博学6号楼_060",
+      "kind": "dorm",
+      "lat": 24.611127,
+      "lon": 118.306162,
+      "name": "博学6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611422,
+      "amap_lng": 118.306203,
+      "category": "宿舍",
+      "id": "route_point_博学7号楼_061",
+      "kind": "dorm",
+      "lat": 24.611422,
+      "lon": 118.306203,
+      "name": "博学7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611746,
+      "amap_lng": 118.306275,
+      "category": "宿舍",
+      "id": "route_point_博学8号楼_062",
+      "kind": "dorm",
+      "lat": 24.611746,
+      "lon": 118.306275,
+      "name": "博学8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612129,
+      "amap_lng": 118.306283,
+      "category": "宿舍",
+      "id": "route_point_博学9号楼_063",
+      "kind": "dorm",
+      "lat": 24.612129,
+      "lon": 118.306283,
+      "name": "博学9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612427,
+      "amap_lng": 118.30627,
+      "category": "宿舍",
+      "id": "route_point_博学10号楼_064",
+      "kind": "dorm",
+      "lat": 24.612427,
+      "lon": 118.30627,
+      "name": "博学10号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612736,
+      "amap_lng": 118.306315,
+      "category": "宿舍",
+      "id": "route_point_博学11号楼_065",
+      "kind": "dorm",
+      "lat": 24.612736,
+      "lon": 118.306315,
+      "name": "博学11号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612163,
+      "amap_lng": 118.308702,
+      "category": "宿舍",
+      "id": "route_point_映雪1号楼_066",
+      "kind": "dorm",
+      "lat": 24.612163,
+      "lon": 118.308702,
+      "name": "映雪1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612539,
+      "amap_lng": 118.308643,
+      "category": "宿舍",
+      "id": "route_point_映雪2号楼_067",
+      "kind": "dorm",
+      "lat": 24.612539,
+      "lon": 118.308643,
+      "name": "映雪2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611459,
+      "amap_lng": 118.307986,
+      "category": "宿舍",
+      "id": "route_point_映雪3号楼_068",
+      "kind": "dorm",
+      "lat": 24.611459,
+      "lon": 118.307986,
+      "name": "映雪3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611863,
+      "amap_lng": 118.307892,
+      "category": "宿舍",
+      "id": "route_point_映雪4号楼_069",
+      "kind": "dorm",
+      "lat": 24.611863,
+      "lon": 118.307892,
+      "name": "映雪4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612241,
+      "amap_lng": 118.307972,
+      "category": "宿舍",
+      "id": "route_point_映雪5号楼_070",
+      "kind": "dorm",
+      "lat": 24.612241,
+      "lon": 118.307972,
+      "name": "映雪5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612661,
+      "amap_lng": 118.307967,
+      "category": "宿舍",
+      "id": "route_point_映雪6号楼_071",
+      "kind": "dorm",
+      "lat": 24.612661,
+      "lon": 118.307967,
+      "name": "映雪6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.613,
+      "amap_lng": 118.309075,
+      "category": "体育",
+      "id": "route_point_高尔夫练习场_072",
+      "kind": "sports",
+      "lat": 24.613,
+      "lon": 118.309075,
+      "name": "高尔夫练习场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.615249,
+      "amap_lng": 118.31023,
+      "category": "教学楼",
+      "id": "route_point_新工科研发大楼_073",
+      "kind": "teaching",
+      "lat": 24.615249,
+      "lon": 118.31023,
+      "name": "新工科研发大楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.611284,
+      "amap_lng": 118.308953,
+      "category": "服务点",
+      "id": "route_point_鸿润福生活超市_074",
+      "kind": "service",
+      "lat": 24.611284,
+      "lon": 118.308953,
+      "name": "鸿润福生活超市",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.611704,
+      "amap_lng": 118.309125,
+      "category": "食堂",
+      "id": "route_point_思源餐厅_075",
+      "kind": "canteen",
+      "lat": 24.611704,
+      "lon": 118.309125,
+      "name": "思源餐厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.611523,
+      "amap_lng": 118.310493,
+      "category": "体育",
+      "id": "route_point_爱秋体育馆_076",
+      "kind": "sports",
+      "lat": 24.611523,
+      "lon": 118.310493,
+      "name": "爱秋体育馆",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.611464,
+      "amap_lng": 118.311949,
+      "category": "体育",
+      "id": "route_point_佘明培游泳馆_077",
+      "kind": "sports",
+      "lat": 24.611464,
+      "lon": 118.311949,
+      "name": "佘明培游泳馆",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.608675,
+      "amap_lng": 118.31108,
+      "category": "教学楼",
+      "id": "route_point_航空航天学院_078",
+      "kind": "teaching",
+      "lat": 24.608675,
+      "lon": 118.31108,
+      "name": "航空航天学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.608876,
+      "amap_lng": 118.307689,
+      "category": "教学楼",
+      "id": "route_point_实验动物中心_079",
+      "kind": "teaching",
+      "lat": 24.608876,
+      "lon": 118.307689,
+      "name": "实验动物中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.610758,
+      "amap_lng": 118.307936,
+      "category": "服务点",
+      "id": "route_point_快递服务中心_080",
+      "kind": "service",
+      "lat": 24.610758,
+      "lon": 118.307936,
+      "name": "快递服务中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.607782,
+      "amap_lng": 118.308139,
+      "category": "建筑",
+      "id": "route_point_庄瑾楼_081",
+      "kind": "building",
+      "lat": 24.607782,
+      "lon": 118.308139,
+      "name": "庄瑾楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.607684,
+      "amap_lng": 118.308222,
+      "category": "教学楼",
+      "id": "route_point_药学院_082",
+      "kind": "teaching",
+      "lat": 24.607684,
+      "lon": 118.308222,
+      "name": "药学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606986,
+      "amap_lng": 118.306475,
+      "category": "教学楼",
+      "id": "route_point_公共卫生学院分子影像中心_083",
+      "kind": "teaching",
+      "lat": 24.606986,
+      "lon": 118.306475,
+      "name": "公共卫生学院分子影像中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606084,
+      "amap_lng": 118.306606,
+      "category": "教学楼",
+      "id": "route_point_公共卫生学院_084",
+      "kind": "teaching",
+      "lat": 24.606084,
+      "lon": 118.306606,
+      "name": "公共卫生学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605984,
+      "amap_lng": 118.306671,
+      "category": "建筑",
+      "id": "route_point_曾宪梓楼_085",
+      "kind": "building",
+      "lat": 24.605984,
+      "lon": 118.306671,
+      "name": "曾宪梓楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605805,
+      "amap_lng": 118.305221,
+      "category": "建筑",
+      "id": "route_point_爱礼楼_086",
+      "kind": "building",
+      "lat": 24.605805,
+      "lon": 118.305221,
+      "name": "爱礼楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605212,
+      "amap_lng": 118.305087,
+      "category": "建筑",
+      "id": "route_point_成智楼_087",
+      "kind": "building",
+      "lat": 24.605212,
+      "lon": 118.305087,
+      "name": "成智楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604521,
+      "amap_lng": 118.304956,
+      "category": "建筑",
+      "id": "route_point_成义楼_088",
+      "kind": "building",
+      "lat": 24.604521,
+      "lon": 118.304956,
+      "name": "成义楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.603901,
+      "amap_lng": 118.305457,
+      "category": "建筑",
+      "id": "route_point_成伟楼_089",
+      "kind": "building",
+      "lat": 24.603901,
+      "lon": 118.305457,
+      "name": "成伟楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.602841,
+      "amap_lng": 118.305534,
+      "category": "建筑",
+      "id": "route_point_国际学术交流中心_090",
+      "kind": "building",
+      "lat": 24.602841,
+      "lon": 118.305534,
+      "name": "国际学术交流中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.601605,
+      "amap_lng": 118.298735,
+      "category": "校门",
+      "id": "route_point_翔安香山景区_东门_091",
+      "kind": "gate",
+      "lat": 24.601605,
+      "lon": 118.298735,
+      "name": "翔安香山景区(东门)",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.604139,
+      "amap_lng": 118.307121,
+      "category": "教学楼",
+      "id": "route_point_生命科学学院_093",
+      "kind": "teaching",
+      "lat": 24.604139,
+      "lon": 118.307121,
+      "name": "生命科学学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.604403,
+      "amap_lng": 118.307036,
+      "category": "建筑",
+      "id": "route_point_黄朝阳路_094",
+      "kind": "building",
+      "lat": 24.604403,
+      "lon": 118.307036,
+      "name": "黄朝阳路",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605795,
+      "amap_lng": 118.307473,
+      "category": "教学楼",
+      "id": "route_point_分子疫苗学和分子诊断学国家重点实验室_098",
+      "kind": "teaching",
+      "lat": 24.605795,
+      "lon": 118.307473,
+      "name": "分子疫苗学和分子诊断学国家重点实验室",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.60334,
+      "amap_lng": 118.311778,
+      "category": "校门",
+      "id": "route_point_南门_099",
+      "kind": "gate",
+      "lat": 24.60334,
+      "lon": 118.311778,
+      "name": "南门",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.605004,
+      "amap_lng": 118.311413,
+      "category": "图书馆",
+      "id": "route_point_德旺图书馆_100",
+      "kind": "library",
+      "lat": 24.605004,
+      "lon": 118.311413,
+      "name": "德旺图书馆",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "图书馆"
+      ]
+    },
+    {
+      "amap_lat": 24.605672,
+      "amap_lng": 118.311724,
+      "category": "服务点",
+      "id": "route_point_新华书店_101",
+      "kind": "service",
+      "lat": 24.605672,
+      "lon": 118.311724,
+      "name": "新华书店",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.605899,
+      "amap_lng": 118.311477,
+      "category": "服务点",
+      "id": "route_point_思明电影院_102",
+      "kind": "service",
+      "lat": 24.605899,
+      "lon": 118.311477,
+      "name": "思明电影院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.606173,
+      "amap_lng": 118.310879,
+      "category": "食堂",
+      "id": "route_point_豆恩咖餐_103",
+      "kind": "canteen",
+      "lat": 24.606173,
+      "lon": 118.310879,
+      "name": "豆恩咖餐",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.606234,
+      "amap_lng": 118.311601,
+      "category": "服务点",
+      "id": "route_point_出版社南强书苑翔安点_104",
+      "kind": "service",
+      "lat": 24.606234,
+      "lon": 118.311601,
+      "name": "出版社南强书苑翔安点",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.604756,
+      "amap_lng": 118.310155,
+      "category": "建筑",
+      "id": "route_point_文宣楼_108",
+      "kind": "building",
+      "lat": 24.604756,
+      "lon": 118.310155,
+      "name": "文宣楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605081,
+      "amap_lng": 118.312882,
+      "category": "建筑",
+      "id": "route_point_坤銮楼_109",
+      "kind": "building",
+      "lat": 24.605081,
+      "lon": 118.312882,
+      "name": "坤銮楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604991,
+      "amap_lng": 118.313706,
+      "category": "建筑",
+      "id": "route_point_学武楼_111",
+      "kind": "building",
+      "lat": 24.604991,
+      "lon": 118.313706,
+      "name": "学武楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.607139,
+      "amap_lng": 118.312725,
+      "category": "地标",
+      "id": "route_point_芙蓉湖_112",
+      "kind": "landmark",
+      "lat": 24.607139,
+      "lon": 118.312725,
+      "name": "芙蓉湖",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "地标"
+      ]
+    },
+    {
+      "amap_lat": 24.60844,
+      "amap_lng": 118.313795,
+      "category": "地标",
+      "id": "route_point_三角梅学生广场_113",
+      "kind": "landmark",
+      "lat": 24.60844,
+      "lon": 118.313795,
+      "name": "三角梅学生广场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "地标"
+      ]
+    },
+    {
+      "amap_lat": 24.60784,
+      "amap_lng": 118.313752,
+      "category": "食堂",
+      "id": "route_point_小巨蛋咖啡厅_114",
+      "kind": "canteen",
+      "lat": 24.60784,
+      "lon": 118.313752,
+      "name": "小巨蛋咖啡厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.603939,
+      "amap_lng": 118.316505,
+      "category": "校门",
+      "id": "route_point_南1门_115",
+      "kind": "gate",
+      "lat": 24.603939,
+      "lon": 118.316505,
+      "name": "南1门",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.605511,
+      "amap_lng": 118.315597,
+      "category": "食堂",
+      "id": "route_point_一口星球_116",
+      "kind": "canteen",
+      "lat": 24.605511,
+      "lon": 118.315597,
+      "name": "一口星球",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.605128,
+      "amap_lng": 118.315699,
+      "category": "建筑",
+      "id": "route_point_周隆泉楼_117",
+      "kind": "building",
+      "lat": 24.605128,
+      "lon": 118.315699,
+      "name": "周隆泉楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605511,
+      "amap_lng": 118.317538,
+      "category": "建筑",
+      "id": "route_point_希平楼_118",
+      "kind": "building",
+      "lat": 24.605511,
+      "lon": 118.317538,
+      "name": "希平楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604135,
+      "amap_lng": 118.319326,
+      "category": "服务点",
+      "id": "route_point_中部图文_119",
+      "kind": "service",
+      "lat": 24.604135,
+      "lon": 118.319326,
+      "name": "中部图文",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.605124,
+      "amap_lng": 118.318876,
+      "category": "教学楼",
+      "id": "route_point_电子科学与技术学院_南存钿楼_120",
+      "kind": "teaching",
+      "lat": 24.605124,
+      "lon": 118.318876,
+      "name": "电子科学与技术学院（南存钿楼）",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605492,
+      "amap_lng": 118.311147,
+      "category": "建筑",
+      "id": "route_point_3号楼_105",
+      "kind": "building",
+      "lat": 24.605492,
+      "lon": 118.311147,
+      "name": "主楼3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605049,
+      "amap_lng": 118.310007,
+      "category": "建筑",
+      "id": "route_point_4号楼_106",
+      "kind": "building",
+      "lat": 24.605049,
+      "lon": 118.310007,
+      "name": "主楼4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604744,
+      "amap_lng": 118.309133,
+      "category": "建筑",
+      "id": "route_point_5号楼_107",
+      "kind": "building",
+      "lat": 24.604744,
+      "lon": 118.309133,
+      "name": "主楼5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.604418,
+      "amap_lng": 118.309377,
+      "category": "教学楼",
+      "id": "route_point_医学院临床技能培训中心_121",
+      "kind": "teaching",
+      "lat": 24.604418,
+      "lon": 118.309377,
+      "name": "医学院临床技能培训中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605395,
+      "amap_lng": 118.310178,
+      "category": "教学楼",
+      "id": "route_point_萨本栋微米纳米科学技术研究院_122",
+      "kind": "teaching",
+      "lat": 24.605395,
+      "lon": 118.310178,
+      "name": "萨本栋微米纳米科学技术研究院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.604766,
+      "amap_lng": 118.308701,
+      "category": "教学楼",
+      "id": "route_point_医学院口腔医学系_123",
+      "kind": "teaching",
+      "lat": 24.604766,
+      "lon": 118.308701,
+      "name": "医学院口腔医学系",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606166,
+      "amap_lng": 118.312737,
+      "category": "教学楼",
+      "id": "route_point_国际学院_124",
+      "kind": "teaching",
+      "lat": 24.606166,
+      "lon": 118.312737,
+      "name": "国际学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605084,
+      "amap_lng": 118.31255,
+      "category": "教学楼",
+      "id": "route_point_国际学院_110",
+      "kind": "teaching",
+      "lat": 24.605084,
+      "lon": 118.31255,
+      "name": "海外体育学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605597,
+      "amap_lng": 118.312523,
+      "category": "教学楼",
+      "id": "route_point_生态文明研究院_125",
+      "kind": "teaching",
+      "lat": 24.605597,
+      "lon": 118.312523,
+      "name": "生态文明研究院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.605306,
+      "amap_lng": 118.313741,
+      "category": "建筑",
+      "id": "route_point_主楼1号楼_126",
+      "kind": "building",
+      "lat": 24.605306,
+      "lon": 118.313741,
+      "name": "主楼1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.60543,
+      "amap_lng": 118.312743,
+      "category": "建筑",
+      "id": "route_point_主楼2号楼_127",
+      "kind": "building",
+      "lat": 24.60543,
+      "lon": 118.312743,
+      "name": "主楼2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.606189,
+      "amap_lng": 118.31905,
+      "category": "教学楼",
+      "id": "route_point_嘉庚实验室_128",
+      "kind": "teaching",
+      "lat": 24.606189,
+      "lon": 118.31905,
+      "name": "嘉庚实验室",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606992,
+      "amap_lng": 118.31563,
+      "category": "教学楼",
+      "id": "route_point_环境与生态学院_129",
+      "kind": "teaching",
+      "lat": 24.606992,
+      "lon": 118.31563,
+      "name": "环境与生态学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606621,
+      "amap_lng": 118.315566,
+      "category": "建筑",
+      "id": "route_point_金泉楼_130",
+      "kind": "building",
+      "lat": 24.606621,
+      "lon": 118.315566,
+      "name": "金泉楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.60727,
+      "amap_lng": 118.317033,
+      "category": "教学楼",
+      "id": "route_point_醇醚酯化工清洁生产国家工程实验室_131",
+      "kind": "teaching",
+      "lat": 24.60727,
+      "lon": 118.317033,
+      "name": "醇醚酯化工清洁生产国家工程实验室",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606484,
+      "amap_lng": 118.317516,
+      "category": "教学楼",
+      "id": "route_point_能源学院_132",
+      "kind": "teaching",
+      "lat": 24.606484,
+      "lon": 118.317516,
+      "name": "能源学院",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.607766,
+      "amap_lng": 118.320011,
+      "category": "校门",
+      "id": "route_point_东门_133",
+      "kind": "gate",
+      "lat": 24.607766,
+      "lon": 118.320011,
+      "name": "东门",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.608983,
+      "amap_lng": 118.318669,
+      "category": "体育",
+      "id": "route_point_一期运动场_134",
+      "kind": "sports",
+      "lat": 24.608983,
+      "lon": 118.318669,
+      "name": "一期运动场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.608412,
+      "amap_lng": 118.317232,
+      "category": "体育",
+      "id": "route_point_篮球场_135",
+      "kind": "sports",
+      "lat": 24.608412,
+      "lon": 118.317232,
+      "name": "篮球场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.609936,
+      "amap_lng": 118.318058,
+      "category": "食堂",
+      "id": "route_point_昕昕饭店_136",
+      "kind": "canteen",
+      "lat": 24.609936,
+      "lon": 118.318058,
+      "name": "昕昕饭店",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.60955,
+      "amap_lng": 118.317256,
+      "category": "体育",
+      "id": "route_point_羽毛球场_137",
+      "kind": "sports",
+      "lat": 24.60955,
+      "lon": 118.317256,
+      "name": "羽毛球场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.609241,
+      "amap_lng": 118.315998,
+      "category": "服务点",
+      "id": "route_point_学生活动中心_138",
+      "kind": "service",
+      "lat": 24.609241,
+      "lon": 118.315998,
+      "name": "学生活动中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.608963,
+      "amap_lng": 118.316022,
+      "category": "建筑",
+      "id": "route_point_林积灿楼_139",
+      "kind": "building",
+      "lat": 24.608963,
+      "lon": 118.316022,
+      "name": "林积灿楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.610615,
+      "amap_lng": 118.319536,
+      "category": "宿舍",
+      "id": "route_point_南光1号楼_140",
+      "kind": "dorm",
+      "lat": 24.610615,
+      "lon": 118.319536,
+      "name": "南光1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610935,
+      "amap_lng": 118.319531,
+      "category": "宿舍",
+      "id": "route_point_南光2号楼_141",
+      "kind": "dorm",
+      "lat": 24.610935,
+      "lon": 118.319531,
+      "name": "南光2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611257,
+      "amap_lng": 118.319494,
+      "category": "宿舍",
+      "id": "route_point_南光3号楼_142",
+      "kind": "dorm",
+      "lat": 24.611257,
+      "lon": 118.319494,
+      "name": "南光3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610615,
+      "amap_lng": 118.318925,
+      "category": "宿舍",
+      "id": "route_point_南光4号楼_143",
+      "kind": "dorm",
+      "lat": 24.610615,
+      "lon": 118.318925,
+      "name": "南光4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610937,
+      "amap_lng": 118.318944,
+      "category": "宿舍",
+      "id": "route_point_南光5号楼_144",
+      "kind": "dorm",
+      "lat": 24.610937,
+      "lon": 118.318944,
+      "name": "南光5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611259,
+      "amap_lng": 118.318802,
+      "category": "宿舍",
+      "id": "route_point_南光6号楼_145",
+      "kind": "dorm",
+      "lat": 24.611259,
+      "lon": 118.318802,
+      "name": "南光6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610608,
+      "amap_lng": 118.318297,
+      "category": "宿舍",
+      "id": "route_point_南光7号楼_146",
+      "kind": "dorm",
+      "lat": 24.610608,
+      "lon": 118.318297,
+      "name": "南光7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610942,
+      "amap_lng": 118.31826,
+      "category": "宿舍",
+      "id": "route_point_南光8号楼_147",
+      "kind": "dorm",
+      "lat": 24.610942,
+      "lon": 118.31826,
+      "name": "南光8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611022,
+      "amap_lng": 118.317485,
+      "category": "食堂",
+      "id": "route_point_竞丰餐厅_148",
+      "kind": "canteen",
+      "lat": 24.611022,
+      "lon": 118.317485,
+      "name": "竞丰餐厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.610737,
+      "amap_lng": 118.31719,
+      "category": "服务点",
+      "id": "route_point_瑞幸咖啡_149",
+      "kind": "service",
+      "lat": 24.610737,
+      "lon": 118.31719,
+      "name": "瑞幸咖啡",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.610669,
+      "amap_lng": 118.317278,
+      "category": "服务点",
+      "id": "route_point_新东方眼镜_150",
+      "kind": "service",
+      "lat": 24.610669,
+      "lon": 118.317278,
+      "name": "新东方眼镜",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.610544,
+      "amap_lng": 118.317093,
+      "category": "建筑",
+      "id": "route_point_综合楼鸟箱_151",
+      "kind": "building",
+      "lat": 24.610544,
+      "lon": 118.317093,
+      "name": "综合楼鸟箱",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.61043,
+      "amap_lng": 118.317093,
+      "category": "服务点",
+      "id": "route_point_天猫校园鹭银海连锁超市_152",
+      "kind": "service",
+      "lat": 24.61043,
+      "lon": 118.317093,
+      "name": "天猫校园鹭银海连锁超市",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.610525,
+      "amap_lng": 118.316916,
+      "category": "服务点",
+      "id": "route_point_益禾堂_153",
+      "kind": "service",
+      "lat": 24.610525,
+      "lon": 118.316916,
+      "name": "益禾堂",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.610393,
+      "amap_lng": 118.316924,
+      "category": "服务点",
+      "id": "route_point_古茗_154",
+      "kind": "service",
+      "lat": 24.610393,
+      "lon": 118.316924,
+      "name": "古茗",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.610403,
+      "amap_lng": 118.31664,
+      "category": "服务点",
+      "id": "route_point_中国邮政_155",
+      "kind": "service",
+      "lat": 24.610403,
+      "lon": 118.31664,
+      "name": "中国邮政",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.61032,
+      "amap_lng": 118.316591,
+      "category": "食堂",
+      "id": "route_point_肯德基_156",
+      "kind": "canteen",
+      "lat": 24.61032,
+      "lon": 118.316591,
+      "name": "肯德基",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.6109,
+      "amap_lng": 118.316343,
+      "category": "服务点",
+      "id": "route_point_厦门市社保卡服务网点_157",
+      "kind": "service",
+      "lat": 24.6109,
+      "lon": 118.316343,
+      "name": "厦门市社保卡服务网点",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.611804,
+      "amap_lng": 118.319437,
+      "category": "服务点",
+      "id": "route_point_校区医务室_158",
+      "kind": "service",
+      "lat": 24.611804,
+      "lon": 118.319437,
+      "name": "校区医务室",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.611599,
+      "amap_lng": 118.31878,
+      "category": "宿舍",
+      "id": "route_point_南安2号楼_159",
+      "kind": "dorm",
+      "lat": 24.611599,
+      "lon": 118.31878,
+      "name": "南安2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.61194,
+      "amap_lng": 118.318817,
+      "category": "宿舍",
+      "id": "route_point_南安3号楼_160",
+      "kind": "dorm",
+      "lat": 24.61194,
+      "lon": 118.318817,
+      "name": "南安3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612262,
+      "amap_lng": 118.318734,
+      "category": "宿舍",
+      "id": "route_point_南安4号楼_161",
+      "kind": "dorm",
+      "lat": 24.612262,
+      "lon": 118.318734,
+      "name": "南安4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611599,
+      "amap_lng": 118.318262,
+      "category": "宿舍",
+      "id": "route_point_南安5号楼_162",
+      "kind": "dorm",
+      "lat": 24.611599,
+      "lon": 118.318262,
+      "name": "南安5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611926,
+      "amap_lng": 118.318227,
+      "category": "宿舍",
+      "id": "route_point_南安6号楼_163",
+      "kind": "dorm",
+      "lat": 24.611926,
+      "lon": 118.318227,
+      "name": "南安6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.61227,
+      "amap_lng": 118.318136,
+      "category": "宿舍",
+      "id": "route_point_南安7号楼_164",
+      "kind": "dorm",
+      "lat": 24.61227,
+      "lon": 118.318136,
+      "name": "南安7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611594,
+      "amap_lng": 118.31719,
+      "category": "宿舍",
+      "id": "route_point_南安8号楼_165",
+      "kind": "dorm",
+      "lat": 24.611594,
+      "lon": 118.31719,
+      "name": "南安8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611965,
+      "amap_lng": 118.317192,
+      "category": "宿舍",
+      "id": "route_point_南安9号楼_166",
+      "kind": "dorm",
+      "lat": 24.611965,
+      "lon": 118.317192,
+      "name": "南安9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612257,
+      "amap_lng": 118.317174,
+      "category": "宿舍",
+      "id": "route_point_南安10号楼_167",
+      "kind": "dorm",
+      "lat": 24.612257,
+      "lon": 118.317174,
+      "name": "南安10号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611604,
+      "amap_lng": 118.316514,
+      "category": "宿舍",
+      "id": "route_point_南安11号楼_168",
+      "kind": "dorm",
+      "lat": 24.611604,
+      "lon": 118.316514,
+      "name": "南安11号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611921,
+      "amap_lng": 118.31657,
+      "category": "宿舍",
+      "id": "route_point_南安12号楼_169",
+      "kind": "dorm",
+      "lat": 24.611921,
+      "lon": 118.31657,
+      "name": "南安12号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612253,
+      "amap_lng": 118.316581,
+      "category": "宿舍",
+      "id": "route_point_南安13号楼_170",
+      "kind": "dorm",
+      "lat": 24.612253,
+      "lon": 118.316581,
+      "name": "南安13号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610723,
+      "amap_lng": 118.316041,
+      "category": "宿舍",
+      "id": "route_point_芙蓉1号楼_171",
+      "kind": "dorm",
+      "lat": 24.610723,
+      "lon": 118.316041,
+      "name": "芙蓉1号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611115,
+      "amap_lng": 118.316098,
+      "category": "宿舍",
+      "id": "route_point_芙蓉2号楼_172",
+      "kind": "dorm",
+      "lat": 24.611115,
+      "lon": 118.316098,
+      "name": "芙蓉2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611198,
+      "amap_lng": 118.315231,
+      "category": "宿舍",
+      "id": "route_point_芙蓉3号楼_173",
+      "kind": "dorm",
+      "lat": 24.611198,
+      "lon": 118.315231,
+      "name": "芙蓉3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611532,
+      "amap_lng": 118.315205,
+      "category": "宿舍",
+      "id": "route_point_芙蓉4号楼_174",
+      "kind": "dorm",
+      "lat": 24.611532,
+      "lon": 118.315205,
+      "name": "芙蓉4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611871,
+      "amap_lng": 118.315883,
+      "category": "宿舍",
+      "id": "route_point_芙蓉5号楼_175",
+      "kind": "dorm",
+      "lat": 24.611871,
+      "lon": 118.315883,
+      "name": "芙蓉5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612227,
+      "amap_lng": 118.315846,
+      "category": "宿舍",
+      "id": "route_point_芙蓉6号楼_176",
+      "kind": "dorm",
+      "lat": 24.612227,
+      "lon": 118.315846,
+      "name": "芙蓉6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611883,
+      "amap_lng": 118.315162,
+      "category": "宿舍",
+      "id": "route_point_芙蓉7号楼_177",
+      "kind": "dorm",
+      "lat": 24.611883,
+      "lon": 118.315162,
+      "name": "芙蓉7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612215,
+      "amap_lng": 118.315183,
+      "category": "宿舍",
+      "id": "route_point_芙蓉8号楼_178",
+      "kind": "dorm",
+      "lat": 24.612215,
+      "lon": 118.315183,
+      "name": "芙蓉8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611725,
+      "amap_lng": 118.314478,
+      "category": "宿舍",
+      "id": "route_point_芙蓉9号楼_179",
+      "kind": "dorm",
+      "lat": 24.611725,
+      "lon": 118.314478,
+      "name": "芙蓉9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.612061,
+      "amap_lng": 118.314441,
+      "category": "宿舍",
+      "id": "route_point_芙蓉10号楼_180",
+      "kind": "dorm",
+      "lat": 24.612061,
+      "lon": 118.314441,
+      "name": "芙蓉10号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611722,
+      "amap_lng": 118.308909,
+      "category": "服务点",
+      "id": "route_point_瑞幸咖啡_181",
+      "kind": "service",
+      "lat": 24.611722,
+      "lon": 118.308909,
+      "name": "瑞幸咖啡",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.607033,
+      "amap_lng": 118.309414,
+      "category": "食堂",
+      "id": "route_point_芙蓉餐厅_182",
+      "kind": "canteen",
+      "lat": 24.607033,
+      "lon": 118.309414,
+      "name": "芙蓉餐厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.607106,
+      "amap_lng": 118.317648,
+      "category": "教学楼",
+      "id": "route_point_先进储能技术集成设施创新平台_183",
+      "kind": "teaching",
+      "lat": 24.607106,
+      "lon": 118.317648,
+      "name": "先进储能技术集成设施创新平台",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.615139,
+      "amap_lng": 118.31031,
+      "category": "教学楼",
+      "id": "route_point_综合实验楼_184",
+      "kind": "teaching",
+      "lat": 24.615139,
+      "lon": 118.31031,
+      "name": "综合实验楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.609562,
+      "amap_lng": 118.301646,
+      "category": "宿舍",
+      "id": "route_point_毓秀4号楼_185",
+      "kind": "dorm",
+      "lat": 24.609562,
+      "lon": 118.301646,
+      "name": "毓秀4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610067,
+      "amap_lng": 118.301067,
+      "category": "宿舍",
+      "id": "route_point_毓秀5号楼_186",
+      "kind": "dorm",
+      "lat": 24.610067,
+      "lon": 118.301067,
+      "name": "毓秀5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.609757,
+      "amap_lng": 118.300528,
+      "category": "宿舍",
+      "id": "route_point_毓秀6号楼_187",
+      "kind": "dorm",
+      "lat": 24.609757,
+      "lon": 118.300528,
+      "name": "毓秀6号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610064,
+      "amap_lng": 118.300399,
+      "category": "宿舍",
+      "id": "route_point_毓秀7号楼_188",
+      "kind": "dorm",
+      "lat": 24.610064,
+      "lon": 118.300399,
+      "name": "毓秀7号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610367,
+      "amap_lng": 118.30049,
+      "category": "宿舍",
+      "id": "route_point_毓秀8号楼_189",
+      "kind": "dorm",
+      "lat": 24.610367,
+      "lon": 118.30049,
+      "name": "毓秀8号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.610701,
+      "amap_lng": 118.300901,
+      "category": "宿舍",
+      "id": "route_point_毓秀9号楼_190",
+      "kind": "dorm",
+      "lat": 24.610701,
+      "lon": 118.300901,
+      "name": "毓秀9号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.611694,
+      "amap_lng": 118.305111,
+      "category": "宿舍",
+      "id": "route_point_凌云4号楼_190",
+      "kind": "dorm",
+      "lat": 24.611694,
+      "lon": 118.305111,
+      "name": "凌云4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "宿舍"
+      ]
+    },
+    {
+      "amap_lat": 24.615815,
+      "amap_lng": 118.310239,
+      "category": "地标",
+      "id": "route_point_八闽园_191",
+      "kind": "landmark",
+      "lat": 24.615815,
+      "lon": 118.310239,
+      "name": "八闽园",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "地标"
+      ]
+    },
+    {
+      "amap_lat": 24.609817,
+      "amap_lng": 118.307094,
+      "category": "建筑",
+      "id": "route_point_联合遥感接收站_193",
+      "kind": "building",
+      "lat": 24.609817,
+      "lon": 118.307094,
+      "name": "联合遥感接收站",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.61049,
+      "amap_lng": 118.307553,
+      "category": "服务点",
+      "id": "route_point_后勤集团校园服务部_193",
+      "kind": "service",
+      "lat": 24.61049,
+      "lon": 118.307553,
+      "name": "后勤集团校园服务部",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "服务点"
+      ]
+    },
+    {
+      "amap_lat": 24.606042,
+      "amap_lng": 118.307524,
+      "category": "教学楼",
+      "id": "route_point_细胞应激生物学国家重点实验室_193",
+      "kind": "teaching",
+      "lat": 24.606042,
+      "lon": 118.307524,
+      "name": "细胞应激生物学国家重点实验室",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.604978,
+      "amap_lng": 118.306835,
+      "category": "建筑",
+      "id": "route_point_椭圆楼_193",
+      "kind": "building",
+      "lat": 24.604978,
+      "lon": 118.306835,
+      "name": "椭圆楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.605173,
+      "amap_lng": 118.306513,
+      "category": "教学楼",
+      "id": "route_point_国家传染病诊断试剂与疫苗工程技术研究中心_193",
+      "kind": "teaching",
+      "lat": 24.605173,
+      "lon": 118.306513,
+      "name": "国家传染病诊断试剂与疫苗工程技术研究中心",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.603574,
+      "amap_lng": 118.300452,
+      "category": "教学楼",
+      "id": "route_point_信息你学院正信楼_191",
+      "kind": "teaching",
+      "lat": 24.603574,
+      "lon": 118.300452,
+      "name": "信息你学院正信楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    }
+  ]
+}

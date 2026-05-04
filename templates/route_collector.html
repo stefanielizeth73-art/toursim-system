@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>厦门大学翔安校区路网采集</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='collector-performance-20260504') }}">
+    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+    {% if amap_js_key %}
+    <script>
+        window._AMapSecurityConfig = {
+            securityJsCode: {{ amap_security_js_code|tojson }}
+        };
+    </script>
+    <script defer src="https://webapi.amap.com/maps?v=2.0&key={{ amap_js_key }}&plugin=AMap.Scale,AMap.ToolBar"></script>
+    {% endif %}
+    <script defer src="{{ url_for('static', filename='route_map.js', v='collector-performance-20260504') }}"></script>
+</head>
+<body class="route-map-page route-v2 route-collector-page">
+    <div class="topbar route-topbar">
+        <div>厦门大学翔安校区路网采集</div>
+        <div>
+            当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('route', place_id=place_id) }}">返回路线客户端</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <main class="collector-workspace">
+        <section class="route-map-shell route-map-shell-v2 collector-map-shell" aria-label="采集地图">
+            <div class="map-stage">
+                {% if not amap_js_key %}
+                    <div class="route-map-notice">未检测到高德 JS API Key。请在启动前设置 AMAP_JS_KEY 和 AMAP_SECURITY_JS_CODE。</div>
+                {% endif %}
+                <div class="collector-status-strip">
+                    <strong>{{ summary.manual_nodes }}</strong><span>路线点</span>
+                    <strong>{{ summary.manual_edges }}</strong><span>道路</span>
+                    <strong>{{ summary.road_points }}</strong><span>路节点</span>
+                    <strong>{{ summary.facilities }}</strong><span>场所</span>
+                    <a href="{{ url_for('route', place_id=place_id) }}">客户端</a>
+                </div>
+                <div id="routeMap" class="route-map" role="application" aria-label="厦门大学翔安校区采集地图"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        window.routeMapData = {
+            graph: {{ graph|tojson }},
+            facilities: [],
+            result: null,
+            multiResult: null,
+            amap: {
+                enabled: {{ (amap_js_key|length > 0)|tojson }},
+                editRoads: true,
+                collectMode: true
+            },
+            state: {
+                placeId: {{ place_id|tojson }},
+                routeType: "single",
+                start: "",
+                end: "",
+                targets: [],
+                strategy: "distance",
+                transport: "walk"
+            }
+        };
+    </script>
+</body>
+</html>

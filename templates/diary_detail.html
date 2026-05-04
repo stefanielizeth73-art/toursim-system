@@ -30,13 +30,62 @@
         <h2>{{ diary.title }}</h2>
 
         <div class="detail-card">
-            <p><strong>目的地：</strong>{{ diary.destination }}</p>
-            <p><strong>作者：</strong>{{ diary.author }}</p>
-            <p><strong>发布时间：</strong>{{ diary.created_at }}</p>
-            <p><strong>浏览热度：</strong>{{ diary.views }}</p>
-            <p><strong>平均评分：</strong>{{ diary.avg_rating }}（{{ diary.rating_count }} 人评分）</p>
+            <div class="diary-meta-grid">
+                <div class="diary-meta-chip"><span>目的地</span><span>{{ diary.destination }}</span></div>
+                <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
+                <div class="diary-meta-chip"><span>发布时间</span><span>{{ diary.created_at }}</span></div>
+                <div class="diary-meta-chip"><span>浏览热度</span><span>{{ diary.views }}</span></div>
+                <div class="diary-meta-chip"><span>平均评分</span><span>{{ diary.avg_rating }}</span></div>
+                <div class="diary-meta-chip"><span>评分人数</span><span>{{ diary.rating_count }}</span></div>
+            </div>
             <hr>
             <p>{{ diary.content }}</p>
+
+            {% if diary.media_items %}
+            <h3>媒体附件</h3>
+            <div class="diary-media-grid">
+                {% for item in diary.media_items %}
+                <div class="diary-media-item">
+                    {% if item.kind == 'image' %}
+                        <img src="{{ item.url }}" alt="{{ item.original_name }}">
+                    {% elif item.kind == 'video' %}
+                        <video controls src="{{ item.url }}"></video>
+                    {% else %}
+                        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.original_name }}</a>
+                    {% endif %}
+                    <small>{{ item.original_name }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <h3>压缩存储信息</h3>
+            <div class="compression-grid">
+                <div class="compression-chip"><span>算法</span><span>{{ diary.compression.algorithm }}</span></div>
+                <div class="compression-chip"><span>原始长度</span><span>{{ diary.compression.original_length }}</span></div>
+                <div class="compression-chip"><span>压缩长度</span><span>{{ diary.compression.compressed_length }}</span></div>
+                <div class="compression-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
+            </div>
+        </div>
+
+        <div class="detail-card compression-panel">
+            <h3>压缩预览</h3>
+            <p class="diary-inline-note">这里会按你选择的算法重新压缩当前日记正文，方便答辩时演示哈夫曼和字典压缩的差异。</p>
+            <form method="get" action="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                <select name="compress_algorithm">
+                    <option value="huffman" {% if compression_algorithm == 'huffman' %}selected{% endif %}>哈夫曼压缩</option>
+                    <option value="dictionary" {% if compression_algorithm == 'dictionary' %}selected{% endif %}>字典压缩</option>
+                </select>
+                <button type="submit">重新预览</button>
+            </form>
+            {% if compression_preview %}
+            <div class="compression-grid" style="margin-top: 14px;">
+                <div class="compression-chip"><span>当前预览算法</span><span>{{ compression_preview.package.algorithm }}</span></div>
+                <div class="compression-chip"><span>预览原始长度</span><span>{{ compression_preview.original_length }}</span></div>
+                <div class="compression-chip"><span>预览压缩长度</span><span>{{ compression_preview.compressed_length }}</span></div>
+                <div class="compression-chip"><span>预览压缩比</span><span>{{ compression_preview.ratio }}</span></div>
+            </div>
+            {% endif %}
         </div>
 
         <form method="post" class="rating-form">

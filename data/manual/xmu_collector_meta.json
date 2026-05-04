@@ -1,0 +1,35 @@
+{
+  "place_id": "xmu_manual",
+  "place_name": "厦门大学翔安校区（手动采集图）",
+  "default_start": "route_point_4号楼_001",
+  "center": [
+    24.6095855,
+    118.3099666
+  ],
+  "amap_center": [
+    118.3099666,
+    24.6095855
+  ],
+  "campus_bounds": [
+    [
+      24.601794,
+      118.2991356
+    ],
+    [
+      24.6172287,
+      118.3199674
+    ]
+  ],
+  "amap_bounds": [
+    [
+      118.2991356,
+      24.601794
+    ],
+    [
+      118.3199674,
+      24.6172287
+    ]
+  ],
+  "facility_parent_place": "xmu_manual",
+  "source": "manual_collector"
+}

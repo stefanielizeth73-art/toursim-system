@@ -39,15 +39,24 @@ Fetch candidate place data:
 python scripts/data/fetch_places.py --limit 20
 ```
 
-Build a candidate internal graph and facility table from OpenStreetMap:
+For the XMU Xiang'an route module, Gaode/AMap is used only as the map canvas
+for manual POI and road collection. Configure local keys in `.env`:
 
 ```powershell
-python scripts/data/build_osm_graph.py --place "北京邮电大学沙河校区, 北京, 中国" --max-edges 300
+AMAP_JS_KEY=your_js_key
+AMAP_SECURITY_JS_CODE=your_js_security_code
 ```
 
-Generated files are written under `data/generated/` and raw API responses under
-`data/raw/`. Review generated data before merging it into `data/places.csv`,
-`data/route_graph.json`, or `data/facilities.csv`.
+Open the collector:
+
+```text
+http://127.0.0.1:5005/route?collect=1
+```
+
+Click POIs and draw roads on the map. The backend saves collector files under
+`data/manual/` and rebuilds `data/graphs/xmu_manual.json` automatically. The
+route page defaults to this manual graph, and Dijkstra runs on the local
+`nodes/edges` data.
 
 More details are in:
 

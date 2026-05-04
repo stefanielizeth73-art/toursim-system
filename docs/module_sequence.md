@@ -26,8 +26,9 @@
 目标：完成进入景区/校园后的路线规划，包括单目标最短路径、多目标往返路径、最短距离与最短时间策略。
 
 数据：
-- `data/route_graph.json`：当前演示图。
-- `data/generated/route_graph_<地点>.json`：从 OpenStreetMap 生成的候选图。
+- `data/graphs/xmu_manual.json`：当前正式路线图，由手动采集数据自动生成。
+- `data/manual/xmu_collector_nodes.json`：手动采集的 POI 和道路节点草稿。
+- `data/manual/xmu_collector_edges.json`：手动采集的道路折线草稿。
 - 后续可扩展为 `data/graphs/<place_id>.json`，实现一个景点/校区对应一张图。
 
 算法：
@@ -95,8 +96,9 @@
 目标：根据景点/校园、菜系、距离、评分、热度和消费水平推荐美食。
 
 数据：
-- `data/foods.csv`：美食数据。
-- 后续可从 OSM 的 `amenity=restaurant/cafe/fast_food` 和 `shop=*` 中生成候选数据。
+- 正式入口基于厦门大学翔安校区图数据：`data/graphs/xmu_xiang_an.json`。
+- 已采集但尚未完全建成“场所”的餐饮候选，暂从 `data/facilities.csv` 和 `data/generated/facilities_厦门大学翔安校区_厦门_中国.csv` 补位。
+- 前期测试用的全局 `data/foods.csv` 已移除。
 
 算法：
 - 模糊查找：名称、菜系、窗口/饭店名称。
@@ -104,6 +106,6 @@
 - Top-K：只取前 10 个美食结果。
 
 推进动作：
-- 先与 `places.csv` 和 `route_graph.json` 建立地点关联。
-- 再补充真实餐饮数据。
-- 最后加入距离排序与个性化权重。
+- 已将美食推荐正式指向厦门大学翔安校区。
+- 继续补齐真实餐饮、超市、美食窗口的场所节点。
+- 后续采集完成后，距离排序会直接复用正式图结构。

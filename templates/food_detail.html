@@ -12,7 +12,7 @@
         <div>美食详情</div>
         <div>
             当前用户：{{ username }}
-            <a class="nav-link" href="{{ url_for('foods') }}">返回美食列表</a>
+            <a class="nav-link" href="{{ url_for('foods', place_id=place_id) if place_id else url_for('foods') }}">返回美食列表</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
             <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
         </div>
@@ -28,6 +28,12 @@
             <p><strong>评分：</strong>{{ food.rating }}</p>
             <p><strong>热度：</strong>{{ food.popularity }}</p>
             <p><strong>人均消费：</strong>{{ food.avg_cost }}</p>
+            {% if food.distance_text %}
+                <p><strong>道路距离：</strong>{{ food.distance_text }}</p>
+            {% endif %}
+            {% if food.source_label %}
+                <p><strong>数据来源：</strong>{{ food.source_label }}</p>
+            {% endif %}
             <p><strong>标签：</strong>{{ food.tags }}</p>
             <p><strong>简介：</strong>{{ food.description }}</p>
         </div>
