@@ -1,3 +1,1658 @@
 {
-  "facilities": []
+  "facilities": [
+    {
+      "amap_lat": 24.610277,
+      "amap_lng": 118.316533,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0001",
+      "name": "肯德基",
+      "nearest_node": "road_edge_0633_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610506,
+      "amap_lng": 118.316648,
+      "description": "快递，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0002",
+      "name": "中国邮政",
+      "nearest_node": "road_edge_0638_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "快递"
+      ],
+      "type": "快递"
+    },
+    {
+      "amap_lat": 24.610645,
+      "amap_lng": 118.316924,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0003",
+      "name": "益禾堂",
+      "nearest_node": "road_edge_0635_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610645,
+      "amap_lng": 118.316924,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0004",
+      "name": "益禾堂",
+      "nearest_node": "road_edge_0635_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610484,
+      "amap_lng": 118.316983,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0005",
+      "name": "古茗",
+      "nearest_node": "road_edge_0637_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610374,
+      "amap_lng": 118.317152,
+      "description": "超市，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0006",
+      "name": "天猫校园",
+      "nearest_node": "road_edge_0524_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "超市"
+      ],
+      "type": "超市"
+    },
+    {
+      "amap_lat": 24.610606,
+      "amap_lng": 118.317329,
+      "description": "其他，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0007",
+      "name": "新东方眼镜",
+      "nearest_node": "road_edge_0527_008",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "其他"
+      ],
+      "type": "其他"
+    },
+    {
+      "amap_lat": 24.611813,
+      "amap_lng": 118.319366,
+      "description": "医疗，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0009",
+      "name": "校区医务室",
+      "nearest_node": "road_edge_0560_008",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "医疗"
+      ],
+      "type": "医疗"
+    },
+    {
+      "amap_lat": 24.610766,
+      "amap_lng": 118.30781,
+      "description": "快递，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0010",
+      "name": "快递服务中心",
+      "nearest_node": "road_edge_0606_008",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "快递"
+      ],
+      "type": "快递"
+    },
+    {
+      "amap_lat": 24.610766,
+      "amap_lng": 118.30781,
+      "description": "快递，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0011",
+      "name": "快递服务中心",
+      "nearest_node": "road_edge_0606_008",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "快递"
+      ],
+      "type": "快递"
+    },
+    {
+      "amap_lat": 24.611293,
+      "amap_lng": 118.30888,
+      "description": "超市，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0012",
+      "name": "鸿润福生活超市",
+      "nearest_node": "road_edge_0167_036",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "超市"
+      ],
+      "type": "超市"
+    },
+    {
+      "amap_lat": 24.608289,
+      "amap_lng": 118.303123,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0013",
+      "name": "鹭银海超市",
+      "nearest_node": "road_edge_0052_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.605626,
+      "amap_lng": 118.313757,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0014",
+      "name": "AI4Coffee",
+      "nearest_node": "road_edge_0379_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.609499,
+      "amap_lng": 118.315956,
+      "description": "ATM，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0015",
+      "name": "学生事务办理大厅",
+      "nearest_node": "road_edge_0490_009",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "ATM"
+      ],
+      "type": "ATM"
+    },
+    {
+      "amap_lat": 24.610748,
+      "amap_lng": 118.317008,
+      "description": "医疗，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0017",
+      "name": "AED自动体外除颤仪",
+      "nearest_node": "road_edge_0522_009",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "医疗"
+      ],
+      "type": "医疗"
+    },
+    {
+      "amap_lat": 24.611071,
+      "amap_lng": 118.317418,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0018",
+      "name": "竞丰餐厅",
+      "nearest_node": "road_edge_0525_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607032,
+      "amap_lng": 118.30936,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0019",
+      "name": "芙蓉餐厅",
+      "nearest_node": "road_edge_0309_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.611668,
+      "amap_lng": 118.30907,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0020",
+      "name": "思源餐厅",
+      "nearest_node": "road_edge_0640_005",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.608181,
+      "amap_lng": 118.30275,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0022",
+      "name": "丰庭餐厅",
+      "nearest_node": "road_edge_0051_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.613015,
+      "amap_lng": 118.309002,
+      "description": "体育，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0023",
+      "name": "高尔夫练习场",
+      "nearest_node": "road_edge_0158_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "体育",
+        "体育"
+      ],
+      "type": "体育"
+    },
+    {
+      "amap_lat": 24.609942,
+      "amap_lng": 118.318003,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0024",
+      "name": "昕昕饭店",
+      "nearest_node": "road_edge_0487_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.605544,
+      "amap_lng": 118.315531,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0025",
+      "name": "一口星球",
+      "nearest_node": "road_edge_0418_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.605924,
+      "amap_lng": 118.311424,
+      "description": "娱乐，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0026",
+      "name": "思明电影院",
+      "nearest_node": "road_edge_0353_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "娱乐",
+        "娱乐"
+      ],
+      "type": "娱乐"
+    },
+    {
+      "amap_lat": 24.606168,
+      "amap_lng": 118.31082,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0027",
+      "name": "豆恩咖餐",
+      "nearest_node": "road_edge_0312_019",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.605102,
+      "amap_lng": 118.314264,
+      "description": "停车，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0028",
+      "name": "停车场",
+      "nearest_node": "road_edge_0383_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "停车"
+      ],
+      "type": "停车"
+    },
+    {
+      "amap_lat": 24.605921,
+      "amap_lng": 118.314374,
+      "description": "停车，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0029",
+      "name": "停车场",
+      "nearest_node": "road_edge_0382_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "停车"
+      ],
+      "type": "停车"
+    },
+    {
+      "amap_lat": 24.605041,
+      "amap_lng": 118.31184,
+      "description": "停车，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0030",
+      "name": "停车场",
+      "nearest_node": "road_edge_0364_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "停车"
+      ],
+      "type": "停车"
+    },
+    {
+      "amap_lat": 24.604668,
+      "amap_lng": 118.317992,
+      "description": "停车，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0031",
+      "name": "停车场",
+      "nearest_node": "road_edge_0432_038",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "停车"
+      ],
+      "type": "停车"
+    },
+    {
+      "amap_lat": 24.609987,
+      "amap_lng": 118.317816,
+      "description": "停车，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0032",
+      "name": "停车场",
+      "nearest_node": "road_edge_0487_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "停车"
+      ],
+      "type": "停车"
+    },
+    {
+      "amap_lat": 24.608136,
+      "amap_lng": 118.316446,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0033",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0485_072",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.610096,
+      "amap_lng": 118.316119,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0034",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0508_074",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.610461,
+      "amap_lng": 118.311572,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0035",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0184_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.61015,
+      "amap_lng": 118.306111,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0036",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0165_011",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.607794,
+      "amap_lng": 118.305776,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0037",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0231_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.604803,
+      "amap_lng": 118.305832,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0038",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0251_019",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.603499,
+      "amap_lng": 118.306784,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0039",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0282_011",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.603499,
+      "amap_lng": 118.306784,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0040",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0282_011",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.604698,
+      "amap_lng": 118.316121,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0041",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0408_017",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.612446,
+      "amap_lng": 118.310885,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0042",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0186_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.612587,
+      "amap_lng": 118.309882,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0043",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0172_013",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.612231,
+      "amap_lng": 118.309705,
+      "description": "公交，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0044",
+      "name": "公交站台",
+      "nearest_node": "road_edge_0169_015",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "公交"
+      ],
+      "type": "公交"
+    },
+    {
+      "amap_lat": 24.608448,
+      "amap_lng": 118.31372,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0046",
+      "name": "三角梅学生广场",
+      "nearest_node": "road_edge_0609_018",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.607868,
+      "amap_lng": 118.313698,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0047",
+      "name": "小巨蛋咖啡厅",
+      "nearest_node": "road_edge_0611_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.609637,
+      "amap_lng": 118.309443,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0050",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0196_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.606889,
+      "amap_lng": 118.303911,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0051",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0054_033",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.608153,
+      "amap_lng": 118.314018,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0052",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0610_007",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.608231,
+      "amap_lng": 118.319446,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0053",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0495_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.60396,
+      "amap_lng": 118.300592,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0054",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0267_008",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.615981,
+      "amap_lng": 118.311249,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0056",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0629_012",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.610032,
+      "amap_lng": 118.313783,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0057",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0644_025",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.607992,
+      "amap_lng": 118.318157,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0058",
+      "name": "自助柜",
+      "nearest_node": "road_edge_0497_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.610838,
+      "amap_lng": 118.317228,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0059",
+      "name": "瑞幸咖啡",
+      "nearest_node": "road_edge_0525_012",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.611732,
+      "amap_lng": 118.30884,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0060",
+      "name": "瑞幸咖啡",
+      "nearest_node": "road_edge_0642_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.609146,
+      "amap_lng": 118.303806,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0061",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0078_002",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609154,
+      "amap_lng": 118.304573,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0062",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0071_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609868,
+      "amap_lng": 118.30464,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0063",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0075_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609854,
+      "amap_lng": 118.304015,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0064",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0066_017",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.610498,
+      "amap_lng": 118.303602,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0065",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0088_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.61043,
+      "amap_lng": 118.304415,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0066",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0093_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611701,
+      "amap_lng": 118.30375,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0067",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0111_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611588,
+      "amap_lng": 118.304498,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0068",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0111_047",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612432,
+      "amap_lng": 118.306136,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0069",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0143_002",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612432,
+      "amap_lng": 118.306973,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0070",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0139_015",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612415,
+      "amap_lng": 118.30807,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0071",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0152_048",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612368,
+      "amap_lng": 118.308497,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0072",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0159_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611671,
+      "amap_lng": 118.3081,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0073",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0151_013",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611559,
+      "amap_lng": 118.30689,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0074",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0137_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.615153,
+      "amap_lng": 118.310156,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0075",
+      "name": "自助柜",
+      "nearest_node": "road_edge_0176_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.61515,
+      "amap_lng": 118.310151,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0076",
+      "name": "自助柜",
+      "nearest_node": "road_edge_0176_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.607933,
+      "amap_lng": 118.303206,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0077",
+      "name": "蜜雪冰城",
+      "nearest_node": "road_edge_0059_007",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610713,
+      "amap_lng": 118.317675,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0078",
+      "name": "蜜雪冰城",
+      "nearest_node": "road_edge_0526_010",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607783,
+      "amap_lng": 118.311066,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0079",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0297_029",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.606711,
+      "amap_lng": 118.309414,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0080",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0303_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.607021,
+      "amap_lng": 118.314116,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0081",
+      "name": "观景湖",
+      "nearest_node": "road_edge_0320_060",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.603395,
+      "amap_lng": 118.308005,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0083",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0285_002",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.603274,
+      "amap_lng": 118.310431,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0084",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0290_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.608403,
+      "amap_lng": 118.3,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0085",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0033_036",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609102,
+      "amap_lng": 118.300468,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0086",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0036_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609102,
+      "amap_lng": 118.300468,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0087",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0036_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.609695,
+      "amap_lng": 118.301525,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0088",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0047_017",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611875,
+      "amap_lng": 118.314633,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0089",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0592_014",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611383,
+      "amap_lng": 118.315095,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0090",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0598_009",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612031,
+      "amap_lng": 118.316033,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0091",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0605_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612019,
+      "amap_lng": 118.315065,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0092",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0604_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.612063,
+      "amap_lng": 118.316618,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0093",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0585_002",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.611707,
+      "amap_lng": 118.316585,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0094",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0586_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.61172,
+      "amap_lng": 118.317224,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0095",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0582_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.61209,
+      "amap_lng": 118.317213,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0096",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0584_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.60454,
+      "amap_lng": 118.303731,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0097",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0658_023",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.602464,
+      "amap_lng": 118.302238,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0098",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0651_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.606496,
+      "amap_lng": 118.30443,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0099",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0656_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.603494,
+      "amap_lng": 118.302125,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0100",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0652_033",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.605108,
+      "amap_lng": 118.303963,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0101",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0647_031",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.602448,
+      "amap_lng": 118.304856,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0102",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0650_056",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.602924,
+      "amap_lng": 118.302614,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0103",
+      "name": "便利店",
+      "nearest_node": "road_edge_0651_018",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.602589,
+      "amap_lng": 118.300634,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0104",
+      "name": "便利店",
+      "nearest_node": "road_edge_0653_023",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.605743,
+      "amap_lng": 118.303139,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0105",
+      "name": "便利店",
+      "nearest_node": "road_edge_0646_036",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.609045,
+      "amap_lng": 118.306312,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0106",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0665_007",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.608278,
+      "amap_lng": 118.306609,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0107",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0667_029",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.614543,
+      "amap_lng": 118.309852,
+      "description": "饮水，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0108",
+      "name": "饮水机",
+      "nearest_node": "road_edge_0622_016",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "饮水"
+      ],
+      "type": "饮水"
+    },
+    {
+      "amap_lat": 24.613615,
+      "amap_lng": 118.312723,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0109",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0623_039",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.613611,
+      "amap_lng": 118.312719,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0110",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0623_039",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.616059,
+      "amap_lng": 118.313133,
+      "description": "休息点，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0111",
+      "name": "凉亭",
+      "nearest_node": "road_edge_0626_045",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "休息点"
+      ],
+      "type": "休息点"
+    },
+    {
+      "amap_lat": 24.613803,
+      "amap_lng": 118.310206,
+      "description": "卫生间，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0112",
+      "name": "公共卫生间",
+      "nearest_node": "road_edge_0620_020",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "卫生间"
+      ],
+      "type": "卫生间"
+    },
+    {
+      "amap_lat": 24.612875,
+      "amap_lng": 118.309974,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0113",
+      "name": "自助柜",
+      "nearest_node": "road_edge_0619_101",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.614583,
+      "amap_lng": 118.310927,
+      "description": "便利店，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0114",
+      "name": "自助柜",
+      "nearest_node": "road_edge_0621_059",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "便利店"
+      ],
+      "type": "便利店"
+    },
+    {
+      "amap_lat": 24.611879,
+      "amap_lng": 118.309108,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0115",
+      "name": "百里牛香潮汕自助牛肉火锅",
+      "nearest_node": "road_edge_0643_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607867,
+      "amap_lng": 118.302614,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0116",
+      "name": "贵州特色地摊火锅",
+      "nearest_node": "road_edge_0050_009",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607636,
+      "amap_lng": 118.302943,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0117",
+      "name": "齐齐哈尔家庭烤肉",
+      "nearest_node": "road_edge_0053_018",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.603071,
+      "amap_lng": 118.301153,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0118",
+      "name": "香山里营地/露营团建",
+      "nearest_node": "road_edge_0653_045",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607283,
+      "amap_lng": 118.309392,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0119",
+      "name": "无忧烙锅纸包鱼",
+      "nearest_node": "road_edge_0309_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.611489,
+      "amap_lng": 118.308933,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0120",
+      "name": "喜姐炸串",
+      "nearest_node": "road_edge_0641_005",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607274,
+      "amap_lng": 118.302515,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0121",
+      "name": "雍景轩食府",
+      "nearest_node": "road_edge_0674_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.607613,
+      "amap_lng": 118.312762,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0122",
+      "name": "芙蓉苑古厝餐厅",
+      "nearest_node": "road_edge_0319_017",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.610341,
+      "amap_lng": 118.316264,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0123",
+      "name": "喜米乐潮汕鸡煲",
+      "nearest_node": "road_edge_0521_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.611382,
+      "amap_lng": 118.309461,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0124",
+      "name": "广东石磨肠粉烧饼哥",
+      "nearest_node": "road_edge_0675_001",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.613955,
+      "amap_lng": 118.309752,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0125",
+      "name": "老湘村-湘菜馆",
+      "nearest_node": "road_edge_0620_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    },
+    {
+      "amap_lat": 24.611132,
+      "amap_lng": 118.316418,
+      "description": "餐饮，手动采集，模块三按道路图距离排序。",
+      "id": "facility_0126",
+      "name": "印度食堂 little India",
+      "nearest_node": "road_edge_0590_013",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
+      "tags": [
+        "餐饮"
+      ],
+      "type": "餐饮"
+    }
+  ]
 }

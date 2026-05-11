@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>翔安校区手动采集路网导航</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='map-restore-20260505') }}">
-    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     {% if amap_js_key %}
     <script>
         window._AMapSecurityConfig = {
@@ -14,13 +14,18 @@
     </script>
     <script defer src="https://webapi.amap.com/maps?v=2.0&key={{ amap_js_key }}&plugin=AMap.Scale,AMap.ToolBar"></script>
     {% endif %}
-    <script defer src="{{ url_for('static', filename='route_map.js', v='map-restore-20260505') }}"></script>
+    <script defer src="{{ url_for('static', filename='route_map.js', v=asset_version('route_map.js')) }}"></script>
 </head>
 <body class="route-map-page route-v2 {% if route_collect_mode %}route-collect-mode{% endif %}">
     <div class="topbar route-topbar">
         <div>个性化旅游系统 - 翔安校区手动采集路网导航</div>
         <div>
             当前用户：{{ username }}
+            {% if route_collect_mode %}
+            <a class="route-mode-switch is-collector-active" href="{{ url_for('route', place_id=place_id) }}" aria-label="退出采集模式">退出采集</a>
+            {% else %}
+            <a class="route-mode-switch" href="{{ url_for('route', place_id=place_id, collect=1) }}" aria-label="进入采集模式">采集模式</a>
+            {% endif %}
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
             <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
         </div>
@@ -31,15 +36,23 @@
             <div class="route-console__header">
                 <span class="eyebrow">MANUAL CAMPUS GRAPH · DIJKSTRA</span>
                 <h1>翔安校区旅游路线规划</h1>
-                <p>高德地图仅作为采集底图，POI 和道路由手动确认后保存为自建图并运行 Dijkstra。</p>
             </div>
 
             <div class="graph-stats" aria-label="图结构统计">
-                <span><strong>{{ graph.nodes|length }}</strong> 节点</span>
-                <span><strong>{{ graph.edges|length }}</strong> 边</span>
-                <span><strong>{{ nodes|length }}</strong> 可选地点</span>
+                <span><strong>{{ graph_stats.nodes_count }}</strong> 节点</span>
+                <span><strong>{{ graph_stats.edges_count }}</strong> 边</span>
+                <span><strong>{{ graph_stats.selectable_count }}</strong> 可选地点</span>
             </div>
-
+            <div class="route-layer-toolbar route-layer-toolbar--inline" aria-label="地图图层开关">
+                <button type="button" id="showFacilityLayer" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏场所图层">
+                    <span class="route-layer-toggle__label">场所</span>
+                    <span class="route-layer-toggle__state">关</span>
+                </button>
+                <button type="button" id="showRoadNetwork" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏道路图层">
+                    <span class="route-layer-toggle__label">道路</span>
+                    <span class="route-layer-toggle__state">关</span>
+                </button>
+            </div>
             <form method="get" class="route-planner route-planner-v2" id="routePlanner">
                 <input type="hidden" name="place_id" value="{{ place_id }}">
 
@@ -92,6 +105,12 @@
                     </label>
                 </div>
 
+                <p class="route-color-note" aria-label="路线颜色说明">
+                    <span><i class="route-color-dot route-color-dot--walk"></i>步行蓝</span>
+                    <span><i class="route-color-dot route-color-dot--bike"></i>自行车青绿</span>
+                    <em>混合交通按各路段分色</em>
+                </p>
+
                 <div class="multi-target-panel" id="multiTargetPanel">
                     <span>途经点，最多 8 个</span>
                     <input class="route-poi-search" type="search" id="routePoiSearch" list="routeTargetDatalist" placeholder="搜索地点并加入途经点">
@@ -107,7 +126,41 @@
                 <button type="submit" class="primary-action">计算路线</button>
             </form>
 
-            <section class="route-summary route-summary-v2" id="routeSummary">
+            {% if route_foods %}
+            <section class="route-food-panel" aria-label="路线图关联美食">
+                <div class="route-food-panel__head">
+                    <div>
+                        <span class="eyebrow">FOOD · GRAPH LINK</span>
+                        <h2>路线图关联美食</h2>
+                    </div>
+                    <div class="route-food-actions">
+                        <a href="{{ url_for('foods', place_id=place_id, origin_node=start, sort_by='distance_asc') }}">完整列表</a>
+                        <a href="{{ url_for('route', place_id=place_id, start=start, food_pick=1) }}" class="{% if route_food_pick_mode %}is-active{% endif %}">点地图选当前位置</a>
+                    </div>
+                </div>
+                {% if route_food_pick_mode %}
+                    <p class="route-food-hint">请在地图上点击一个可规划地点，系统会用它作为当前位置打开距离排序。</p>
+                {% endif %}
+                <ol class="route-food-list">
+                    {% for food in route_foods %}
+                    <li>
+                        <div>
+                            <a href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id) }}">{{ food.name }}</a>
+                            <span>{{ food.category }} · {{ food.source_label }}</span>
+                        </div>
+                        {% if food.distance_text %}
+                            <strong>{{ food.distance_text }}</strong>
+                        {% endif %}
+                        {% if food.nearest_node %}
+                            <a class="route-food-target" href="{{ url_for('route', place_id=place_id, start=start, end=food.nearest_node, strategy=strategy, transport=transport) }}">设为终点</a>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
+
+            <section class="route-summary route-summary-v2 {% if not result and not multi_result and (end or targets) and transport == 'bike' %}is-route-blocked{% endif %}" id="routeSummary">
                 {% if result %}
                     <h2>单目标规划结果</h2>
                     <p class="route-total">{{ "%.1f"|format(result.total) }}{% if strategy == 'distance' %} 米{% else %} 秒{% endif %}</p>
@@ -122,6 +175,9 @@
                         <p>{{ loop.index }}. {{ segment.display_path_names|join(' → ') }}</p>
                     {% endfor %}
                 {% elif end or targets %}
+                    {% if transport == 'bike' %}
+                        <p class="route-unreachable-alert">自行车模式无法到达：所选点之间存在禁骑或未连通路段，请切换步行 / 混合交通，或重新选择可骑行节点。</p>
+                    {% endif %}
                     <h2>未找到路线</h2>
                     <p>请尝试切换交通方式、减少途经点，或选择可达节点。</p>
                 {% else %}
@@ -129,19 +185,6 @@
                     <p>选择起点和终点，或直接点击地图上的地点设置路线。</p>
                 {% endif %}
             </section>
-            <div class="route-collector-inline">
-                {% if route_collect_mode %}
-                <a class="route-collector-entry" href="{{ url_for('route', place_id=place_id) }}" aria-label="退出采集模式">
-                    <span>退出采集</span>
-                    <small>规划</small>
-                </a>
-                {% else %}
-                <a class="route-collector-entry" href="{{ url_for('route', place_id=place_id, collect=1) }}" aria-label="进入采集模式">
-                    <span>采集</span>
-                    <small>调试</small>
-                </a>
-                {% endif %}
-            </div>
         </section>
 
         <section class="route-map-shell route-map-shell-v2" aria-label="翔安校区地图">
@@ -156,14 +199,14 @@
 
     <script>
         window.routeMapData = {
-            graph: {{ graph|tojson }},
-            facilities: {{ facilities|tojson }},
+            graphUrl: {{ route_graph_url|tojson }},
             result: {{ map_result|tojson }},
             multiResult: {{ map_multi_result|tojson }},
             amap: {
                 enabled: {{ (amap_js_key|length > 0)|tojson }},
                 editRoads: {{ route_edit_roads|tojson }},
-                collectMode: {{ route_collect_mode|tojson }}
+                collectMode: {{ route_collect_mode|tojson }},
+                foodPickMode: {{ route_food_pick_mode|tojson }}
             },
             state: {
                 placeId: {{ place_id|tojson }},

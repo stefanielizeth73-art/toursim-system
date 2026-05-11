@@ -3,87 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>旅游日记</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>旅游日记广场</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
-<body>
-    <div class="topbar">
-        <div>个性化旅游系统 - 旅游日记</div>
-        <div>
-            当前用户：{{ username }}
-            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
-        </div>
-    </div>
+<body class="diary-hub-page">
+    <a class="skip-link" href="#main-content">跳到内容</a>
 
-    <div class="container large-container">
-        <h2>旅游日记管理与交流</h2>
-        <p class="subtitle">支持发布、图片/视频上传、标题精确与前缀查询、正文全文检索，并按热度或评分排序。</p>
-
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="message">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form method="post" enctype="multipart/form-data" class="diary-form">
-            <h3>发布新日记</h3>
-            <div class="diary-upload-grid">
-                <input type="text" name="title" placeholder="日记标题" required>
-                <input type="text" name="destination" placeholder="旅游目的地" required>
-                <select name="compression_algorithm">
-                    <option value="huffman">哈夫曼压缩</option>
-                    <option value="dictionary">字典压缩</option>
-                </select>
-                <input class="full-span" type="file" name="attachments" multiple accept="image/*,video/*">
-                <textarea class="full-span" name="content" placeholder="记录你的旅游过程、路线体验、景点印象等" required></textarea>
-            </div>
-            <button type="submit">发布日记</button>
-        </form>
-
-        <form method="get" class="filter-form diaries-filter-form">
-            <input type="text" name="title_query" placeholder="按标题检索（精确或前缀）" value="{{ title_query }}">
-            <select name="search_mode">
-                <option value="exact" {% if search_mode == 'exact' %}selected{% endif %}>精确查询</option>
-                <option value="prefix" {% if search_mode == 'prefix' %}selected{% endif %}>前缀查询</option>
-                <option value="contains" {% if search_mode == 'contains' %}selected{% endif %}>包含查询</option>
-            </select>
-            <input type="text" name="keyword" placeholder="按正文全文检索" value="{{ keyword }}">
-            <input type="text" name="destination" placeholder="联动目的地" value="{{ destination }}">
-            <select name="sort_by">
-                <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>按发布时间</option>
-                <option value="hot_rating_desc" {% if sort_by == 'hot_rating_desc' %}selected{% endif %}>按热度+评分</option>
-                <option value="views_desc" {% if sort_by == 'views_desc' %}selected{% endif %}>按浏览热度</option>
-                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>按评分</option>
-                <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>按标题</option>
-            </select>
-            <button type="submit">检索日记</button>
-        </form>
-
-        <div class="result-info">
-            当前显示 {{ diaries|length }} 条结果，支持对目的地相关日记按热度和评分联动排序。
-        </div>
-
-        <div class="diary-grid">
-            {% for diary in diaries %}
-            <a class="diary-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
-                <h3>{{ diary.title }}</h3>
-                <p><strong>目的地：</strong>{{ diary.destination }}</p>
-                <p>{{ diary.content_preview }}</p>
-                <div class="diary-meta-grid">
-                    <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
-                    <div class="diary-meta-chip"><span>浏览</span><span>{{ diary.views }}</span></div>
-                    <div class="diary-meta-chip"><span>评分</span><span>{{ diary.avg_rating }}</span></div>
-                    <div class="diary-meta-chip"><span>附件</span><span>{{ diary.media_count }}</span></div>
-                    <div class="diary-meta-chip"><span>压缩</span><span>{{ diary.compression.algorithm }}</span></div>
-                    <div class="diary-meta-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
+    <div class="diary-shell">
+        <header class="diary-topbar">
+            <div class="diary-brand">
+                <div class="diary-brand-mark" aria-hidden="true">记</div>
+                <div class="diary-brand-copy">
+                    <p class="eyebrow">个性化旅游系统</p>
+                    <h1>旅游日记广场</h1>
+                    <p class="brand-subtitle">浏览校园、景点、照片和故事，并按热度、评价与兴趣排序。</p>
                 </div>
-            </a>
-            {% endfor %}
-        </div>
+            </div>
+
+            <div class="diary-topbar-actions">
+                <details class="publish-panel">
+                    <summary class="publish-trigger">发布日记</summary>
+                    <div class="publish-panel__body">
+                        <form method="post" action="{{ url_for('diaries') }}" enctype="multipart/form-data" class="publish-form">
+                            <div class="publish-grid">
+                                <label class="publish-field">
+                                    <span>标题</span>
+                                    <input type="text" name="title" placeholder="写下这次旅行的标题" required>
+                                </label>
+                                <label class="publish-field">
+                                    <span>目的地</span>
+                                    <input type="text" name="destination" list="place-name-options" placeholder="选择或输入目的地" required>
+                                </label>
+                                <label class="publish-field">
+                                    <span>压缩算法</span>
+                                    <select name="compression_algorithm">
+                                        <option value="huffman">哈夫曼压缩</option>
+                                        <option value="dictionary">字典压缩</option>
+                                    </select>
+                                </label>
+                                <label class="publish-field full-span">
+                                    <span>照片 / 视频</span>
+                                    <input type="file" name="attachments" multiple accept="image/*,video/*">
+                                </label>
+                                <label class="publish-field full-span">
+                                    <span>正文</span>
+                                    <textarea name="content" placeholder="记录路线、体验、拍照点、吃喝和心情" required></textarea>
+                                </label>
+                            </div>
+                            <div class="publish-actions">
+                                <p class="helper-copy">支持多张照片和视频；详情页按原比例自适应展示。</p>
+                                <button type="submit">发布日记</button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+                <a class="diary-topbar-link" href="{{ url_for('home') }}">返回主页</a>
+                <a class="diary-topbar-link" href="{{ url_for('logout') }}">退出登录</a>
+            </div>
+        </header>
+
+        <main id="main-content" class="diary-main">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="message-stack" aria-live="polite">
+                        {% for message in messages %}
+                        <div class="message">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <section class="diary-toolbar-card">
+                <form method="get" class="diary-toolbar">
+                    <label class="toolbar-field">
+                        <span>标题</span>
+                        <input type="text" name="title_query" placeholder="精确或前缀查询" value="{{ title_query }}">
+                    </label>
+                    <label class="toolbar-field">
+                        <span>模式</span>
+                        <select name="search_mode">
+                            <option value="exact" {% if search_mode == 'exact' %}selected{% endif %}>精确查询</option>
+                            <option value="prefix" {% if search_mode == 'prefix' %}selected{% endif %}>前缀查询</option>
+                            <option value="contains" {% if search_mode == 'contains' %}selected{% endif %}>包含查询</option>
+                        </select>
+                    </label>
+                    <label class="toolbar-field">
+                        <span>正文关键词</span>
+                        <input type="text" name="keyword" placeholder="按正文全文检索" value="{{ keyword }}">
+                    </label>
+                    <label class="toolbar-field">
+                        <span>联动地点</span>
+                        <input type="text" name="destination" list="place-name-options" placeholder="景点或学校" value="{{ destination }}">
+                    </label>
+                    <label class="toolbar-field">
+                        <span>排序</span>
+                        <select name="sort_by">
+                            <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>按发布时间</option>
+                            <option value="hot_rating_desc" {% if sort_by == 'hot_rating_desc' %}selected{% endif %}>按热度 + 评分</option>
+                            <option value="views_desc" {% if sort_by == 'views_desc' %}selected{% endif %}>按浏览热度</option>
+                            <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>按评分</option>
+                            <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>按标题</option>
+                        </select>
+                    </label>
+                    <div class="toolbar-submit">
+                        <button type="submit">筛选日记</button>
+                    </div>
+                </form>
+            </section>
+
+            {% if destination_place or related_places %}
+            <section class="diary-link-strip" aria-label="联动景点与学校">
+                <div class="diary-link-strip__header">
+                    <h2>联动景点 / 学校</h2>
+                    <p>先判断目的地相关性，再在相关集合里按热度与评分排序。</p>
+                </div>
+                <div class="diary-link-pills">
+                    {% if destination_place %}
+                    <a class="diary-link-pill is-primary" href="{{ url_for('place_detail', place_id=destination_place.id) }}">
+                        <strong>{{ destination_place.name }}</strong>
+                        <span>{{ destination_place.city }} · {{ destination_place.type }}</span>
+                    </a>
+                    {% endif %}
+                    {% for place in related_places %}
+                    <a class="diary-link-pill" href="{{ url_for('place_detail', place_id=place.id) }}">
+                        <strong>{{ place.name }}</strong>
+                        <span>{{ place.city }} · {{ place.type }} · 评分 {{ place.rating }} · 热度 {{ place.popularity }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if diaries %}
+            <section class="diary-feed {% if diaries|length <= 4 %}is-sparse{% endif %}" aria-label="旅游日记列表">
+                {% for diary in diaries %}
+                <a class="diary-post {% if not diary.cover_media %}is-text-only{% endif %}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                    <div class="diary-post__cover">
+                        {% if diary.cover_media %}
+                            {% if diary.cover_media.kind == 'image' %}
+                            <img
+                                src="{{ diary.cover_media.url }}"
+                                alt="{{ diary.cover_media.original_name }}"
+                                width="{{ diary.cover_media.width or 1200 }}"
+                                height="{{ diary.cover_media.height or 900 }}"
+                                loading="lazy"
+                            >
+                            {% elif diary.cover_media.kind == 'video' %}
+                            <div class="cover-video-placeholder">
+                                <span>视频日记</span>
+                                <strong>{{ diary.title }}</strong>
+                            </div>
+                            {% else %}
+                            <div class="cover-placeholder">
+                                <span>媒体附件</span>
+                                <strong>{{ diary.title }}</strong>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <div class="cover-text-card">
+                            <strong class="cover-text-card__summary">{{ diary.content_preview }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="diary-post__body">
+                        <div class="diary-post__header">
+                            <span>{{ diary.created_at }}</span>
+                        </div>
+                        <h3>{{ diary.title }}</h3>
+                        <p class="diary-post__destination">目的地 · {{ diary.destination }}</p>
+                        <p class="diary-post__excerpt">{{ diary.content_preview }}</p>
+                        <div class="diary-post__tag-row">
+                            <span>作者 {{ diary.author }}</span>
+                            <span>{{ diary.views }} 浏览</span>
+                            <span>{{ diary.avg_rating }} 分</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </section>
+            {% else %}
+            <section class="empty-state">
+                <h2>没有匹配到日记</h2>
+                <p>试试换一个标题、关键词或目的地。</p>
+            </section>
+            {% endif %}
+
+            {% if pagination.total_pages > 1 %}
+            <nav class="pagination-bar" aria-label="日记列表分页">
+                {% if pagination.has_prev %}
+                <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">上一页</span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for item in pagination.pages %}
+                    {% if item.is_current %}
+                    <span class="pagination-page is-current">{{ item.page }}</span>
+                    {% else %}
+                    <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagination.has_next %}
+                <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">下一页</span>
+                {% endif %}
+            </nav>
+            {% endif %}
+
+            <datalist id="place-name-options">
+                {% for place_name in place_name_options %}
+                <option value="{{ place_name }}"></option>
+                {% endfor %}
+            </datalist>
+        </main>
     </div>
 </body>
 </html>

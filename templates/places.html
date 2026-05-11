@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>景点推荐 / 校园查询</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body>
@@ -55,6 +55,7 @@
             当前显示 {{ places|length }} 条结果，数据集中共有 {{ total_places }} 个景点/校园。
         </div>
 
+        <div class="table-shell">
         <table>
             <thead>
                 <tr>
@@ -85,6 +86,33 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
+
+        {% if pagination.total_pages > 1 %}
+        <nav class="pagination-bar" aria-label="景点列表分页">
+            {% if pagination.has_prev %}
+            <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
+            {% else %}
+            <span class="pagination-btn is-disabled">上一页</span>
+            {% endif %}
+
+            <div class="pagination-pages">
+                {% for item in pagination.pages %}
+                {% if item.is_current %}
+                <span class="pagination-page is-current">{{ item.page }}</span>
+                {% else %}
+                <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if pagination.has_next %}
+            <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
+            {% else %}
+            <span class="pagination-btn is-disabled">下一页</span>
+            {% endif %}
+        </nav>
+        {% endif %}
     </div>
 </body>
 </html>

@@ -27,22 +27,21 @@
         return 2 * radius * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    ready(function () {
+    ready(async function () {
         if (!window.routeMapData) {
             return;
         }
 
         const data = window.routeMapData;
-        const graph = data.graph || {};
-        const nodes = graph.nodes || [];
-        const edges = graph.edges || [];
-        const facilities = data.facilities || [];
         const collectMode = Boolean(data.amap && data.amap.collectMode);
+        const foodPickMode = Boolean(data.amap && data.amap.foodPickMode);
+        const transportMode = String((data.state && data.state.transport) || data.transport || "walk");
         const mapEl = document.getElementById("routeMap");
         const form = document.getElementById("routePlanner");
         const startSelect = document.getElementById("startNode");
         const endSelect = document.getElementById("endNode");
         const showRoadNetworkToggle = document.getElementById("showRoadNetwork");
+        const showFacilityLayerToggle = document.getElementById("showFacilityLayer");
         const routeTypeSelect = document.getElementById("routeType");
         const multiPanel = document.getElementById("multiTargetPanel");
         const poiSearch = document.getElementById("routePoiSearch");
@@ -63,10 +62,49 @@
             return;
         }
 
+        const mapStage = mapEl.closest(".map-stage") || mapEl.parentElement || mapEl;
+        let mapStatusEl = null;
+        function showMapStatus(message) {
+            if (!mapStatusEl) {
+                mapStatusEl = document.createElement("div");
+                mapStatusEl.className = "amap-empty-state route-map-status";
+                mapStage.appendChild(mapStatusEl);
+            }
+            mapStatusEl.textContent = message;
+        }
+
+        function clearMapStatus() {
+            if (mapStatusEl) {
+                mapStatusEl.remove();
+                mapStatusEl = null;
+            }
+            mapEl.replaceChildren();
+        }
+
         if (!window.AMap || !data.amap || !data.amap.enabled) {
-            mapEl.innerHTML = "<div class=\"amap-empty-state\">高德地图未加载。请设置 AMAP_JS_KEY 和 AMAP_SECURITY_JS_CODE 后重启应用。</div>";
+            showMapStatus("高德地图未加载。请设置 AMAP_JS_KEY 和 AMAP_SECURITY_JS_CODE 后重启应用。");
             return;
         }
+
+        if (data.graphUrl && !data.graph) {
+            try {
+                const response = await fetch(data.graphUrl, { cache: "force-cache" });
+                if (!response.ok) {
+                    throw new Error("route graph request failed");
+                }
+                const payload = await response.json();
+                data.graph = payload.graph || {};
+                data.facilities = payload.facilities || [];
+            } catch (error) {
+                showMapStatus("路线图数据加载失败，请刷新页面重试。");
+                return;
+            }
+        }
+
+        const graph = data.graph || {};
+        const nodes = graph.nodes || [];
+        const edges = graph.edges || [];
+        const facilities = data.facilities || [];
 
         function nodeLngLat(node) {
             if (node.amap_lng != null && node.amap_lat != null) {
@@ -259,6 +297,19 @@
             });
             overlays.length = 0;
         }
+
+        function syncLayerToggleButton(button, visible) {
+            if (!button) {
+                return;
+            }
+            button.classList.toggle("is-active", visible);
+            button.setAttribute("aria-pressed", visible ? "true" : "false");
+            const stateEl = button.querySelector(".route-layer-toggle__state");
+            if (stateEl) {
+                stateEl.textContent = visible ? "开" : "关";
+            }
+        }
+
         function setRoadOverlayVisible(visible) {
             if (collectMode || !roadOverlays.length || roadOverlaysVisible === visible) {
                 return;
@@ -272,6 +323,9 @@
                 });
             }
         }
+
+        syncLayerToggleButton(showRoadNetworkToggle, false);
+        syncLayerToggleButton(showFacilityLayerToggle, false);
         const nodeById = new Map(nodes.map(function (node) { return [String(node.id), node]; }));
         const selectableNodes = nodes.filter(function (node) {
             return node.selectable !== false && node.kind !== "road" && nodeLngLat(node);
@@ -283,7 +337,10 @@
         });
 
         if (!collectMode) {
-            edges.forEach(function (edge) {
+            const roadDisplayEdges = Array.isArray(graph.road_display_edges) && graph.road_display_edges.length
+                ? graph.road_display_edges
+                : edges;
+            roadDisplayEdges.forEach(function (edge) {
                 const path = graphPath(edge);
                 if (path.length < 2) {
                     return;
@@ -302,17 +359,10 @@
             });
         }
         if (showRoadNetworkToggle) {
-            showRoadNetworkToggle.checked = false;
-            const layerToggleState = showRoadNetworkToggle.closest(".route-layer-toggle")?.querySelector(".route-layer-toggle__state");
-            function syncRoadToggleLabel() {
-                if (layerToggleState) {
-                    layerToggleState.textContent = showRoadNetworkToggle.checked ? "显示" : "隐藏";
-                }
-            }
-            syncRoadToggleLabel();
-            showRoadNetworkToggle.addEventListener("change", function () {
-                setRoadOverlayVisible(showRoadNetworkToggle.checked);
-                syncRoadToggleLabel();
+            showRoadNetworkToggle.addEventListener("click", function () {
+                const nextVisible = !roadOverlaysVisible;
+                setRoadOverlayVisible(nextVisible);
+                syncLayerToggleButton(showRoadNetworkToggle, nextVisible);
             });
         }
 
@@ -326,29 +376,177 @@
                         ? fallbackPath(data.result.geometry)
                         : [];
 
-        if (routeGeometry.length) {
+        const routePalettes = {
+            walk: {
+                outline: "#0b1f35",
+                halo: "#4f8fe0",
+                core: "#f4f9ff"
+            },
+            bike: {
+                outline: "#0f2f24",
+                halo: "#39c1a2",
+                core: "#effdf8"
+            }
+        };
+        function routeEdgePath(edge) {
+            if (edge && edge.amap_geometry && edge.amap_geometry.length) {
+                return routePath(edge.amap_geometry);
+            }
+            if (edge && edge.geometry && edge.geometry.length) {
+                return fallbackPath(edge.geometry);
+            }
+            return [];
+        }
+
+        function routeResultEdges() {
+            if (data.multiResult && Array.isArray(data.multiResult.segments)) {
+                return data.multiResult.segments.reduce(function (items, segment) {
+                    return items.concat(segment && Array.isArray(segment.edges) ? segment.edges : []);
+                }, []);
+            }
+            return data.result && Array.isArray(data.result.edges) ? data.result.edges : [];
+        }
+
+        function routeModeForEdge(edge) {
+            if (transportMode === "bike") {
+                return "bike";
+            }
+            if (transportMode === "mixed") {
+                return edge && edge.bike ? "bike" : "walk";
+            }
+            return "walk";
+        }
+
+        function routePathDistance(path) {
+            let total = 0;
+            for (let index = 1; index < path.length; index += 1) {
+                total += haversine(
+                    path[index - 1][1],
+                    path[index - 1][0],
+                    path[index][1],
+                    path[index][0]
+                );
+            }
+            return total;
+        }
+
+        function routeSampleAtFraction(path, fraction) {
+            if (!path || path.length < 2) {
+                return null;
+            }
+            const totalDistance = routePathDistance(path);
+            if (!Number.isFinite(totalDistance) || totalDistance <= 0) {
+                return null;
+            }
+            const targetDistance = totalDistance * Math.max(0.05, Math.min(0.95, fraction));
+            let traversed = 0;
+            for (let index = 1; index < path.length; index += 1) {
+                const from = path[index - 1];
+                const to = path[index];
+                const segmentDistance = haversine(from[1], from[0], to[1], to[0]);
+                if (traversed + segmentDistance >= targetDistance) {
+                    const ratio = segmentDistance > 0 ? (targetDistance - traversed) / segmentDistance : 0;
+                    const lng = from[0] + (to[0] - from[0]) * ratio;
+                    const lat = from[1] + (to[1] - from[1]) * ratio;
+                    const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI;
+                    return {
+                        point: [lng, lat],
+                        angle
+                    };
+                }
+                traversed += segmentDistance;
+            }
+            const from = path[path.length - 2];
+            const to = path[path.length - 1];
+            return {
+                point: [to[0], to[1]],
+                angle: Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI
+            };
+        }
+
+        function addRouteArrow(path, mode, fraction) {
+            const sample = routeSampleAtFraction(path, fraction);
+            if (!sample) {
+                return;
+            }
+            routeOverlays.push(new AMap.Marker({
+                position: sample.point,
+                content: (
+                    `<div class="route-flow-arrow route-flow-arrow--${mode}" ` +
+                    `style="transform: translate(-50%, -50%) rotate(${sample.angle}deg);" aria-hidden="true">` +
+                    `<span class="route-flow-arrow__blade"></span>` +
+                    `<span class="route-flow-arrow__stem"></span>` +
+                    `</div>`
+                ),
+                anchor: "center",
+                zIndex: 93
+            }));
+        }
+
+        function addRouteArrows(path, mode) {
+            if (!path || path.length < 2) {
+                return;
+            }
+            const length = routePathDistance(path);
+            if (!Number.isFinite(length) || length < 200) {
+                return;
+            }
+            const arrowCount = Math.min(4, Math.max(1, Math.round(length / 1100)));
+            if (arrowCount === 1) {
+                addRouteArrow(path, mode, 0.58);
+                return;
+            }
+            for (let index = 1; index <= arrowCount; index += 1) {
+                addRouteArrow(path, mode, index / (arrowCount + 1));
+            }
+        }
+
+        function addRoutePolyline(path, mode) {
+            if (!path || path.length < 2) {
+                return;
+            }
+            const routePalette = routePalettes[mode] || routePalettes.walk;
             routeOverlays.push(new AMap.Polyline({
-                path: routeGeometry,
+                path,
                 isOutline: true,
-                outlineColor: "#102338",
-                strokeColor: "#8aaed8",
-                strokeWeight: 9,
-                strokeOpacity: 0.98,
+                outlineColor: routePalette.outline,
+                strokeColor: routePalette.halo,
+                strokeWeight: 8,
+                strokeOpacity: 0.9,
                 lineJoin: "round",
                 lineCap: "round",
-                showDir: true,
+                showDir: false,
                 zIndex: 90
             }));
             routeOverlays.push(new AMap.Polyline({
-                path: routeGeometry,
-                strokeColor: "#eef6ff",
-                strokeWeight: 3.2,
-                strokeOpacity: 0.88,
-                strokeStyle: "dashed",
+                path,
+                strokeColor: routePalette.core,
+                strokeWeight: 3.4,
+                strokeOpacity: 0.96,
+                strokeStyle: "solid",
                 lineJoin: "round",
                 lineCap: "round",
                 zIndex: 91
             }));
+            addRouteArrows(path, mode);
+        }
+
+        if (routeGeometry.length) {
+            if (transportMode === "mixed") {
+                const routeEdges = routeResultEdges();
+                if (routeEdges.length) {
+                    routeEdges.forEach(function (edge) {
+                        addRoutePolyline(routeEdgePath(edge), routeModeForEdge(edge));
+                    });
+                } else {
+                    addRoutePolyline(routeGeometry, "walk");
+                }
+                if (!routeOverlays.length) {
+                    addRoutePolyline(routeGeometry, "walk");
+                }
+            } else {
+                addRoutePolyline(routeGeometry, transportMode === "bike" ? "bike" : "walk");
+            }
             map.add(routeOverlays);
             window.setTimeout(function () {
                 map.setFitView(routeOverlays, false, [50, 50, 50, 50], 18);
@@ -382,12 +580,34 @@
             }, 120);
         }
 
+        function openFoodsFromOrigin(nodeId) {
+            if (!nodeId) {
+                return;
+            }
+            const params = new URLSearchParams();
+            params.set("place_id", (data.state && data.state.placeId) || graph.place_id || "xmu_manual");
+            params.set("origin_node", nodeId);
+            params.set("sort_by", "distance_asc");
+            window.location.href = `/foods?${params.toString()}`;
+        }
+
         function setRouteMode(mode) {
             if (!routeTypeSelect) {
                 return;
             }
             routeTypeSelect.value = mode;
             routeTypeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+
+        function ensureWaypointRouteMode() {
+            if (!routeTypeSelect) {
+                return;
+            }
+            const currentMode = routeTypeSelect.value;
+            if (currentMode === "multi" || currentMode === "round_trip") {
+                return;
+            }
+            setRouteMode("multi");
         }
 
         function targetDisplayName(targetId) {
@@ -751,7 +971,7 @@
                 button.addEventListener("click", function () {
                     const action = button.getAttribute("data-node-action");
                     if (action === "target") {
-                        setRouteMode("multi");
+                        ensureWaypointRouteMode();
                         if (!setTargetValue(node.id, true)) {
                             return;
                         }
@@ -837,6 +1057,10 @@
                 return bounds.contains(point);
             }
             return true;
+        }
+
+        function isRoadNode(node) {
+            return String((node || {}).kind || "").trim() === "road";
         }
 
         function planningTargetInfo(nodeId) {
@@ -939,10 +1163,26 @@
         map.on("moveend", schedulePlanningMarkerRedraw);
 
         const facilityMarkers = [];
-        if (!collectMode) {
+        let facilityLayerVisible = false;
+        function shouldShowFacilityMarker(facility, position) {
+            if (!position) {
+                return false;
+            }
+            if (map.getZoom() < 18.4) {
+                return false;
+            }
+            return mapBoundsContains(position);
+        }
+
+        function redrawFacilityMarkers() {
+            if (collectMode || !facilityLayerVisible) {
+                removeOverlayList(facilityMarkers);
+                return;
+            }
+            removeOverlayList(facilityMarkers);
             facilities.forEach(function (facility) {
                 const position = facilityLngLat(facility);
-                if (!position) {
+                if (!shouldShowFacilityMarker(facility, position)) {
                     return;
                 }
                 const displayName = facilityDisplayName(facility);
@@ -972,6 +1212,25 @@
             }
         }
 
+        redrawFacilityMarkers();
+        let facilityMarkerTimer = null;
+        function scheduleFacilityMarkerRedraw() {
+            if (!facilityLayerVisible || collectMode) {
+                return;
+            }
+            window.clearTimeout(facilityMarkerTimer);
+            facilityMarkerTimer = window.setTimeout(redrawFacilityMarkers, 120);
+        }
+        map.on("zoomend", scheduleFacilityMarkerRedraw);
+        map.on("moveend", scheduleFacilityMarkerRedraw);
+        if (showFacilityLayerToggle) {
+            showFacilityLayerToggle.addEventListener("click", function () {
+                facilityLayerVisible = !facilityLayerVisible;
+                syncLayerToggleButton(showFacilityLayerToggle, facilityLayerVisible);
+                redrawFacilityMarkers();
+            });
+        }
+
         function nearestSelectable(lng, lat) {
             let closest = null;
             selectableNodes.forEach(function (node) {
@@ -987,9 +1246,13 @@
             return closest;
         }
 
-        function nearestGraphNodePosition(position) {
+        function nearestGraphNodePosition(position, options) {
+            const roadOnly = !options || options.roadOnly !== false;
             let closest = null;
             nodes.forEach(function (node) {
+                if (roadOnly && !isRoadNode(node)) {
+                    return;
+                }
                 const nodePosition = nodeLngLat(node);
                 if (!nodePosition) {
                     return;
@@ -1003,9 +1266,16 @@
         }
 
         function facilityConnectionPosition(facility, position) {
+            const anchor = [Number(facility.nearest_lng), Number(facility.nearest_lat)];
+            if (Number.isFinite(anchor[0]) && Number.isFinite(anchor[1])) {
+                return anchor;
+            }
             const nearestId = String(facility.nearest_node || "");
             const nearestNode = nearestId ? nodeById.get(nearestId) : null;
-            return nearestNode ? nodeLngLat(nearestNode) : nearestGraphNodePosition(position);
+            if (nearestNode && isRoadNode(nearestNode)) {
+                return nodeLngLat(nearestNode);
+            }
+            return nearestGraphNodePosition(position, { roadOnly: true });
         }
 
         function setupCollector() {
@@ -1028,6 +1298,8 @@
                 "<label data-fields=\"poi facility road\">名称<input id=\"collectorName\" type=\"text\" value=\"采集点\"></label>" +
                 "<label data-fields=\"poi\">路线点类型<select id=\"collectorKind\"><option value=\"building\">建筑</option><option value=\"gate\">校门</option><option value=\"teaching\">教学楼</option><option value=\"library\">图书馆</option><option value=\"canteen\">食堂</option><option value=\"dorm\">宿舍</option><option value=\"sports\">体育</option><option value=\"service\">服务点</option><option value=\"landmark\">地标</option></select></label>" +
                 "<label data-fields=\"facility\">场所类别<select id=\"collectorFacilityType\"><option value=\"卫生间\">卫生间</option><option value=\"超市\">超市</option><option value=\"便利店\">便利店</option><option value=\"餐饮\">餐饮</option><option value=\"医疗\">医疗</option><option value=\"快递\">快递</option><option value=\"ATM\">ATM</option><option value=\"公交\">公交</option><option value=\"停车\">停车</option><option value=\"饮水\">饮水</option><option value=\"休息点\">休息点</option><option value=\"其他\">其他</option></select></label>" +
+                "<label data-fields=\"facility\">菜系细分<select id=\"collectorCuisine\"><option value=\"\">按店名自动识别</option><option value=\"东北菜\">东北菜</option><option value=\"川菜\">川菜</option><option value=\"湘菜\">湘菜</option><option value=\"火锅\">火锅</option><option value=\"自助\">自助</option><option value=\"烧烤\">烧烤</option><option value=\"快餐\">快餐</option><option value=\"奶茶\">奶茶</option><option value=\"咖啡\">咖啡</option><option value=\"小吃\">小吃</option><option value=\"面食\">面食</option><option value=\"粉面\">粉面</option><option value=\"粤菜\">粤菜</option><option value=\"西餐\">西餐</option><option value=\"印度菜\">印度菜</option><option value=\"家常菜\">家常菜</option><option value=\"食堂\">食堂</option><option value=\"超市便利\">超市便利</option><option value=\"饮品\">饮品</option><option value=\"其他餐饮\">其他餐饮</option></select></label>" +
+                "<label data-fields=\"facility\" id=\"collectorCustomCuisineWrap\" hidden>手动菜系<input id=\"collectorCustomCuisine\" type=\"text\" value=\"\" placeholder=\"例如：闽南菜、韩餐、轻食\"></label>" +
                 "<label data-fields=\"facility\">自定义标签<input id=\"collectorCategory\" type=\"text\" value=\"\" placeholder=\"选其他时填写；也可补充多个标签\"></label>" +
                 "<label data-fields=\"road\">道路类型<select id=\"collectorRoadType\"><option value=\"main\">主干道</option><option value=\"walkway\" selected>普通步道</option><option value=\"narrow\">狭窄小路</option><option value=\"stairs\">楼间通道/台阶</option></select></label>" +
                 "<div class=\"collector-road-options\" data-fields=\"road\">" +
@@ -1039,7 +1311,7 @@
                 "<div class=\"road-editor-actions\">" +
                 "<button type=\"button\" data-editor-action=\"undo-step\">撤销上步</button>" +
                 "<button type=\"button\" data-editor-action=\"redo-step\">重做</button>" +
-                "<button type=\"button\" data-editor-action=\"clear\">清空</button>" +
+                "<button type=\"button\" data-editor-action=\"clear\">清空当前线</button>" +
                 "<button type=\"button\" data-editor-action=\"save-road\">保存道路</button>" +
                 "<button type=\"button\" data-editor-action=\"clear-all\">清空全部</button>" +
                 "</div>" +
@@ -1052,6 +1324,9 @@
             const nameInput = panel.querySelector("#collectorName");
             const kindInput = panel.querySelector("#collectorKind");
             const facilityTypeInput = panel.querySelector("#collectorFacilityType");
+            const cuisineInput = panel.querySelector("#collectorCuisine");
+            const customCuisineWrap = panel.querySelector("#collectorCustomCuisineWrap");
+            const customCuisineInput = panel.querySelector("#collectorCustomCuisine");
             const categoryInput = panel.querySelector("#collectorCategory");
             const roadTypeInput = panel.querySelector("#collectorRoadType");
             const walkInput = panel.querySelector("#collectorWalk");
@@ -1098,7 +1373,7 @@
             const collectorGridLngStep = 0.00036;
             const collectorGridLatStep = 0.00028;
             const maxSnapDistanceMeters = 90;
-            const maxVisibleSnapRoadMarkers = 260;
+            const maxVisibleSnapRoadMarkers = 180;
             const boxSelect = {
                 pressed: false,
                 active: false,
@@ -1170,6 +1445,28 @@
                 return preset === "其他" && custom ? custom : preset;
             }
 
+            function cuisineValue() {
+                const selected = cuisineInput ? String(cuisineInput.value || "").trim() : "";
+                if (selected === "其他餐饮") {
+                    const custom = customCuisineInput ? String(customCuisineInput.value || "").trim() : "";
+                    if (!custom) {
+                        throw new Error("选择其他餐饮时，请手动填写菜系。");
+                    }
+                    return custom;
+                }
+                return selected;
+            }
+
+            function syncCuisineCustomInput() {
+                const showCustom = cuisineInput && cuisineInput.value === "其他餐饮";
+                if (customCuisineWrap) {
+                    customCuisineWrap.hidden = !showCustom || collectorMode !== "facility";
+                }
+                if (!showCustom && customCuisineInput) {
+                    customCuisineInput.value = "";
+                }
+            }
+
             function applyRoadPreset() {
                 const preset = roadPresets[roadTypeInput.value] || roadPresets.walkway;
                 congestionInput.value = preset.congestion.toFixed(2);
@@ -1199,6 +1496,7 @@
                 if (modeNote) {
                     modeNote.textContent = modeStatusMessage();
                 }
+                syncCuisineCustomInput();
             }
 
             function consumeMapEvent(event) {
@@ -1250,7 +1548,7 @@
             }
 
             function applyMapMotionState() {
-                const shouldLock = (collectorMode === "road" || collectorMode === "snap") && mapLocked;
+                const shouldLock = mapLocked || rightDrawing;
                 map.setStatus({
                     dragEnable: !shouldLock,
                     doubleClickZoom: false,
@@ -1262,7 +1560,7 @@
                         : "吸附模式：地图可拖动";
                 } else {
                     mapLockButton.textContent = shouldLock
-                        ? "地图已锁定：点选/吸附"
+                        ? "地图已锁定：可框选删除"
                         : "地图可拖动：移动视野";
                 }
                 mapLockButton.classList.toggle("is-unlocked", !shouldLock);
@@ -1720,18 +2018,100 @@
                 return collectorGridItems(collectorNamedGrid, box, "item");
             }
 
+            function collectorRoadMarkerRenderEnabled() {
+                if (collectorMode === "snap") {
+                    return true;
+                }
+                return Boolean(selectedSavedRoadPoint || selectedPoiTarget);
+            }
+
             function shouldRenderSavedRoadPoint(point, isSelected) {
                 if (isSelected) {
                     return true;
                 }
-                const box = collectorRenderViewportBox || currentViewportBox(0.02);
-                if (!box || !collectorBoxContainsPoint(box, point)) {
+                if (collectorMode === "snap") {
+                    return isCollectorRoadFocusPoint(point);
+                }
+                return Boolean(selectedSavedRoadPoint || selectedPoiTarget) && isCollectorRoadFocusPoint(point);
+            }
+
+            function collectorRoadFocusPoints() {
+                const points = [];
+                const seen = new Set();
+
+                function addPoint(point) {
+                    if (!point) {
+                        return;
+                    }
+                    const lng = Number(point[0]);
+                    const lat = Number(point[1]);
+                    if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+                        return;
+                    }
+                    const key = `${lng.toFixed(7)}:${lat.toFixed(7)}`;
+                    if (seen.has(key)) {
+                        return;
+                    }
+                    seen.add(key);
+                    points.push([lng, lat]);
+                }
+
+                if (selectedSavedRoadPoint) {
+                    addPoint(roadPointByRef(selectedSavedRoadPoint));
+                }
+                if (selectedPoiTarget) {
+                    addPoint(poiPointById(selectedPoiTarget.id));
+                }
+                (selectedSnapEndpoints || []).forEach(function (endpoint) {
+                    addPoint(endpointPoint(endpoint));
+                });
+                if (collectorMode === "road" && rightDrawing && editPoints.length) {
+                    const step = Math.max(1, Math.floor(editPoints.length / 12));
+                    editPoints.forEach(function (point, index) {
+                        if (index === 0 || index === editPoints.length - 1 || index % step === 0) {
+                            addPoint(point);
+                        }
+                    });
+                }
+                return points;
+            }
+
+            let collectorRoadFocusCache = [];
+            let collectorRoadFocusRadiusCache = 0;
+
+            function refreshCollectorRoadFocusCache() {
+                collectorRoadFocusCache = collectorRoadFocusPoints();
+                collectorRoadFocusRadiusCache = collectorRoadFocusRadiusMeters();
+            }
+
+            function collectorRoadFocusRadiusMeters() {
+                const zoom = map && map.getZoom ? Number(map.getZoom()) : 18;
+                if (zoom >= 19) {
+                    return 34;
+                }
+                if (zoom >= 18.2) {
+                    return 44;
+                }
+                if (zoom >= 17.4) {
+                    return 58;
+                }
+                return 72;
+            }
+
+            function isCollectorRoadFocusPoint(point) {
+                const focusPoints = collectorRoadFocusCache.length ? collectorRoadFocusCache : collectorRoadFocusPoints();
+                if (!focusPoints.length || !point) {
                     return false;
                 }
-                if (collectorMode === "snap") {
-                    return map.getZoom() >= 18.25;
+                const lng = Number(point[0]);
+                const lat = Number(point[1]);
+                if (!Number.isFinite(lng) || !Number.isFinite(lat)) {
+                    return false;
                 }
-                return map.getZoom() >= 18.1;
+                const radius = collectorRoadFocusRadiusCache || collectorRoadFocusRadiusMeters();
+                return focusPoints.some(function (focusPoint) {
+                    return haversine(lat, lng, Number(focusPoint[1]), Number(focusPoint[0])) <= radius;
+                });
             }
 
             function pathTouchesViewport(path) {
@@ -1814,6 +2194,7 @@
                 if (selectedSnapEndpoints.length === 2) {
                     await autoSnapSelectedEndpoints();
                 } else {
+                    redrawSavedV2Optimized();
                     status(`已选中 ${endpointLabel(endpoint)}，请继续点击另一个路节点、路线点或场所。`);
                 }
             }
@@ -1873,6 +2254,86 @@
                 if (snapHighlightOverlays.length) {
                     map.add(snapHighlightOverlays);
                 }
+            }
+
+            function clearCollectorOverlayLayers(useMapClear) {
+                if (useMapClear && map && typeof map.clearMap === "function") {
+                    map.clearMap();
+                }
+                removeOverlayList(editMarkers);
+                removeOverlayList(savedOverlays);
+                removeOverlayList(savedTransientOverlays);
+                removeOverlayList(snapHighlightOverlays);
+                removeOverlayList(editLines);
+                removeOverlayList(editLinkLines);
+                editMarkers.length = 0;
+                savedOverlays.length = 0;
+                savedTransientOverlays.length = 0;
+                snapHighlightOverlays.length = 0;
+                editLines.length = 0;
+                editLinkLines.length = 0;
+            }
+
+            function nearestRoadEndpointOnEdgeFromScreen(edge, screenPoint) {
+                if (!edge || !edge.amap_geometry || !screenPoint) {
+                    return null;
+                }
+                const radius = collectorMode === "snap"
+                    ? (map.getZoom() >= 18.4 ? 42 : 52)
+                    : 28;
+                let closest = null;
+                edge.amap_geometry.forEach(function (point, pointIndex) {
+                    const pixel = pointToContainer(point);
+                    if (!pixel) {
+                        return;
+                    }
+                    const distance = Math.hypot(pixel.x - screenPoint.x, pixel.y - screenPoint.y);
+                    if (distance <= radius && (!closest || distance < closest.distance)) {
+                        closest = {
+                            endpoint: { type: "road", edge: edge.id, point_index: pointIndex, name: edge.name || edge.id },
+                            point,
+                            distance
+                        };
+                    }
+                });
+                return closest;
+            }
+
+            function createSavedRoadPolyline(edge, path) {
+                const roadLine = new AMap.Polyline({
+                    path,
+                    strokeColor: "#8aaed8",
+                    strokeWeight: collectorMode === "snap" ? 7 : 4,
+                    strokeOpacity: collectorMode === "snap" ? 0.54 : 0.46,
+                    lineJoin: "round",
+                    lineCap: "round",
+                    zIndex: collectorMode === "snap" ? 34 : 30
+                });
+                roadLine.on("rightclick", function (event) {
+                    if (finishDrawingFromOverlay(event, "右键结束连续打点，正在保存道路。")) {
+                        return;
+                    }
+                    consumeMapEvent(event);
+                    deleteSavedRoad(edge).catch(function (error) { status(error.message); });
+                });
+                roadLine.on("click", function (event) {
+                    if (collectorMode !== "snap") {
+                        return;
+                    }
+                    consumeMapEvent(event);
+                    suppressNextClick = true;
+                    const screenPoint = event && event.originEvent
+                        ? mapLocalPoint(event.originEvent)
+                        : pointToContainer(eventPoint(event));
+                    const closestRoad = nearestRoadEndpointOnEdgeFromScreen(edge, screenPoint)
+                        || (screenPoint ? nearestRoadEndpointFromScreen(screenPoint) : null);
+                    if (closestRoad) {
+                        selectSnapEndpoint(closestRoad.endpoint).catch(function (error) { status(error.message); });
+                    } else {
+                        status("吸附模式：请更靠近道路折点点击，或先点路线点让附近路节点显示。");
+                    }
+                });
+                return roadLine;
             }
 
             function linkEndpointPoint(ref) {
@@ -2361,18 +2822,21 @@
                     edge.amap_geometry.forEach(function (point, pointIndex) {
                         const endpoint = { type: "road", edge: edge.id, point_index: pointIndex, name: edge.name || edge.id };
                         const isSelected = snapEndpointSelected(endpoint);
-                        if (!isSelected && renderedRoadMarkerCount >= roadMarkerBudget) {
+                        const isFocus = !isSelected && isCollectorRoadFocusPoint(point);
+                        if (!isSelected && !isFocus && renderedRoadMarkerCount >= roadMarkerBudget) {
                             return;
                         }
                         if (!shouldRenderSavedRoadPoint(point, isSelected)) {
                             return;
                         }
-                        renderedRoadMarkerCount += 1;
+                        if (!isFocus) {
+                            renderedRoadMarkerCount += 1;
+                        }
                         const marker = new AMap.Marker({
                             position: point,
-                            content: `<button type="button" class="saved-road-dot ${isSelected ? "is-selected" : ""}" title="${htmlEscape(edge.name || edge.id)} #${pointIndex + 1}" aria-label="选择已保存道路路点"></button>`,
+                            content: `<button type="button" class="saved-road-dot ${isSelected ? "is-selected" : ""} ${isFocus ? "collector-snap-focus" : ""}" title="${htmlEscape(edge.name || edge.id)} #${pointIndex + 1}" aria-label="选择已保存道路路点"></button>`,
                             anchor: "center",
-                            zIndex: isSelected ? 112 : 72
+                            zIndex: isSelected ? 112 : isFocus ? 92 : 72
                         });
                         marker.on("click", function (event) {
                             if (event && event.originEvent && event.originEvent.stopPropagation) {
@@ -2383,6 +2847,8 @@
                                 selectSnapEndpoint(endpoint).catch(function (error) { status(error.message); });
                                 return;
                             }
+                            selectedSnapEndpoints = [];
+                            selectedPoiTarget = null;
                             selectedSavedRoadPoint = { edge: edge.id, target_index: pointIndex, name: edge.name || edge.id };
                             status("已选中保存道路上的路节点。切换到吸附模式后可与路线点或其他路节点连接。");
                             redrawSavedV2();
@@ -2533,13 +2999,17 @@
                 removeOverlayList(savedOverlays);
                 savedTransientOverlays.length = 0;
                 rebuildCollectorRoadPointCache();
+                refreshCollectorRoadFocusCache();
                 collectorRenderViewportBox = currentViewportBox(0.06);
                 const viewportBox = collectorRenderViewportBox;
                 const visibleEdgeIds = currentViewportRoadEdgeIds(0.06);
                 const visibleEdgeSet = new Set(visibleEdgeIds);
                 const visibleNamedItems = currentViewportNamedCollectorItems(0.04);
+                const renderRoadMarkers = collectorRoadMarkerRenderEnabled();
                 let renderedRoadMarkerCount = 0;
-                const roadMarkerBudget = collectorMode === "snap"
+                const roadMarkerBudget = collectorMode === "road" && rightDrawing
+                    ? 420
+                    : collectorMode === "snap"
                     ? maxVisibleSnapRoadMarkers
                     : maxVisibleSnapRoadMarkers * 2;
                 let renderedNamedMarkerCount = 0;
@@ -2563,30 +3033,28 @@
                             return;
                         }
                     }
-                    savedOverlays.push(new AMap.Polyline({
-                        path: edgeGeometry,
-                        strokeColor: "#8aaed8",
-                        strokeWeight: 4,
-                        strokeOpacity: 0.46,
-                        lineJoin: "round",
-                        lineCap: "round",
-                        zIndex: 30
-                    }));
+                    savedOverlays.push(createSavedRoadPolyline(edge, edgeGeometry));
+                    if (!renderRoadMarkers) {
+                        return;
+                    }
                     edgeGeometry.forEach(function (point, pointIndex) {
                         const endpoint = { type: "road", edge: edge.id, point_index: pointIndex, name: edge.name || edge.id };
                         const isSelected = snapEndpointSelected(endpoint);
-                        if (!isSelected && renderedRoadMarkerCount >= roadMarkerBudget) {
+                        const isFocus = !isSelected && isCollectorRoadFocusPoint(point);
+                        if (!isSelected && !isFocus && renderedRoadMarkerCount >= roadMarkerBudget) {
                             return;
                         }
                         if (!shouldRenderSavedRoadPoint(point, isSelected)) {
                             return;
                         }
-                        renderedRoadMarkerCount += 1;
+                        if (!isFocus) {
+                            renderedRoadMarkerCount += 1;
+                        }
                         const marker = new AMap.Marker({
                             position: point,
-                            content: `<button type="button" class="saved-road-dot ${isSelected ? "is-selected" : ""}" title="${htmlEscape(edge.name || edge.id)} #${pointIndex + 1}" aria-label="选择已保存道路点"></button>`,
+                            content: `<button type="button" class="saved-road-dot ${isSelected ? "is-selected" : ""} ${isFocus ? "collector-snap-focus" : ""}" title="${htmlEscape(edge.name || edge.id)} #${pointIndex + 1}" aria-label="选择已保存道路点"></button>`,
                             anchor: "center",
-                            zIndex: isSelected ? 112 : 72
+                            zIndex: isSelected ? 112 : isFocus ? 92 : 72
                         });
                         marker.on("click", function (event) {
                             if (event && event.originEvent && event.originEvent.stopPropagation) {
@@ -2662,6 +3130,8 @@
                                 restoreMapView(view);
                                 return;
                             }
+                            selectedSnapEndpoints = [];
+                            selectedSavedRoadPoint = null;
                             selectedPoiTarget = { id: node.id, name: node.name };
                             status(`已选中路线点「${node.name}」。切换到吸附模式后可与道路节点连接。`);
                             redrawSavedV2Optimized();
@@ -2763,22 +3233,7 @@
                     return;
                 }
                 const overlays = [];
-                const roadLine = new AMap.Polyline({
-                    path: edge.amap_geometry,
-                    strokeColor: "#8aaed8",
-                    strokeWeight: 4,
-                    strokeOpacity: 0.46,
-                    lineJoin: "round",
-                    lineCap: "round",
-                    zIndex: 30
-                });
-                roadLine.on("rightclick", function (event) {
-                    if (finishDrawingFromOverlay(event, "右键结束连续打点，正在保存道路。")) {
-                        return;
-                    }
-                    consumeMapEvent(event);
-                    deleteSavedRoad(edge).catch(function (error) { status(error.message); });
-                });
+                const roadLine = createSavedRoadPolyline(edge, edge.amap_geometry);
                 overlays.push(roadLine);
                 edge.poi_links = edge.poi_links || [];
                 edge.road_links = edge.road_links || [];
@@ -2790,6 +3245,10 @@
                     const fromPoint = edge.amap_geometry[link.index];
                     addSnapLine(overlays, fromPoint, roadPointByLink(link), false);
                 });
+                savedOverlays.push(...overlays);
+                savedTransientOverlays.push(...overlays);
+                map.add(overlays);
+                return;
                 edge.amap_geometry.forEach(function (point, pointIndex) {
                     const marker = new AMap.Marker({
                         position: point,
@@ -3019,14 +3478,17 @@
             async function saveFacility(point) {
                 pushUndoSnapshot();
                 const facilityType = facilityTypeValue();
+                const cuisine = cuisineValue();
                 const customTags = (categoryInput.value || "").trim();
+                const tagParts = [facilityType, cuisine, customTags].filter(Boolean);
                 const payload = await requestCollector("/api/collector/facility", {
                     method: "POST",
                     body: JSON.stringify({
                         name: nameInput.value || "场所",
                         type: facilityType,
-                        tags: customTags ? `${facilityType},${customTags}` : facilityType,
-                        description: `${facilityType}，手动采集，模块三按道路图距离排序。`,
+                        cuisine,
+                        tags: tagParts.join(","),
+                        description: cuisine ? `${facilityType} · ${cuisine}，手动采集，按道路图距离排序。` : `${facilityType}，手动采集，按道路图距离排序。`,
                         amap_lng: point[0],
                         amap_lat: point[1]
                     })
@@ -3091,9 +3553,7 @@
                 collectorState.summary.edges = collectorState.edges.length;
                 rebuildCollectorLookupCaches();
                 collectorRoadPointCacheDirty = true;
-                savedEdges.forEach(function (edge) {
-                    appendSavedEdgeToView(edge);
-                });
+                redrawSavedV2Optimized();
                 redrawSnapSelectionHighlights();
                 status(`已保存 ${savedEdges.length} 条道路。删除路节点形成的断口已拆分为独立路段。`);
             }
@@ -3159,7 +3619,9 @@
 
             function nearestRoadEndpointFromScreen(screenPoint) {
                 rebuildCollectorRoadPointCache();
-                const radius = map.getZoom() >= 18.4 ? 18 : 24;
+                const radius = collectorMode === "snap"
+                    ? (map.getZoom() >= 18.4 ? 42 : 54)
+                    : (map.getZoom() >= 18.4 ? 18 : 24);
                 const lnglat = map.containerToLngLat
                     ? map.containerToLngLat(new AMap.Pixel(screenPoint.x, screenPoint.y))
                     : null;
@@ -3290,14 +3752,18 @@
                 selectedPoiTarget = null;
                 selectedSnapEndpoints = [];
                 selectedEditIndex = -1;
+                clearCollectorOverlayLayers(true);
                 redrawEditor();
-                redrawSaved();
+                redrawSavedV2Optimized();
                 const deleted = payload.deleted || {};
                 status(`已批量删除：路线点 ${deleted.nodes || 0} 个，场所 ${deleted.facilities || 0} 个，路节点 ${deleted.road_points || 0} 个；相关吸附已清理。`);
             }
 
             function beginBoxSelect(event) {
-                if (event.button !== 0 || rightDrawing || draggingEditIndex >= 0) {
+                if (event.button !== 0 || rightDrawing || draggingEditIndex >= 0 || collectorMode === "snap") {
+                    return;
+                }
+                if (!mapLocked) {
                     return;
                 }
                 if (event.target.closest(".road-editor-panel, .route-basemap-switcher, .amap-marker, button, input, select, textarea")) {
@@ -3326,11 +3792,7 @@
                 const distance = Math.hypot(boxSelect.currentX - boxSelect.startX, boxSelect.currentY - boxSelect.startY);
                 if (!boxSelect.active) {
                     const elapsed = Date.now() - boxSelect.startedAt;
-                    if (distance >= 12 && elapsed < 120) {
-                        boxSelect.cancelled = true;
-                        return;
-                    }
-                    if (distance < 12 || elapsed < 120) {
+                    if (distance < 24 || elapsed < 220) {
                         return;
                     }
                     boxSelect.active = true;
@@ -3458,7 +3920,7 @@
                         selectedEditIndex = -1;
                         undoStack = [];
                         redoStack = [];
-                        redrawEditor();
+                        clearCollectorOverlayLayers(true);
                         requestCollector("/api/collector/clear", { method: "POST", body: "{}" })
                             .then(function (payload) {
                                 collectorState = {
@@ -3476,9 +3938,11 @@
                                 removeOverlayList(routeOverlays);
                                 removeOverlayList(poiMarkers);
                                 removeOverlayList(facilityMarkers);
-                                removeOverlayList(savedOverlays);
-                    redrawSnapSelectionHighlights();
+                                clearCollectorOverlayLayers(true);
+                                redrawSnapSelectionHighlights();
                                 updateConnectorOptions();
+                                redrawEditor();
+                                redrawSavedV2();
                                 status("?????????????????????????????????????");
                             })
                             .catch(function (error) { status(error.message); });
@@ -3486,8 +3950,11 @@
                 }
             });
             nameInput.addEventListener("input", redrawEditor);
+            if (cuisineInput) {
+                cuisineInput.addEventListener("change", syncCuisineCustomInput);
+            }
             roadTypeInput.addEventListener("change", applyRoadPreset);
-            mapEl.addEventListener("mousedown", beginBoxSelect);
+            mapEl.addEventListener("mousedown", beginBoxSelect, true);
             document.addEventListener("mousemove", moveBoxSelect);
             document.addEventListener("mouseup", finishBoxSelect);
             mapEl.addEventListener("contextmenu", function (event) {
@@ -3586,6 +4053,9 @@
                 lastDragPoint = point;
                 lastDragBearing = nextBearing;
                 redrawEditor();
+                if (collectorMode === "road") {
+                    scheduleSavedRedraw();
+                }
             }
 
             function startRightDrawing(point) {
@@ -3713,6 +4183,12 @@
             const lng = event.lnglat.getLng();
             const lat = event.lnglat.getLat();
             const closest = nearestSelectable(lng, lat);
+            if (foodPickMode) {
+                if (closest && closest.distance <= routeClickRadiusForZoom()) {
+                    openFoodsFromOrigin(closest.node.id);
+                }
+                return;
+            }
             if (closest
                 && closest.distance <= routeClickRadiusForZoom()
                 && shouldShowPlanningNode(closest.node, planningTargetInfo(closest.node.id))) {
@@ -3769,7 +4245,7 @@
             if (!match) {
                 return;
             }
-            setRouteMode("multi");
+            ensureWaypointRouteMode();
             if (setTargetValue(match.id, true)) {
                 submitPlanner();
             }

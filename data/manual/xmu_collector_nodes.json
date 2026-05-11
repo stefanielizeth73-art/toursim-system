@@ -1425,22 +1425,6 @@
       ]
     },
     {
-      "amap_lat": 24.604403,
-      "amap_lng": 118.307036,
-      "category": "建筑",
-      "id": "route_point_黄朝阳路_094",
-      "kind": "building",
-      "lat": 24.604403,
-      "lon": 118.307036,
-      "name": "黄朝阳路",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "建筑"
-      ]
-    },
-    {
       "amap_lat": 24.605795,
       "amap_lng": 118.307473,
       "category": "教学楼",
@@ -2033,22 +2017,6 @@
       ]
     },
     {
-      "amap_lat": 24.608412,
-      "amap_lng": 118.317232,
-      "category": "体育",
-      "id": "route_point_篮球场_135",
-      "kind": "sports",
-      "lat": 24.608412,
-      "lon": 118.317232,
-      "name": "篮球场",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "体育"
-      ]
-    },
-    {
       "amap_lat": 24.609936,
       "amap_lng": 118.318058,
       "category": "食堂",
@@ -2062,22 +2030,6 @@
       "source": "manual_collector_node",
       "tags": [
         "食堂"
-      ]
-    },
-    {
-      "amap_lat": 24.60955,
-      "amap_lng": 118.317256,
-      "category": "体育",
-      "id": "route_point_羽毛球场_137",
-      "kind": "sports",
-      "lat": 24.60955,
-      "lon": 118.317256,
-      "name": "羽毛球场",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "体育"
       ]
     },
     {
@@ -3054,6 +3006,358 @@
       "source": "manual_collector_node",
       "tags": [
         "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.602648,
+      "amap_lng": 118.306629,
+      "category": "校门",
+      "id": "route_point_南3门_192",
+      "kind": "gate",
+      "lat": 24.602648,
+      "lon": 118.306629,
+      "name": "南3门",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "校门"
+      ]
+    },
+    {
+      "amap_lat": 24.604403,
+      "amap_lng": 118.307036,
+      "category": "建筑",
+      "id": "route_point_黄朝阳路_094",
+      "kind": "building",
+      "lat": 24.604403,
+      "lon": 118.307036,
+      "name": "黄朝阳楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "建筑"
+      ]
+    },
+    {
+      "amap_lat": 24.6057,
+      "amap_lng": 118.318906,
+      "category": "教学楼",
+      "id": "route_point_嘉庚实验室2号楼_193",
+      "kind": "teaching",
+      "lat": 24.6057,
+      "lon": 118.318906,
+      "name": "嘉庚实验室2号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606027,
+      "amap_lng": 118.318887,
+      "category": "教学楼",
+      "id": "route_point_嘉庚实验室3号楼_194",
+      "kind": "teaching",
+      "lat": 24.606027,
+      "lon": 118.318887,
+      "name": "嘉庚实验室3号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.606632,
+      "amap_lng": 118.319064,
+      "category": "教学楼",
+      "id": "route_point_嘉庚实验室4号楼_195",
+      "kind": "teaching",
+      "lat": 24.606632,
+      "lon": 118.319064,
+      "name": "嘉庚实验室4号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.607329,
+      "amap_lng": 118.319024,
+      "category": "教学楼",
+      "id": "route_point_嘉庚实验室5号楼_196",
+      "kind": "teaching",
+      "lat": 24.607329,
+      "lon": 118.319024,
+      "name": "嘉庚实验室5号楼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "教学楼"
+      ]
+    },
+    {
+      "amap_lat": 24.608412,
+      "amap_lng": 118.317232,
+      "category": "体育",
+      "id": "route_point_篮球场_135",
+      "kind": "sports",
+      "lat": 24.608412,
+      "lon": 118.317232,
+      "name": "一期篮球场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.60955,
+      "amap_lng": 118.317256,
+      "category": "体育",
+      "id": "route_point_羽毛球场_137",
+      "kind": "sports",
+      "lat": 24.60955,
+      "lon": 118.317256,
+      "name": "一期羽毛球场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.610456,
+      "amap_lng": 118.302865,
+      "category": "体育",
+      "id": "route_point_二期篮球场_197",
+      "kind": "sports",
+      "lat": 24.610456,
+      "lon": 118.302865,
+      "name": "二期篮球场",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "体育"
+      ]
+    },
+    {
+      "amap_lat": 24.617246,
+      "amap_lng": 118.313088,
+      "category": "地标",
+      "id": "route_point_八闽苑_198",
+      "kind": "landmark",
+      "lat": 24.617246,
+      "lon": 118.313088,
+      "name": "八闽苑",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "地标"
+      ]
+    },
+    {
+      "amap_lat": 24.611862,
+      "amap_lng": 118.309186,
+      "category": "食堂",
+      "id": "route_point_百里牛香潮汕自助牛肉火锅_199",
+      "kind": "canteen",
+      "lat": 24.611862,
+      "lon": 118.309186,
+      "name": "百里牛香潮汕自助牛肉火锅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.607931,
+      "amap_lng": 118.302667,
+      "category": "食堂",
+      "id": "route_point_贵州特色地摊火锅_200",
+      "kind": "canteen",
+      "lat": 24.607931,
+      "lon": 118.302667,
+      "name": "贵州特色地摊火锅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.607631,
+      "amap_lng": 118.303002,
+      "category": "食堂",
+      "id": "route_point_齐齐哈尔家庭烤肉_201",
+      "kind": "canteen",
+      "lat": 24.607631,
+      "lon": 118.303002,
+      "name": "齐齐哈尔家庭烤肉",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.603104,
+      "amap_lng": 118.301212,
+      "category": "食堂",
+      "id": "route_point_香山里营地_露营团建_202",
+      "kind": "canteen",
+      "lat": 24.603104,
+      "lon": 118.301212,
+      "name": "香山里营地/露营团建",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.60728,
+      "amap_lng": 118.309459,
+      "category": "食堂",
+      "id": "route_point_无忧烙锅纸包鱼_203",
+      "kind": "canteen",
+      "lat": 24.60728,
+      "lon": 118.309459,
+      "name": "无忧烙锅纸包鱼",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.611478,
+      "amap_lng": 118.309047,
+      "category": "食堂",
+      "id": "route_point_喜姐炸串_204",
+      "kind": "canteen",
+      "lat": 24.611478,
+      "lon": 118.309047,
+      "name": "喜姐炸串",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.607313,
+      "amap_lng": 118.302574,
+      "category": "食堂",
+      "id": "route_point_雍景轩食府_205",
+      "kind": "canteen",
+      "lat": 24.607313,
+      "lon": 118.302574,
+      "name": "雍景轩食府",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.607613,
+      "amap_lng": 118.312832,
+      "category": "食堂",
+      "id": "route_point_芙蓉苑古厝餐厅_206",
+      "kind": "canteen",
+      "lat": 24.607613,
+      "lon": 118.312832,
+      "name": "芙蓉苑古厝餐厅",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.610383,
+      "amap_lng": 118.316313,
+      "category": "食堂",
+      "id": "route_point_喜米乐潮汕鸡煲_207",
+      "kind": "canteen",
+      "lat": 24.610383,
+      "lon": 118.316313,
+      "name": "喜米乐潮汕鸡煲",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.611465,
+      "amap_lng": 118.30945,
+      "category": "食堂",
+      "id": "route_point_广东石磨肠粉烧饼哥_208",
+      "kind": "canteen",
+      "lat": 24.611465,
+      "lon": 118.30945,
+      "name": "广东石磨肠粉烧饼哥",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.613935,
+      "amap_lng": 118.309832,
+      "category": "食堂",
+      "id": "route_point_老湘村_湘菜馆_209",
+      "kind": "canteen",
+      "lat": 24.613935,
+      "lon": 118.309832,
+      "name": "老湘村-湘菜馆",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
+    },
+    {
+      "amap_lat": 24.611122,
+      "amap_lng": 118.316477,
+      "category": "食堂",
+      "id": "route_point_印度食堂_little_india_210",
+      "kind": "canteen",
+      "lat": 24.611122,
+      "lon": 118.316477,
+      "name": "印度食堂 little India",
+      "role": "route_point",
+      "selectable": true,
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
       ]
     }
   ]

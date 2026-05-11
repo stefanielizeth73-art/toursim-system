@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>场所查询</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body>
@@ -25,6 +25,7 @@
             <input type="hidden" name="place_id" value="{{ place_id }}">
 
             <select name="start_node">
+                <option value="" {% if not start_node %}selected{% endif %}>请选择起点</option>
                 {% for node in nodes %}
                     <option value="{{ node.id }}" {% if start_node == node.id %}selected{% endif %}>当前位置：{{ node.name }}</option>
                 {% endfor %}
@@ -50,7 +51,11 @@
         </form>
 
         <div class="result-info">
-            共找到 {{ facilities|length }} 条结果，已按道路最短距离升序排列。
+            {% if start_node %}
+                共找到 {{ facilities|length }} 条结果，已按道路最短距离升序排列。
+            {% else %}
+                请选择一个起点后再查询场所。
+            {% endif %}
         </div>
 
         <table>
@@ -80,7 +85,13 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="8">暂无可达场所。请先在 /route?collect=1 中采集路线点、道路、吸附连接和场所。</td>
+                    <td colspan="8">
+                        {% if start_node %}
+                            暂无可达场所。请先在 /route?collect=1 中采集路线点、道路、吸附连接和场所。
+                        {% else %}
+                            请选择一个起点后再查看附近场所。
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

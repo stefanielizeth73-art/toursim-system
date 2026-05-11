@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ place.name }} - 详情页</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body>
@@ -34,24 +34,45 @@
         <div class="detail-actions">
             <a class="action-card" href="{{ url_for('route') }}">
                 <h3>进入路线规划</h3>
-                <p>进入道路图导航页面，演示最短路径与多目标路线规划</p>
+                <p>打开道路图页面，演示最短路径与多目标路线规划。</p>
             </a>
 
             <a class="action-card" href="{{ url_for('facilities') }}">
                 <h3>查看附近设施</h3>
-                <p>根据当前位置，按道路距离查询附近服务设施</p>
+                <p>根据当前位置，按道路距离查找附近服务设施。</p>
             </a>
 
             <a class="action-card" href="{{ url_for('foods', place_name=place.name) }}">
                 <h3>查看相关美食</h3>
-                <p>查看该景点或校园相关的餐饮推荐</p>
+                <p>查看该景点或校园相关的餐饮推荐。</p>
             </a>
 
             <a class="action-card" href="{{ url_for('diaries', destination=place.name) }}">
                 <h3>查看旅游日记</h3>
-                <p>检索目的地相关日记和游览体验</p>
+                <p>检索目的地相关日记和游览体验。</p>
             </a>
         </div>
+
+        {% if related_diaries %}
+        <div class="detail-card related-section">
+            <h3>相关日记</h3>
+            <p class="diary-inline-note">这些日记先通过目的地、城市或正文中的地点名判定相关，标签只用于辅助排序。</p>
+            <div class="diary-grid">
+                {% for diary in related_diaries %}
+                <a class="diary-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                    <h3>{{ diary.title }}</h3>
+                    <p><strong>目的地：</strong>{{ diary.destination }}</p>
+                    <p>{{ diary.content_preview }}</p>
+                    <div class="diary-meta-grid">
+                        <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
+                        <div class="diary-meta-chip"><span>浏览</span><span>{{ diary.views }}</span></div>
+                        <div class="diary-meta-chip"><span>评分</span><span>{{ diary.avg_rating }}</span></div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

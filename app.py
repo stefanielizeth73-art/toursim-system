@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from collections import defaultdict
 import base64
 import bisect
+import hashlib
 import heapq
 import sqlite3
 import csv
@@ -15,9 +16,15 @@ import re
 import shutil
 import time
 from datetime import datetime
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +44,37 @@ def load_local_env():
             value = value.strip().strip('"').strip("'")
             if key and key not in os.environ:
                 os.environ[key] = value
+
+
+@app.context_processor
+def inject_asset_version():
+    def asset_version(filename):
+        file_path = os.path.join(APP_DIR, "static", filename)
+        try:
+            return str(int(os.path.getmtime(file_path) * 1000))
+        except OSError:
+            return str(int(time.time() * 1000))
+
+    return {"asset_version": asset_version}
+
+
+@app.after_request
+def add_no_cache_headers(response):
+    if request.endpoint == "static":
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        response.headers.pop("Pragma", None)
+        response.headers.pop("Expires", None)
+        return response
+    if request.endpoint == "route_graph_data_api":
+        response.headers["Cache-Control"] = "private, max-age=60"
+        response.headers.pop("Pragma", None)
+        response.headers.pop("Expires", None)
+        return response
+    if os.getenv("FLASK_NO_CACHE", "1").lower() in ("1", "true", "yes", "on"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 load_local_env()
@@ -63,6 +101,30 @@ XMU_COLLECTOR_LINKS_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_links.
 XMU_COLLECTOR_FACILITIES_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_facilities.json")
 XMU_COLLECTOR_META_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_meta.json")
 XMU_ROAD_SNAP_METERS = 0
+XMU_COLLECTOR_SOURCE_FILES = [
+    XMU_COLLECTOR_NODES_FILE,
+    XMU_COLLECTOR_EDGES_FILE,
+    XMU_COLLECTOR_LINKS_FILE,
+    XMU_COLLECTOR_FACILITIES_FILE,
+    XMU_COLLECTOR_META_FILE,
+]
+PLACES_CACHE = {
+    "signature": None,
+    "records": [],
+}
+COLLECTOR_SIGNATURE_CACHE = {
+    "source_files_signature": None,
+    "signature": None,
+}
+ROUTE_GRAPH_CACHE = {}
+SHORTEST_TREE_CACHE = {}
+FACILITIES_CACHE = {
+    "signature": None,
+    "records": [],
+}
+FOOD_CANDIDATES_CACHE = {}
+PLACES_PAGE_SIZE = 18
+DIARIES_PAGE_SIZE = 12
 XMU_XIANG_AN_GENERATED_FACILITIES_FILE = os.path.join(
     APP_DIR,
     "data",
@@ -70,9 +132,41 @@ XMU_XIANG_AN_GENERATED_FACILITIES_FILE = os.path.join(
     "facilities_厦门大学翔安校区_厦门_中国.csv",
 )
 FOOD_TOP_K = 10
+FOOD_DEFAULT_PLACE_ID = XMU_MANUAL_PLACE_ID
+FOOD_CUISINE_OPTIONS = [
+    "东北菜",
+    "川菜",
+    "湘菜",
+    "火锅",
+    "自助",
+    "烧烤",
+    "快餐",
+    "奶茶",
+    "咖啡",
+    "小吃",
+    "面食",
+    "粉面",
+    "粤菜",
+    "西餐",
+    "印度菜",
+    "家常菜",
+    "食堂",
+    "超市便利",
+    "饮品",
+    "其他餐饮",
+]
 FOOD_CAMPUS_CONTEXTS = {
+    XMU_MANUAL_PLACE_ID: {
+        "place_id": XMU_MANUAL_PLACE_ID,
+        "graph_place_id": XMU_MANUAL_PLACE_ID,
+        "place_name": "厦门大学翔安校区",
+        "graph_place_name": "厦门大学翔安校区手动采集路线图",
+        "top_k": FOOD_TOP_K,
+        "default_sort": "recommend_score_desc",
+    },
     "xmu_xiang_an": {
         "place_id": "xmu_xiang_an",
+        "graph_place_id": "xmu_xiang_an",
         "place_name": "厦门大学翔安校区",
         "graph_place_name": "厦门大学翔安校区",
         "top_k": FOOD_TOP_K,
@@ -236,6 +330,18 @@ def ensure_diaries_table():
     initialize_database()
 
 
+DIARY_INDEX_CACHE = {
+    "fingerprint": None,
+    "source_signature": None,
+    "records": [],
+    "display_records": [],
+    "record_map": {},
+    "exact_title_index": defaultdict(list),
+    "prefix_title_index": [],
+    "inverted_index": defaultdict(set),
+}
+
+
 def normalize_search_text(text):
     return re.sub(r"\s+", " ", (text or "").strip()).casefold()
 
@@ -256,6 +362,99 @@ def split_search_terms(text):
         terms.append(chunk)
         terms.extend(chunk[i:i + 2] for i in range(len(chunk) - 1))
     return list(dict.fromkeys(terms))
+
+
+def file_signature(path):
+    try:
+        stat = os.stat(path)
+    except OSError:
+        return None
+    return (int(stat.st_mtime_ns), int(stat.st_size))
+
+
+def files_signature(paths):
+    return tuple((path, file_signature(path)) for path in paths)
+
+
+def invalidate_route_graph_cache(place_id=None):
+    SHORTEST_TREE_CACHE.clear()
+    if place_id is None:
+        ROUTE_GRAPH_CACHE.clear()
+        FOOD_CANDIDATES_CACHE.clear()
+        return
+    ROUTE_GRAPH_CACHE.pop(place_id or DEFAULT_PLACE_ID, None)
+    FOOD_CANDIDATES_CACHE.pop(place_id or DEFAULT_PLACE_ID, None)
+
+
+def invalidate_facilities_cache():
+    FACILITIES_CACHE["signature"] = None
+    FACILITIES_CACHE["records"] = []
+    FOOD_CANDIDATES_CACHE.clear()
+
+
+def parse_positive_int(value, default=1):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return max(1, parsed)
+
+
+def paginate_items(items, page=1, per_page=20):
+    total = len(items)
+    per_page = max(1, int(per_page))
+    total_pages = max(1, math.ceil(total / per_page)) if total else 1
+    current_page = max(1, min(parse_positive_int(page), total_pages))
+    start = (current_page - 1) * per_page
+    end = start + per_page
+    return items[start:end], {
+        "page": current_page,
+        "per_page": per_page,
+        "total": total,
+        "total_pages": total_pages,
+        "has_prev": current_page > 1,
+        "has_next": current_page < total_pages,
+        "prev_page": current_page - 1 if current_page > 1 else 1,
+        "next_page": current_page + 1 if current_page < total_pages else total_pages,
+    }
+
+
+def build_page_window(current_page, total_pages, radius=2):
+    if total_pages <= 1:
+        return [1]
+    start = max(1, current_page - radius)
+    end = min(total_pages, current_page + radius)
+    return list(range(start, end + 1))
+
+
+def build_pagination(endpoint, page, total_pages, base_params, radius=2):
+    window = build_page_window(page, total_pages, radius=radius)
+
+    def page_url(target_page):
+        params = {
+            key: value
+            for key, value in dict(base_params).items()
+            if value not in ("", None)
+        }
+        params["page"] = target_page
+        return url_for(endpoint, **params)
+
+    return {
+        "page": page,
+        "total_pages": total_pages,
+        "has_prev": page > 1,
+        "has_next": page < total_pages,
+        "prev_url": page_url(page - 1) if page > 1 else None,
+        "next_url": page_url(page + 1) if page < total_pages else None,
+        "pages": [
+            {
+                "page": target_page,
+                "url": page_url(target_page),
+                "is_current": target_page == page,
+            }
+            for target_page in window
+        ],
+    }
 
 
 def diary_media_folder(diary_id):
@@ -280,6 +479,78 @@ def is_allowed_diary_media(filename):
     return ext in DIARY_ALLOWED_MEDIA_EXTS
 
 
+def probe_image_size(file_path):
+    if Image is None:
+        return None, None
+    try:
+        with Image.open(file_path) as img:
+            return img.size
+    except Exception:
+        return None, None
+
+
+def diary_index_fingerprint(rows):
+    if not rows:
+        return (0, 0, "")
+    tail = rows[-1]
+    return (len(rows), int(tail["id"]), str(tail["created_at"]))
+
+
+def rebuild_diary_indexes(rows):
+    exact_title_index = defaultdict(list)
+    prefix_title_index = []
+    inverted_index = defaultdict(set)
+    record_map = {}
+    display_records = []
+
+    for row in rows:
+        diary = dict(row)
+        diary_id = diary["id"]
+        record_map[diary_id] = diary
+        display_record = attach_diary_stats(dict(diary))
+        display_records.append(display_record)
+
+        title_key = normalize_search_text(diary["title"])
+        exact_title_index[title_key].append(diary_id)
+        prefix_title_index.append((title_key, diary_id))
+
+        combined_text = " ".join([diary["title"], diary["destination"], diary["content"], diary["author"]])
+        for term in split_search_terms(combined_text):
+            inverted_index[term].add(diary_id)
+
+    prefix_title_index.sort(key=lambda item: (item[0], item[1]))
+    DIARY_INDEX_CACHE.update({
+        "fingerprint": diary_index_fingerprint(rows),
+        "records": rows,
+        "display_records": display_records,
+        "record_map": record_map,
+        "exact_title_index": exact_title_index,
+        "prefix_title_index": prefix_title_index,
+        "inverted_index": inverted_index,
+    })
+    return DIARY_INDEX_CACHE
+
+
+def get_diary_index_cache():
+    ensure_diaries_table()
+    source_signature = file_signature(DB_PATH)
+    if source_signature == DIARY_INDEX_CACHE.get("source_signature") and DIARY_INDEX_CACHE.get("fingerprint") is not None:
+        return DIARY_INDEX_CACHE
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM diaries ORDER BY id ASC")
+    rows = cursor.fetchall()
+    conn.close()
+    rebuild_diary_indexes(rows)
+    DIARY_INDEX_CACHE["source_signature"] = source_signature
+    return DIARY_INDEX_CACHE
+
+
+def invalidate_diary_index_cache():
+    DIARY_INDEX_CACHE["fingerprint"] = None
+    DIARY_INDEX_CACHE["source_signature"] = None
+
+
 def save_diary_media_files(diary_id, uploaded_files):
     saved_items = []
     media_folder = diary_media_folder(diary_id)
@@ -301,12 +572,16 @@ def save_diary_media_files(diary_id, uploaded_files):
         final_name = f"{timestamp_prefix}_{safe_name}"
         file_path = os.path.join(media_folder, final_name)
         file_storage.save(file_path)
-        saved_items.append({
+        media_kind = diary_media_kind(final_name)
+        media_item = {
             "filename": final_name,
             "original_name": original_name,
-            "kind": diary_media_kind(final_name),
+            "kind": media_kind,
             "size": os.path.getsize(file_path),
-        })
+        }
+        if media_kind == "image":
+            media_item["width"], media_item["height"] = probe_image_size(file_path)
+        saved_items.append({**media_item})
 
     return saved_items
 
@@ -557,42 +832,49 @@ def build_diary_search_index(diaries):
     return exact_title_index, prefix_index, term_index, normalized_cache
 
 
-def search_diaries_by_title(diaries, title_query, search_mode):
+def search_diaries_by_title(diaries, title_query, search_mode, index_cache=None):
     if not title_query:
         return diaries
 
     normalized_query = normalize_search_text(title_query)
-    exact_index, prefix_index, _term_index, _normalized_cache = build_diary_search_index(diaries)
+    index_cache = index_cache or get_diary_index_cache()
 
     if search_mode == "prefix":
-        titles = [item[0] for item in prefix_index]
+        titles = [item[0] for item in index_cache["prefix_title_index"]]
         left = bisect.bisect_left(titles, normalized_query)
         right = bisect.bisect_left(titles, normalized_query + chr(0x10FFFF))
-        return [prefix_index[index][2] for index in range(left, right) if titles[index].startswith(normalized_query)]
+        matched_ids = [
+            index_cache["prefix_title_index"][index][1]
+            for index in range(left, right)
+            if titles[index].startswith(normalized_query)
+        ]
+        return [diary for diary in diaries if diary["id"] in set(matched_ids)]
 
     if search_mode == "contains":
         return [diary for diary in diaries if normalized_query in normalize_search_text(diary["title"])]
 
-    return list(exact_index.get(normalized_query, []))
+    matched_ids = set(index_cache["exact_title_index"].get(normalized_query, []))
+    return [diary for diary in diaries if diary["id"] in matched_ids]
 
 
-def search_diaries_by_keyword(diaries, keyword):
+def search_diaries_by_keyword(diaries, keyword, index_cache=None):
     if not keyword:
         return diaries
 
-    _, _, term_index, normalized_cache = build_diary_search_index(diaries)
+    index_cache = index_cache or get_diary_index_cache()
     normalized_query = normalize_search_text(keyword)
     query_terms = split_search_terms(keyword)
 
     scores = defaultdict(int)
     if query_terms:
         for term in query_terms:
-            for diary_id in term_index.get(term, set()):
+            for diary_id in index_cache["inverted_index"].get(term, set()):
                 scores[diary_id] += 1
 
     if not scores:
         for diary in diaries:
-            if normalized_query in normalized_cache[diary["id"]]["combined"]:
+            combined_text = " ".join([diary["title"], diary["destination"], diary["content"], diary["author"]])
+            if normalized_query in normalize_search_text(combined_text):
                 scores[diary["id"]] = 1
 
     ranked_ids = [item[0] for item in sorted(scores.items(), key=lambda pair: (-pair[1], pair[0]))]
@@ -648,6 +930,7 @@ def refresh_diary_storage():
 
     conn.commit()
     conn.close()
+    invalidate_diary_index_cache()
 
 
 def diary_compression_summary(diary):
@@ -920,28 +1203,86 @@ def empty_manual_graph(meta=None):
         "nodes": [],
         "edges": [],
     }
+    graph["collector_source_signature"] = collector_source_signature()
+    graph["collector_source_summary"] = collector_source_summary()
     write_json_atomic(XMU_MANUAL_GRAPH_FILE, graph)
+    invalidate_route_graph_cache(XMU_MANUAL_PLACE_ID)
     return graph
+
+
+def collector_source_signature():
+    ensure_collector_files()
+    source_files_signature = files_signature(XMU_COLLECTOR_SOURCE_FILES)
+    if source_files_signature == COLLECTOR_SIGNATURE_CACHE.get("source_files_signature"):
+        cached = COLLECTOR_SIGNATURE_CACHE.get("signature")
+        if cached:
+            return cached
+
+    digest = hashlib.sha256()
+    files = []
+    for file_path in XMU_COLLECTOR_SOURCE_FILES:
+        name = os.path.basename(file_path)
+        digest.update(name.encode("utf-8"))
+        try:
+            with open(file_path, "rb") as f:
+                content = f.read()
+        except OSError:
+            content = b""
+        digest.update(str(len(content)).encode("ascii"))
+        digest.update(content)
+        files.append({"name": name, "bytes": len(content)})
+    signature = {
+        "algorithm": "sha256",
+        "digest": digest.hexdigest(),
+        "files": files,
+    }
+    COLLECTOR_SIGNATURE_CACHE["source_files_signature"] = source_files_signature
+    COLLECTOR_SIGNATURE_CACHE["signature"] = signature
+    return signature
 
 
 def collector_sources_are_newer_than_graph():
     if not os.path.exists(XMU_MANUAL_GRAPH_FILE):
         return True
     graph_mtime = os.path.getmtime(XMU_MANUAL_GRAPH_FILE)
-    source_files = [
-        XMU_COLLECTOR_NODES_FILE,
-        XMU_COLLECTOR_EDGES_FILE,
-        XMU_COLLECTOR_LINKS_FILE,
-        XMU_COLLECTOR_FACILITIES_FILE,
-        XMU_COLLECTOR_META_FILE,
-    ]
-    return any(os.path.exists(file_path) and os.path.getmtime(file_path) > graph_mtime for file_path in source_files)
+    return any(os.path.exists(file_path) and os.path.getmtime(file_path) > graph_mtime for file_path in XMU_COLLECTOR_SOURCE_FILES)
 
 
-def nearest_graph_node_id(point, graph, selectable_only=False):
+def manual_graph_needs_rebuild():
+    if not os.path.exists(XMU_MANUAL_GRAPH_FILE):
+        return True
+    try:
+        graph = read_json_file(XMU_MANUAL_GRAPH_FILE, {})
+    except (OSError, json.JSONDecodeError):
+        return True
+    graph_signature = (graph.get("collector_source_signature") or {}).get("digest")
+    current_signature = collector_source_signature().get("digest")
+    if graph_signature:
+        return graph_signature != current_signature
+    return collector_sources_are_newer_than_graph()
+
+
+def ensure_manual_graph_current():
+    if manual_graph_needs_rebuild():
+        return rebuild_manual_graph()
+    return None
+
+
+def ensure_route_graph_current(place_id):
+    if (place_id or DEFAULT_PLACE_ID) == XMU_MANUAL_PLACE_ID:
+        ensure_manual_graph_current()
+
+
+def is_road_graph_node(node):
+    return str((node or {}).get("kind") or "").strip() == "road"
+
+
+def nearest_graph_node_id(point, graph, selectable_only=False, road_only=False):
     best = None
     for node in graph.get("nodes", []):
         if selectable_only and not is_selectable_node(node):
+            continue
+        if road_only and not is_road_graph_node(node):
             continue
         if "amap_lng" not in node or "amap_lat" not in node:
             continue
@@ -952,17 +1293,62 @@ def nearest_graph_node_id(point, graph, selectable_only=False):
     return best[0] if best else ""
 
 
+def resolve_facility_nearest_node(facility, graph, road_only=True):
+    node_map = graph.get("node_map", {})
+    nearest_node = str((facility or {}).get("nearest_node") or "").strip()
+    node = node_map.get(nearest_node)
+    if node and (not road_only or is_road_graph_node(node)):
+        return nearest_node
+
+    try:
+        point = [
+            float((facility or {}).get("amap_lng", (facility or {}).get("lon"))),
+            float((facility or {}).get("amap_lat", (facility or {}).get("lat"))),
+        ]
+    except (TypeError, ValueError):
+        return nearest_node if node else ""
+
+    if road_only:
+        road_node = nearest_graph_node_id(point, graph, road_only=True)
+        if road_node:
+            return road_node
+    return nearest_graph_node_id(point, graph)
+
+
+def facilities_for_map(graph):
+    parent_place = graph.get("facility_parent_place", graph.get("place_id"))
+    node_map = graph.get("node_map", {})
+    records = []
+    for facility in load_facilities(parent_place):
+        item = facility.copy()
+        nearest_node = resolve_facility_nearest_node(item, graph, road_only=True)
+        if nearest_node:
+            item["nearest_node"] = nearest_node
+            node = node_map.get(nearest_node)
+            if node:
+                item["nearest_lng"] = node.get("amap_lng", node.get("lon"))
+                item["nearest_lat"] = node.get("amap_lat", node.get("lat"))
+        records.append(item)
+    return records
+
+
 def normalize_collector_facility(payload, existing_count=0, graph=None):
     point = normalize_collector_point(payload)
     facility_type = str(payload.get("type") or payload.get("category") or "服务设施").strip()
+    cuisine = str(payload.get("cuisine") or payload.get("food_category") or "").strip()
     facility_id = str(payload.get("id") or collector_facility_id(existing_count)).strip()
     nearest_node = str(payload.get("nearest_node") or "").strip()
-    if graph and nearest_node not in graph.get("node_map", {}):
-        nearest_node = nearest_graph_node_id(point, graph)
+    if graph:
+        nearest_node = resolve_facility_nearest_node(
+            {**payload, "nearest_node": nearest_node, "amap_lng": point[0], "amap_lat": point[1]},
+            graph,
+            road_only=True,
+        )
     return {
         "id": facility_id,
         "name": str(payload.get("name") or f"场所{existing_count + 1}").strip(),
         "type": facility_type,
+        "cuisine": cuisine,
         "tags": normalize_tags(payload.get("tags") or facility_type),
         "parent_place": XMU_MANUAL_PLACE_ID,
         "nearest_node": nearest_node,
@@ -1223,10 +1609,7 @@ def rebuild_manual_graph():
         add_graph_edge(from_id, to_id, link["amap_geometry"], link)
 
     selectable = [node for node in nodes if node.get("selectable")]
-    if not nodes:
-        meta["default_start"] = ""
-    elif meta.get("default_start") not in node_map or not node_map.get(meta.get("default_start"), {}).get("selectable", False):
-        meta["default_start"] = selectable[0]["id"] if selectable else nodes[0]["id"]
+    meta["default_start"] = ""
 
     graph = {
         "place_id": XMU_MANUAL_PLACE_ID,
@@ -1243,8 +1626,13 @@ def rebuild_manual_graph():
         "nodes": nodes,
         "edges": edges,
     }
-    write_json_atomic(XMU_MANUAL_GRAPH_FILE, graph)
     write_json_atomic(XMU_COLLECTOR_META_FILE, meta)
+    COLLECTOR_SIGNATURE_CACHE["source_files_signature"] = None
+    graph["collector_source_signature"] = collector_source_signature()
+    graph["collector_source_summary"] = collector_source_summary()
+    write_json_atomic(XMU_MANUAL_GRAPH_FILE, graph)
+    invalidate_route_graph_cache(XMU_MANUAL_PLACE_ID)
+    invalidate_facilities_cache()
     return graph
 
 
@@ -1264,9 +1652,14 @@ def is_logged_in():
 # 景点数据读取函数
 # =========================
 def load_places():
-    places = []
+    signature = file_signature(PLACES_FILE)
+    if signature == PLACES_CACHE.get("signature"):
+        return PLACES_CACHE["records"]
 
+    places = []
     if not os.path.exists(PLACES_FILE):
+        PLACES_CACHE["signature"] = signature
+        PLACES_CACHE["records"] = places
         return places
 
     with open(PLACES_FILE, "r", encoding="utf-8-sig") as f:
@@ -1296,6 +1689,8 @@ def load_places():
             row["tags_list"] = [tag.strip() for tag in row.get("tags", "").split(";") if tag.strip()]
             places.append(row)
 
+    PLACES_CACHE["signature"] = signature
+    PLACES_CACHE["records"] = places
     return places
 
 
@@ -1312,8 +1707,13 @@ def get_food_by_key(food_key, place_id=""):
         return None
 
     if place_id in FOOD_CAMPUS_CONTEXTS:
+        graph_place_id = FOOD_CAMPUS_CONTEXTS[place_id].get("graph_place_id", place_id)
+        graph = load_route_graph(graph_place_id)
+        origin_node = get_food_origin_node(place_id)
         for food in build_food_candidates_for_place(place_id):
             if food.get("food_key") == food_key:
+                enrich_food_distance(food, graph, origin_node)
+                food["recommend_score"] = calculate_food_recommend_score(food)
                 return food
     return None
 
@@ -1336,28 +1736,48 @@ def normalize_food_category(category, name="", description=""):
     category_text = normalize_search_text(category)
     name_text = normalize_search_text(name)
     description_text = normalize_search_text(description)
+    combined = " ".join([category_text, name_text, description_text])
 
-    if "自动售货机" in name_text or "售货机" in name_text:
-        return "补给"
-    if "食堂" in category_text or "食堂" in name_text:
-        return "食堂"
-    if "咖啡" in category_text or "coffee" in name_text or "咖啡" in name_text:
-        return "咖啡"
-    if "超市" in category_text or "超市" in name_text:
-        return "超市"
-    if "窗口" in category_text or "窗口" in name_text:
-        return "窗口"
-    if "快餐" in category_text or "快餐" in name_text or "肯德基" in name_text or "kfc" in name_text:
-        return "快餐"
-    if "小吃" in category_text or "小吃" in name_text:
+    for option in FOOD_CUISINE_OPTIONS:
+        if normalize_search_text(option) in combined:
+            return option
+    if "齐齐哈尔" in name_text or "东北" in combined:
+        return "东北菜"
+    if "湘" in combined or "老湘村" in name_text:
+        return "湘菜"
+    if "川" in combined or "麻辣" in combined or "冒菜" in combined:
+        return "川菜"
+    if "火锅" in combined or "牛肉锅" in combined or "鸡煲" in combined:
+        return "火锅"
+    if "自助" in combined or "放题" in combined:
+        return "自助"
+    if "烧烤" in combined or "烤肉" in combined or "烤串" in combined:
+        return "烧烤"
+    if "印度" in combined or "india" in combined:
+        return "印度菜"
+    if "肠粉" in combined or "潮汕" in combined or "广式" in combined or "广东" in combined:
+        return "粤菜"
+    if "炸串" in combined or "小吃" in combined:
         return "小吃"
-    if "餐饮" in category_text or "餐厅" in name_text or "餐饮" in name_text:
-        return "餐饮"
-    if "面" in category_text and "面" in name_text:
-        return "面食"
-    if "饮" in category_text or "饮" in name_text or "饮" in description_text:
+    if "自动售货机" in name_text or "售货机" in name_text:
         return "饮品"
-    return str(category or "餐饮").strip() or "餐饮"
+    if "奶茶" in combined or "益禾堂" in name_text or "古茗" in name_text or "蜜雪" in name_text or "茶饮" in combined:
+        return "奶茶"
+    if "咖啡" in combined or "coffee" in name_text or "瑞幸" in name_text:
+        return "咖啡"
+    if "肯德基" in name_text or "kfc" in name_text or "快餐" in combined:
+        return "快餐"
+    if "面" in combined or "粉" in combined or "烙锅" in name_text:
+        return "面食"
+    if "超市" in combined or "便利" in combined or "商店" in combined:
+        return "超市便利"
+    if "食堂" in combined:
+        return "食堂"
+    if "饮" in combined:
+        return "饮品"
+    if "餐饮" in combined or "餐厅" in combined or "饭店" in combined:
+        return "家常菜"
+    return "其他餐饮"
 
 
 def food_default_profile(category, name=""):
@@ -1366,14 +1786,24 @@ def food_default_profile(category, name=""):
 
     profile = {
         "食堂": (4.4, 82, 18),
-        "餐饮": (4.3, 76, 28),
+        "其他餐饮": (4.3, 76, 28),
+        "家常菜": (4.2, 72, 26),
+        "东北菜": (4.3, 74, 32),
+        "川菜": (4.3, 76, 30),
+        "湘菜": (4.3, 76, 30),
+        "火锅": (4.4, 84, 52),
+        "自助": (4.3, 80, 58),
+        "烧烤": (4.2, 78, 42),
         "咖啡": (4.4, 78, 24),
-        "超市": (4.0, 64, 15),
-        "补给": (3.9, 60, 12),
-        "窗口": (4.2, 70, 16),
+        "超市便利": (4.0, 64, 15),
         "快餐": (4.2, 80, 22),
         "小吃": (4.1, 72, 14),
         "面食": (4.2, 68, 20),
+        "粉面": (4.1, 68, 20),
+        "粤菜": (4.2, 70, 28),
+        "西餐": (4.1, 66, 36),
+        "印度菜": (4.2, 68, 34),
+        "奶茶": (4.1, 76, 14),
         "饮品": (4.0, 66, 16),
     }
     rating, popularity, avg_cost = profile.get(category, (4.2, 70, 22))
@@ -1400,6 +1830,8 @@ def food_search_blob(food):
     parts = [
         food.get("name", ""),
         food.get("category", ""),
+        food.get("cuisine", ""),
+        food.get("facility_type", ""),
         food.get("place_name", ""),
         food.get("description", ""),
         food.get("source_label", ""),
@@ -1420,8 +1852,8 @@ def is_food_related_facility(name, facility_type="", description=""):
     type_text = normalize_search_text(facility_type)
     description_text = normalize_search_text(description)
 
-    direct_type_hits = ("食堂", "餐饮", "咖啡", "快餐", "小吃", "餐厅")
-    name_hits = ("餐厅", "食堂", "咖啡", "超市", "便利", "窗口", "小吃", "快餐", "面馆", "茶饮", "奶茶", "自动售货机", "售货机", "肯德基", "瑞幸", "蜜雪")
+    direct_type_hits = tuple(["食堂", "餐饮", "咖啡", "快餐", "小吃", "餐厅", *FOOD_CUISINE_OPTIONS])
+    name_hits = ("餐厅", "食堂", "咖啡", "超市", "便利", "窗口", "小吃", "快餐", "面馆", "茶饮", "奶茶", "自动售货机", "售货机", "肯德基", "瑞幸", "蜜雪", "火锅", "烤肉", "炸串", "湘菜", "川菜", "自助", "肠粉", "鸡煲")
 
     if any(token in type_text for token in direct_type_hits):
         return True
@@ -1443,12 +1875,26 @@ def make_food_candidate(raw_item, place_id, place_name, source_kind, graph=None)
         return None
 
     description = str(raw_item.get("description") or "").strip()
-    category = normalize_food_category(raw_item.get("type") or raw_item.get("category"), candidate_name, description)
+    explicit_cuisine = str(raw_item.get("cuisine") or raw_item.get("food_category") or "").strip()
+    if explicit_cuisine and explicit_cuisine != "其他餐饮":
+        category = explicit_cuisine
+    else:
+        category = normalize_food_category(raw_item.get("category") or raw_item.get("type"), candidate_name, description)
     rating, popularity, avg_cost = food_default_profile(category, candidate_name)
     tags_list = normalize_tags(raw_item.get("tags") or [place_name, category, "校园"])
     nearest_node = str(raw_item.get("nearest_node") or raw_item.get("anchor_node") or "").strip()
+    if source_kind in ("collector_facility", "facility_csv", "generated_facility"):
+        resolved_node = resolve_facility_nearest_node(raw_item, graph, road_only=True)
+        if resolved_node:
+            nearest_node = resolved_node
     graph_node_id = str(raw_item.get("id") or "").strip()
-    source_label = "图节点补位" if source_kind == "graph_node" else "采集补位"
+    source_labels = {
+        "graph_node": "路线图节点",
+        "collector_facility": "采集餐饮设施",
+        "facility_csv": "设施表补位",
+        "generated_facility": "候选补位",
+    }
+    source_label = source_labels.get(source_kind, "采集补位")
 
     raw_tags = raw_item.get("tags")
     if isinstance(raw_tags, list):
@@ -1464,6 +1910,8 @@ def make_food_candidate(raw_item, place_id, place_name, source_kind, graph=None)
         "name": candidate_name,
         "place_name": place_name,
         "category": category,
+        "cuisine": category,
+        "facility_type": raw_item.get("type") or raw_item.get("kind") or "",
         "rating": round(float(rating), 1),
         "popularity": int(popularity),
         "avg_cost": round(float(avg_cost), 1),
@@ -1490,7 +1938,16 @@ def build_food_candidates_for_place(place_id):
         return []
 
     context = FOOD_CAMPUS_CONTEXTS[place_id]
-    graph = load_route_graph(place_id)
+    graph_place_id = context.get("graph_place_id", place_id)
+    graph = load_route_graph(graph_place_id)
+    source_signature = (
+        file_signature(get_route_graph_path(graph_place_id)),
+        files_signature([FACILITIES_FILE, XMU_COLLECTOR_FACILITIES_FILE, XMU_XIANG_AN_GENERATED_FACILITIES_FILE]),
+    )
+    cached = FOOD_CANDIDATES_CACHE.get(place_id)
+    if cached and cached.get("signature") == source_signature:
+        return [item.copy() for item in cached.get("records", [])]
+
     place_name = context["place_name"]
     candidate_map = {}
 
@@ -1513,47 +1970,61 @@ def build_food_candidates_for_place(place_id):
             candidate_map[key] = candidate
 
     for node in graph.get("nodes", []):
-        if node.get("kind") != "facility":
+        if node.get("kind") == "road":
             continue
-        if not is_food_related_facility(node.get("name", ""), node.get("category", ""), node.get("source", "")):
+        node_type = node.get("type") or node.get("category") or node.get("kind", "")
+        description = " ".join(str(part) for part in [
+            node.get("description", ""),
+            node.get("source", ""),
+            node.get("kind", ""),
+        ] if part)
+        if not is_food_related_facility(node.get("name", ""), node_type, description):
             continue
         candidate = make_food_candidate(node, place_id, place_name, "graph_node", graph)
         if candidate:
             if not candidate.get("nearest_node"):
                 candidate["nearest_node"] = node.get("id", "")
-            maybe_store(candidate, 3)
+            maybe_store(candidate, 4)
 
-    for facility in load_facilities(place_id):
+    facility_parent_place = graph.get("facility_parent_place", graph.get("place_id", graph_place_id))
+    for facility in load_facilities(facility_parent_place):
         if not is_food_related_facility(facility.get("name", ""), facility.get("type", ""), facility.get("description", "")):
             continue
-        candidate = make_food_candidate(facility, place_id, place_name, "facility_csv", graph)
+        source_kind = "collector_facility" if str(facility.get("id", "")).startswith("facility_") else "facility_csv"
+        candidate = make_food_candidate(facility, place_id, place_name, source_kind, graph)
         if candidate:
             if not candidate.get("nearest_node") and facility.get("nearest_node"):
                 candidate["nearest_node"] = str(facility.get("nearest_node")).strip()
-            maybe_store(candidate, 2)
+            maybe_store(candidate, 5 if source_kind == "collector_facility" else 3)
 
-    for row in load_csv_rows(XMU_XIANG_AN_GENERATED_FACILITIES_FILE):
-        if not is_food_related_facility(row.get("name", ""), row.get("type", ""), row.get("description", "")):
-            continue
-        candidate = make_food_candidate(row, place_id, place_name, "generated_facility", graph)
-        if candidate:
-            maybe_store(candidate, 1)
+    if place_id == "xmu_xiang_an":
+        for row in load_csv_rows(XMU_XIANG_AN_GENERATED_FACILITIES_FILE):
+            if not is_food_related_facility(row.get("name", ""), row.get("type", ""), row.get("description", "")):
+                continue
+            candidate = make_food_candidate(row, place_id, place_name, "generated_facility", graph)
+            if candidate:
+                maybe_store(candidate, 1)
 
-    return list(candidate_map.values())
+    candidates = list(candidate_map.values())
+    FOOD_CANDIDATES_CACHE[place_id] = {
+        "signature": source_signature,
+        "records": [item.copy() for item in candidates],
+    }
+    return candidates
 
 
 def get_food_origin_node(place_id):
     if place_id not in FOOD_CAMPUS_CONTEXTS:
         return ""
-    graph = load_route_graph(place_id)
+    graph_place_id = FOOD_CAMPUS_CONTEXTS[place_id].get("graph_place_id", place_id)
+    graph = load_route_graph(graph_place_id)
     start = graph.get("default_start", "")
     if start in graph.get("node_map", {}):
         return start
-    selectable_nodes = get_selectable_nodes(graph)
-    return selectable_nodes[0]["id"] if selectable_nodes else ""
+    return ""
 
 
-def enrich_food_distance(food, graph, origin_node):
+def enrich_food_distance(food, graph, origin_node, route_tree=None):
     if not graph or not origin_node:
         food["distance_m"] = None
         food["distance_text"] = ""
@@ -1562,10 +2033,13 @@ def enrich_food_distance(food, graph, origin_node):
     nearest_node = food.get("nearest_node") or food.get("graph_node_id")
     if nearest_node not in graph.get("node_map", {}):
         food["distance_m"] = None
-        food["distance_text"] = "暂未映射"
+        food["distance_text"] = ""
         return food
 
-    path = dijkstra_shortest_path(graph, origin_node, nearest_node, strategy="distance", transport="walk")
+    if route_tree is None:
+        path = dijkstra_shortest_path(graph, origin_node, nearest_node, strategy="distance", transport="walk")
+    else:
+        path = route_from_shortest_tree(graph, route_tree, nearest_node)
     if path is None:
         food["distance_m"] = None
         food["distance_text"] = "暂未连通"
@@ -1592,7 +2066,7 @@ def calculate_food_recommend_score(food, keyword_terms=None):
     distance = food.get("distance_m")
     distance_score = max(0, 40 - float(distance) / 30) if distance is not None else 0
     source_bonus = 8
-    campus_bonus = 10 if food.get("graph_place_id") == "xmu_xiang_an" else 0
+    campus_bonus = 10 if food.get("graph_place_id") in (FOOD_DEFAULT_PLACE_ID, "xmu_xiang_an") else 0
     return round(rating_score + popularity_score + cost_score + distance_score + keyword_bonus + source_bonus + campus_bonus, 2)
 
 
@@ -1607,6 +2081,7 @@ def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by=
     filtered = []
     scanned_count = 0
     candidate_count = 0
+    route_tree = dijkstra_shortest_tree(graph, origin_node, strategy="distance", transport="walk") if graph and origin_node else None
 
     for food in foods:
         scanned_count += 1
@@ -1622,7 +2097,7 @@ def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by=
         candidate_count += 1
         food_copy = food.copy()
         if graph and origin_node:
-            enrich_food_distance(food_copy, graph, origin_node)
+            enrich_food_distance(food_copy, graph, origin_node, route_tree=route_tree)
         else:
             food_copy["distance_m"] = food_copy.get("distance_m")
         food_copy["recommend_score"] = calculate_food_recommend_score(food_copy, keyword_terms=keyword_terms)
@@ -1655,6 +2130,21 @@ def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by=
     return ranked, stats
 
 
+def get_route_linked_foods(place_id, graph, start_node, limit=5):
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        return [], None
+
+    origin_node = start_node if start_node in graph.get("node_map", {}) else get_food_origin_node(place_id)
+    foods = build_food_candidates_for_place(place_id)
+    return rank_food_candidates(
+        foods,
+        sort_by="distance_asc" if origin_node else "recommend_score_desc",
+        limit=limit,
+        graph=graph,
+        origin_node=origin_node,
+    )
+
+
 # =========================
 # 图结构、设施与路线算法
 # =========================
@@ -1667,23 +2157,50 @@ def get_route_graph_path(place_id=None):
     return XMU_MANUAL_GRAPH_FILE
 
 
+def get_route_graph_version(place_id=None):
+    signature = file_signature(get_route_graph_path(place_id or DEFAULT_PLACE_ID))
+    if not signature:
+        return "missing"
+    return f"{signature[0]}-{signature[1]}"
+
+
 def load_route_graph(place_id=None):
-    graph_path = get_route_graph_path(place_id or DEFAULT_PLACE_ID)
+    effective_place_id = place_id or DEFAULT_PLACE_ID
+    graph_path = get_route_graph_path(effective_place_id)
+    graph_signature = file_signature(graph_path)
+    cached = ROUTE_GRAPH_CACHE.get(effective_place_id)
+    if effective_place_id == XMU_MANUAL_PLACE_ID:
+        current_source_digest = collector_source_signature().get("digest")
+        if (
+            cached
+            and cached.get("path") == graph_path
+            and cached.get("signature") == graph_signature
+            and cached.get("source_digest") == current_source_digest
+        ):
+            return cached["graph"]
+        ensure_manual_graph_current()
+        graph_signature = file_signature(graph_path)
+        cached = ROUTE_GRAPH_CACHE.get(effective_place_id)
+    elif cached and cached.get("path") == graph_path and cached.get("signature") == graph_signature:
+        return cached["graph"]
+
     if not os.path.exists(graph_path):
         return {"default_start": "", "nodes": [], "edges": [], "node_map": {}, "adjacency": {}}
 
     with open(graph_path, "r", encoding="utf-8-sig") as f:
         graph = json.load(f)
 
-    graph.setdefault("place_id", place_id or DEFAULT_PLACE_ID)
+    graph.setdefault("place_id", effective_place_id)
     graph.setdefault("place_name", "当前路线图")
     graph.setdefault("bounds", [])
     graph.setdefault("campus_bounds", graph.get("bounds", []))
     graph.setdefault("center", [])
     graph.setdefault("amap_center", [])
     graph.setdefault("amap_bounds", [])
-    graph.setdefault("facility_parent_place", graph.get("place_id", place_id or DEFAULT_PLACE_ID))
+    graph.setdefault("facility_parent_place", graph.get("place_id", effective_place_id))
     graph.setdefault("image_overlay", None)
+    if effective_place_id == XMU_MANUAL_PLACE_ID:
+        graph["default_start"] = ""
 
     node_map = {node["id"]: node for node in graph.get("nodes", [])}
     adjacency = {node_id: [] for node_id in node_map}
@@ -1715,6 +2232,13 @@ def load_route_graph(place_id=None):
 
     graph["node_map"] = node_map
     graph["adjacency"] = adjacency
+    graph["_cache_key"] = (graph_path, graph_signature)
+    ROUTE_GRAPH_CACHE[effective_place_id] = {
+        "path": graph_path,
+        "signature": graph_signature,
+        "source_digest": (graph.get("collector_source_signature") or {}).get("digest"),
+        "graph": graph,
+    }
     return graph
 
 
@@ -1739,7 +2263,41 @@ def get_display_path_names(graph, path_ids):
     return names
 
 
-def serialize_graph_for_map(graph):
+def road_display_edges_for_map(graph):
+    if graph.get("place_id") != XMU_MANUAL_PLACE_ID:
+        return []
+    display_edges = []
+    for edge in load_collector_edges():
+        geometry = edge.get("amap_geometry") or []
+        if len(geometry) < 2:
+            continue
+        display_edges.append({
+            "id": edge.get("id", ""),
+            "name": edge.get("name", ""),
+            "road_type": edge.get("road_type", ""),
+            "walk": edge.get("walk", True),
+            "bike": edge.get("bike", True),
+            "amap_geometry": geometry,
+        })
+    return display_edges
+
+
+def serialize_graph_for_map(graph, include_road_nodes=True, compact_edges=False):
+    nodes = graph.get("nodes", []) if include_road_nodes else get_selectable_nodes(graph)
+    edges = graph.get("edges", [])
+    if compact_edges:
+        compacted_edges = []
+        for edge in edges:
+            compact_edge = {
+                "from": edge.get("from", ""),
+                "to": edge.get("to", ""),
+                "distance": edge.get("distance", 0),
+                "amap_geometry": edge.get("amap_geometry", []),
+            }
+            if not compact_edge["amap_geometry"]:
+                compact_edge["geometry"] = edge.get("geometry", [])
+            compacted_edges.append(compact_edge)
+        edges = compacted_edges
     return {
         "place_id": graph.get("place_id", DEFAULT_PLACE_ID),
         "place_name": graph.get("place_name", "当前路线图"),
@@ -1750,8 +2308,9 @@ def serialize_graph_for_map(graph):
         "campus_bounds": graph.get("campus_bounds", graph.get("bounds", [])),
         "amap_bounds": graph.get("amap_bounds", []),
         "image_overlay": graph.get("image_overlay"),
-        "nodes": graph.get("nodes", []),
-        "edges": graph.get("edges", []),
+        "nodes": nodes,
+        "edges": edges,
+        "road_display_edges": road_display_edges_for_map(graph),
         "selectable_nodes": get_selectable_nodes(graph),
     }
 
@@ -1876,15 +2435,92 @@ def dijkstra_shortest_path(graph, start, end, strategy="distance", transport="wa
     }
 
 
-def plan_multi_target_route(graph, start, targets, strategy="distance", transport="walk", return_to_start=False):
+def dijkstra_shortest_tree(graph, start, strategy="distance", transport="walk"):
+    if start not in graph.get("node_map", {}):
+        return None
+
+    graph_cache_key = graph.get("_cache_key")
+    cache_key = (graph_cache_key, start, strategy, transport) if graph_cache_key else None
+    if cache_key in SHORTEST_TREE_CACHE:
+        return SHORTEST_TREE_CACHE[cache_key]
+
+    distances = {node_id: float("inf") for node_id in graph["node_map"]}
+    previous = {}
+    distances[start] = 0
+    heap = [(0, start)]
+
+    while heap:
+        current_distance, current = heapq.heappop(heap)
+        if current_distance > distances[current]:
+            continue
+
+        for edge in graph["adjacency"].get(current, []):
+            weight = calculate_edge_weight(edge, strategy=strategy, transport=transport)
+            if weight is None:
+                continue
+
+            neighbor = edge["neighbor"]
+            new_distance = current_distance + weight
+            if new_distance < distances[neighbor]:
+                distances[neighbor] = new_distance
+                previous[neighbor] = (current, edge, weight)
+                heapq.heappush(heap, (new_distance, neighbor))
+
+    route_tree = {"start": start, "distances": distances, "previous": previous}
+    if cache_key:
+        SHORTEST_TREE_CACHE[cache_key] = route_tree
+    return route_tree
+
+
+def route_from_shortest_tree(graph, route_tree, end):
+    if not route_tree or end not in graph.get("node_map", {}):
+        return None
+
+    start = route_tree["start"]
+    distances = route_tree["distances"]
+    previous = route_tree["previous"]
+    if distances.get(end, float("inf")) == float("inf"):
+        return None
+
+    path_ids = [end]
+    edges = []
+    cursor = end
+    while cursor != start:
+        if cursor not in previous:
+            return None
+        prev_node, edge, weight = previous[cursor]
+        edges.append({**edge, "weight": weight})
+        cursor = prev_node
+        path_ids.append(cursor)
+
+    path_ids.reverse()
+    edges.reverse()
+    return {
+        "path_ids": path_ids,
+        "path_names": [graph["node_map"][node_id]["name"] for node_id in path_ids],
+        "display_path_names": get_display_path_names(graph, path_ids),
+        "edges": edges,
+        "total": distances[end],
+    }
+
+
+def plan_multi_target_route(graph, start, targets, strategy="distance", transport="walk", return_to_start=False, final_target=None):
+    final_target = final_target if final_target and final_target != start and final_target in graph["node_map"] else None
     unique_targets = []
     for target in targets:
-        if target and target != start and target in graph["node_map"] and target not in unique_targets:
+        if (
+            target
+            and target != start
+            and target != final_target
+            and target in graph["node_map"]
+            and target not in unique_targets
+        ):
             unique_targets.append(target)
 
-    if not unique_targets:
+    visit_count = len(unique_targets) + (1 if final_target else 0)
+    if visit_count == 0:
         return None
-    if len(unique_targets) > MAX_ROUTE_TARGETS:
+    if visit_count > MAX_ROUTE_TARGETS:
         return {
             "order": tuple(),
             "segments": [],
@@ -1894,12 +2530,15 @@ def plan_multi_target_route(graph, start, targets, strategy="distance", transpor
         }
 
     pair_paths = {}
-    route_points = [start] + unique_targets
+    candidate_targets = list(unique_targets)
+    if final_target:
+        candidate_targets.append(final_target)
+    route_points = [start] + candidate_targets
     for from_node in route_points:
-        candidate_targets = list(unique_targets)
+        outgoing_targets = list(candidate_targets)
         if return_to_start and from_node != start:
-            candidate_targets.append(start)
-        for to_node in candidate_targets:
+            outgoing_targets.append(start)
+        for to_node in outgoing_targets:
             if from_node == to_node:
                 continue
             path = dijkstra_shortest_path(graph, from_node, to_node, strategy=strategy, transport=transport)
@@ -1907,13 +2546,15 @@ def plan_multi_target_route(graph, start, targets, strategy="distance", transpor
                 pair_paths[(from_node, to_node)] = path
 
     best_plan = None
+    final_suffix = (final_target,) if final_target else tuple()
     for order in itertools.permutations(unique_targets):
+        ordered_targets = tuple(order) + final_suffix
         current = start
         segments = []
         total = 0
         feasible = True
 
-        for target in order:
+        for target in ordered_targets:
             segment = pair_paths.get((current, target))
             if segment is None:
                 feasible = False
@@ -1932,7 +2573,7 @@ def plan_multi_target_route(graph, start, targets, strategy="distance", transpor
 
         if feasible and (best_plan is None or total < best_plan["total"]):
             best_plan = {
-                "order": order,
+                "order": ordered_targets,
                 "segments": segments,
                 "total": total,
                 "returns_to_start": return_to_start,
@@ -1951,7 +2592,21 @@ def normalize_route_targets(start, end, targets, route_type):
     return normalized
 
 
+def route_targets_for_planning(targets, final_target=None):
+    if not final_target:
+        return list(targets or [])[:MAX_ROUTE_TARGETS]
+    waypoints = [target for target in list(targets or []) if target != final_target]
+    return waypoints[:max(0, MAX_ROUTE_TARGETS - 1)] + [final_target]
+
+
 def load_facilities(parent_place=None):
+    signature = files_signature([FACILITIES_FILE, XMU_COLLECTOR_FACILITIES_FILE])
+    if signature == FACILITIES_CACHE.get("signature"):
+        records = FACILITIES_CACHE.get("records", [])
+        if parent_place:
+            return [facility for facility in records if facility.get("parent_place") == parent_place]
+        return list(records)
+
     facilities = []
     if not os.path.exists(FACILITIES_FILE):
         csv_facilities = []
@@ -1970,20 +2625,26 @@ def load_facilities(parent_place=None):
                 csv_facilities.append(row)
     facilities.extend(csv_facilities)
 
-    if not parent_place or parent_place == XMU_MANUAL_PLACE_ID:
-        for item in load_collector_facilities():
-            facility = normalize_collector_facility(item, len(facilities))
-            if parent_place and facility.get("parent_place") != parent_place:
-                continue
-            facility["tags_text"] = " ".join(facility.get("tags", []))
-            facilities.append(facility)
+    for item in load_collector_facilities():
+        facility = normalize_collector_facility(item, len(facilities))
+        facility["tags_text"] = " ".join(facility.get("tags", []))
+        facilities.append(facility)
 
+    FACILITIES_CACHE["signature"] = signature
+    FACILITIES_CACHE["records"] = facilities
+    if parent_place:
+        return [facility for facility in facilities if facility.get("parent_place") == parent_place]
     return facilities
 
 
 def find_nearby_facilities(graph, start_node, facility_type="", keyword="", max_distance=None):
     result = []
     keyword_lower = keyword.lower()
+    if not start_node or start_node not in graph.get("node_map", {}):
+        return result
+    route_tree = dijkstra_shortest_tree(graph, start_node, strategy="distance", transport="walk")
+    if route_tree is None:
+        return result
 
     for facility in load_facilities(graph.get("facility_parent_place", graph.get("place_id"))):
         tags = facility.get("tags", [])
@@ -2003,10 +2664,8 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword="", max_
         if keyword and keyword_lower not in searchable:
             continue
 
-        nearest_node = facility.get("nearest_node")
-        if nearest_node not in graph.get("node_map", {}) and facility.get("amap_lng") and facility.get("amap_lat"):
-            nearest_node = nearest_graph_node_id([float(facility["amap_lng"]), float(facility["amap_lat"])], graph)
-        path = dijkstra_shortest_path(graph, start_node, nearest_node, strategy="distance", transport="walk")
+        nearest_node = resolve_facility_nearest_node(facility, graph, road_only=True)
+        path = route_from_shortest_tree(graph, route_tree, nearest_node)
         if path is None:
             continue
 
@@ -2083,6 +2742,166 @@ def get_place_filter_options(places):
             for tag in place.get("tags_list", [])
         }),
     }
+
+
+def place_search_blob(place):
+    return normalize_search_text(" ".join([
+        place.get("name", ""),
+        place.get("city", ""),
+        place.get("type", ""),
+        place.get("tags", ""),
+        place.get("description", ""),
+    ]))
+
+
+def get_place_name_options(places):
+    options = []
+    seen = set()
+    for place in places:
+        name = str(place.get("name", "")).strip()
+        if name and name not in seen:
+            options.append(name)
+            seen.add(name)
+    return options
+
+
+def find_place_match(destination, places):
+    destination_key = normalize_search_text(destination)
+    if not destination_key:
+        return None
+
+    exact_matches = [place for place in places if normalize_search_text(place.get("name", "")) == destination_key]
+    if exact_matches:
+        return exact_matches[0]
+
+    contains_matches = [
+        place for place in places
+        if destination_key in normalize_search_text(place.get("name", ""))
+        or normalize_search_text(place.get("name", "")) in destination_key
+    ]
+    if len(contains_matches) == 1:
+        return contains_matches[0]
+    if contains_matches and len(destination_key) >= 4:
+        return max(contains_matches, key=lambda place: (place.get("rating", 0), place.get("popularity", 0)))
+
+    return None
+
+
+def get_related_places_for_diary(diary, places, limit=6):
+    diary_text = normalize_search_text(" ".join([
+        diary.get("title", ""),
+        diary.get("destination", ""),
+        diary.get("content", ""),
+    ]))
+    diary_terms = set(split_search_terms(diary_text))
+    destination_key = normalize_search_text(diary.get("destination", ""))
+    has_exact_destination = any(
+        destination_key and destination_key == normalize_search_text(place.get("name", ""))
+        for place in places
+    )
+
+    scored = []
+    for place in places:
+        name_key = normalize_search_text(place.get("name", ""))
+        city_key = normalize_search_text(place.get("city", ""))
+        tag_keys = [normalize_search_text(tag) for tag in place.get("tags_list", [])]
+        compact_place_text = normalize_search_text(" ".join([
+            place.get("name", ""),
+            place.get("city", ""),
+            place.get("type", ""),
+            place.get("tags", ""),
+        ]))
+
+        relevance_score = 0
+        strong_relation = 0
+
+        if destination_key and destination_key == name_key:
+            relevance_score += 1000
+            strong_relation += 1000
+        elif destination_key and (destination_key in name_key or name_key in destination_key):
+            relevance_score += 700
+            strong_relation += 700
+        elif not has_exact_destination and destination_key and destination_key in city_key:
+            relevance_score += 220
+            strong_relation += 220
+        elif name_key and name_key in diary_text:
+            relevance_score += 500
+            strong_relation += 500
+        elif not has_exact_destination and city_key and city_key in diary_text:
+            relevance_score += 120
+            strong_relation += 120
+
+        tag_hits = 0
+        for tag_key in tag_keys:
+            if tag_key and tag_key in diary_text:
+                tag_hits += 1
+        relevance_score += tag_hits * 45
+
+        keyword_hits = sum(
+            1 for term in diary_terms
+            if len(term) >= 2 and term in compact_place_text
+        )
+        if keyword_hits:
+            relevance_score += keyword_hits * 20
+
+        if has_exact_destination and strong_relation == 0:
+            continue
+
+        if relevance_score > 0 and strong_relation > 0:
+            popularity_score = place.get("rating", 0) * 20 + place.get("popularity", 0) * 0.18
+            exact_bonus = 1 if destination_key and destination_key == name_key else 0
+            scored.append((relevance_score, exact_bonus, popularity_score, place))
+
+    return [
+        place for _relevance, _exact_bonus, _popularity_score, place
+        in heapq.nlargest(limit, scored, key=lambda item: (item[0], item[1], item[2]))
+    ]
+
+
+def get_related_diaries_for_place(place, diaries, limit=6):
+    place_name_key = normalize_search_text(place.get("name", ""))
+    city_key = normalize_search_text(place.get("city", ""))
+    tag_keys = [normalize_search_text(tag) for tag in place.get("tags_list", [])]
+
+    scored = []
+    for diary in diaries:
+        diary_text = normalize_search_text(" ".join([
+            diary.get("title", ""),
+            diary.get("destination", ""),
+            diary.get("content", ""),
+        ]))
+        diary_destination_key = normalize_search_text(diary.get("destination", ""))
+        relevance_score = 0
+        strong_relation = 0
+
+        if place_name_key and diary_destination_key == place_name_key:
+            relevance_score += 1000
+            strong_relation += 1000
+        elif place_name_key and (place_name_key in diary_destination_key or diary_destination_key in place_name_key):
+            relevance_score += 700
+            strong_relation += 700
+        elif place_name_key and place_name_key in diary_text:
+            relevance_score += 500
+            strong_relation += 500
+        elif city_key and city_key == diary_destination_key:
+            relevance_score += 220
+            strong_relation += 220
+
+        tag_hits = 0
+        for tag_key in tag_keys:
+            if tag_key and (tag_key in diary_text or tag_key in diary_destination_key):
+                tag_hits += 1
+        relevance_score += tag_hits * 45
+
+        if relevance_score > 0 and strong_relation > 0:
+            heat_score = diary.get("views", 0) * 0.8 + diary.get("avg_rating", 0) * 20 + diary.get("rating_count", 0) * 4
+            exact_bonus = 1 if place_name_key and diary_destination_key == place_name_key else 0
+            scored.append((relevance_score, exact_bonus, heat_score, diary))
+
+    return [
+        diary for _relevance, _exact_bonus, _heat_score, diary
+        in heapq.nlargest(limit, scored, key=lambda item: (item[0], item[1], item[2]))
+    ]
 
 
 # =========================
@@ -2162,23 +2981,32 @@ def attach_diary_stats(row):
         filename = item.get("filename")
         if filename:
             item["url"] = diary_media_public_url(diary["id"], filename)
+            if item.get("kind") == "image" and (not item.get("width") or not item.get("height")):
+                file_path = os.path.join(diary_media_folder(diary["id"]), filename)
+                if os.path.exists(file_path):
+                    width, height = probe_image_size(file_path)
+                    if width and height:
+                        item["width"], item["height"] = width, height
+        if item.get("kind") == "image" and item.get("width") and item.get("height"):
+            item["aspect_ratio"] = round(item["width"] / item["height"], 4) if item["height"] else 1
     diary["media_count"] = len(diary["media_items"])
     diary["image_count"] = sum(1 for item in diary["media_items"] if item.get("kind") == "image")
     diary["video_count"] = sum(1 for item in diary["media_items"] if item.get("kind") == "video")
+    diary["has_media"] = diary["media_count"] > 0
+    image_items = [item for item in diary["media_items"] if item.get("kind") == "image"]
+    diary["cover_media"] = image_items[0] if image_items else (diary["media_items"][0] if diary["media_items"] else None)
+    diary["gallery_items"] = diary["media_items"][:6]
     diary["compression"] = diary_compression_summary(diary)
     return diary
 
 
 def load_diaries(title_query="", search_mode="exact", keyword="", destination="", sort_by="created_desc"):
     ensure_diaries_table()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM diaries")
-    diaries = [attach_diary_stats(row) for row in cursor.fetchall()]
-    conn.close()
+    index_cache = get_diary_index_cache()
+    diaries = [dict(row) for row in index_cache.get("display_records") or []]
 
-    diaries = search_diaries_by_title(diaries, title_query, search_mode)
-    diaries = search_diaries_by_keyword(diaries, keyword)
+    diaries = search_diaries_by_title(diaries, title_query, search_mode, index_cache=index_cache)
+    diaries = search_diaries_by_keyword(diaries, keyword, index_cache=index_cache)
     diaries = filter_diaries_by_destination(diaries, destination)
 
     diaries = sort_diaries(diaries, sort_by)
@@ -2213,6 +3041,7 @@ def create_diary(title, destination, content, author, compression_algorithm="huf
     diary_id = cursor.lastrowid
     conn.commit()
     conn.close()
+    invalidate_diary_index_cache()
     return diary_id
 
 
@@ -2226,6 +3055,7 @@ def update_diary_media(diary_id, media_items):
     )
     conn.commit()
     conn.close()
+    invalidate_diary_index_cache()
 
 
 def get_diary_by_id(diary_id, increase_views=False):
@@ -2238,6 +3068,8 @@ def get_diary_by_id(diary_id, increase_views=False):
     cursor.execute("SELECT * FROM diaries WHERE id = ?", (diary_id,))
     row = cursor.fetchone()
     conn.close()
+    if increase_views:
+        invalidate_diary_index_cache()
     return attach_diary_stats(row) if row else None
 
 
@@ -2271,6 +3103,7 @@ def rate_diary(diary_id, rating):
     )
     conn.commit()
     conn.close()
+    invalidate_diary_index_cache()
 
 
 # =========================
@@ -2372,12 +3205,28 @@ def places():
         sort_by=sort_by
     )
     filter_options = get_place_filter_options(all_places)
+    page = parse_positive_int(request.args.get("page", 1))
+    visible_places, pagination_state = paginate_items(filtered_places, page, PLACES_PAGE_SIZE)
+    pagination = build_pagination(
+        "places",
+        pagination_state["page"],
+        pagination_state["total_pages"],
+        {
+            "keyword": keyword,
+            "tag_keyword": tag_keyword,
+            "type": place_type,
+            "city": city,
+            "sort_by": sort_by,
+        },
+    )
 
     return render_template(
         "places.html",
         username=session["username"],
-        places=filtered_places,
+        places=visible_places,
         total_places=len(all_places),
+        filtered_places_total=len(filtered_places),
+        pagination=pagination,
         keyword=keyword,
         tag_keyword=tag_keyword,
         place_type=place_type,
@@ -2402,10 +3251,13 @@ def place_detail(place_id):
         flash("未找到该景点/校园信息")
         return redirect(url_for("places"))
 
+    related_diaries = get_related_diaries_for_place(place, load_diaries(sort_by="hot_rating_desc"), limit=6)
+
     return render_template(
         "place_detail.html",
         username=session["username"],
-        place=place
+        place=place,
+        related_diaries=related_diaries
     )
 
 
@@ -2460,12 +3312,10 @@ def route():
 
     place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
     collect_mode = request.args.get("collect", "").strip() in ("1", "true", "yes", "on")
-
-    if place_id == XMU_MANUAL_PLACE_ID and collector_sources_are_newer_than_graph():
-        rebuild_manual_graph()
+    food_pick_mode = request.args.get("food_pick", "").strip() in ("1", "true", "yes", "on")
 
     graph = load_route_graph(place_id)
-    start = request.args.get("start", graph.get("default_start", "")).strip()
+    start = request.args.get("start", "").strip()
     end = request.args.get("end", "").strip()
     strategy = request.args.get("strategy", "distance").strip()
     transport = request.args.get("transport", "walk").strip()
@@ -2477,13 +3327,15 @@ def route():
     result = None
     multi_result = None
     if route_type in ("multi", "round_trip") and start and effective_targets:
+        final_target = end if route_type == "multi" else None
         multi_result = plan_multi_target_route(
             graph,
             start,
-            effective_targets[:MAX_ROUTE_TARGETS],
+            route_targets_for_planning(effective_targets, final_target),
             strategy=strategy,
             transport=transport,
-            return_to_start=route_type == "round_trip"
+            return_to_start=route_type == "round_trip",
+            final_target=final_target
         )
     elif start and end:
         result = dijkstra_shortest_path(
@@ -2494,13 +3346,25 @@ def route():
             transport=transport
         )
 
+    route_foods, route_food_stats = get_route_linked_foods(place_id, graph, start, limit=5)
+    route_graph_args = {
+        "place_id": place_id,
+        "v": get_route_graph_version(place_id),
+    }
+    if collect_mode or edit_roads:
+        route_graph_args["full"] = "1"
+
     return render_template(
         "route.html",
         username=session["username"],
         place_id=place_id,
-        graph=serialize_graph_for_map(graph),
+        graph_stats={
+            "nodes_count": len(graph.get("nodes", [])),
+            "edges_count": len(graph.get("edges", [])),
+            "selectable_count": len(get_selectable_nodes(graph)),
+        },
+        route_graph_url=url_for("route_graph_data_api", **route_graph_args),
         nodes=get_selectable_nodes(graph),
-        facilities=load_facilities(graph.get("facility_parent_place", graph.get("place_id"))),
         start=start,
         end=end,
         targets=effective_targets,
@@ -2514,7 +3378,10 @@ def route():
         amap_js_key=AMAP_JS_KEY,
         amap_security_js_code=AMAP_SECURITY_JS_CODE,
         route_edit_roads=edit_roads,
-        route_collect_mode=collect_mode
+        route_collect_mode=collect_mode,
+        route_food_pick_mode=food_pick_mode,
+        route_foods=route_foods,
+        route_food_stats=route_food_stats,
     )
 
 
@@ -2568,13 +3435,15 @@ def route_api():
     result = None
     multi_result = None
     if route_type in ("multi", "round_trip") and start and effective_targets:
+        final_target = end if route_type == "multi" else None
         multi_result = plan_multi_target_route(
             graph,
             start,
-            effective_targets[:MAX_ROUTE_TARGETS],
+            route_targets_for_planning(effective_targets, final_target),
             strategy=strategy,
             transport=transport,
-            return_to_start=route_type == "round_trip"
+            return_to_start=route_type == "round_trip",
+            final_target=final_target
         )
     elif start and end:
         result = dijkstra_shortest_path(
@@ -2595,6 +3464,20 @@ def route_api():
         "targets": effective_targets,
         "result": serialize_route_result(result),
         "multi_result": serialize_multi_route_result(multi_result),
+    })
+
+
+@app.route("/api/route/graph-data")
+def route_graph_data_api():
+    if not is_logged_in():
+        return jsonify({"error": "璇峰厛鐧诲綍"}), 401
+
+    place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
+    full_graph = request.args.get("full", "").strip() in ("1", "true", "yes", "on")
+    graph = load_route_graph(place_id)
+    return jsonify({
+        "graph": serialize_graph_for_map(graph, include_road_nodes=full_graph, compact_edges=not full_graph),
+        "facilities": facilities_for_map(graph),
     })
 
 
@@ -3086,7 +3969,7 @@ def facilities():
 
     place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
     graph = load_route_graph(place_id)
-    start_node = request.args.get("start_node", graph.get("default_start", "")).strip()
+    start_node = request.args.get("start_node", "").strip()
     facility_type = request.args.get("type", "").strip()
     keyword = request.args.get("keyword", "").strip()
     max_distance_raw = request.args.get("max_distance", "").strip()
@@ -3124,6 +4007,9 @@ def diaries():
         flash("请先登录")
         return redirect(url_for("login"))
 
+    all_places = load_places()
+    place_name_options = get_place_name_options(all_places)
+
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         destination = request.form.get("destination", "").strip()
@@ -3160,16 +4046,47 @@ def diaries():
         destination=destination,
         sort_by=sort_by
     )
+    destination_place = find_place_match(destination, all_places)
+    related_places = get_related_places_for_diary(
+        {
+            "title": title_query or keyword or destination,
+            "destination": destination,
+            "content": keyword,
+        },
+        all_places,
+        limit=6
+    ) if (destination or title_query or keyword) else []
+    if destination_place:
+        related_places = [place for place in related_places if place["id"] != destination_place["id"]]
+    page = parse_positive_int(request.args.get("page", 1))
+    visible_diaries, pagination_state = paginate_items(diaries_list, page, DIARIES_PAGE_SIZE)
+    pagination = build_pagination(
+        "diaries",
+        pagination_state["page"],
+        pagination_state["total_pages"],
+        {
+            "title_query": title_query,
+            "search_mode": search_mode,
+            "keyword": keyword,
+            "destination": destination,
+            "sort_by": sort_by,
+        },
+    )
 
     return render_template(
         "diaries.html",
         username=session["username"],
-        diaries=diaries_list,
+        diaries=visible_diaries,
+        diaries_total=len(diaries_list),
+        place_name_options=place_name_options,
+        destination_place=destination_place,
+        related_places=related_places,
         title_query=title_query,
         search_mode=search_mode,
         keyword=keyword,
         destination=destination,
         sort_by=sort_by,
+        pagination=pagination,
         compression_preview=None,
         compression_algorithm="huffman",
     )
@@ -3192,6 +4109,12 @@ def diary_detail(diary_id):
         flash("未找到该旅游日记")
         return redirect(url_for("diaries"))
 
+    all_places = load_places()
+    matched_place = find_place_match(diary.get("destination", ""), all_places)
+    related_places = get_related_places_for_diary(diary, all_places, limit=6)
+    if matched_place:
+        related_places = [place for place in related_places if place["id"] != matched_place["id"]]
+
     compression_algorithm = request.args.get(
         "compress_algorithm",
         diary.get("compression", {}).get("algorithm", "huffman")
@@ -3202,6 +4125,9 @@ def diary_detail(diary_id):
         "diary_detail.html",
         username=session["username"],
         diary=diary,
+        place_name_options=get_place_name_options(all_places),
+        matched_place=matched_place,
+        related_places=related_places,
         compression_preview=compression_preview,
         compression_algorithm=compression_algorithm
     )
@@ -3222,20 +4148,23 @@ def foods():
         flash("请先登录")
         return redirect(url_for("login"))
 
-    place_id = request.args.get("place_id", "xmu_xiang_an").strip() or "xmu_xiang_an"
+    place_id = request.args.get("place_id", FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
     if place_id not in FOOD_CAMPUS_CONTEXTS:
-        place_id = "xmu_xiang_an"
+        place_id = FOOD_DEFAULT_PLACE_ID
     keyword = request.args.get("keyword", "").strip()
     category = request.args.get("category", "").strip()
-    place_name = request.args.get("place_name", "").strip()
+    place_name = ""
     sort_by = request.args.get("sort_by", "default").strip()
+    requested_origin_node = request.args.get("origin_node", "").strip()
 
     food_context = FOOD_CAMPUS_CONTEXTS[place_id]
     campus_foods = build_food_candidates_for_place(place_id)
-    graph = load_route_graph(place_id)
-    origin_node = get_food_origin_node(place_id)
+    graph = load_route_graph(food_context.get("graph_place_id", place_id))
+    origin_node = requested_origin_node if requested_origin_node in graph.get("node_map", {}) else ""
     if not sort_by or sort_by == "default":
         sort_by = food_context.get("default_sort", "recommend_score_desc")
+    if not origin_node and sort_by == "distance_asc":
+        sort_by = "recommend_score_desc"
     filtered_foods, food_stats = rank_food_candidates(
         campus_foods,
         keyword=keyword,
@@ -3246,8 +4175,9 @@ def foods():
         graph=graph,
         origin_node=origin_node,
     )
-    categories = sorted({food["category"] for food in campus_foods if food.get("category")})
-    places = sorted({food["place_name"] for food in campus_foods if food.get("place_name")})
+    present_categories = {food["category"] for food in campus_foods if food.get("category")}
+    categories = [option for option in FOOD_CUISINE_OPTIONS if option in present_categories]
+    categories.extend(sorted(present_categories - set(categories)))
 
     return render_template(
         "foods.html",
@@ -3258,8 +4188,8 @@ def foods():
         place_name=place_name,
         sort_by=sort_by,
         categories=categories,
-        places=places,
         place_id=place_id,
+        origin_node=origin_node,
         food_context={
             **food_context,
             "origin_node": origin_node,
@@ -3276,7 +4206,9 @@ def food_detail(food_key):
         flash("请先登录")
         return redirect(url_for("login"))
 
-    place_id = request.args.get("place_id", "xmu_xiang_an").strip() or "xmu_xiang_an"
+    place_id = request.args.get("place_id", FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        place_id = FOOD_DEFAULT_PLACE_ID
     food = get_food_by_key(food_key, place_id=place_id)
     if food is None:
         flash("未找到该美食信息")
@@ -3294,5 +4226,5 @@ if __name__ == "__main__":
     host = os.getenv("FLASK_HOST", "0.0.0.0")
     port = int(os.getenv("PORT", os.getenv("FLASK_PORT", "5000")))
     debug = os.getenv("FLASK_DEBUG", "1").lower() in ("1", "true", "yes", "on")
-    app.run(host=host, port=port, debug=debug)
+    app.run(host=host, port=port, debug=debug, use_reloader=debug)
 

@@ -4,100 +4,211 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ diary.title }} - 旅游日记</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
-<body>
-    <div class="topbar">
-        <div>旅游日记详情</div>
-        <div>
-            当前用户：{{ username }}
-            <a class="nav-link" href="{{ url_for('diaries') }}">返回日记列表</a>
-            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
-        </div>
-    </div>
+<body class="diary-detail-page">
+    <a class="skip-link" href="#main-content">跳到内容</a>
 
-    <div class="container detail-container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="message">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <h2>{{ diary.title }}</h2>
-
-        <div class="detail-card">
-            <div class="diary-meta-grid">
-                <div class="diary-meta-chip"><span>目的地</span><span>{{ diary.destination }}</span></div>
-                <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
-                <div class="diary-meta-chip"><span>发布时间</span><span>{{ diary.created_at }}</span></div>
-                <div class="diary-meta-chip"><span>浏览热度</span><span>{{ diary.views }}</span></div>
-                <div class="diary-meta-chip"><span>平均评分</span><span>{{ diary.avg_rating }}</span></div>
-                <div class="diary-meta-chip"><span>评分人数</span><span>{{ diary.rating_count }}</span></div>
-            </div>
-            <hr>
-            <p>{{ diary.content }}</p>
-
-            {% if diary.media_items %}
-            <h3>媒体附件</h3>
-            <div class="diary-media-grid">
-                {% for item in diary.media_items %}
-                <div class="diary-media-item">
-                    {% if item.kind == 'image' %}
-                        <img src="{{ item.url }}" alt="{{ item.original_name }}">
-                    {% elif item.kind == 'video' %}
-                        <video controls src="{{ item.url }}"></video>
-                    {% else %}
-                        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.original_name }}</a>
-                    {% endif %}
-                    <small>{{ item.original_name }}</small>
+    <div class="diary-shell">
+        <header class="diary-topbar">
+            <div class="diary-brand">
+                <div class="diary-brand-mark" aria-hidden="true">记</div>
+                <div class="diary-brand-copy">
+                    <p class="eyebrow">旅游日记详情</p>
+                    <h1>{{ diary.title }}</h1>
+                    <p class="brand-subtitle">把旅行、照片、视频和压缩信息放在同一条故事线里。</p>
                 </div>
-                {% endfor %}
             </div>
-            {% endif %}
 
-            <h3>压缩存储信息</h3>
-            <div class="compression-grid">
-                <div class="compression-chip"><span>算法</span><span>{{ diary.compression.algorithm }}</span></div>
-                <div class="compression-chip"><span>原始长度</span><span>{{ diary.compression.original_length }}</span></div>
-                <div class="compression-chip"><span>压缩长度</span><span>{{ diary.compression.compressed_length }}</span></div>
-                <div class="compression-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
+            <div class="diary-topbar-actions">
+                <details class="publish-panel">
+                    <summary class="publish-trigger">发布日记</summary>
+                    <div class="publish-panel__body">
+                        <form method="post" action="{{ url_for('diaries') }}" enctype="multipart/form-data" class="publish-form">
+                            <div class="publish-grid">
+                                <label class="publish-field">
+                                    <span>标题</span>
+                                    <input type="text" name="title" placeholder="写下这次旅行的标题" required>
+                                </label>
+                                <label class="publish-field">
+                                    <span>目的地</span>
+                                    <input type="text" name="destination" list="place-name-options" placeholder="选择或输入目的地" required>
+                                </label>
+                                <label class="publish-field">
+                                    <span>压缩算法</span>
+                                    <select name="compression_algorithm">
+                                        <option value="huffman">哈夫曼压缩</option>
+                                        <option value="dictionary">字典压缩</option>
+                                    </select>
+                                </label>
+                                <label class="publish-field full-span">
+                                    <span>照片 / 视频</span>
+                                    <input type="file" name="attachments" multiple accept="image/*,video/*">
+                                </label>
+                                <label class="publish-field full-span">
+                                    <span>正文</span>
+                                    <textarea name="content" placeholder="记录路线、体验、拍照点、吃喝和心情" required></textarea>
+                                </label>
+                            </div>
+                            <div class="publish-actions">
+                                <p class="helper-copy">支持多张照片和视频；详情页会按原比例自适应展示。</p>
+                                <button type="submit">发布日记</button>
+                            </div>
+                        </form>
+                    </div>
+                </details>
+                <a class="diary-topbar-link" href="{{ url_for('diaries') }}">返回日记广场</a>
+                <a class="diary-topbar-link" href="{{ url_for('home') }}">返回主页</a>
+                <a class="diary-topbar-link" href="{{ url_for('logout') }}">退出登录</a>
             </div>
-        </div>
+        </header>
 
-        <div class="detail-card compression-panel">
-            <h3>压缩预览</h3>
-            <p class="diary-inline-note">这里会按你选择的算法重新压缩当前日记正文，方便答辩时演示哈夫曼和字典压缩的差异。</p>
-            <form method="get" action="{{ url_for('diary_detail', diary_id=diary.id) }}">
-                <select name="compress_algorithm">
-                    <option value="huffman" {% if compression_algorithm == 'huffman' %}selected{% endif %}>哈夫曼压缩</option>
-                    <option value="dictionary" {% if compression_algorithm == 'dictionary' %}selected{% endif %}>字典压缩</option>
-                </select>
-                <button type="submit">重新预览</button>
-            </form>
-            {% if compression_preview %}
-            <div class="compression-grid" style="margin-top: 14px;">
-                <div class="compression-chip"><span>当前预览算法</span><span>{{ compression_preview.package.algorithm }}</span></div>
-                <div class="compression-chip"><span>预览原始长度</span><span>{{ compression_preview.original_length }}</span></div>
-                <div class="compression-chip"><span>预览压缩长度</span><span>{{ compression_preview.compressed_length }}</span></div>
-                <div class="compression-chip"><span>预览压缩比</span><span>{{ compression_preview.ratio }}</span></div>
-            </div>
-            {% endif %}
-        </div>
+        <main id="main-content" class="diary-detail-layout">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="message-stack" aria-live="polite">
+                        {% for message in messages %}
+                        <div class="message">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-        <form method="post" class="rating-form">
-            <select name="rating">
-                <option value="5">5 分 - 很推荐</option>
-                <option value="4">4 分 - 不错</option>
-                <option value="3">3 分 - 一般</option>
-                <option value="2">2 分 - 较弱</option>
-                <option value="1">1 分 - 不推荐</option>
-            </select>
-            <button type="submit">提交评分</button>
-        </form>
+            <article class="diary-story-card">
+                <section class="story-meta-block">
+                    <div class="story-meta-grid">
+                        <div class="story-meta-chip"><span>目的地</span><strong>{{ diary.destination }}</strong></div>
+                        <div class="story-meta-chip"><span>作者</span><strong>{{ diary.author }}</strong></div>
+                        <div class="story-meta-chip"><span>发布时间</span><strong>{{ diary.created_at }}</strong></div>
+                        <div class="story-meta-chip"><span>浏览热度</span><strong>{{ diary.views }}</strong></div>
+                        <div class="story-meta-chip"><span>平均评分</span><strong>{{ diary.avg_rating }}</strong></div>
+                        <div class="story-meta-chip"><span>评分人数</span><strong>{{ diary.rating_count }}</strong></div>
+                    </div>
+                </section>
+
+                {% if diary.media_items %}
+                <section class="media-wall {% if diary.media_count == 1 %}is-single{% elif diary.media_count == 2 %}is-pair{% else %}is-grid{% endif %}">
+                    {% for item in diary.gallery_items %}
+                    <figure class="media-frame" style="--media-ratio: {{ item.width or 16 }} / {{ item.height or 9 }};">
+                        <div class="media-frame__visual">
+                        {% if item.kind == 'image' %}
+                        <img
+                            src="{{ item.url }}"
+                            alt="{{ item.original_name }}"
+                            width="{{ item.width or 1200 }}"
+                            height="{{ item.height or 900 }}"
+                            loading="lazy"
+                        >
+                        {% elif item.kind == 'video' %}
+                        <video controls preload="metadata" src="{{ item.url }}"></video>
+                        {% else %}
+                        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.original_name }}</a>
+                        {% endif %}
+                        </div>
+                        <figcaption>{{ item.original_name }}</figcaption>
+                    </figure>
+                    {% endfor %}
+                </section>
+                {% endif %}
+
+                <section class="story-body">
+                    <h2>日记正文</h2>
+                    <p class="story-content">{{ diary.content }}</p>
+                </section>
+
+                <section class="compression-panel compact">
+                    <h2>压缩信息</h2>
+                    <div class="compression-grid">
+                        <div class="compression-chip"><span>算法</span><span>{{ diary.compression.algorithm }}</span></div>
+                        <div class="compression-chip"><span>原始长度</span><span>{{ diary.compression.original_length }}</span></div>
+                        <div class="compression-chip"><span>压缩长度</span><span>{{ diary.compression.compressed_length }}</span></div>
+                        <div class="compression-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
+                    </div>
+                    <p class="diary-inline-note">可切换算法重新预览，便于对比哈夫曼和字典压缩的效果。</p>
+                    <form method="get" action="{{ url_for('diary_detail', diary_id=diary.id) }}" class="compression-switcher">
+                        <label>
+                            <span class="sr-only">压缩算法</span>
+                            <select name="compress_algorithm">
+                                <option value="huffman" {% if compression_algorithm == 'huffman' %}selected{% endif %}>哈夫曼压缩</option>
+                                <option value="dictionary" {% if compression_algorithm == 'dictionary' %}selected{% endif %}>字典压缩</option>
+                            </select>
+                        </label>
+                        <button type="submit">重新预览</button>
+                    </form>
+                    {% if compression_preview %}
+                    <div class="compression-preview-grid">
+                        <div class="compression-chip"><span>预览算法</span><span>{{ compression_preview.package.algorithm }}</span></div>
+                        <div class="compression-chip"><span>预览原始长度</span><span>{{ compression_preview.original_length }}</span></div>
+                        <div class="compression-chip"><span>预览压缩长度</span><span>{{ compression_preview.compressed_length }}</span></div>
+                        <div class="compression-chip"><span>预览压缩比</span><span>{{ compression_preview.ratio }}</span></div>
+                    </div>
+                    {% endif %}
+                </section>
+
+                <section class="rating-panel">
+                    <h2>给这篇日记打分</h2>
+                    <form method="post" class="rating-form">
+                        <label class="rating-field">
+                            <span>评分</span>
+                            <select name="rating">
+                                <option value="5">5 分 · 很推荐</option>
+                                <option value="4">4 分 · 不错</option>
+                                <option value="3">3 分 · 一般</option>
+                                <option value="2">2 分 · 较弱</option>
+                                <option value="1">1 分 · 不推荐</option>
+                            </select>
+                        </label>
+                        <button type="submit">提交评分</button>
+                    </form>
+                </section>
+            </article>
+
+            <aside class="diary-detail-rail">
+                {% if matched_place or related_places %}
+                <section class="rail-card">
+                    <h2>联动景点 / 学校</h2>
+                    {% if matched_place %}
+                    <p class="diary-inline-note">当前日记目的地已匹配到模块一中的 {{ matched_place.name }}。</p>
+                    {% elif related_places %}
+                    <p class="diary-inline-note">以下地点先通过目的地、城市或地点名判断相关性，再用于辅助排序。</p>
+                    {% endif %}
+                    <div class="rail-link-list">
+                        {% if matched_place %}
+                        <a class="rail-link-card is-primary" href="{{ url_for('place_detail', place_id=matched_place.id) }}">
+                            <strong>{{ matched_place.name }}</strong>
+                            <span>{{ matched_place.city }} · {{ matched_place.type }}</span>
+                            <small>{{ matched_place.tags }}</small>
+                        </a>
+                        {% endif %}
+                        {% for place in related_places %}
+                        <a class="rail-link-card" href="{{ url_for('place_detail', place_id=place.id) }}">
+                            <strong>{{ place.name }}</strong>
+                            <span>{{ place.city }} · {{ place.type }}</span>
+                            <small>评分 {{ place.rating }} · 热度 {{ place.popularity }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <section class="rail-card">
+                    <h2>这篇日记的标签感</h2>
+                    <div class="rail-metric-list">
+                        <div class="rail-metric"><span>媒体</span><strong>{{ diary.media_count }}</strong></div>
+                        <div class="rail-metric"><span>照片</span><strong>{{ diary.image_count }}</strong></div>
+                        <div class="rail-metric"><span>视频</span><strong>{{ diary.video_count }}</strong></div>
+                        <div class="rail-metric"><span>压缩算法</span><strong>{{ diary.compression.algorithm }}</strong></div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <datalist id="place-name-options">
+            {% for place_name in place_name_options %}
+            <option value="{{ place_name }}"></option>
+            {% endfor %}
+        </datalist>
     </div>
 </body>
 </html>
