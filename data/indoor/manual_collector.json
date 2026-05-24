@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "building_id": "demo_building",
+    "building_name": "室内导航采集楼",
+    "width": 1672,
+    "height": 941,
+    "floor_assets": {
+      "1": "indoor_floors/floor_1f.png",
+      "2": "indoor_floors/floor_2f.png",
+      "3": "indoor_floors/floor_3f.png",
+      "4": "indoor_floors/floor_4f.png"
+    }
+  },
+  "floors": {
+    "1": {
+      "nodes": [],
+      "edges": [],
+      "links": []
+    },
+    "2": {
+      "nodes": [],
+      "edges": [],
+      "links": []
+    },
+    "3": {
+      "nodes": [],
+      "edges": [],
+      "links": []
+    },
+    "4": {
+      "nodes": [],
+      "edges": [],
+      "links": []
+    }
+  }
+}

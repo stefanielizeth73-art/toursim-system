@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
-<body>
+<body class="place-detail-page">
     <div class="topbar">
         <div>景点 / 校园详情</div>
         <div>
@@ -21,6 +21,34 @@
 
     <div class="container detail-container">
         <h2>{{ place.name }}</h2>
+
+        <section class="place-image-panel" id="place-image-uploader">
+            <div class="place-image-preview">
+                {% if place.cover_image %}
+                <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 封面图片">
+                <div class="place-image-preview__meta">
+                    <strong>当前封面</strong>
+                    <span>{{ place.cover_image_title or '手动上传' }}</span>
+                </div>
+                {% else %}
+                <div class="place-image-empty">
+                    <h3>还没有封面图</h3>
+                    <p>上传一张横屏的经典地标照片，系统会自动裁成 16:9 封面。</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <form class="place-image-uploader" method="post" action="{{ url_for('upload_place_image', place_id=place.id) }}" enctype="multipart/form-data">
+                <span class="eyebrow">手动采集</span>
+                <h3>上传景点 / 校区图片</h3>
+                <p>建议选择最经典、最能代表该地点的横屏图片。上传后会直接保存为详情页封面。</p>
+                <label class="place-image-field">
+                    <span>图片文件</span>
+                    <input type="file" name="image_file" accept="image/*" required>
+                </label>
+                <button type="submit" class="place-image-submit">上传并设为封面</button>
+            </form>
+        </section>
 
         <div class="detail-card">
             <p><strong>ID：</strong>{{ place.id }}</p>
@@ -51,6 +79,11 @@
             <a class="action-card" href="{{ url_for('diaries', destination=place.name) }}">
                 <h3>查看旅游日记</h3>
                 <p>检索目的地相关日记和游览体验。</p>
+            </a>
+
+            <a class="action-card" href="#place-image-uploader">
+                <h3>手动采集图片</h3>
+                <p>直接在当前页面上传该景点或校区的封面图。</p>
             </a>
         </div>
 

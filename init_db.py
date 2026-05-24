@@ -98,9 +98,32 @@ def init_db():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS place_images (
+        place_id INTEGER PRIMARY KEY,
+        place_name TEXT NOT NULL,
+        city TEXT NOT NULL DEFAULT '',
+        place_type TEXT NOT NULL DEFAULT '',
+        source_site TEXT NOT NULL DEFAULT 'wikimedia',
+        source_page_title TEXT NOT NULL DEFAULT '',
+        source_page_url TEXT NOT NULL DEFAULT '',
+        source_image_title TEXT NOT NULL DEFAULT '',
+        source_image_url TEXT NOT NULL DEFAULT '',
+        local_path TEXT NOT NULL DEFAULT '',
+        width INTEGER NOT NULL DEFAULT 0,
+        height INTEGER NOT NULL DEFAULT 0,
+        original_width INTEGER NOT NULL DEFAULT 0,
+        original_height INTEGER NOT NULL DEFAULT 0,
+        fetched_at TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'ok',
+        note TEXT NOT NULL DEFAULT ''
+    )
+    """)
+
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comments_diary_created ON diary_comments(diary_id, like_count DESC, created_at ASC, id ASC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comment_likes_comment_username ON diary_comment_likes(comment_id, username)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites_user_type_created ON user_favorites(user_id, item_type, created_at DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_place_images_city_type ON place_images(city, place_type)")
 
     cursor.execute("SELECT COUNT(*) FROM diaries")
     if cursor.fetchone()[0] == 0:

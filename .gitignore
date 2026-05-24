@@ -9,6 +9,7 @@ __pycache__/
 .idea/
 .env
 .env.*
+!.env.example
 data/legacy/
 users.json
 tourism.db

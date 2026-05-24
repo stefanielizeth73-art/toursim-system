@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from collections import defaultdict
 import base64
 import bisect
+import copy
 import hashlib
 import heapq
 import sqlite3
@@ -20,9 +21,10 @@ from io import BytesIO
 from urllib.parse import urlencode
 from markupsafe import Markup, escape
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps
 except ImportError:
     Image = None
+    ImageOps = None
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
@@ -90,6 +92,7 @@ SEED_DB_PATH = os.path.join(APP_DIR, "tourism.db")
 PLACES_FILE = os.path.join(APP_DIR, "data", "places.csv")
 FACILITIES_FILE = os.path.join(APP_DIR, "data", "facilities.csv")
 ROUTE_GRAPHS_DIR = os.path.join(APP_DIR, "data", "graphs")
+PLACE_MEDIA_DIR = os.path.join(APP_DIR, "static", "place_media")
 DEFAULT_PLACE_ID = "xmu_manual"
 MAX_ROUTE_TARGETS = 8
 AMAP_JS_KEY = os.getenv("AMAP_JS_KEY", "")
@@ -105,6 +108,8 @@ XMU_COLLECTOR_FACILITIES_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_f
 XMU_COLLECTOR_META_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_meta.json")
 XMU_FOOD_MEDIA_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_food_media.json")
 XMU_FOOD_CUSTOM_MEDIA_DIR = os.path.join(APP_DIR, "static", "food_media", "custom")
+INDOOR_DATA_DIR = os.path.join(APP_DIR, "data", "indoor")
+INDOOR_COLLECTOR_FILE = os.path.join(INDOOR_DATA_DIR, "manual_collector.json")
 XMU_ROAD_SNAP_METERS = 0
 XMU_COLLECTOR_SOURCE_FILES = [
     XMU_COLLECTOR_NODES_FILE,
@@ -116,6 +121,10 @@ XMU_COLLECTOR_SOURCE_FILES = [
 PLACES_CACHE = {
     "signature": None,
     "records": [],
+}
+PLACE_IMAGE_CACHE = {
+    "signature": None,
+    "records": {},
 }
 COLLECTOR_SIGNATURE_CACHE = {
     "source_files_signature": None,
@@ -192,8 +201,22 @@ DIARY_VISIBLE_COMMENT_THREADS = 3
 DIARY_VISIBLE_REPLIES = 3
 INDOOR_BUILDING_TYPES = {"building", "teaching", "library", "dorm", "canteen"}
 INDOOR_DEFAULT_START = "gate_1f"
-INDOOR_DEFAULT_END = "room_302"
+INDOOR_DEFAULT_END = "room_402"
 INDOOR_VERTICAL_MODES = {"auto", "elevator", "stairs"}
+INDOOR_FLOOR_WIDTH = 1672
+INDOOR_FLOOR_HEIGHT = 941
+INDOOR_FLOOR_ASSETS = {
+    1: "indoor_floors/floor_1f.png",
+    2: "indoor_floors/floor_2f.png",
+    3: "indoor_floors/floor_3f.png",
+    4: "indoor_floors/floor_4f.png",
+}
+INDOOR_VERTICAL_CORES = {
+    "west_elevator": {"type": "elevator", "label": "西电梯"},
+    "east_elevator": {"type": "elevator", "label": "东电梯"},
+    "northwest_stairs": {"type": "stairs", "label": "西北步梯"},
+    "east_stairs": {"type": "stairs", "label": "东侧步梯"},
+}
 
 
 # =========================
@@ -244,6 +267,175 @@ def ensure_sqlite_column(cursor, table_name, column_name, column_definition):
     existing_columns = {row[1] for row in cursor.fetchall()}
     if column_name not in existing_columns:
         cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}")
+
+
+def ensure_place_images_table(cursor):
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS place_images (
+        place_id INTEGER PRIMARY KEY,
+        place_name TEXT NOT NULL,
+        city TEXT NOT NULL DEFAULT '',
+        place_type TEXT NOT NULL DEFAULT '',
+        source_site TEXT NOT NULL DEFAULT 'wikimedia',
+        source_page_title TEXT NOT NULL DEFAULT '',
+        source_page_url TEXT NOT NULL DEFAULT '',
+        source_image_title TEXT NOT NULL DEFAULT '',
+        source_image_url TEXT NOT NULL DEFAULT '',
+        local_path TEXT NOT NULL DEFAULT '',
+        width INTEGER NOT NULL DEFAULT 0,
+        height INTEGER NOT NULL DEFAULT 0,
+        original_width INTEGER NOT NULL DEFAULT 0,
+        original_height INTEGER NOT NULL DEFAULT 0,
+        fetched_at TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'ok',
+        note TEXT NOT NULL DEFAULT ''
+    )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_place_images_city_type ON place_images(city, place_type)")
+
+
+def load_place_image_map():
+    signature = file_signature(DB_PATH)
+    cached = PLACE_IMAGE_CACHE.get("signature")
+    if signature == cached:
+        return PLACE_IMAGE_CACHE.get("records", {})
+
+    image_map = {}
+    if not os.path.exists(DB_PATH):
+        PLACE_IMAGE_CACHE["signature"] = signature
+        PLACE_IMAGE_CACHE["records"] = image_map
+        return image_map
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT place_id, place_name, city, place_type, source_site, source_page_title,
+                   source_page_url, source_image_title, source_image_url, local_path,
+                   width, height, original_width, original_height, fetched_at, status, note
+            FROM place_images
+            WHERE status = 'ok' AND local_path <> ''
+        """)
+        for row in cursor.fetchall():
+            image_map[int(row["place_id"])] = {
+                "place_name": row["place_name"],
+                "city": row["city"],
+                "place_type": row["place_type"],
+                "source_site": row["source_site"],
+                "source_page_title": row["source_page_title"],
+                "source_page_url": row["source_page_url"],
+                "source_image_title": row["source_image_title"],
+                "source_image_url": row["source_image_url"],
+                "local_path": row["local_path"],
+                "width": row["width"],
+                "height": row["height"],
+                "original_width": row["original_width"],
+                "original_height": row["original_height"],
+                "fetched_at": row["fetched_at"],
+                "status": row["status"],
+                "note": row["note"],
+            }
+    finally:
+        conn.close()
+
+    PLACE_IMAGE_CACHE["signature"] = signature
+    PLACE_IMAGE_CACHE["records"] = image_map
+    return image_map
+
+
+def place_media_relative_path(place_id):
+    return "/".join(["place_media", f"{int(place_id):03d}.jpg"])
+
+
+def save_uploaded_place_cover(uploaded_file, place):
+    if not uploaded_file or not getattr(uploaded_file, "filename", ""):
+        raise ValueError("请选择图片文件")
+    if Image is None or ImageOps is None:
+        raise ValueError("当前环境缺少 Pillow，无法处理图片")
+
+    original_name = secure_filename(uploaded_file.filename)
+    ext = os.path.splitext(original_name)[1].lower()
+    if ext and ext not in DIARY_ALLOWED_IMAGE_EXTS:
+        raise ValueError("请上传图片格式文件")
+
+    try:
+        uploaded_file.stream.seek(0)
+    except Exception:
+        pass
+
+    try:
+        image = Image.open(uploaded_file.stream)
+        image = ImageOps.exif_transpose(image).convert("RGB")
+    except Exception as exc:
+        raise ValueError("上传图片解析失败，请重新选择文件") from exc
+
+    original_width, original_height = image.size
+    cover = ImageOps.fit(
+        image,
+        (1920, 1080),
+        method=Image.Resampling.LANCZOS,
+        centering=(0.5, 0.42),
+    )
+
+    os.makedirs(PLACE_MEDIA_DIR, exist_ok=True)
+    filename = f"{int(place['id']):03d}.jpg"
+    file_path = os.path.join(PLACE_MEDIA_DIR, filename)
+    cover.save(file_path, "JPEG", quality=88, optimize=True, progressive=True)
+    return place_media_relative_path(place["id"]), original_width, original_height, original_name or "manual upload"
+
+
+def save_place_image_record(place, local_path, original_width, original_height, source_image_title):
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            """
+            INSERT INTO place_images (
+                place_id, place_name, city, place_type, source_site, source_page_title,
+                source_page_url, source_image_title, source_image_url, local_path,
+                width, height, original_width, original_height, fetched_at, status, note
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(place_id) DO UPDATE SET
+                place_name=excluded.place_name,
+                city=excluded.city,
+                place_type=excluded.place_type,
+                source_site=excluded.source_site,
+                source_page_title=excluded.source_page_title,
+                source_page_url=excluded.source_page_url,
+                source_image_title=excluded.source_image_title,
+                source_image_url=excluded.source_image_url,
+                local_path=excluded.local_path,
+                width=excluded.width,
+                height=excluded.height,
+                original_width=excluded.original_width,
+                original_height=excluded.original_height,
+                fetched_at=excluded.fetched_at,
+                status=excluded.status,
+                note=excluded.note
+            """,
+            (
+                int(place["id"]),
+                place["name"],
+                place["city"],
+                place["type"],
+                "manual",
+                place["name"],
+                "",
+                source_image_title or "manual upload",
+                "",
+                local_path,
+                1920,
+                1080,
+                original_width,
+                original_height,
+                datetime.now().isoformat(timespec="seconds"),
+                "ok",
+                "manual upload",
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def avatar_relative_path(filename):
@@ -415,6 +607,7 @@ def initialize_database():
     )
     """)
 
+    ensure_place_images_table(cursor)
     ensure_sqlite_column(cursor, "users", "avatar_path", "TEXT NOT NULL DEFAULT ''")
     ensure_sqlite_column(cursor, "diaries", "media_json", "TEXT NOT NULL DEFAULT '[]'")
     ensure_sqlite_column(cursor, "diaries", "compressed_content", "TEXT NOT NULL DEFAULT ''")
@@ -2021,6 +2214,24 @@ def load_places():
             row["tags_list"] = [tag.strip() for tag in row.get("tags", "").split(";") if tag.strip()]
             places.append(row)
 
+    image_map = load_place_image_map()
+    for row in places:
+        image_info = image_map.get(row["id"])
+        if image_info:
+            row["cover_image"] = image_info.get("local_path", "")
+            row["cover_image_source"] = image_info.get("source_page_url", "")
+            row["cover_image_title"] = image_info.get("source_page_title", "")
+            row["cover_image_source_url"] = image_info.get("source_image_url", "")
+            row["cover_image_width"] = image_info.get("original_width") or image_info.get("width") or 0
+            row["cover_image_height"] = image_info.get("original_height") or image_info.get("height") or 0
+        else:
+            row["cover_image"] = ""
+            row["cover_image_source"] = ""
+            row["cover_image_title"] = ""
+            row["cover_image_source_url"] = ""
+            row["cover_image_width"] = 0
+            row["cover_image_height"] = 0
+
     PLACES_CACHE["signature"] = signature
     PLACES_CACHE["records"] = places
     return places
@@ -3143,37 +3354,13 @@ def route_from_shortest_tree(graph, route_tree, end):
 
 
 def build_indoor_graph(building_id="demo_building"):
-    building_id_lower = str(building_id).lower()
+    collector_payload = load_indoor_collector_payload()
+    collector_summary_data = indoor_collector_summary(collector_payload)
+    if collector_summary_data.get("manual_nodes", 0) or collector_summary_data.get("manual_edges", 0):
+        return build_indoor_graph_from_collector(collector_payload)
 
-    # Classify building type to configure custom floor levels and room names
-    if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
-        b_type = "library"
-        floors_list = (1, 2, 3, 4)
-        floors_display = [4, 3, 2, 1]
-        room_names = {
-            101: "101 电子阅览室", 102: "102 报刊阅览室", 103: "103 服务大厅", 104: "104 自习室",
-            201: "201 社科图书借阅区", 202: "202 科技图书借阅区", 203: "203 研讨室A", 204: "204 研讨室B",
-            301: "301 特藏文献室", 302: "302 珍本阅览室", 303: "303 学术交流厅", 304: "304 休闲阅读区",
-            401: "401 古籍保护中心", 402: "402 专家研究室", 403: "403 创意空间", 404: "404 楼顶花园中心"
-        }
-    elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
-        b_type = "museum"
-        floors_list = (1, 2)
-        floors_display = [2, 1]
-        room_names = {
-            101: "101 校史展厅", 102: "102 科技探索厅", 103: "103 珍贵文物馆", 104: "104 文创体验区",
-            201: "201 艺术精品馆", 202: "202 自然标本厅", 203: "203 多媒体报告厅", 204: "204 互动体验厅"
-        }
-    else:
-        b_type = "teaching"
-        floors_list = (1, 2, 3)
-        floors_display = [3, 2, 1]
-        room_names = {
-            101: "101教室", 102: "102教室", 103: "103教室", 104: "104教室",
-            201: "201教室", 202: "202教室", 203: "203教室", 204: "204教室",
-            301: "301教室", 302: "302教室", 303: "303教室", 304: "304教室"
-        }
-
+    floors_list = (1, 2, 3, 4)
+    floors_display = [1, 2, 3, 4]
     nodes = []
     edges = []
 
@@ -3188,7 +3375,11 @@ def build_indoor_graph(building_id="demo_building"):
             **extra,
         })
 
-    def add_edge(from_id, to_id, distance, mode="walk"):
+    def add_edge(from_id, to_id, distance=None, mode="walk"):
+        if distance is None:
+            from_node = next(node for node in nodes if node["id"] == from_id)
+            to_node = next(node for node in nodes if node["id"] == to_id)
+            distance = round(math.hypot(from_node["x"] - to_node["x"], from_node["y"] - to_node["y"]) / 10, 1)
         edges.append({
             "from": from_id,
             "to": to_id,
@@ -3197,73 +3388,99 @@ def build_indoor_graph(building_id="demo_building"):
         })
 
     corridor_points = [
-        ("nw", "西北转角", 250, 160),
-        ("north_w", "北走廊西段", 360, 160),
-        ("north_e", "北走廊东段", 540, 160),
-        ("ne", "东北转角", 650, 160),
-        ("east_n", "东走廊北段", 650, 270),
-        ("east_s", "东走廊南段", 650, 390),
-        ("se", "东南转角", 650, 480),
-        ("south_e", "南走廊东段", 540, 480),
-        ("south_w", "南走廊西段", 360, 480),
-        ("sw", "西南转角", 250, 480),
-        ("west_s", "西走廊南段", 250, 390),
-        ("west_n", "西走廊北段", 250, 270),
+        ("gate_lobby", "入口大厅", 158, 792),
+        ("south_w", "南走廊西段", 450, 790),
+        ("south_c", "南走廊中段", 720, 790),
+        ("south_e", "南走廊东段", 1010, 790),
+        ("south_east", "东南连接廊", 1265, 790),
+        ("east_core", "东侧电梯厅", 1508, 690),
+        ("east_mid", "东走廊中段", 1508, 520),
+        ("east_n", "东走廊北段", 1508, 340),
+        ("ne", "东北转角", 1420, 250),
+        ("north_e", "北走廊东段", 1170, 250),
+        ("north_c", "北走廊中段", 880, 250),
+        ("north_w", "北走廊西段", 575, 250),
+        ("nw", "西北转角", 255, 250),
+        ("west_n", "西走廊北段", 165, 350),
+        ("west_s", "西走廊南段", 145, 620),
+    ]
+    corridor_ring = [key for key, _name, _x, _y in corridor_points]
+    inner_corridor = [
+        ("mid_w", "中庭西廊", 430, 470),
+        ("mid_c", "中庭中廊", 735, 470),
+        ("mid_e", "中庭东廊", 1040, 470),
+        ("east_branch", "东侧支廊", 1330, 470),
     ]
     room_layout = [
-        (1, "north", 360, 84, 128, 74, "north_w"),
-        (2, "north", 540, 84, 128, 74, "north_e"),
-        (3, "east", 748, 320, 126, 116, "east_s"),
-        (4, "south", 540, 556, 128, 74, "south_e"),
-        (5, "west", 152, 320, 126, 116, "west_s"),
-        (6, "south", 360, 556, 128, 74, "south_w"),
+        (1, "北侧教室A", 325, 170, "north_w"),
+        (2, "北侧教室B", 520, 170, "north_w"),
+        (3, "北侧教室C", 720, 170, "north_c"),
+        (4, "北侧教室D", 945, 170, "north_c"),
+        (5, "北侧教室E", 1160, 170, "north_e"),
+        (6, "东侧综合教室", 1425, 170, "ne"),
+        (7, "西侧研讨室", 330, 335, "mid_w"),
+        (8, "中区实验室A", 560, 335, "mid_w"),
+        (9, "中区实验室B", 790, 335, "mid_c"),
+        (10, "中区实验室C", 1000, 335, "mid_e"),
+        (11, "东区实验室", 1200, 335, "mid_e"),
+        (12, "东侧讨论室", 1355, 420, "east_branch"),
+        (13, "南侧教室A", 350, 680, "south_w"),
+        (14, "南侧教室B", 570, 720, "south_w"),
+        (15, "南侧教室C", 800, 720, "south_c"),
+        (16, "南侧教室D", 1020, 720, "south_e"),
+        (17, "南侧教室E", 1220, 720, "south_e"),
+        (18, "东南功能室", 1540, 660, "east_core"),
     ]
-
-    def corridor_distance(a_id, b_id):
-        a = next(node for node in nodes if node["id"] == a_id)
-        b = next(node for node in nodes if node["id"] == b_id)
-        return round(math.hypot(a["x"] - b["x"], a["y"] - b["y"]), 1)
 
     for floor in floors_list:
         suffix = f"{floor}f"
         for key, name, x, y in corridor_points:
             add_node(f"hall_{key}_{suffix}", f"{floor}层{name}", floor, x, y, "hall")
-        add_node(f"elevator_a_{suffix}", f"{floor}层西电梯", floor, 206, 320, "elevator", w=58, h=74)
-        add_node(f"elevator_b_{suffix}", f"{floor}层东电梯", floor, 694, 320, "elevator", w=58, h=74)
-        add_node(f"stairs_a_{suffix}", f"{floor}层东北步梯", floor, 720, 152, "stairs", w=66, h=86)
-        add_node(f"stairs_b_{suffix}", f"{floor}层西南步梯", floor, 180, 488, "stairs", w=66, h=86)
-        if floor == 1:
-            add_node("gate_1f", "一层大厅入口", floor, 450, 604, "gate", w=110, h=44)
-            add_edge("gate_1f", "hall_south_w_1f", 54)
+        for key, name, x, y in inner_corridor:
+            add_node(f"hall_{key}_{suffix}", f"{floor}层{name}", floor, x, y, "hall")
 
-        for room_index, side, x, y, width, height, anchor_key in room_layout:
+        add_node(f"elevator_a_{suffix}", f"{floor}层西电梯", floor, 270, 785, "elevator")
+        add_node(f"elevator_b_{suffix}", f"{floor}层东电梯", floor, 1540, 685, "elevator")
+        add_node(f"stairs_a_{suffix}", f"{floor}层西北步梯", floor, 205, 235, "stairs")
+        add_node(f"stairs_b_{suffix}", f"{floor}层东侧步梯", floor, 1540, 350, "stairs")
+        if floor == 1:
+            add_node("gate_1f", "一层主入口", floor, 92, 790, "gate")
+            add_edge("gate_1f", "hall_gate_lobby_1f")
+
+        for room_index, room_name, x, y, anchor_key in room_layout:
             room_number = floor * 100 + room_index
-            r_name = room_names.get(room_number, f"{room_number}房间")
             add_node(
                 f"room_{room_number}",
-                r_name,
+                f"{room_number} {room_name}",
                 floor,
                 x,
                 y,
                 "room",
-                side=side,
-                w=width,
-                h=height,
                 door_anchor=f"hall_{anchor_key}_{suffix}",
             )
 
-        corridor = [f"hall_{key}_{suffix}" for key, _name, _x, _y in corridor_points]
+        corridor = [f"hall_{key}_{suffix}" for key in corridor_ring]
         for left, right in zip(corridor, corridor[1:]):
-            add_edge(left, right, corridor_distance(left, right))
-        add_edge(corridor[-1], corridor[0], corridor_distance(corridor[-1], corridor[0]))
+            add_edge(left, right)
+        add_edge(corridor[-1], corridor[0])
 
-        add_edge(f"elevator_a_{suffix}", f"hall_west_s_{suffix}", 24)
-        add_edge(f"elevator_b_{suffix}", f"hall_east_s_{suffix}", 24)
-        add_edge(f"stairs_a_{suffix}", f"hall_ne_{suffix}", 18)
-        add_edge(f"stairs_b_{suffix}", f"hall_sw_{suffix}", 18)
+        add_edge(f"hall_mid_w_{suffix}", f"hall_mid_c_{suffix}")
+        add_edge(f"hall_mid_c_{suffix}", f"hall_mid_e_{suffix}")
+        add_edge(f"hall_mid_e_{suffix}", f"hall_east_branch_{suffix}")
+        add_edge(f"hall_mid_w_{suffix}", f"hall_west_s_{suffix}")
+        add_edge(f"hall_mid_c_{suffix}", f"hall_north_c_{suffix}")
+        add_edge(f"hall_mid_c_{suffix}", f"hall_south_c_{suffix}")
+        add_edge(f"hall_mid_e_{suffix}", f"hall_north_e_{suffix}")
+        add_edge(f"hall_mid_e_{suffix}", f"hall_south_e_{suffix}")
+        add_edge(f"hall_east_branch_{suffix}", f"hall_east_mid_{suffix}")
 
-        for room_index, _side, _x, _y, _width, _height, anchor_key in room_layout:
-            add_edge(f"room_{floor * 100 + room_index}", f"hall_{anchor_key}_{suffix}", 18)
+        add_edge(f"elevator_a_{suffix}", f"hall_gate_lobby_{suffix}")
+        add_edge(f"elevator_b_{suffix}", f"hall_east_core_{suffix}")
+        add_edge(f"stairs_a_{suffix}", f"hall_nw_{suffix}")
+        add_edge(f"stairs_b_{suffix}", f"hall_east_n_{suffix}")
+
+        for room_index, _room_name, _x, _y, anchor_key in room_layout:
+            add_edge(f"room_{floor * 100 + room_index}", f"hall_{anchor_key}_{suffix}")
 
     for floor in floors_list[:-1]:
         next_floor = floor + 1
@@ -3290,6 +3507,8 @@ def build_indoor_graph(building_id="demo_building"):
         "node_map": node_map,
         "adjacency": adjacency,
         "floors": floors_display,
+        "floor_assets": INDOOR_FLOOR_ASSETS,
+        "floor_size": {"width": INDOOR_FLOOR_WIDTH, "height": INDOOR_FLOOR_HEIGHT},
     }
 
 
@@ -3415,6 +3634,9 @@ def prepare_indoor_floors(graph, result):
             })
         floors.append({
             "number": floor,
+            "image": graph.get("floor_assets", {}).get(floor, ""),
+            "width": graph.get("floor_size", {}).get("width", INDOOR_FLOOR_WIDTH),
+            "height": graph.get("floor_size", {}).get("height", INDOOR_FLOOR_HEIGHT),
             "nodes": floor_nodes,
             "edges": floor_edges,
             "path_nodes": [graph["node_map"][node_id] for node_id in path_ids if graph["node_map"][node_id]["floor"] == floor],
@@ -3428,6 +3650,375 @@ def indoor_node_options(graph):
         node for node in graph["nodes"]
         if node["type"] in {"gate", "room", "elevator", "stairs"}
     ]
+
+
+def default_indoor_collector_payload():
+    return {
+        "meta": {
+            "building_id": "demo_building",
+            "building_name": "室内导航采集楼",
+            "width": INDOOR_FLOOR_WIDTH,
+            "height": INDOOR_FLOOR_HEIGHT,
+            "floor_assets": INDOOR_FLOOR_ASSETS,
+        },
+        "floors": {
+            str(floor): {
+                "nodes": [],
+                "edges": [],
+                "links": [],
+            }
+            for floor in sorted(INDOOR_FLOOR_ASSETS)
+        },
+    }
+
+
+def load_indoor_collector_payload():
+    payload = read_json_file(INDOOR_COLLECTOR_FILE, default_indoor_collector_payload())
+    default_payload = default_indoor_collector_payload()
+    payload.setdefault("meta", default_payload["meta"])
+    payload.setdefault("floors", default_payload["floors"])
+    for floor in sorted(INDOOR_FLOOR_ASSETS):
+        floor_key = str(floor)
+        payload["floors"].setdefault(floor_key, {"nodes": [], "edges": [], "links": []})
+        payload["floors"][floor_key].setdefault("nodes", [])
+        payload["floors"][floor_key].setdefault("edges", [])
+        payload["floors"][floor_key].setdefault("links", [])
+    return payload
+
+
+def save_indoor_collector_payload(payload):
+    write_json_atomic(INDOOR_COLLECTOR_FILE, payload)
+    return payload
+
+
+def indoor_point_distance(point_a, point_b):
+    return round(math.hypot(float(point_a[0]) - float(point_b[0]), float(point_a[1]) - float(point_b[1])) / 10, 1)
+
+
+def indoor_polyline_distance(points):
+    return round(sum(indoor_point_distance(start, end) for start, end in zip(points, points[1:])), 1)
+
+
+def indoor_collector_summary(payload=None):
+    payload = payload or load_indoor_collector_payload()
+    nodes = 0
+    edges = 0
+    links = 0
+    road_points = 0
+    for floor_payload in payload.get("floors", {}).values():
+        nodes += len(floor_payload.get("nodes", []))
+        edges += len(floor_payload.get("edges", []))
+        links += len(floor_payload.get("links", []))
+        road_points += sum(len(edge.get("geometry") or []) for edge in floor_payload.get("edges", []))
+    return {
+        "floors": len(payload.get("floors", {})),
+        "nodes": nodes + road_points,
+        "edges": edges + links,
+        "manual_nodes": nodes,
+        "manual_edges": edges,
+        "links": links,
+        "road_points": road_points,
+    }
+
+
+def normalize_indoor_collector_node(payload, existing_count=0):
+    floor = int(payload.get("floor", 1))
+    if floor not in INDOOR_FLOOR_ASSETS:
+        raise ValueError("楼层无效")
+    x = min(max(float(payload.get("x", 0)), 0), INDOOR_FLOOR_WIDTH)
+    y = min(max(float(payload.get("y", 0)), 0), INDOOR_FLOOR_HEIGHT)
+    node_type = str(payload.get("type") or "hall").strip()
+    if node_type not in {"hall", "room", "gate", "elevator", "stairs"}:
+        node_type = "hall"
+    core_id = str(payload.get("core_id") or payload.get("core") or "").strip()
+    core_meta = INDOOR_VERTICAL_CORES.get(core_id)
+    if node_type in {"elevator", "stairs"}:
+        if core_meta and core_meta.get("type") != node_type:
+            raise ValueError("核心筒编号与关键点类型不匹配")
+        if not core_meta:
+            core_id = ""
+    else:
+        core_id = ""
+    name = str(payload.get("name") or f"{floor}F采集点{existing_count + 1}").strip()
+    node_id = str(payload.get("id") or f"indoor_{floor}f_{existing_count + 1:03d}").strip()
+    node = {
+        "id": node_id,
+        "name": name,
+        "floor": floor,
+        "x": round(x, 1),
+        "y": round(y, 1),
+        "type": node_type,
+    }
+    if core_id:
+        node["core_id"] = core_id
+        node["core_name"] = INDOOR_VERTICAL_CORES[core_id]["label"]
+    return node
+
+
+def normalize_indoor_collector_edge(payload, nodes, existing_count=0):
+    floor = int(payload.get("floor", 1))
+    if floor not in INDOOR_FLOOR_ASSETS:
+        raise ValueError("楼层无效")
+    mode = str(payload.get("mode") or "walk").strip()
+    if mode not in INDOOR_VERTICAL_MODES and mode != "walk":
+        mode = "walk"
+    geometry = payload.get("geometry") or payload.get("points") or []
+    points = []
+    for point in geometry:
+        if not isinstance(point, (list, tuple)) or len(point) < 2:
+            continue
+        points.append([
+            round(min(max(float(point[0]), 0), INDOOR_FLOOR_WIDTH), 1),
+            round(min(max(float(point[1]), 0), INDOOR_FLOOR_HEIGHT), 1),
+        ])
+    node_map = {str(node.get("id")): node for node in nodes}
+    from_id = str(payload.get("from") or "").strip()
+    to_id = str(payload.get("to") or "").strip()
+    if len(points) < 2 and from_id in node_map and to_id in node_map and from_id != to_id:
+        points = [
+            [round(float(node_map[from_id]["x"]), 1), round(float(node_map[from_id]["y"]), 1)],
+            [round(float(node_map[to_id]["x"]), 1), round(float(node_map[to_id]["y"]), 1)],
+        ]
+    if len(points) < 2:
+        raise ValueError("室内路径至少需要两个采样点")
+    poi_links = []
+    for link in payload.get("poi_links") or []:
+        try:
+            index = int(link.get("index", -1))
+        except (TypeError, ValueError):
+            continue
+        poi_id = str(link.get("poi") or link.get("id") or "").strip()
+        if poi_id in node_map and 0 <= index < len(points):
+            poi_links.append({"index": index, "poi": poi_id})
+    road_links = []
+    for link in payload.get("road_links") or []:
+        try:
+            index = int(link.get("index", -1))
+            target_index = int(link.get("target_index", -1))
+        except (TypeError, ValueError):
+            continue
+        target_edge = str(link.get("edge") or "").strip()
+        if target_edge and 0 <= index < len(points) and target_index >= 0:
+            road_links.append({"index": index, "edge": target_edge, "target_index": target_index})
+    edge_id = str(payload.get("id") or f"indoor_edge_{floor}f_{existing_count + 1:03d}").strip()
+    return {
+        "id": edge_id,
+        "name": str(payload.get("name") or f"{floor}F室内路径{existing_count + 1}").strip(),
+        "floor": floor,
+        "from": from_id,
+        "to": to_id,
+        "geometry": points,
+        "poi_links": poi_links,
+        "road_links": road_links,
+        "distance": indoor_polyline_distance(points),
+        "mode": mode,
+        "road_type": str(payload.get("road_type") or "corridor").strip(),
+    }
+
+
+def indoor_collector_ref_point(ref, nodes, edges):
+    ref_type = str((ref or {}).get("type") or "").strip()
+    if ref_type in {"node", "poi"}:
+        node_id = str((ref or {}).get("id") or (ref or {}).get("poi") or "").strip()
+        node = next((item for item in nodes if str(item.get("id")) == node_id), None)
+        if not node:
+            return None
+        return [float(node["x"]), float(node["y"])]
+    if ref_type == "road":
+        edge_id = str((ref or {}).get("edge") or "").strip()
+        try:
+            point_index = int((ref or {}).get("point_index", (ref or {}).get("target_index", -1)))
+        except (TypeError, ValueError):
+            return None
+        edge = next((item for item in edges if str(item.get("id")) == edge_id), None)
+        geometry = edge.get("geometry") if edge else []
+        if not edge or point_index < 0 or point_index >= len(geometry):
+            return None
+        point = geometry[point_index]
+        return [float(point[0]), float(point[1])]
+    return None
+
+
+def normalize_indoor_collector_ref(ref, nodes, edges):
+    ref_type = str((ref or {}).get("type") or "").strip()
+    if ref_type in {"node", "poi"}:
+        node_id = str((ref or {}).get("id") or (ref or {}).get("poi") or "").strip()
+        if not any(str(node.get("id")) == node_id for node in nodes):
+            raise ValueError("关键点端点不存在")
+        return {"type": "node", "id": node_id}
+    if ref_type == "road":
+        edge_id = str((ref or {}).get("edge") or "").strip()
+        try:
+            point_index = int((ref or {}).get("point_index", (ref or {}).get("target_index", -1)))
+        except (TypeError, ValueError):
+            raise ValueError("路径端点索引无效")
+        edge = next((item for item in edges if str(item.get("id")) == edge_id), None)
+        if not edge or point_index < 0 or point_index >= len(edge.get("geometry") or []):
+            raise ValueError("路径端点不存在")
+        return {"type": "road", "edge": edge_id, "point_index": point_index}
+    raise ValueError("吸附端点类型无效")
+
+
+def normalize_indoor_collector_link(payload, nodes, edges, existing_count=0):
+    floor = int(payload.get("floor", 1))
+    if floor not in INDOOR_FLOOR_ASSETS:
+        raise ValueError("楼层无效")
+    a_ref = normalize_indoor_collector_ref(payload.get("a") or payload.get("from") or {}, nodes, edges)
+    b_ref = normalize_indoor_collector_ref(payload.get("b") or payload.get("to") or {}, nodes, edges)
+    if json.dumps(a_ref, sort_keys=True) == json.dumps(b_ref, sort_keys=True):
+        raise ValueError("不能吸附同一个端点")
+    if sorted([a_ref["type"], b_ref["type"]]) == ["node", "node"]:
+        raise ValueError("关键点不能直接吸附关键点，请连接到路径点")
+    point_a = indoor_collector_ref_point(a_ref, nodes, edges)
+    point_b = indoor_collector_ref_point(b_ref, nodes, edges)
+    if not point_a or not point_b:
+        raise ValueError("吸附端点坐标无效")
+    link_id = str(payload.get("id") or f"indoor_link_{floor}f_{existing_count + 1:03d}").strip()
+    return {
+        "id": link_id,
+        "floor": floor,
+        "kind": "node_road" if "node" in {a_ref["type"], b_ref["type"]} else "road_road",
+        "a": a_ref,
+        "b": b_ref,
+        "geometry": [
+            [round(point_a[0], 1), round(point_a[1], 1)],
+            [round(point_b[0], 1), round(point_b[1], 1)],
+        ],
+        "distance": indoor_polyline_distance([point_a, point_b]),
+        "mode": str(payload.get("mode") or "walk").strip() or "walk",
+    }
+
+
+def build_indoor_graph_from_collector(payload):
+    nodes = []
+    edges = []
+    node_map = {}
+    road_point_lookup = {}
+
+    def add_node(node):
+        if node["id"] in node_map:
+            return node["id"]
+        nodes.append(node)
+        node_map[node["id"]] = node
+        return node["id"]
+
+    def add_edge(from_id, to_id, distance, mode="walk"):
+        if not from_id or not to_id or from_id == to_id:
+            return
+        edges.append({
+            "from": from_id,
+            "to": to_id,
+            "distance": max(float(distance or 0), 0.1),
+            "mode": mode,
+        })
+
+    for floor_key, floor_payload in (payload.get("floors") or {}).items():
+        try:
+            floor = int(floor_key)
+        except (TypeError, ValueError):
+            continue
+        for raw_node in floor_payload.get("nodes", []):
+            try:
+                normalized = normalize_indoor_collector_node(raw_node)
+            except (TypeError, ValueError):
+                continue
+            add_node(normalized)
+        for edge_index, raw_edge in enumerate(floor_payload.get("edges", [])):
+            try:
+                edge = normalize_indoor_collector_edge(raw_edge, floor_payload.get("nodes", []), edge_index)
+            except (TypeError, ValueError):
+                continue
+            previous_node_id = ""
+            for point_index, point in enumerate(edge.get("geometry") or []):
+                road_node_id = f"road_{edge['id']}_{point_index:03d}"
+                add_node({
+                    "id": road_node_id,
+                    "name": f"{edge.get('name', '室内路径')}#{point_index + 1}",
+                    "floor": floor,
+                    "x": point[0],
+                    "y": point[1],
+                    "type": "hall",
+                    "selectable": False,
+                })
+                road_point_lookup[(edge["id"], point_index)] = road_node_id
+                if previous_node_id:
+                    previous = node_map[previous_node_id]
+                    add_edge(previous_node_id, road_node_id, indoor_point_distance([previous["x"], previous["y"]], point), edge.get("mode", "walk"))
+                previous_node_id = road_node_id
+            for link in edge.get("poi_links", []):
+                road_node_id = road_point_lookup.get((edge["id"], link.get("index")))
+                if road_node_id and link.get("poi") in node_map:
+                    add_edge(link["poi"], road_node_id, indoor_point_distance(
+                        [node_map[link["poi"]]["x"], node_map[link["poi"]]["y"]],
+                        [node_map[road_node_id]["x"], node_map[road_node_id]["y"]],
+                    ))
+            for link in edge.get("road_links", []):
+                from_id = road_point_lookup.get((edge["id"], link.get("index")))
+                to_id = road_point_lookup.get((link.get("edge"), link.get("target_index")))
+                if from_id and to_id:
+                    add_edge(from_id, to_id, indoor_point_distance(
+                        [node_map[from_id]["x"], node_map[from_id]["y"]],
+                        [node_map[to_id]["x"], node_map[to_id]["y"]],
+                    ))
+        for link_index, raw_link in enumerate(floor_payload.get("links", [])):
+            try:
+                link = normalize_indoor_collector_link(
+                    raw_link,
+                    floor_payload.get("nodes", []),
+                    floor_payload.get("edges", []),
+                    link_index,
+                )
+            except (TypeError, ValueError):
+                continue
+
+            def graph_node_for_ref(ref):
+                if ref.get("type") == "node":
+                    return ref.get("id") if ref.get("id") in node_map else ""
+                return road_point_lookup.get((ref.get("edge"), ref.get("point_index")), "")
+
+            from_id = graph_node_for_ref(link.get("a") or {})
+            to_id = graph_node_for_ref(link.get("b") or {})
+            add_edge(from_id, to_id, link.get("distance", 0), link.get("mode", "walk"))
+
+    for floor in sorted(INDOOR_FLOOR_ASSETS)[:-1]:
+        current = [node for node in nodes if node.get("floor") == floor and node.get("type") in {"elevator", "stairs"}]
+        upper = [node for node in nodes if node.get("floor") == floor + 1 and node.get("type") in {"elevator", "stairs"}]
+        for node in current:
+            candidates = [item for item in upper if item.get("type") == node.get("type")]
+            if not candidates:
+                continue
+            same_core = [
+                item for item in candidates
+                if node.get("core_id") and item.get("core_id") == node.get("core_id")
+            ]
+            if same_core:
+                target = same_core[0]
+                add_edge(node["id"], target["id"], 16 if node.get("type") == "elevator" else 24, node.get("type"))
+                continue
+            nearest = min(candidates, key=lambda item: math.hypot(float(item["x"]) - float(node["x"]), float(item["y"]) - float(node["y"])))
+            if math.hypot(float(nearest["x"]) - float(node["x"]), float(nearest["y"]) - float(node["y"])) <= 120:
+                add_edge(node["id"], nearest["id"], 16 if node.get("type") == "elevator" else 24, node.get("type"))
+
+    adjacency = {node["id"]: [] for node in nodes}
+    for edge in edges:
+        if edge["from"] not in adjacency or edge["to"] not in adjacency:
+            continue
+        adjacency[edge["from"]].append({**edge, "neighbor": edge["to"]})
+        adjacency[edge["to"]].append({
+            **edge,
+            "from": edge["to"],
+            "to": edge["from"],
+            "neighbor": edge["from"],
+        })
+    return {
+        "nodes": nodes,
+        "edges": edges,
+        "node_map": node_map,
+        "adjacency": adjacency,
+        "floors": [1, 2, 3, 4],
+        "floor_assets": INDOOR_FLOOR_ASSETS,
+        "floor_size": {"width": INDOOR_FLOOR_WIDTH, "height": INDOOR_FLOOR_HEIGHT},
+    }
 
 
 def is_indoor_building_node(node):
@@ -4557,25 +5148,14 @@ def indoor():
     building_id = request.args.get("building_id", "demo_building").strip() or "demo_building"
     building_name = request.args.get("building_name", "").strip()
 
-    building_id_lower = building_id.lower()
     if not building_name:
-        if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
-            building_name = "德旺图书馆"
-        elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
-            building_name = "校史与科技博物馆"
-        else:
-            building_name = "通用教学楼"
+        graph_node = next((node for node in load_route_graph(DEFAULT_PLACE_ID).get("nodes", []) if str(node.get("id")) == building_id), None)
+        building_name = graph_node.get("name") if graph_node else "通用教学楼"
 
     graph = build_indoor_graph(building_id)
 
-    # Determine building-specific fallback defaults for start/end
     default_start = INDOOR_DEFAULT_START
-    if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
-        default_end = "room_402"
-    elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
-        default_end = "room_202"
-    else:
-        default_end = "room_302"
+    default_end = INDOOR_DEFAULT_END
 
     start = request.args.get("start", default_start).strip() or default_start
     end = request.args.get("end", default_end).strip() or default_end
@@ -4607,6 +5187,276 @@ def indoor():
             {"value": "stairs", "label": "只走步梯"},
         ],
     )
+
+
+@app.route("/indoor/collector")
+def indoor_collector():
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    payload = load_indoor_collector_payload()
+    return render_template(
+        "indoor_collector.html",
+        username=session["username"],
+        payload=payload,
+        summary=indoor_collector_summary(payload),
+    )
+
+
+@app.route("/api/indoor/collector")
+def indoor_collector_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = load_indoor_collector_payload()
+    return jsonify({
+        **payload,
+        "summary": indoor_collector_summary(payload),
+    })
+
+
+@app.route("/api/indoor/collector/node", methods=["POST"])
+def indoor_collector_node_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    try:
+        payload = load_indoor_collector_payload()
+        source = request.get_json(force=True) or {}
+        floor_key = str(int(source.get("floor", 1)))
+        floor_payload = payload["floors"].setdefault(floor_key, {"nodes": [], "edges": [], "links": []})
+        node = normalize_indoor_collector_node(source, len(floor_payload.get("nodes", [])))
+        floor_payload["nodes"] = [item for item in floor_payload.get("nodes", []) if item.get("id") != node["id"]]
+        floor_payload["nodes"].append(node)
+        save_indoor_collector_payload(payload)
+        return jsonify({"ok": True, "node": node, "summary": indoor_collector_summary(payload)})
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/indoor/collector/edge", methods=["POST"])
+def indoor_collector_edge_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    try:
+        payload = load_indoor_collector_payload()
+        source = request.get_json(force=True) or {}
+        floor_key = str(int(source.get("floor", 1)))
+        floor_payload = payload["floors"].setdefault(floor_key, {"nodes": [], "edges": [], "links": []})
+        edge = normalize_indoor_collector_edge(
+            source,
+            floor_payload.get("nodes", []),
+            len(floor_payload.get("edges", [])),
+        )
+        floor_payload["edges"] = [item for item in floor_payload.get("edges", []) if item.get("id") != edge["id"]]
+        floor_payload["edges"].append(edge)
+        save_indoor_collector_payload(payload)
+        return jsonify({"ok": True, "edge": edge, "summary": indoor_collector_summary(payload)})
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/indoor/collector/link", methods=["POST"])
+def indoor_collector_link_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    try:
+        payload = load_indoor_collector_payload()
+        source = request.get_json(force=True) or {}
+        floor_key = str(int(source.get("floor", 1)))
+        floor_payload = payload["floors"].setdefault(floor_key, {"nodes": [], "edges": [], "links": []})
+        link = normalize_indoor_collector_link(
+            source,
+            floor_payload.get("nodes", []),
+            floor_payload.get("edges", []),
+            len(floor_payload.get("links", [])),
+        )
+
+        def ref_key(ref):
+            if ref.get("type") == "node":
+                return f"node:{ref.get('id')}"
+            return f"road:{ref.get('edge')}:{ref.get('point_index')}"
+
+        new_pair = sorted([ref_key(link["a"]), ref_key(link["b"])])
+        for existing in floor_payload.get("links", []):
+            existing_pair = sorted([
+                ref_key((existing or {}).get("a") or {}),
+                ref_key((existing or {}).get("b") or {}),
+            ])
+            if existing_pair == new_pair:
+                return jsonify({"error": "该吸附关系已存在"}), 400
+        floor_payload.setdefault("links", []).append(link)
+        save_indoor_collector_payload(payload)
+        return jsonify({"ok": True, "link": link, "summary": indoor_collector_summary(payload)})
+    except (TypeError, ValueError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@app.route("/api/indoor/collector/restore", methods=["POST"])
+def indoor_collector_restore_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    source = request.get_json(force=True) or {}
+    if not isinstance(source.get("floors"), dict):
+        return jsonify({"error": "采集快照格式无效"}), 400
+    payload = default_indoor_collector_payload()
+    payload["meta"].update(source.get("meta") if isinstance(source.get("meta"), dict) else {})
+    for floor in sorted(INDOOR_FLOOR_ASSETS):
+        floor_key = str(floor)
+        floor_source = source["floors"].get(floor_key, {})
+        payload["floors"][floor_key] = {
+            "nodes": floor_source.get("nodes", []) if isinstance(floor_source.get("nodes", []), list) else [],
+            "edges": floor_source.get("edges", []) if isinstance(floor_source.get("edges", []), list) else [],
+            "links": floor_source.get("links", []) if isinstance(floor_source.get("links", []), list) else [],
+        }
+    save_indoor_collector_payload(payload)
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
+
+
+@app.route("/api/indoor/collector/node/<node_id>", methods=["DELETE"])
+def indoor_collector_node_delete_api(node_id):
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = load_indoor_collector_payload()
+    removed = False
+    for floor_payload in payload.get("floors", {}).values():
+        before = len(floor_payload.get("nodes", []))
+        floor_payload["nodes"] = [
+            node for node in floor_payload.get("nodes", [])
+            if str(node.get("id")) != str(node_id)
+        ]
+        removed = removed or len(floor_payload["nodes"]) != before
+        floor_payload["links"] = [
+            link for link in floor_payload.get("links", [])
+            if str(((link.get("a") or {}).get("id"))) != str(node_id)
+            and str(((link.get("b") or {}).get("id"))) != str(node_id)
+        ]
+        for edge in floor_payload.get("edges", []):
+            edge["poi_links"] = [
+                link for link in edge.get("poi_links", [])
+                if str(link.get("poi")) != str(node_id)
+            ]
+    if not removed:
+        return jsonify({"error": "节点不存在"}), 404
+    save_indoor_collector_payload(payload)
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
+
+
+@app.route("/api/indoor/collector/edge/<edge_id>", methods=["DELETE"])
+def indoor_collector_edge_delete_api(edge_id):
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = load_indoor_collector_payload()
+    removed = False
+    for floor_payload in payload.get("floors", {}).values():
+        before = len(floor_payload.get("edges", []))
+        floor_payload["edges"] = [
+            edge for edge in floor_payload.get("edges", [])
+            if str(edge.get("id")) != str(edge_id)
+        ]
+        removed = removed or len(floor_payload["edges"]) != before
+        floor_payload["links"] = [
+            link for link in floor_payload.get("links", [])
+            if str(((link.get("a") or {}).get("edge"))) != str(edge_id)
+            and str(((link.get("b") or {}).get("edge"))) != str(edge_id)
+        ]
+        for edge in floor_payload.get("edges", []):
+            edge["road_links"] = [
+                link for link in edge.get("road_links", [])
+                if str(link.get("edge")) != str(edge_id)
+            ]
+    if not removed:
+        return jsonify({"error": "路径不存在"}), 404
+    save_indoor_collector_payload(payload)
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
+
+
+@app.route("/api/indoor/collector/edge/<edge_id>/point/<int:point_index>", methods=["DELETE"])
+def indoor_collector_edge_point_delete_api(edge_id, point_index):
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = load_indoor_collector_payload()
+    found = False
+    for floor_payload in payload.get("floors", {}).values():
+        for edge in floor_payload.get("edges", []):
+            if str(edge.get("id")) != str(edge_id):
+                continue
+            geometry = edge.get("geometry") or []
+            if point_index < 0 or point_index >= len(geometry):
+                return jsonify({"error": "路径点不存在"}), 404
+            if len(geometry) <= 2:
+                return jsonify({"error": "路径至少保留两个点"}), 400
+            found = True
+            edge["geometry"] = geometry[:point_index] + geometry[point_index + 1:]
+            edge["distance"] = indoor_polyline_distance(edge["geometry"])
+            adjusted_poi_links = []
+            for link in edge.get("poi_links", []):
+                index = int(link.get("index", -1))
+                if index == point_index:
+                    continue
+                adjusted_poi_links.append({**link, "index": index - 1 if index > point_index else index})
+            edge["poi_links"] = adjusted_poi_links
+
+            adjusted_road_links = []
+            for link in edge.get("road_links", []):
+                index = int(link.get("index", -1))
+                if index == point_index:
+                    continue
+                adjusted_road_links.append({**link, "index": index - 1 if index > point_index else index})
+            edge["road_links"] = adjusted_road_links
+
+            adjusted_links = []
+            for link in floor_payload.get("links", []):
+                next_link = copy.deepcopy(link)
+                should_keep = True
+                for key in ("a", "b"):
+                    ref = next_link.get(key) or {}
+                    if ref.get("type") != "road" or str(ref.get("edge")) != str(edge_id):
+                        continue
+                    ref_index = int(ref.get("point_index", -1))
+                    if ref_index == point_index:
+                        should_keep = False
+                        break
+                    if ref_index > point_index:
+                        ref["point_index"] = ref_index - 1
+                        point = edge["geometry"][ref["point_index"]]
+                        geometry_index = 0 if key == "a" else 1
+                        if len(next_link.get("geometry", [])) > geometry_index:
+                            next_link["geometry"][geometry_index] = [point[0], point[1]]
+                if should_keep:
+                    adjusted_links.append(next_link)
+            floor_payload["links"] = adjusted_links
+            break
+    if not found:
+        return jsonify({"error": "路径不存在"}), 404
+    save_indoor_collector_payload(payload)
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
+
+
+@app.route("/api/indoor/collector/link/<link_id>", methods=["DELETE"])
+def indoor_collector_link_delete_api(link_id):
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = load_indoor_collector_payload()
+    removed = False
+    for floor_payload in payload.get("floors", {}).values():
+        before = len(floor_payload.get("links", []))
+        floor_payload["links"] = [
+            link for link in floor_payload.get("links", [])
+            if str(link.get("id")) != str(link_id)
+        ]
+        removed = removed or len(floor_payload["links"]) != before
+    if not removed:
+        return jsonify({"error": "吸附关系不存在"}), 404
+    save_indoor_collector_payload(payload)
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
+
+
+@app.route("/api/indoor/collector/clear", methods=["POST"])
+def indoor_collector_clear_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    payload = save_indoor_collector_payload(default_indoor_collector_payload())
+    return jsonify({"ok": True, "summary": indoor_collector_summary(payload)})
 
 
 # =========================
@@ -4710,6 +5560,30 @@ def place_detail(place_id):
         place=place,
         related_diaries=related_diaries
     )
+
+
+@app.route("/place/<int:place_id>/image/upload", methods=["POST"])
+def upload_place_image(place_id):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    place = get_place_by_id(place_id)
+    if place is None:
+        flash("未找到该景点或学校")
+        return redirect(url_for("places"))
+
+    try:
+        local_path, original_width, original_height, original_name = save_uploaded_place_cover(
+            request.files.get("image_file"),
+            place,
+        )
+        save_place_image_record(place, local_path, original_width, original_height, original_name)
+        flash("封面图片已更新")
+    except ValueError as exc:
+        flash(str(exc))
+
+    return redirect(url_for("place_detail", place_id=place_id))
 
 
 # =========================

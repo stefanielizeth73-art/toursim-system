@@ -40,11 +40,13 @@ python scripts/data/fetch_places.py --limit 20
 ```
 
 For the XMU Xiang'an route module, Gaode/AMap is used only as the map canvas
-for manual POI and road collection. Configure local keys in `.env`:
+for manual POI and road collection. Copy `.env.example` to `.env` and set
+your local keys there:
 
 ```powershell
 AMAP_JS_KEY=your_js_key
 AMAP_SECURITY_JS_CODE=your_js_security_code
+AMAP_WEB_KEY=your_web_key
 ```
 
 Open the collector:
@@ -95,7 +97,7 @@ You can open Render's deploy flow with:
 https://render.com/deploy?repo=https://github.com/stefanielizeth73-art/toursim-system
 ```
 
-Because this repository is private, Render deployment works only after you connect the same GitHub account or grant Render access to this repo.
+Render deployment works only after you connect the same GitHub account or grant Render access to the repo.
 
 ## Production notes
 

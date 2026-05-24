@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>室内导航采集</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
+    <script defer src="{{ url_for('static', filename='indoor_collector.js', v=asset_version('indoor_collector.js')) }}"></script>
+</head>
+<body class="indoor-page indoor-collector-page">
+    <header class="indoor-topbar">
+        <div>
+            <span class="indoor-topbar__mark" aria-hidden="true"></span>
+            个性化旅游系统 · 室内采集
+        </div>
+        <nav aria-label="室内采集操作">
+            <span>当前用户：{{ username }}</span>
+            <a class="nav-link" href="{{ url_for('indoor') }}">返回室内导航</a>
+            <a class="nav-link" href="{{ url_for('route') }}">路线规划</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </nav>
+    </header>
+
+    <main class="indoor-collector-shell">
+        <aside class="indoor-console">
+            <section class="indoor-hero">
+                <span class="eyebrow">INDOOR COLLECTOR</span>
+                <h1>室内路径采集</h1>
+                <p>沿楼层底图手动采集关键点和道路折线，再用吸附关系把房间、电梯、楼梯接入道路网络。</p>
+            </section>
+
+            <section class="indoor-panel indoor-collector-controls">
+                <div class="indoor-panel__head">
+                    <h2>采集设置</h2>
+                    <p><span id="indoorCollectorSummary">{{ summary.nodes }} 个节点，{{ summary.edges }} 条边</span></p>
+                </div>
+                <div class="collector-mode-tabs" role="tablist" aria-label="采集模式">
+                    <button type="button" class="is-active" data-indoor-mode="node">关键点</button>
+                    <button type="button" data-indoor-mode="road">道路</button>
+                    <button type="button" data-indoor-mode="snap">吸附</button>
+                </div>
+                <label>
+                    <span>楼层</span>
+                    <select id="collectorFloor">
+                        {% for floor in payload.meta.floor_assets.keys()|sort %}
+                        <option value="{{ floor }}">{{ floor }}F</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="collector-fieldset" data-mode-panel="node">
+                    <label>
+                        <span>关键点类型</span>
+                        <select id="collectorNodeType">
+                            <option value="room">房间门点</option>
+                            <option value="gate">出入口</option>
+                            <option value="elevator">电梯</option>
+                            <option value="stairs">步梯</option>
+                            <option value="hall">走廊辅助点</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>关键点名称</span>
+                        <input id="collectorNodeName" type="text" placeholder="例如：101 北侧教室A">
+                    </label>
+                    <label id="collectorCoreField" class="is-hidden">
+                        <span>跨层核心筒</span>
+                        <select id="collectorCoreId">
+                            <option value="">不关联跨层</option>
+                            <option value="west_elevator" data-core-type="elevator">西电梯</option>
+                            <option value="east_elevator" data-core-type="elevator">东电梯</option>
+                            <option value="northwest_stairs" data-core-type="stairs">西北步梯</option>
+                            <option value="east_stairs" data-core-type="stairs">东侧步梯</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="collector-fieldset is-hidden" data-mode-panel="road">
+                    <label>
+                        <span>道路名称</span>
+                        <input id="collectorRoadName" type="text" placeholder="例如：1F 北侧主走廊">
+                    </label>
+                    <label>
+                        <span>道路类型</span>
+                        <select id="collectorRoadType">
+                            <option value="corridor">走廊</option>
+                            <option value="bridge">连廊</option>
+                            <option value="lobby">大厅</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="collector-hint" id="collectorModeHint">左键在底图上添加房间门、电梯、步梯或入口关键点。右键已有对象可删除。</p>
+                <div class="collector-button-row">
+                    <button type="button" data-indoor-action="undo">撤销</button>
+                    <button type="button" data-indoor-action="redo">恢复</button>
+                    <button type="button" data-indoor-action="clear-current">清空当前道路</button>
+                    <button type="button" data-indoor-action="save-road">保存道路</button>
+                    <button type="button" data-indoor-action="export">刷新导出</button>
+                    <button type="button" data-indoor-action="clear">清空采集</button>
+                </div>
+                <p class="indoor-collector-status" id="indoorCollectorStatus">准备采集。</p>
+                <textarea id="indoorCollectorExport" readonly aria-label="室内采集 JSON"></textarea>
+            </section>
+        </aside>
+
+        <section class="indoor-map-wrap indoor-collector-map-wrap">
+            <div class="indoor-map-head">
+                <div>
+                    <span class="eyebrow">MANUAL CAPTURE</span>
+                    <h2><span id="collectorFloorTitle">1F</span> 平面图采集层</h2>
+                </div>
+                <div class="indoor-legend" aria-label="图例">
+                    <span><i class="is-room"></i>采集节点</span>
+                    <span><i class="is-route"></i>采集连边</span>
+                    <span><i class="is-core"></i>吸附端点</span>
+                </div>
+            </div>
+            <svg id="indoorCollectorMap" class="indoor-floor-plan indoor-floor-plan--image indoor-collector-map" viewBox="0 0 {{ payload.meta.width }} {{ payload.meta.height }}" role="application" aria-label="室内采集地图"></svg>
+        </section>
+    </main>
+
+    <script>
+        window.indoorCollectorData = {{ payload|tojson }};
+        window.indoorCollectorEndpoints = {
+            graph: "{{ url_for('indoor_collector_api') }}",
+            node: "{{ url_for('indoor_collector_node_api') }}",
+            edge: "{{ url_for('indoor_collector_edge_api') }}",
+            link: "{{ url_for('indoor_collector_link_api') }}",
+            restore: "{{ url_for('indoor_collector_restore_api') }}",
+            clear: "{{ url_for('indoor_collector_clear_api') }}",
+            nodeBase: "/api/indoor/collector/node",
+            edgeBase: "/api/indoor/collector/edge",
+            linkBase: "/api/indoor/collector/link"
+        };
+    </script>
+</body>
+</html>
