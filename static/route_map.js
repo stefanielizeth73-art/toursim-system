@@ -378,16 +378,17 @@
 
         const routePalettes = {
             walk: {
-                outline: "#0b1f35",
-                halo: "#4f8fe0",
-                core: "#f4f9ff"
+                outline: "#3a2210",
+                halo: "#f08a2f",
+                core: "#fff4df"
             },
             bike: {
-                outline: "#0f2f24",
-                halo: "#39c1a2",
-                core: "#effdf8"
+                outline: "#0b2442",
+                halo: "#4f7fb8",
+                core: "#eef6ff"
             }
         };
+        let routeArrowDrawn = false;
         function routeEdgePath(edge) {
             if (edge && edge.amap_geometry && edge.amap_geometry.length) {
                 return routePath(edge.amap_geometry);
@@ -484,21 +485,15 @@
         }
 
         function addRouteArrows(path, mode) {
-            if (!path || path.length < 2) {
+            if (routeArrowDrawn || !path || path.length < 2) {
                 return;
             }
             const length = routePathDistance(path);
-            if (!Number.isFinite(length) || length < 200) {
+            if (!Number.isFinite(length) || length < 520) {
                 return;
             }
-            const arrowCount = Math.min(4, Math.max(1, Math.round(length / 1100)));
-            if (arrowCount === 1) {
-                addRouteArrow(path, mode, 0.58);
-                return;
-            }
-            for (let index = 1; index <= arrowCount; index += 1) {
-                addRouteArrow(path, mode, index / (arrowCount + 1));
-            }
+            routeArrowDrawn = true;
+            addRouteArrow(path, mode, 0.62);
         }
 
         function addRoutePolyline(path, mode) {
@@ -508,27 +503,14 @@
             const routePalette = routePalettes[mode] || routePalettes.walk;
             routeOverlays.push(new AMap.Polyline({
                 path,
-                isOutline: true,
-                outlineColor: routePalette.outline,
                 strokeColor: routePalette.halo,
-                strokeWeight: 8,
-                strokeOpacity: 0.9,
+                strokeWeight: 7,
+                strokeOpacity: 0.96,
                 lineJoin: "round",
                 lineCap: "round",
                 showDir: false,
                 zIndex: 90
             }));
-            routeOverlays.push(new AMap.Polyline({
-                path,
-                strokeColor: routePalette.core,
-                strokeWeight: 3.4,
-                strokeOpacity: 0.96,
-                strokeStyle: "solid",
-                lineJoin: "round",
-                lineCap: "round",
-                zIndex: 91
-            }));
-            addRouteArrows(path, mode);
         }
 
         if (routeGeometry.length) {
@@ -584,8 +566,17 @@
             if (!nodeId) {
                 return;
             }
+            const state = data.state || {};
+            const placeId = state.returnPlaceId || state.placeId || graph.place_id || "xmu_manual";
+            if (state.returnTo === "food_detail" && state.returnFoodKey) {
+                const params = new URLSearchParams();
+                params.set("place_id", placeId);
+                params.set("origin_node", nodeId);
+                window.location.href = `/food/${encodeURIComponent(state.returnFoodKey)}?${params.toString()}`;
+                return;
+            }
             const params = new URLSearchParams();
-            params.set("place_id", (data.state && data.state.placeId) || graph.place_id || "xmu_manual");
+            params.set("place_id", placeId);
             params.set("origin_node", nodeId);
             params.set("sort_by", "distance_asc");
             window.location.href = `/foods?${params.toString()}`;
@@ -942,6 +933,18 @@
             }
             handleRoutePointRightClick(closest.node, event);
         }
+        function isIndoorBuildingNode(node) {
+            const kind = String((node && node.kind) || "").trim();
+            return ["building", "teaching", "library", "dorm", "canteen"].indexOf(kind) !== -1;
+        }
+
+        function openIndoorNavigation(node) {
+            const params = new URLSearchParams();
+            params.set("building_id", String(node.id || "demo_building"));
+            params.set("building_name", String(node.name || "通用教学楼"));
+            window.location.href = "/indoor?" + params.toString();
+        }
+
         function popupContent(node) {
             const nodeId = String(node.id);
             const isEnd = endSelect && String(endSelect.value) === nodeId;
@@ -957,6 +960,9 @@
             }
             if (isTarget) {
                 actionsHtml += `<button type="button" data-node-action="remove-target">从路径删除</button>`;
+            }
+            if (isIndoorBuildingNode(node)) {
+                actionsHtml += `<button type="button" data-node-action="indoor">进入室内导航</button>`;
             }
             root.innerHTML = (
                 `<button class="amap-popup-close" type="button" aria-label="关闭">x</button>` +
@@ -979,6 +985,9 @@
                         setTargetValue(node.id, false);
                     } else if (action === "remove-end") {
                         setSelectValue(endSelect, "");
+                    } else if (action === "indoor") {
+                        openIndoorNavigation(node);
+                        return;
                     } else {
                         setRouteEndpoint(action === "start" ? "start" : "end", node.id);
                     }
@@ -1107,7 +1116,7 @@
 
         function planningMarkerExtraClass(info) {
             const zoom = map.getZoom();
-            const classes = ["route-planning-marker"];
+            const classes = ["route-planning-marker", mapZoomTierClass()];
             if (info.selected) {
                 classes.push("is-selected");
             } else {
@@ -1117,6 +1126,17 @@
                 classes.push("is-label-hidden");
             }
             return classes.join(" ");
+        }
+
+        function mapZoomTierClass() {
+            const zoom = map.getZoom();
+            if (zoom >= 18.8) {
+                return "is-zoom-close";
+            }
+            if (zoom >= 17.8) {
+                return "is-zoom-mid";
+            }
+            return "is-zoom-far";
         }
 
         function redrawPlanningMarkers() {
@@ -1137,14 +1157,14 @@
                     content: routePointMarkerContent(node, planningMarkerExtraClass(info)),
                     anchor: "center",
                     offset: new AMap.Pixel(0, 0),
-                    zIndex: info.selected ? 88 : 52
+                    zIndex: info.selected ? 118 : 108
                 }));
                 if (info.badge) {
                     poiMarkers.push(new AMap.Marker({
                         position,
                         content: `<div class="route-target-number route-planning-badge ${info.badgeClass}"><span>${info.badge}</span></div>`,
                         anchor: "center",
-                        zIndex: 96
+                        zIndex: 121
                     }));
                 }
             });
@@ -1202,9 +1222,9 @@
                 facilityMarkers.push(new AMap.Marker({
                     position,
                     title: displayName,
-                    content: facilityMarkerContent(facility, "route-facility-marker"),
+                    content: facilityMarkerContent(facility, `route-facility-marker ${mapZoomTierClass()}`),
                     anchor: "center",
-                    zIndex: 96
+                    zIndex: 84
                 }));
             });
             if (facilityMarkers.length) {
@@ -1301,17 +1321,26 @@
                 "<label data-fields=\"facility\">菜系细分<select id=\"collectorCuisine\"><option value=\"\">按店名自动识别</option><option value=\"东北菜\">东北菜</option><option value=\"川菜\">川菜</option><option value=\"湘菜\">湘菜</option><option value=\"火锅\">火锅</option><option value=\"自助\">自助</option><option value=\"烧烤\">烧烤</option><option value=\"快餐\">快餐</option><option value=\"奶茶\">奶茶</option><option value=\"咖啡\">咖啡</option><option value=\"小吃\">小吃</option><option value=\"面食\">面食</option><option value=\"粉面\">粉面</option><option value=\"粤菜\">粤菜</option><option value=\"西餐\">西餐</option><option value=\"印度菜\">印度菜</option><option value=\"家常菜\">家常菜</option><option value=\"食堂\">食堂</option><option value=\"超市便利\">超市便利</option><option value=\"饮品\">饮品</option><option value=\"其他餐饮\">其他餐饮</option></select></label>" +
                 "<label data-fields=\"facility\" id=\"collectorCustomCuisineWrap\" hidden>手动菜系<input id=\"collectorCustomCuisine\" type=\"text\" value=\"\" placeholder=\"例如：闽南菜、韩餐、轻食\"></label>" +
                 "<label data-fields=\"facility\">自定义标签<input id=\"collectorCategory\" type=\"text\" value=\"\" placeholder=\"选其他时填写；也可补充多个标签\"></label>" +
-                "<label data-fields=\"road\">道路类型<select id=\"collectorRoadType\"><option value=\"main\">主干道</option><option value=\"walkway\" selected>普通步道</option><option value=\"narrow\">狭窄小路</option><option value=\"stairs\">楼间通道/台阶</option></select></label>" +
-                "<div class=\"collector-road-options\" data-fields=\"road\">" +
-                "<label><input id=\"collectorWalk\" type=\"checkbox\" checked> 步行可达</label>" +
-                "<label><input id=\"collectorBike\" type=\"checkbox\" checked> 自行车可达</label>" +
-                "<label>拥挤度<input id=\"collectorCongestion\" type=\"number\" min=\"0.1\" max=\"1\" step=\"0.05\" value=\"0.82\"></label>" +
-                "<button type=\"button\" data-editor-action=\"apply-road-preset\">应用道路预设</button>" +
+                "<div class=\"collector-road-section collector-road-section--type\" data-fields=\"road\">" +
+                "<div class=\"collector-section-title\">道路属性</div>" +
+                "<label class=\"collector-road-field\" data-fields=\"road\"><span>道路类型</span><select id=\"collectorRoadType\"><option value=\"main\">主干道</option><option value=\"walkway\" selected>普通步道</option><option value=\"narrow\">狭窄小路</option><option value=\"stairs\">楼间通道/台阶</option></select></label>" +
                 "</div>" +
-                "<div class=\"road-editor-actions\">" +
+                "<div class=\"collector-road-section collector-road-section--settings\" data-fields=\"road\">" +
+                "<div class=\"collector-section-title\">通行设置</div>" +
+                "<div class=\"collector-road-options\" data-fields=\"road\">" +
+                "<label class=\"collector-toggle-chip\"><input id=\"collectorWalk\" type=\"checkbox\" checked><span>步行可达</span></label>" +
+                "<label class=\"collector-toggle-chip\"><input id=\"collectorBike\" type=\"checkbox\" checked><span>自行车可达</span></label>" +
+                "<label class=\"collector-number-field\"><span>拥挤度</span><input id=\"collectorCongestion\" type=\"number\" min=\"0.1\" max=\"1\" step=\"0.05\" value=\"0.82\"></label>" +
+                "<button type=\"button\" class=\"collector-preset-button\" data-editor-action=\"apply-road-preset\">应用道路预设</button>" +
+                "</div>" +
+                "<div class=\"collector-road-hint\">主干道更适合双向通行，步道和台阶会自动降低自行车可达性。</div>" +
+                "</div>" +
+                "<div class=\"road-editor-actions road-editor-actions--utility\">" +
                 "<button type=\"button\" data-editor-action=\"undo-step\">撤销上步</button>" +
                 "<button type=\"button\" data-editor-action=\"redo-step\">重做</button>" +
                 "<button type=\"button\" data-editor-action=\"clear\">清空当前线</button>" +
+                "</div>" +
+                "<div class=\"road-editor-actions road-editor-actions--commit\">" +
                 "<button type=\"button\" data-editor-action=\"save-road\">保存道路</button>" +
                 "<button type=\"button\" data-editor-action=\"clear-all\">清空全部</button>" +
                 "</div>" +

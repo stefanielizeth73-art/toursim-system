@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>个人中心 - 个性化旅游系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
+</head>
+<body class="profile-page">
+    <a class="skip-link" href="#main-content">跳到内容</a>
+
+    <header class="profile-topbar">
+        <a class="profile-brand" href="{{ url_for('home') }}">个性化旅游系统</a>
+        <nav class="profile-nav" aria-label="个人中心导航">
+            <a href="{{ url_for('diaries') }}">日记广场</a>
+            <a href="{{ url_for('foods') }}">美食推荐</a>
+            <a href="{{ url_for('user_profile', user_id=current_user.id) }}">公开主页</a>
+            <a href="{{ url_for('logout') }}">退出登录</a>
+        </nav>
+    </header>
+
+    <main id="main-content" class="profile-shell">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message-stack" aria-live="polite">
+                    {% for message in messages %}
+                    <div class="message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="profile-hero">
+            <div class="profile-identity">
+                <img class="profile-avatar-large" src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像">
+                <div>
+                    <span class="profile-kicker">Personal Center</span>
+                    <h1>{{ username }}</h1>
+                    <p>管理头像与账号信息，查看你的日记、收藏和近期互动。</p>
+                </div>
+            </div>
+            <div class="profile-stat-strip" aria-label="账号数据">
+                <div><strong>{{ stats.diary_count }}</strong><span>发布日记</span></div>
+                <div><strong>{{ stats.favorite_count }}</strong><span>全部收藏</span></div>
+                <div><strong>{{ stats.total_views }}</strong><span>日记浏览</span></div>
+                <div><strong>{{ stats.avg_rating }}</strong><span>平均评分</span></div>
+            </div>
+        </section>
+
+        <section class="profile-grid">
+            <article class="profile-panel profile-panel--settings">
+                <div class="profile-section-head">
+                    <h2>资料设置</h2>
+                    <p>修改头像、用户名和登录密码。</p>
+                </div>
+                <form method="post" enctype="multipart/form-data" class="profile-form profile-avatar-form">
+                    <input type="hidden" name="action" value="avatar">
+                    <label>
+                        <span>头像文件</span>
+                        <input type="file" name="avatar" accept="image/*,.svg">
+                    </label>
+                    <button type="submit">更新头像</button>
+                </form>
+                <form method="post" class="profile-form">
+                    <input type="hidden" name="action" value="account">
+                    <label>
+                        <span>用户名</span>
+                        <input type="text" name="username" value="{{ username }}" required>
+                    </label>
+                    <label>
+                        <span>当前密码</span>
+                        <input type="password" name="current_password" autocomplete="current-password" placeholder="改用户名或密码时填写">
+                    </label>
+                    <label>
+                        <span>新密码</span>
+                        <input type="password" name="new_password" autocomplete="new-password" placeholder="不修改可留空">
+                    </label>
+                    <label>
+                        <span>确认新密码</span>
+                        <input type="password" name="confirm_password" autocomplete="new-password">
+                    </label>
+                    <button type="submit">保存账号</button>
+                </form>
+            </article>
+
+            <article class="profile-panel">
+                <div class="profile-section-head">
+                    <h2>收藏概览</h2>
+                    <p>已收藏 {{ stats.favorite_diary_count }} 篇日记，{{ stats.favorite_food_count }} 家美食。</p>
+                </div>
+                <div class="profile-mini-metrics">
+                    <div><span>评论</span><strong>{{ stats.comment_count }}</strong></div>
+                    <div><span>收藏日记</span><strong>{{ stats.favorite_diary_count }}</strong></div>
+                    <div><span>收藏美食</span><strong>{{ stats.favorite_food_count }}</strong></div>
+                </div>
+                {% if recent_comments %}
+                <div class="profile-activity-list">
+                    {% for comment in recent_comments %}
+                    <a href="{{ url_for('diary_detail', diary_id=comment.diary_id, count_view=0) }}#comment-{{ comment.id }}">
+                        <span>{{ comment.created_at }}</span>
+                        <strong>{{ comment.diary_title or '日记已删除' }}</strong>
+                        <em>{{ comment.content }}</em>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="profile-empty">还没有评论互动。</div>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="profile-content-grid">
+            <article class="profile-panel">
+                <div class="profile-section-head">
+                    <h2>我发布的日记</h2>
+                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}">查看公开页</a>
+                </div>
+                {% if my_diaries %}
+                <div class="profile-card-list">
+                    {% for diary in my_diaries %}
+                    <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                        <strong>{{ diary.title }}</strong>
+                        <span>{{ diary.destination }} · 浏览 {{ diary.views }} · 评分 {{ diary.avg_rating }}</span>
+                        <p>{{ diary.content_preview }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="profile-empty">你还没有发布日记，去日记广场写第一篇。</div>
+                {% endif %}
+            </article>
+
+            <article class="profile-panel">
+                <div class="profile-section-head">
+                    <h2>收藏的日记</h2>
+                    <p>详情页点星标即可加入这里。</p>
+                </div>
+                {% if favorite_diaries %}
+                <div class="profile-card-list">
+                    {% for diary in favorite_diaries %}
+                    <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id, count_view=0) }}">
+                        <strong>{{ diary.title }}</strong>
+                        <span>{{ diary.destination }} · {{ diary.author }}</span>
+                        <p>{{ diary.content_preview }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="profile-empty">暂时没有收藏日记。</div>
+                {% endif %}
+            </article>
+
+            <article class="profile-panel profile-panel--wide">
+                <div class="profile-section-head">
+                    <h2>收藏的美食</h2>
+                    <p>在美食详情页收藏后会同步到个人中心。</p>
+                </div>
+                {% if favorite_foods %}
+                <div class="profile-food-list">
+                    {% for food in favorite_foods %}
+                    <a class="profile-food-card" href="{{ url_for('food_detail', food_key=food.food_key, place_id=food.favorite_place_id, origin_node=food.favorite_origin_node) }}">
+                        <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 封面" loading="lazy" width="220" height="160">
+                        <div>
+                            <strong>{{ food.name }}</strong>
+                            <span>{{ food.cuisine or food.category }} · 评分 {{ food.rating }} · 人均￥{{ food.avg_cost }}</span>
+                            <p>{{ food.display_description }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="profile-empty">暂时没有收藏美食。</div>
+                {% endif %}
+            </article>
+        </section>
+    </main>
+</body>
+</html>

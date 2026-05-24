@@ -3245,22 +3245,6 @@
       "source": "manual_collector_node"
     },
     {
-      "id": "route_point_齐齐哈尔家庭烤肉_201",
-      "name": "齐齐哈尔家庭烤肉",
-      "category": "食堂",
-      "tags": [
-        "食堂"
-      ],
-      "role": "route_point",
-      "kind": "canteen",
-      "lat": 24.607631,
-      "lon": 118.303002,
-      "amap_lng": 118.303002,
-      "amap_lat": 24.607631,
-      "selectable": true,
-      "source": "manual_collector_node"
-    },
-    {
       "id": "route_point_香山里营地_露营团建_202",
       "name": "香山里营地/露营团建",
       "category": "食堂",
@@ -3273,22 +3257,6 @@
       "lon": 118.301212,
       "amap_lng": 118.301212,
       "amap_lat": 24.603104,
-      "selectable": true,
-      "source": "manual_collector_node"
-    },
-    {
-      "id": "route_point_无忧烙锅纸包鱼_203",
-      "name": "无忧烙锅纸包鱼",
-      "category": "食堂",
-      "tags": [
-        "食堂"
-      ],
-      "role": "route_point",
-      "kind": "canteen",
-      "lat": 24.60728,
-      "lon": 118.309459,
-      "amap_lng": 118.309459,
-      "amap_lat": 24.60728,
       "selectable": true,
       "source": "manual_collector_node"
     },
@@ -3401,6 +3369,22 @@
       "lon": 118.316477,
       "amap_lng": 118.316477,
       "amap_lat": 24.611122,
+      "selectable": true,
+      "source": "manual_collector_node"
+    },
+    {
+      "id": "route_point_齐齐哈尔家庭烤肉_210",
+      "name": "齐齐哈尔家庭烤肉",
+      "category": "食堂",
+      "tags": [
+        "食堂"
+      ],
+      "role": "route_point",
+      "kind": "canteen",
+      "lat": 24.607742,
+      "lon": 118.30293,
+      "amap_lng": 118.30293,
+      "amap_lat": 24.607742,
       "selectable": true,
       "source": "manual_collector_node"
     },
@@ -248237,6 +248221,462 @@
       "lon": 118.309633,
       "amap_lng": 118.309633,
       "amap_lat": 24.61136,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_000",
+      "name": "道路节点edge_0676-0",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611787,
+      "lon": 118.309632,
+      "amap_lng": 118.309632,
+      "amap_lat": 24.611787,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_001",
+      "name": "道路节点edge_0676-1",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611775,
+      "lon": 118.309605,
+      "amap_lng": 118.309605,
+      "amap_lat": 24.611775,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_002",
+      "name": "道路节点edge_0676-2",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611758,
+      "lon": 118.309576,
+      "amap_lng": 118.309576,
+      "amap_lat": 24.611758,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_003",
+      "name": "道路节点edge_0676-3",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611739,
+      "lon": 118.309565,
+      "amap_lng": 118.309565,
+      "amap_lat": 24.611739,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_004",
+      "name": "道路节点edge_0676-4",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611709,
+      "lon": 118.309554,
+      "amap_lng": 118.309554,
+      "amap_lat": 24.611709,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_005",
+      "name": "道路节点edge_0676-5",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.61169,
+      "lon": 118.309541,
+      "amap_lng": 118.309541,
+      "amap_lat": 24.61169,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_006",
+      "name": "道路节点edge_0676-6",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611668,
+      "lon": 118.30952,
+      "amap_lng": 118.30952,
+      "amap_lat": 24.611668,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_007",
+      "name": "道路节点edge_0676-7",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611663,
+      "lon": 118.309495,
+      "amap_lng": 118.309495,
+      "amap_lat": 24.611663,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0676_008",
+      "name": "道路节点edge_0676-8",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.611663,
+      "lon": 118.309471,
+      "amap_lng": 118.309471,
+      "amap_lat": 24.611663,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_000",
+      "name": "道路节点edge_0677-0",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.608004,
+      "lon": 118.303151,
+      "amap_lng": 118.303151,
+      "amap_lat": 24.608004,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_001",
+      "name": "道路节点edge_0677-1",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607977,
+      "lon": 118.303143,
+      "amap_lng": 118.303143,
+      "amap_lat": 24.607977,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_002",
+      "name": "道路节点edge_0677-2",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607948,
+      "lon": 118.303138,
+      "amap_lng": 118.303138,
+      "amap_lat": 24.607948,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_003",
+      "name": "道路节点edge_0677-3",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607921,
+      "lon": 118.303132,
+      "amap_lng": 118.303132,
+      "amap_lat": 24.607921,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_004",
+      "name": "道路节点edge_0677-4",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.60789,
+      "lon": 118.303132,
+      "amap_lng": 118.303132,
+      "amap_lat": 24.60789,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_005",
+      "name": "道路节点edge_0677-5",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607863,
+      "lon": 118.303132,
+      "amap_lng": 118.303132,
+      "amap_lat": 24.607863,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_006",
+      "name": "道路节点edge_0677-6",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607843,
+      "lon": 118.303138,
+      "amap_lng": 118.303138,
+      "amap_lat": 24.607843,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0677_007",
+      "name": "道路节点edge_0677-7",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607814,
+      "lon": 118.303143,
+      "amap_lng": 118.303143,
+      "amap_lat": 24.607814,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_000",
+      "name": "道路节点edge_0678-0",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607559,
+      "lon": 118.302731,
+      "amap_lng": 118.302731,
+      "amap_lat": 24.607559,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_001",
+      "name": "道路节点edge_0678-1",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607579,
+      "lon": 118.302752,
+      "amap_lng": 118.302752,
+      "amap_lat": 24.607579,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_002",
+      "name": "道路节点edge_0678-2",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607601,
+      "lon": 118.302766,
+      "amap_lng": 118.302766,
+      "amap_lat": 24.607601,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_003",
+      "name": "道路节点edge_0678-3",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607623,
+      "lon": 118.302768,
+      "amap_lng": 118.302768,
+      "amap_lat": 24.607623,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_004",
+      "name": "道路节点edge_0678-4",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.60765,
+      "lon": 118.302768,
+      "amap_lng": 118.302768,
+      "amap_lat": 24.60765,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_005",
+      "name": "道路节点edge_0678-5",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607679,
+      "lon": 118.302768,
+      "amap_lng": 118.302768,
+      "amap_lat": 24.607679,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_006",
+      "name": "道路节点edge_0678-6",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607706,
+      "lon": 118.302774,
+      "amap_lng": 118.302774,
+      "amap_lat": 24.607706,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_007",
+      "name": "道路节点edge_0678-7",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607735,
+      "lon": 118.302782,
+      "amap_lng": 118.302782,
+      "amap_lat": 24.607735,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_008",
+      "name": "道路节点edge_0678-8",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607762,
+      "lon": 118.302784,
+      "amap_lng": 118.302784,
+      "amap_lat": 24.607762,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0678_009",
+      "name": "道路节点edge_0678-9",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607789,
+      "lon": 118.302784,
+      "amap_lng": 118.302784,
+      "amap_lat": 24.607789,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_000",
+      "name": "道路节点edge_0679-0",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607701,
+      "lon": 118.302803,
+      "amap_lng": 118.302803,
+      "amap_lat": 24.607701,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_001",
+      "name": "道路节点edge_0679-1",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607718,
+      "lon": 118.302833,
+      "amap_lng": 118.302833,
+      "amap_lat": 24.607718,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_002",
+      "name": "道路节点edge_0679-2",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607718,
+      "lon": 118.302854,
+      "amap_lng": 118.302854,
+      "amap_lat": 24.607718,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_003",
+      "name": "道路节点edge_0679-3",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607718,
+      "lon": 118.302886,
+      "amap_lng": 118.302886,
+      "amap_lat": 24.607718,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_004",
+      "name": "道路节点edge_0679-4",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607718,
+      "lon": 118.302916,
+      "amap_lng": 118.302916,
+      "amap_lat": 24.607718,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_005",
+      "name": "道路节点edge_0679-5",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607715,
+      "lon": 118.302948,
+      "amap_lng": 118.302948,
+      "amap_lat": 24.607715,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_006",
+      "name": "道路节点edge_0679-6",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.60771,
+      "lon": 118.303045,
+      "amap_lng": 118.303045,
+      "amap_lat": 24.60771,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_007",
+      "name": "道路节点edge_0679-7",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607713,
+      "lon": 118.303077,
+      "amap_lng": 118.303077,
+      "amap_lat": 24.607713,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_008",
+      "name": "道路节点edge_0679-8",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.60772,
+      "lon": 118.303098,
+      "amap_lng": 118.303098,
+      "amap_lat": 24.60772,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_009",
+      "name": "道路节点edge_0679-9",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607742,
+      "lon": 118.303117,
+      "amap_lng": 118.303117,
+      "amap_lat": 24.607742,
+      "selectable": false,
+      "source": "manual_collector_road_node"
+    },
+    {
+      "id": "road_edge_0679_010",
+      "name": "道路节点edge_0679-10",
+      "category": "道路折点",
+      "kind": "road",
+      "lat": 24.607793,
+      "lon": 118.303122,
+      "amap_lng": 118.303122,
+      "amap_lat": 24.607793,
       "selectable": false,
       "source": "manual_collector_road_node"
     }
@@ -840143,6 +840583,1026 @@
       "source": "manual_collector_edge"
     },
     {
+      "from": "road_edge_0676_000",
+      "to": "road_edge_0676_001",
+      "distance": 3.0,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611787,
+          118.309632
+        ],
+        [
+          24.611775,
+          118.309605
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309632,
+          24.611787
+        ],
+        [
+          118.309605,
+          24.611775
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_001",
+      "to": "road_edge_0676_002",
+      "distance": 3.5,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611775,
+          118.309605
+        ],
+        [
+          24.611758,
+          118.309576
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309605,
+          24.611775
+        ],
+        [
+          118.309576,
+          24.611758
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_002",
+      "to": "road_edge_0676_003",
+      "distance": 2.4,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611758,
+          118.309576
+        ],
+        [
+          24.611739,
+          118.309565
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309576,
+          24.611758
+        ],
+        [
+          118.309565,
+          24.611739
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_003",
+      "to": "road_edge_0676_004",
+      "distance": 3.5,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611739,
+          118.309565
+        ],
+        [
+          24.611709,
+          118.309554
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309565,
+          24.611739
+        ],
+        [
+          118.309554,
+          24.611709
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_004",
+      "to": "road_edge_0676_005",
+      "distance": 2.5,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611709,
+          118.309554
+        ],
+        [
+          24.61169,
+          118.309541
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309554,
+          24.611709
+        ],
+        [
+          118.309541,
+          24.61169
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_005",
+      "to": "road_edge_0676_006",
+      "distance": 3.2,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.61169,
+          118.309541
+        ],
+        [
+          24.611668,
+          118.30952
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309541,
+          24.61169
+        ],
+        [
+          118.30952,
+          24.611668
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_006",
+      "to": "road_edge_0676_007",
+      "distance": 2.6,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611668,
+          118.30952
+        ],
+        [
+          24.611663,
+          118.309495
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.30952,
+          24.611668
+        ],
+        [
+          118.309495,
+          24.611663
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0676_007",
+      "to": "road_edge_0676_008",
+      "distance": 2.4,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.611663,
+          118.309495
+        ],
+        [
+          24.611663,
+          118.309471
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309495,
+          24.611663
+        ],
+        [
+          118.309471,
+          24.611663
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_000",
+      "to": "road_edge_0677_001",
+      "distance": 3.1,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.608004,
+          118.303151
+        ],
+        [
+          24.607977,
+          118.303143
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303151,
+          24.608004
+        ],
+        [
+          118.303143,
+          24.607977
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_001",
+      "to": "road_edge_0677_002",
+      "distance": 3.3,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607977,
+          118.303143
+        ],
+        [
+          24.607948,
+          118.303138
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303143,
+          24.607977
+        ],
+        [
+          118.303138,
+          24.607948
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_002",
+      "to": "road_edge_0677_003",
+      "distance": 3.1,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607948,
+          118.303138
+        ],
+        [
+          24.607921,
+          118.303132
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303138,
+          24.607948
+        ],
+        [
+          118.303132,
+          24.607921
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_003",
+      "to": "road_edge_0677_004",
+      "distance": 3.4,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607921,
+          118.303132
+        ],
+        [
+          24.60789,
+          118.303132
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303132,
+          24.607921
+        ],
+        [
+          118.303132,
+          24.60789
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_004",
+      "to": "road_edge_0677_005",
+      "distance": 3.0,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.60789,
+          118.303132
+        ],
+        [
+          24.607863,
+          118.303132
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303132,
+          24.60789
+        ],
+        [
+          118.303132,
+          24.607863
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_005",
+      "to": "road_edge_0677_006",
+      "distance": 2.3,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607863,
+          118.303132
+        ],
+        [
+          24.607843,
+          118.303138
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303132,
+          24.607863
+        ],
+        [
+          118.303138,
+          24.607843
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0677_006",
+      "to": "road_edge_0677_007",
+      "distance": 3.3,
+      "congestion": 0.55,
+      "road_type": "stairs",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607843,
+          118.303138
+        ],
+        [
+          24.607814,
+          118.303143
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303138,
+          24.607843
+        ],
+        [
+          118.303143,
+          24.607814
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_000",
+      "to": "road_edge_0678_001",
+      "distance": 3.1,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607559,
+          118.302731
+        ],
+        [
+          24.607579,
+          118.302752
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302731,
+          24.607559
+        ],
+        [
+          118.302752,
+          24.607579
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_001",
+      "to": "road_edge_0678_002",
+      "distance": 2.8,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607579,
+          118.302752
+        ],
+        [
+          24.607601,
+          118.302766
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302752,
+          24.607579
+        ],
+        [
+          118.302766,
+          24.607601
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_002",
+      "to": "road_edge_0678_003",
+      "distance": 2.5,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607601,
+          118.302766
+        ],
+        [
+          24.607623,
+          118.302768
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302766,
+          24.607601
+        ],
+        [
+          118.302768,
+          24.607623
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_003",
+      "to": "road_edge_0678_004",
+      "distance": 3.0,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607623,
+          118.302768
+        ],
+        [
+          24.60765,
+          118.302768
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302768,
+          24.607623
+        ],
+        [
+          118.302768,
+          24.60765
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_004",
+      "to": "road_edge_0678_005",
+      "distance": 3.2,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.60765,
+          118.302768
+        ],
+        [
+          24.607679,
+          118.302768
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302768,
+          24.60765
+        ],
+        [
+          118.302768,
+          24.607679
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_005",
+      "to": "road_edge_0678_006",
+      "distance": 3.1,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607679,
+          118.302768
+        ],
+        [
+          24.607706,
+          118.302774
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302768,
+          24.607679
+        ],
+        [
+          118.302774,
+          24.607706
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_006",
+      "to": "road_edge_0678_007",
+      "distance": 3.3,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607706,
+          118.302774
+        ],
+        [
+          24.607735,
+          118.302782
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302774,
+          24.607706
+        ],
+        [
+          118.302782,
+          24.607735
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_007",
+      "to": "road_edge_0678_008",
+      "distance": 3.0,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607735,
+          118.302782
+        ],
+        [
+          24.607762,
+          118.302784
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302782,
+          24.607735
+        ],
+        [
+          118.302784,
+          24.607762
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0678_008",
+      "to": "road_edge_0678_009",
+      "distance": 3.0,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607762,
+          118.302784
+        ],
+        [
+          24.607789,
+          118.302784
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302784,
+          24.607762
+        ],
+        [
+          118.302784,
+          24.607789
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_000",
+      "to": "road_edge_0679_001",
+      "distance": 3.6,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607701,
+          118.302803
+        ],
+        [
+          24.607718,
+          118.302833
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302803,
+          24.607701
+        ],
+        [
+          118.302833,
+          24.607718
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_001",
+      "to": "road_edge_0679_002",
+      "distance": 2.1,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607718,
+          118.302833
+        ],
+        [
+          24.607718,
+          118.302854
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302833,
+          24.607718
+        ],
+        [
+          118.302854,
+          24.607718
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_002",
+      "to": "road_edge_0679_003",
+      "distance": 3.2,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607718,
+          118.302854
+        ],
+        [
+          24.607718,
+          118.302886
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302854,
+          24.607718
+        ],
+        [
+          118.302886,
+          24.607718
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_003",
+      "to": "road_edge_0679_004",
+      "distance": 3.0,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607718,
+          118.302886
+        ],
+        [
+          24.607718,
+          118.302916
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302886,
+          24.607718
+        ],
+        [
+          118.302916,
+          24.607718
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_004",
+      "to": "road_edge_0679_005",
+      "distance": 3.3,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607718,
+          118.302916
+        ],
+        [
+          24.607715,
+          118.302948
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302916,
+          24.607718
+        ],
+        [
+          118.302948,
+          24.607715
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_005",
+      "to": "road_edge_0679_006",
+      "distance": 9.8,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607715,
+          118.302948
+        ],
+        [
+          24.60771,
+          118.303045
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302948,
+          24.607715
+        ],
+        [
+          118.303045,
+          24.60771
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_006",
+      "to": "road_edge_0679_007",
+      "distance": 3.3,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.60771,
+          118.303045
+        ],
+        [
+          24.607713,
+          118.303077
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303045,
+          24.60771
+        ],
+        [
+          118.303077,
+          24.607713
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_007",
+      "to": "road_edge_0679_008",
+      "distance": 2.3,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607713,
+          118.303077
+        ],
+        [
+          24.60772,
+          118.303098
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303077,
+          24.607713
+        ],
+        [
+          118.303098,
+          24.60772
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_008",
+      "to": "road_edge_0679_009",
+      "distance": 3.1,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.60772,
+          118.303098
+        ],
+        [
+          24.607742,
+          118.303117
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303098,
+          24.60772
+        ],
+        [
+          118.303117,
+          24.607742
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
+      "from": "road_edge_0679_009",
+      "to": "road_edge_0679_010",
+      "distance": 5.7,
+      "congestion": 0.68,
+      "road_type": "narrow",
+      "walk": true,
+      "bike": false,
+      "geometry": [
+        [
+          24.607742,
+          118.303117
+        ],
+        [
+          24.607793,
+          118.303122
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303117,
+          24.607742
+        ],
+        [
+          118.303122,
+          24.607793
+        ]
+      ],
+      "source": "manual_collector_edge"
+    },
+    {
       "from": "road_edge_0003_020",
       "to": "road_edge_0266_014",
       "distance": 5.2,
@@ -877853,36 +879313,6 @@
       "source": "manual_collector_link"
     },
     {
-      "from": "route_point_齐齐哈尔家庭烤肉_201",
-      "to": "road_edge_0053_020",
-      "distance": 10.5,
-      "congestion": 0.82,
-      "road_type": "walkway",
-      "walk": true,
-      "bike": true,
-      "geometry": [
-        [
-          24.607631,
-          118.303002
-        ],
-        [
-          24.607538,
-          118.303019
-        ]
-      ],
-      "amap_geometry": [
-        [
-          118.303002,
-          24.607631
-        ],
-        [
-          118.303019,
-          24.607538
-        ]
-      ],
-      "source": "manual_collector_link"
-    },
-    {
       "from": "route_point_香山里营地_露营团建_202",
       "to": "road_edge_0653_047",
       "distance": 5.1,
@@ -877908,36 +879338,6 @@
         [
           118.301171,
           24.603131
-        ]
-      ],
-      "source": "manual_collector_link"
-    },
-    {
-      "from": "route_point_无忧烙锅纸包鱼_203",
-      "to": "road_edge_0309_005",
-      "distance": 4.4,
-      "congestion": 0.82,
-      "road_type": "walkway",
-      "walk": true,
-      "bike": true,
-      "geometry": [
-        [
-          24.60728,
-          118.309459
-        ],
-        [
-          24.607262,
-          118.30942
-        ]
-      ],
-      "amap_geometry": [
-        [
-          118.309459,
-          24.60728
-        ],
-        [
-          118.30942,
-          24.607262
         ]
       ],
       "source": "manual_collector_link"
@@ -878211,27 +879611,237 @@
         ]
       ],
       "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0676_000",
+      "to": "road_edge_0169_031",
+      "distance": 3.5,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.611787,
+          118.309632
+        ],
+        [
+          24.611794,
+          118.309666
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.309632,
+          24.611787
+        ],
+        [
+          118.309666,
+          24.611794
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0677_000",
+      "to": "road_edge_0059_010",
+      "distance": 3.4,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.608004,
+          118.303151
+        ],
+        [
+          24.608031,
+          118.303167
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303151,
+          24.608004
+        ],
+        [
+          118.303167,
+          24.608031
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0678_000",
+      "to": "road_edge_0053_011",
+      "distance": 2.6,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.607559,
+          118.302731
+        ],
+        [
+          24.607536,
+          118.302732
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302731,
+          24.607559
+        ],
+        [
+          118.302732,
+          24.607536
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0679_000",
+      "to": "road_edge_0678_006",
+      "distance": 3.0,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.607701,
+          118.302803
+        ],
+        [
+          24.607706,
+          118.302774
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.302803,
+          24.607701
+        ],
+        [
+          118.302774,
+          24.607706
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0679_010",
+      "to": "road_edge_0677_006",
+      "distance": 5.8,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.607793,
+          118.303122
+        ],
+        [
+          24.607843,
+          118.303138
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.303122,
+          24.607793
+        ],
+        [
+          118.303138,
+          24.607843
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "route_point_齐齐哈尔家庭烤肉_210",
+      "to": "road_edge_0679_003",
+      "distance": 5.2,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.607742,
+          118.30293
+        ],
+        [
+          24.607718,
+          118.302886
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.30293,
+          24.607742
+        ],
+        [
+          118.302886,
+          24.607718
+        ]
+      ],
+      "source": "manual_collector_link"
+    },
+    {
+      "from": "road_edge_0634_010",
+      "to": "road_edge_0521_025",
+      "distance": 3.0,
+      "congestion": 0.82,
+      "road_type": "walkway",
+      "walk": true,
+      "bike": true,
+      "geometry": [
+        [
+          24.610745,
+          118.316627
+        ],
+        [
+          24.610767,
+          118.31661
+        ]
+      ],
+      "amap_geometry": [
+        [
+          118.316627,
+          24.610745
+        ],
+        [
+          118.31661,
+          24.610767
+        ]
+      ],
+      "source": "manual_collector_link"
     }
   ],
   "collector_source_signature": {
     "algorithm": "sha256",
-    "digest": "92f98fd6343dd9fec87128d69c40b8835455dc46d0ede3994ca4a2a2e6634460",
+    "digest": "8c41c2139afd24cada78a024f106ba0bcb0699256c9ec8e4e3dc660488fcfe49",
     "files": [
       {
         "name": "xmu_collector_nodes.json",
-        "bytes": 85750
+        "bytes": 85331
       },
       {
         "name": "xmu_collector_edges.json",
-        "bytes": 1602331
+        "bytes": 1606300
       },
       {
         "name": "xmu_collector_links.json",
-        "bytes": 736480
+        "bytes": 739397
       },
       {
         "name": "xmu_collector_facilities.json",
-        "bytes": 49947
+        "bytes": 74314
       },
       {
         "name": "xmu_collector_meta.json",
@@ -878240,14 +879850,14 @@
     ]
   },
   "collector_source_summary": {
-    "nodes": 20613,
-    "edges": 21000,
-    "selectable_nodes": 210,
-    "manual_nodes": 210,
-    "manual_edges": 673,
-    "road_points": 20403,
-    "links": 1270,
-    "facilities": 118,
+    "nodes": 20650,
+    "edges": 21039,
+    "selectable_nodes": 209,
+    "manual_nodes": 209,
+    "manual_edges": 677,
+    "road_points": 20441,
+    "links": 1275,
+    "facilities": 168,
     "place_id": "xmu_manual"
   }
 }

@@ -6,112 +6,183 @@
     <title>美食推荐</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='food_dev_tools.js', v=asset_version('food_dev_tools.js')) }}"></script>
 </head>
-<body>
-    <div class="topbar">
-        <div>个性化旅游系统 - 美食推荐</div>
-        <div>
-            当前用户：{{ username }}
-            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
-        </div>
-    </div>
-
-    <div class="container large-container food-feed-page">
-        <div class="food-feed-hero">
-            <div>
-                <span class="eyebrow">XMU XIANG'AN · FOOD</span>
-                <h2>翔安校区美食推荐</h2>
-                {% if food_context %}
-                    {% if food_context.origin_node_name %}
-                        <p class="subtitle">当前位置：{{ food_context.origin_node_name }}。系统按菜系、评分、热度和道路距离推荐前 {{ food_context.top_k }} 个结果。</p>
-                    {% else %}
-                        <p class="subtitle">当前未设置起点。系统按菜系、评分、热度和推荐分展示前 {{ food_context.top_k }} 个结果。</p>
-                    {% endif %}
-                {% else %}
-                    <p class="subtitle">支持美食搜索、菜系筛选与评分/热度/消费排序。</p>
-                {% endif %}
+<body class="food-product-page food-feed-open-page" data-place-id="{{ place_id }}">
+    <div class="food-feed-layout">
+        <aside class="food-side-rail" aria-label="美食控制台">
+            <div class="food-side-rail__brand">
+                <span class="eyebrow">XMU XIANG'AN FOOD</span>
+                <strong>美食推荐</strong>
             </div>
-            <a class="food-map-pick" href="{{ url_for('route', place_id=place_id, start=origin_node, food_pick=1) }}">在地图上选择起点</a>
-        </div>
+            <p class="food-side-rail__user">当前用户：{{ username }}</p>
+            <nav class="food-side-rail__actions" aria-label="页面操作">
+                <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+                <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
+                <a class="food-map-pick food-map-pick--compact" href="{{ url_for('route', place_id=place_id, food_pick=1) }}">选择当前位置</a>
+                <button type="button" class="food-dev-toggle" data-food-dev-toggle>开发者模式</button>
+            </nav>
+            <section class="food-side-rail__panel food-side-rail__search-panel">
+                <span class="eyebrow">SEARCH</span>
+                <form method="get" class="filter-form foods-filter-form food-searchbar" aria-label="美食筛选">
+                    <input type="hidden" name="place_id" value="{{ place_id }}">
+                    {% if origin_node %}
+                        <input type="hidden" name="origin_node" value="{{ origin_node }}">
+                    {% endif %}
+                    <input type="text" name="keyword" placeholder="搜索店名、菜系、窗口名" value="{{ keyword }}" aria-label="搜索店名、菜系、窗口名">
 
-        <form method="get" class="filter-form foods-filter-form">
-            {% if place_id %}
-                <input type="hidden" name="place_id" value="{{ place_id }}">
-            {% endif %}
-            {% if origin_node %}
-                <input type="hidden" name="origin_node" value="{{ origin_node }}">
-            {% endif %}
-            <input type="text" name="keyword" placeholder="搜索店名、菜系、窗口" value="{{ keyword }}">
+                    <details class="food-filter-drawer">
+                        <summary>
+                            <span>菜系</span>
+                            <strong>{{ category if category else '全部菜系' }}</strong>
+                        </summary>
+                        <div class="food-filter-drawer__panel">
+                            <button type="submit" name="category" value="">全部菜系</button>
+                            {% for c in categories %}
+                                <button type="submit" name="category" value="{{ c }}">{{ c }}</button>
+                            {% endfor %}
+                        </div>
+                    </details>
 
-            <select name="category">
-                <option value="">全部菜系/类型</option>
-                {% for c in categories %}
-                    <option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
-            </select>
+                    <details class="food-filter-drawer">
+                        <summary>
+                            <span>综合推荐分</span>
+                            <strong>
+                                {% if sort_by == 'recommend_score_desc' %}高到低{% elif sort_by == 'distance_asc' %}距离最近{% elif sort_by == 'rating_desc' %}评分最高{% elif sort_by == 'rating_asc' %}评分较低{% elif sort_by == 'popularity_desc' %}热度最高{% elif sort_by == 'popularity_asc' %}热度较低{% elif sort_by == 'avg_cost_asc' %}人均低到高{% elif sort_by == 'avg_cost_desc' %}人均高到低{% else %}默认推荐{% endif %}
+                            </strong>
+                        </summary>
+                        <div class="food-filter-drawer__panel food-filter-drawer__panel--wide">
+                            <button type="submit" name="sort_by" value="default">默认推荐</button>
+                            <button type="submit" name="sort_by" value="recommend_score_desc">综合推荐分</button>
+                            <button type="submit" name="sort_by" value="distance_asc" {% if not origin_node %}disabled{% endif %}>距离最近{% if not origin_node %}（需当前位置）{% endif %}</button>
+                            <button type="submit" name="sort_by" value="rating_desc">评分最高</button>
+                            <button type="submit" name="sort_by" value="rating_asc">评分较低</button>
+                            <button type="submit" name="sort_by" value="popularity_desc">热度最高</button>
+                            <button type="submit" name="sort_by" value="popularity_asc">热度较低</button>
+                            <button type="submit" name="sort_by" value="avg_cost_asc">人均低到高</button>
+                            <button type="submit" name="sort_by" value="avg_cost_desc">人均高到低</button>
+                        </div>
+                    </details>
 
-            <select name="sort_by">
-                <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
-                {% if food_context %}
-                    <option value="recommend_score_desc" {% if sort_by == 'recommend_score_desc' %}selected{% endif %}>综合推荐分从高到低</option>
-                    <option value="distance_asc" {% if sort_by == 'distance_asc' %}selected{% endif %}>按距离从近到远</option>
-                {% endif %}
-                <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
-                <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
-                <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
-                <option value="popularity_asc" {% if sort_by == 'popularity_asc' %}selected{% endif %}>热度从低到高</option>
-                <option value="avg_cost_desc" {% if sort_by == 'avg_cost_desc' %}selected{% endif %}>人均消费从高到低</option>
-                <option value="avg_cost_asc" {% if sort_by == 'avg_cost_asc' %}selected{% endif %}>人均消费从低到高</option>
-            </select>
-
-            <button type="submit">查询</button>
-        </form>
-
-        <div class="result-info">
-            共找到 {{ foods|length }} 条结果
-            {% if food_stats %}
-                ，扫描 {{ food_stats.scanned_count }} 条，候选 {{ food_stats.candidate_count }} 条，返回 {{ food_stats.returned_count }} 条，算法：{{ food_stats.algorithm }}
-            {% endif %}
-        </div>
-
-        <section class="food-feed" aria-label="美食信息流">
-            {% for food in foods %}
-            <article class="food-card">
-                <div class="food-card__rank">{{ "%02d"|format(loop.index) }}</div>
-                <div class="food-card__main">
-                    <div class="food-card__title">
-                        <h3>{{ food.name }}</h3>
-                        <span>{{ food.category }}</span>
+                    <button type="submit">查询</button>
+                </form>
+                <div class="food-side-rail__mini-tools">
+                    <div>
+                        <strong>快捷工具</strong>
+                        <p>当前共 {{ food_stats.filtered_count }} 家候选，支持一键回到默认推荐。</p>
                     </div>
-                    <p>{{ food.description }}</p>
-                    <div class="food-card__meta">
-                        <strong>{{ food.rating }}</strong><span>评分</span>
-                        <strong>{{ food.popularity }}</strong><span>热度</span>
-                        <strong>¥{{ food.avg_cost }}</strong><span>人均</span>
-                        {% if food.distance_text %}
-                            <strong>{{ food.distance_text }}</strong><span>道路距离</span>
+                    <a class="food-mini-reset" href="{{ url_for('foods', place_id=place_id) }}">清空筛选</a>
+                </div>
+            </section>
+        </aside>
+
+        <main class="container large-container food-feed-main">
+            <section class="food-feed-hero" aria-labelledby="foodPageTitle">
+                <div>
+                    <h1 id="foodPageTitle">翔安校区美食推荐</h1>
+                    <p class="subtitle food-feed-subtitle">
+                        个性化旅游系统·美食推荐。第一页默认推荐前十名，共 {{ food_stats.filtered_count }} 家候选。
+                    </p>
+                </div>
+            </section>
+
+            {% if food_pagination.total_pages > 1 %}
+            <nav class="food-pagination" aria-label="美食分页">
+                {% if food_pagination.has_prev %}
+                    <a class="food-pagination__btn" href="{{ food_pagination.prev_url }}">上一页</a>
+                {% else %}
+                    <span class="food-pagination__btn is-disabled">上一页</span>
+                {% endif %}
+                {% for item in food_pagination.pages %}
+                    {% if item.is_current %}
+                        <span class="food-pagination__page is-current">{{ item.page }}</span>
+                    {% else %}
+                        <a class="food-pagination__page" href="{{ item.url }}">{{ item.page }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if food_pagination.has_next %}
+                    <a class="food-pagination__btn" href="{{ food_pagination.next_url }}">下一页</a>
+                {% else %}
+                    <span class="food-pagination__btn is-disabled">下一页</span>
+                {% endif %}
+            </nav>
+            {% endif %}
+
+            <section class="food-feed" aria-label="美食信息流">
+                {% for food in foods %}
+                <a class="food-card" href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=food_pagination.page) }}" aria-label="查看 {{ food.name }} 详情" data-food-key="{{ food.food_key }}" data-food-name="{{ food.name }}">
+                    <div class="food-card__media" data-food-cover-edit data-food-key="{{ food.food_key }}" data-food-name="{{ food.name }}">
+                        <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 店面代表图" loading="lazy" width="720" height="540" data-food-image-role="cover" data-food-key="{{ food.food_key }}">
+                        <span>{{ "%02d"|format(loop.index + (food_pagination.page - 1) * food_pagination.per_page) }}</span>
+                    </div>
+                    <div class="food-card__body">
+                        <div class="food-card__topline">
+                            <div>
+                                <h3>{{ food.name }}</h3>
+                                <p>{{ food.display_description }}</p>
+                            </div>
+                            <span class="food-cuisine-pill">{{ food.cuisine or food.category }}</span>
+                        </div>
+
+                        <div class="food-card__meta" aria-label="店铺指标">
+                            <span class="food-card__rating">{{ food.rating }}分</span>
+                            <span class="food-card__detail">人均￥{{ food.avg_cost }}</span>
+                            {% if food.distance_text %}
+                                <span class="food-card__detail food-card__detail--distance">{{ food.distance_text }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="food-dish-strip" aria-label="招牌菜">
+                            {% for dish in food.signature_dishes %}
+                            <div class="food-dish">
+                                <img src="{{ url_for('static', filename=dish.image) }}" alt="{{ food.name }} - {{ dish.name }}" loading="lazy" width="480" height="360">
+                                <div>
+                                    <strong>{{ dish.name }}</strong>
+                                    <span>{{ dish.price }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% set hide_food_tags = food.category in ['超市便利', '超市', '便利店'] or food.cuisine in ['超市便利', '超市', '便利店'] %}
+                        {% if food.visible_tags and not hide_food_tags %}
+                        <div class="food-card__foot">
+                            <span class="food-card__tags">
+                                {% for tag in food.visible_tags[:3] %}
+                                    <em>{{ tag }}</em>
+                                {% endfor %}
+                            </span>
+                        </div>
                         {% endif %}
                     </div>
-                    <div class="food-card__tags">
-                        {% for tag in food.tags_list[:4] %}
-                            <span>{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="food-card__side">
-                    <span class="food-score">{{ food.recommend_score }}</span>
-                    <small>推荐分</small>
-                    <a class="detail-btn" href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id) }}">详情</a>
-                    {% if food.nearest_node %}
-                        <a class="detail-btn food-route-btn" href="{{ url_for('route', place_id=place_id, start=origin_node, end=food.nearest_node) }}">路线</a>
+                </a>
+                {% else %}
+                <div class="food-empty">没有匹配的美食结果，换一个关键词或菜系试试。</div>
+                {% endfor %}
+            </section>
+
+            {% if food_pagination.total_pages > 1 %}
+            <nav class="food-pagination food-pagination--bottom" aria-label="美食分页">
+                {% if food_pagination.has_prev %}
+                    <a class="food-pagination__btn" href="{{ food_pagination.prev_url }}">上一页</a>
+                {% else %}
+                    <span class="food-pagination__btn is-disabled">上一页</span>
+                {% endif %}
+                {% for item in food_pagination.pages %}
+                    {% if item.is_current %}
+                        <span class="food-pagination__page is-current">{{ item.page }}</span>
+                    {% else %}
+                        <a class="food-pagination__page" href="{{ item.url }}">{{ item.page }}</a>
                     {% endif %}
-                </div>
-            </article>
-            {% else %}
-            <div class="food-empty">没有匹配的美食结果，换一个关键词或菜系试试。</div>
-            {% endfor %}
-        </section>
+                {% endfor %}
+                {% if food_pagination.has_next %}
+                    <a class="food-pagination__btn" href="{{ food_pagination.next_url }}">下一页</a>
+                {% else %}
+                    <span class="food-pagination__btn is-disabled">下一页</span>
+                {% endif %}
+            </nav>
+            {% endif %}
+        </main>
     </div>
 </body>
 </html>

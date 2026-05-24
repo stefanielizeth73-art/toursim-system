@@ -1,0 +1,2251 @@
+{
+  "description": "Xiamen University Xiangan food media manifest. Runtime pages use local static images from manual collection only; no external hotlink in runtime pages.",
+  "source_policy": "Manual local images only; no external hotlink in runtime pages.",
+  "fallback_generated_count": 0,
+  "foods": {
+    "xmu_manual_collector_facility_facility_0022": {
+      "name": "丰庭餐厅",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0022-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0022-detail.jpg",
+      "recommend_score_override": 119.99,
+      "rating": 3.5,
+      "popularity": 73,
+      "avg_cost": 11.0,
+      "display_description": "厦大翔安校区三层食堂，家常菜与各地风味小吃兼具，邻近宿舍，就餐便捷。",
+      "recommendation_note": "一楼大众餐实惠，二楼安静有刀削面，三楼小吃丰富至晚间，品类全、价格亲民、环境整洁。",
+      "signature_dishes": [
+        {
+          "name": "猪蹄",
+          "price": "￥16",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0022-dish-1.jpg"
+        },
+        {
+          "name": "铁板鱼排",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0022-dish-2.jpg"
+        },
+        {
+          "name": "热干面",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0022-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0013": {
+      "name": "鹭银海超市",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0013-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0013-detail.jpg",
+      "recommend_score_override": 102.0,
+      "rating": 3.0,
+      "popularity": 66,
+      "avg_cost": 16.0,
+      "display_description": "国家级标准化试点校园连锁超市，主营食品日用，品质严选，服务师生。",
+      "recommendation_note": "校园深耕多年，商品覆盖零食、文具、生鲜，安全可控价格亲民，环境整洁，适配师生日常采购。",
+      "signature_dishes": [
+        {
+          "name": "盐津铺子深海鱼豆腐",
+          "price": "￥3.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0013-dish-1.jpg"
+        },
+        {
+          "name": "比比赞乳酸菌风味小口袋面包",
+          "price": "￥7.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0013-dish-2.jpg"
+        },
+        {
+          "name": "脆升升香脆薯角",
+          "price": "￥10.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0013-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0012": {
+      "name": "鸿润福生活超市",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0012-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0012-detail.jpg",
+      "recommend_score_override": 128.99,
+      "rating": 3.9,
+      "popularity": 71,
+      "avg_cost": 20.0,
+      "display_description": "社区连锁生活超市，主营生鲜、粮油及日用百货，基地直供，新鲜实惠。",
+      "recommendation_note": "生鲜果蔬当日上新，粮油零食品类齐全，价格亲民，环境整洁，一站式满足家庭日常采购需求。",
+      "signature_dishes": [
+        {
+          "name": "三得利无糖乌龙茶",
+          "price": "￥10.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0012-dish-1.jpg"
+        },
+        {
+          "name": "新鲜蓝莓",
+          "price": "￥18.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0012-dish-2.jpg"
+        },
+        {
+          "name": "方糕",
+          "price": "￥2.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0012-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0020": {
+      "name": "思源餐厅",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0020-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0020-detail.jpg",
+      "recommend_score_override": 111.0,
+      "rating": 3.9,
+      "popularity": 76,
+      "avg_cost": 20.0,
+      "display_description": "厦大翔安校区嘉庚风综合体食堂，集餐饮、自习、研讨多功能于一体。",
+      "recommendation_note": "一楼大众餐实惠，二楼小吃多元可自习，三楼自助称重按需取餐，环境现代舒适，配套完善。",
+      "signature_dishes": [
+        {
+          "name": "红烧肉盖浇饭",
+          "price": "￥24",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0020-dish-1.jpg"
+        },
+        {
+          "name": "水煮牛杂",
+          "price": "￥32",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0020-dish-2.jpg"
+        },
+        {
+          "name": "清炒芥兰",
+          "price": "￥6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0020-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0027": {
+      "name": "豆恩咖餐",
+      "cuisine": "咖啡",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0027-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0027-detail.jpg",
+      "recommend_score_override": 89.0,
+      "rating": 4.4,
+      "popularity": 76,
+      "avg_cost": 29.0,
+      "display_description": "厦大翔安校内咖餐，咖餐简餐甜品齐全，环境舒适。",
+      "recommendation_note": "位于德旺图书馆楼下，自习就餐超方便；咖喱饭、热压三明治等口味佳，性价比高，适合学生党。",
+      "signature_dishes": [
+        {
+          "name": "厚切鸡排咖喱蛋包饭",
+          "price": "￥26.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0027-dish-1.jpg"
+        },
+        {
+          "name": "石板猪排",
+          "price": "￥24.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0027-dish-2.jpg"
+        },
+        {
+          "name": "地狱拉面",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0027-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0047": {
+      "name": "小巨蛋咖啡厅",
+      "cuisine": "咖啡",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0047-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0047-detail.jpg",
+      "recommend_score_override": 98.99,
+      "rating": 3.9,
+      "popularity": 62,
+      "avg_cost": 27.0,
+      "display_description": "质感文艺风咖啡厅，位于小巨蛋附近，提供精品咖啡与精致轻食甜点。",
+      "recommendation_note": "环境舒适有格调，咖啡香醇、甜点精致，适合下午茶、朋友小聚或办公放松。",
+      "signature_dishes": [
+        {
+          "name": "拿铁咖啡",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0047-dish-1.jpg"
+        },
+        {
+          "name": "茉香奶绿",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0047-dish-2.jpg"
+        },
+        {
+          "name": "香芋拿铁",
+          "price": "￥20",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0047-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_graph_node_route_point___116": {
+      "name": "一口星球",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_graph_node_route_point___116-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_graph_node_route_point___116-detail.jpg",
+      "recommend_score_override": 127.99,
+      "rating": 4.3,
+      "popularity": 86,
+      "avg_cost": 25.0,
+      "display_description": "校内宝藏寿司小店。",
+      "recommendation_note": "食材新鲜现做，日式便当颜值口味双在线，份量足性价比高，配送便捷超适合日常解馋。",
+      "signature_dishes": [
+        {
+          "name": "炙烤霸王蟹肉味柳寿司",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___116-dish-1.jpg"
+        },
+        {
+          "name": "红蟹子",
+          "price": "￥8",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___116-dish-2.jpg"
+        },
+        {
+          "name": "冰爽慕斯大福",
+          "price": "￥10",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___116-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0024": {
+      "name": "昕昕饭店",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0024-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0024-detail.jpg",
+      "recommend_score_override": 123.0,
+      "rating": 4.1,
+      "popularity": 68,
+      "avg_cost": 30.0,
+      "display_description": "本地亲民家常饭店，各式小炒盖饭齐全，口味家常价格实惠。",
+      "recommendation_note": "菜品新鲜现做，味道接地气分量足，出餐速度快，适合日常工作餐和简单聚餐。",
+      "signature_dishes": [
+        {
+          "name": "水煮黑鱼",
+          "price": "￥128",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0024-dish-1.jpg"
+        },
+        {
+          "name": "香干炒肉",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0024-dish-2.jpg"
+        },
+        {
+          "name": "酸辣土豆丝",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0024-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0018": {
+      "name": "竞丰餐厅",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0018-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0018-detail.jpg",
+      "recommend_score_override": 111.99,
+      "rating": 4.1,
+      "popularity": 70,
+      "avg_cost": 18.0,
+      "display_description": "厦大翔安校区一期三层食堂，集大众餐、清真餐与各地小吃于一体。",
+      "recommendation_note": "一楼大众餐实惠，二楼清真与轻食兼具，三楼小吃丰富至晚间，品类全、价格亲民、就餐便捷。",
+      "signature_dishes": [
+        {
+          "name": "湘西辣子鸡",
+          "price": "￥16",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0018-dish-1.jpg"
+        },
+        {
+          "name": "回锅韭香鸡",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0018-dish-2.jpg"
+        },
+        {
+          "name": "鱼香肉丝",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0018-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0059": {
+      "name": "瑞幸咖啡",
+      "cuisine": "咖啡",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0059-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0059-detail.jpg",
+      "recommend_score_override": 134.0,
+      "rating": 4.5,
+      "popularity": 83,
+      "avg_cost": 24.0,
+      "display_description": "中国连锁咖啡品牌，主打高性价比现磨咖啡与创意特调。",
+      "recommendation_note": "门店密集下单便捷，生椰拿铁等爆款口味出众，阿拉比卡豆品质稳定，优惠多，轻松实现咖啡自由。",
+      "signature_dishes": [
+        {
+          "name": "埃塞金烘拿铁",
+          "price": "￥17",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-1.jpg"
+        },
+        {
+          "name": "椰云抹抹茶",
+          "price": "￥11.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-2.jpg"
+        },
+        {
+          "name": "抹茶丝绒拿铁",
+          "price": "￥12.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_graph_node_route_point___152": {
+      "name": "天猫校园鹭银海连锁超市",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_graph_node_route_point___152-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_graph_node_route_point___152-detail.jpg",
+      "recommend_score_override": 125.99,
+      "rating": 3.7,
+      "popularity": 79,
+      "avg_cost": 15.0,
+      "display_description": "天猫校园旗下智慧超市，专注校园零售，品类全、环境优、服务标准化。",
+      "recommendation_note": "零食文具生鲜全覆盖，线上线下同购，价格亲民，严格品控，一站式满足师生日常所需。",
+      "signature_dishes": [
+        {
+          "name": "墨西哥鸡汁番茄味薯片",
+          "price": "￥11.9",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___152-dish-1.jpg"
+        },
+        {
+          "name": "妃子笑荔枝",
+          "price": "￥10.8",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___152-dish-2.jpg"
+        },
+        {
+          "name": "新鲜现烤原味麻薯",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_graph_node_route_point___152-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0001": {
+      "name": "肯德基",
+      "cuisine": "快餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0001-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0001-detail.jpg",
+      "recommend_score_override": 158.0,
+      "rating": 4.1,
+      "popularity": 98,
+      "avg_cost": 33.0,
+      "display_description": "知名西式快餐连锁，主打炸鸡汉堡，品类丰富遍布各地。",
+      "recommendation_note": "食材新鲜口感稳定，早餐、正餐、小吃样样齐全，出餐速度快，日常解馋、简餐就餐都很合适。",
+      "signature_dishes": [
+        {
+          "name": "肯德基蜜汁全鸡",
+          "price": "￥29.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0001-dish-1.jpg"
+        },
+        {
+          "name": "超夯原味鸡汉堡餐",
+          "price": "￥29.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0001-dish-2.jpg"
+        },
+        {
+          "name": "超满足OK三件套",
+          "price": "￥23.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0001-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0019": {
+      "name": "芙蓉餐厅",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0019-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0019-detail.jpg",
+      "recommend_score_override": 122.99,
+      "rating": 3.8,
+      "popularity": 74,
+      "avg_cost": 24.0,
+      "display_description": "厦大思明经典校园餐厅，毗邻芙蓉隧道，美食多样环境雅致。",
+      "recommendation_note": "汇集大众简餐、特色面食及闽南风味小吃，餐品实惠可口，位置优越，师生日常就餐和打卡都合适。",
+      "signature_dishes": [
+        {
+          "name": "沙茶面",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0019-dish-1.jpg"
+        },
+        {
+          "name": "黑椒牛肉铁板饭",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0019-dish-2.jpg"
+        },
+        {
+          "name": "鸡肉烩面",
+          "price": "￥11",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0019-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0115": {
+      "name": "百里牛香潮汕自助牛肉火锅",
+      "cuisine": "火锅",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0115-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0115-detail.jpg",
+      "recommend_score_override": 137.99,
+      "rating": 4.0,
+      "popularity": 96,
+      "avg_cost": 82.0,
+      "display_description": "潮汕自助牛肉火锅，每日鲜切牛肉不限量，主打地道牛骨清汤与手打牛丸。",
+      "recommendation_note": "牛肉现宰现切、吊龙肥胼等部位齐全，肉质鲜嫩弹牙；自助不限量性价比高，适合肉食聚餐。",
+      "signature_dishes": [
+        {
+          "name": "雪花脖仁",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0115-dish-1.jpg"
+        },
+        {
+          "name": "胸口油",
+          "price": "￥36",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0115-dish-2.jpg"
+        },
+        {
+          "name": "鲜牛肉丸",
+          "price": "￥38",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0115-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0116": {
+      "name": "贵州特色地摊火锅",
+      "cuisine": "火锅",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0116-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0116-detail.jpg",
+      "recommend_score_override": 139.0,
+      "rating": 4.5,
+      "popularity": 93,
+      "avg_cost": 49.0,
+      "display_description": "地道贵州风味地摊火锅，酸汤锅底特色浓郁，菜品自选平价实惠。",
+      "recommendation_note": "特色酸汤开胃解腻，食材新鲜可选种类多，烟火气十足，单人就餐、朋友小聚都很合适。",
+      "signature_dishes": [
+        {
+          "name": "干锅牛肉双人餐",
+          "price": "￥93",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0116-dish-1.jpg"
+        },
+        {
+          "name": "贵州特色地摊火锅双人餐",
+          "price": "￥74",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0116-dish-2.jpg"
+        },
+        {
+          "name": "烙锅",
+          "price": "￥88",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0116-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0118": {
+      "name": "香山里营地/露营团建",
+      "cuisine": "饮品",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0118-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0118-detail.jpg",
+      "recommend_score_override": 117.99,
+      "rating": 4.3,
+      "popularity": 72,
+      "avg_cost": 83.0,
+      "display_description": "香山脚下湖畔森系营地，一站式露营烧烤，自然静谧，氛围拉满。",
+      "recommendation_note": "草坪湖景出片，自助烤肉 / 围炉煮茶可选，配钓鱼、亲子游乐、夜景灯光，适合团建遛娃与放空。",
+      "signature_dishes": [
+        {
+          "name": "爆汁蒜香五花肉",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0118-dish-1.jpg"
+        },
+        {
+          "name": "精选澳洲板腱",
+          "price": "￥78",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0118-dish-2.jpg"
+        },
+        {
+          "name": "厚切牛舌",
+          "price": "￥68",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0118-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0120": {
+      "name": "喜姐炸串",
+      "cuisine": "小吃",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0120-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0120-detail.jpg",
+      "recommend_score_override": 104.99,
+      "rating": 4.4,
+      "popularity": 72,
+      "avg_cost": 20.0,
+      "display_description": "2019年创立于南京的国潮炸串连锁，全国超2000家店，主打秘制炸串与小吃。",
+      "recommendation_note": "酱汁臭豆腐外酥里嫩、五花肉焦香流油；酱料浓郁入味，出餐快，国潮包装颜值高，性价比高。",
+      "signature_dishes": [
+        {
+          "name": "招牌酱汁臭豆腐",
+          "price": "￥8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0120-dish-1.jpg"
+        },
+        {
+          "name": "炸串",
+          "price": "￥34",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0120-dish-2.jpg"
+        },
+        {
+          "name": "特色五花肉",
+          "price": "￥16",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0120-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0121": {
+      "name": "雍景轩食府",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0121-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0121-detail.jpg",
+      "recommend_score_override": 139.99,
+      "rating": 4.1,
+      "popularity": 91,
+      "avg_cost": 49.0,
+      "display_description": "中式商务风食府，主打精致粤菜与本地海鲜，包间多适合宴请。",
+      "recommendation_note": "菜品新鲜地道、摆盘精致，招牌菜口味出众；环境雅致安静，服务周到，是聚餐、商务宴请的优选。",
+      "signature_dishes": [
+        {
+          "name": "纸包鱼",
+          "price": "￥98",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0121-dish-1.jpg"
+        },
+        {
+          "name": "手撕鸡",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0121-dish-2.jpg"
+        },
+        {
+          "name": "糖醋里脊",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0121-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0122": {
+      "name": "芙蓉苑古厝餐厅",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0122-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0122-detail.jpg",
+      "recommend_score_override": 137.0,
+      "rating": 4.7,
+      "popularity": 89,
+      "avg_cost": 82.0,
+      "display_description": "古厝庭院风格特色餐厅，主营地道闽菜海鲜，环境雅致有古韵。",
+      "recommendation_note": "古厝建筑氛围感十足，闽菜口味正宗食材新鲜，适合家庭聚餐、朋友小聚及休闲打卡。",
+      "signature_dishes": [
+        {
+          "name": "海鲜卷",
+          "price": "￥58",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0122-dish-1.jpg"
+        },
+        {
+          "name": "绝味石斑鱼",
+          "price": "￥188",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0122-dish-2.jpg"
+        },
+        {
+          "name": "红焖山羊肉",
+          "price": "￥188",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0122-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0123": {
+      "name": "喜米乐潮汕鸡煲",
+      "cuisine": "粤菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0123-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0123-detail.jpg",
+      "recommend_score_override": 137.97,
+      "rating": 4.8,
+      "popularity": 89,
+      "avg_cost": 42.0,
+      "display_description": "喜米乐潮汕鸡煲，主打地道潮汕风味，药膳锅底清甜滋补。",
+      "recommendation_note": "每日鲜宰清远麻鸡，肉质脆嫩弹牙；五指毛桃 / 石橄榄锅底，汤清味甜，搭配秘制蘸料，暖心暖胃，性价比高。",
+      "signature_dishes": [
+        {
+          "name": "空气年糕牛肉锅",
+          "price": "￥108",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0123-dish-1.jpg"
+        },
+        {
+          "name": "五指毛桃锅底",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0123-dish-2.jpg"
+        },
+        {
+          "name": "薯片豪华辣卤锅",
+          "price": "￥118",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0123-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0124": {
+      "name": "广东石磨肠粉烧饼哥",
+      "cuisine": "粤菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0124-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0124-detail.jpg",
+      "recommend_score_override": 114.0,
+      "rating": 3.9,
+      "popularity": 73,
+      "avg_cost": 22.0,
+      "display_description": "正宗广东石磨肠粉，现蒸现做，搭配特色烧饼，地道粤式早餐小吃。",
+      "recommendation_note": "鲜香嫩滑米味浓郁，馅料足口味多，烧饼外酥里软，平价实惠，早晚餐吃都合适。",
+      "signature_dishes": [
+        {
+          "name": "荤蒸菜",
+          "price": "￥50",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0124-dish-1.jpg"
+        },
+        {
+          "name": "素蒸菜",
+          "price": "￥20",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0124-dish-2.jpg"
+        },
+        {
+          "name": "嗨饮特色双人餐",
+          "price": "￥19.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0124-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0144": {
+      "name": "老湘村-湘菜馆",
+      "cuisine": "湘菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0144-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0144-detail.jpg",
+      "recommend_score_override": 109.99,
+      "rating": 4.3,
+      "popularity": 80,
+      "avg_cost": 32.0,
+      "display_description": "正宗风味湘菜馆，主打农家土菜小炒，口味香辣地道烟火气十足。",
+      "recommendation_note": "菜品猛火现炒锅气浓郁，香辣入味分量实在，价格亲民，适合日常就餐与亲友小聚。",
+      "signature_dishes": [
+        {
+          "name": "半个剁椒鱼头",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0144-dish-1.jpg"
+        },
+        {
+          "name": "小龙虾",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0144-dish-2.jpg"
+        },
+        {
+          "name": "红烧汉寿甲鱼",
+          "price": "￥128",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0144-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0126": {
+      "name": "印度食堂 little India",
+      "cuisine": "印度菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0126-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0126-detail.jpg",
+      "recommend_score_override": 122.99,
+      "rating": 4.5,
+      "popularity": 86,
+      "avg_cost": 39.0,
+      "display_description": "正宗印度风味餐厅，主打传统咖喱、烤串与手抓饭，香料醇厚。",
+      "recommendation_note": "招牌咖喱浓郁香浓，坦都里烤鸡外焦里嫩，米饭粒粒分明，环境异域风情足，适合尝鲜与聚餐。",
+      "signature_dishes": [
+        {
+          "name": "咖喱角samosa",
+          "price": "￥16",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0126-dish-1.jpg"
+        },
+        {
+          "name": "蒜香烤饼",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0126-dish-2.jpg"
+        },
+        {
+          "name": "Lamb masala",
+          "price": "￥75",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0126-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0133": {
+      "name": "齐齐哈尔家庭烤肉",
+      "cuisine": "烧烤",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0133-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0133-detail.jpg",
+      "recommend_score_override": 122.0,
+      "rating": 4.0,
+      "popularity": 79,
+      "avg_cost": 38.0,
+      "display_description": "齐齐哈尔家庭烤肉，主打现切鲜牛肉与传统家庭拌肉，炭火烤制风味地道。",
+      "recommendation_note": "选用本地优质牛肉，现切现拌，炭火铁盘烤制，肉香浓郁多汁，搭配秘制蘸料，性价比高，适合亲友聚餐。",
+      "signature_dishes": [
+        {
+          "name": "烧烤双人餐",
+          "price": "￥77",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0133-dish-1.jpg"
+        },
+        {
+          "name": "秘制拌肉",
+          "price": "￥267",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0133-dish-2.jpg"
+        },
+        {
+          "name": "烧烤四人餐",
+          "price": "￥139",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0133-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0003": {
+      "name": "益禾堂",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0003-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0003-detail.jpg",
+      "recommend_score_override": 128.0,
+      "rating": 4.2,
+      "popularity": 83,
+      "avg_cost": 9.0,
+      "display_description": "2012 年创立的平价茶饮连锁，主打烤奶与薄荷系列，门店遍布高校与社区。",
+      "recommendation_note": "招牌益禾烤奶焦香浓郁，薄荷系列清爽解腻；价格亲民（5-15 元），出餐快，是学生与上班族的日常茶饮首选。",
+      "signature_dishes": [
+        {
+          "name": "薄荷奶绿",
+          "price": "￥9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0003-dish-1.jpg"
+        },
+        {
+          "name": "禾风奶绿",
+          "price": "￥9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0003-dish-2.jpg"
+        },
+        {
+          "name": "薄荷猕猴桃",
+          "price": "￥13",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0003-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0005": {
+      "name": "古茗",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0005-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0005-detail.jpg",
+      "recommend_score_override": 122.0,
+      "rating": 4.3,
+      "popularity": 81,
+      "avg_cost": 15.0,
+      "display_description": "2010 年创立的国民茶饮品牌，主打鲜果茶与奶茶，高质平价，门店遍布全国。",
+      "recommendation_note": "优选新鲜水果与优质茶叶，自建冷链保障食材新鲜；招牌多肉葡萄、龙井香奶盖风味地道，15 元左右性价比高，日常饮用无压力。",
+      "signature_dishes": [
+        {
+          "name": "超A芝士葡萄",
+          "price": "￥18.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0005-dish-1.jpg"
+        },
+        {
+          "name": "云岭茉莉",
+          "price": "￥10.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0005-dish-2.jpg"
+        },
+        {
+          "name": "桃桃冰冰李",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0005-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0006": {
+      "name": "天猫校园",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0006-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0006-detail.jpg",
+      "recommend_score_override": 131.97,
+      "rating": 4.1,
+      "popularity": 86,
+      "avg_cost": 24.0,
+      "display_description": "阿里旗下校园智慧商超，商品齐全，校园专属平价便民购物站点。",
+      "recommendation_note": "零食文具日用品一应俱全，价格实惠，环境整洁，适配师生日常采购与即时购物需求。",
+      "signature_dishes": [
+        {
+          "name": "和风生巧福团巧克力口味雪媚娘",
+          "price": "￥9.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0006-dish-1.jpg"
+        },
+        {
+          "name": "康师傅奶香芝士火鸡面",
+          "price": "￥4.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0006-dish-2.jpg"
+        },
+        {
+          "name": "百草味海苔肉松蛋卷",
+          "price": "￥12.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0006-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0058": {
+      "name": "自助柜",
+      "cuisine": "自助",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0059-cover.jpg",
+      "signature_dishes": [
+        {
+          "name": "自助披萨",
+          "price": "￥35",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-1.jpg",
+          "image_source": {
+            "provider": "Pexels",
+            "source_url": "https://images.pexels.com/photos/34307855/pexels-photo-34307855.jpeg?cs=srgb&dl=pexels-novkov-visuals-34307855.jpg&fm=jpg"
+          }
+        },
+        {
+          "name": "烤肉拼盘",
+          "price": "￥39",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-2.jpg",
+          "image_source": {
+            "provider": "Pexels",
+            "source_url": "https://images.pexels.com/photos/36318467/pexels-photo-36318467.jpeg?cs=srgb&dl=pexels-ann-h-45017-36318467.jpg&fm=jpg"
+          }
+        },
+        {
+          "name": "甜品杯",
+          "price": "￥43",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0059-dish-3.jpg",
+          "image_source": {
+            "provider": "Pexels",
+            "source_url": "https://images.pexels.com/photos/7103710/pexels-photo-7103710.jpeg?cs=srgb&dl=pexels-ana-paula-34806524-7103710.jpg&fm=jpg"
+          }
+        }
+      ],
+      "image_source": {
+        "provider": "Pexels",
+        "source_url": "https://images.pexels.com/photos/17878224/pexels-photo-17878224.jpeg?cs=srgb&dl=pexels-adil-khan-marwat-407278438-17878224.jpg&fm=jpg"
+      },
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0059-detail.jpg"
+    },
+    "xmu_manual_collector_facility_facility_0077": {
+      "name": "蜜雪冰城",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0077-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0077-detail.jpg",
+      "recommend_score_override": 167.0,
+      "rating": 4.2,
+      "popularity": 92,
+      "avg_cost": 7.0,
+      "display_description": "国民平价茶饮，主营冰淇淋与各类鲜奶茶饮。",
+      "recommendation_note": "性价比超高，饮品用料实在口味清甜，门店遍布各地，出餐快，平价就能喝到好喝的茶饮。",
+      "signature_dishes": [
+        {
+          "name": "冰鲜柠檬水",
+          "price": "￥4",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0077-dish-1.jpg"
+        },
+        {
+          "name": "蜜桃四季春",
+          "price": "￥7",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0077-dish-2.jpg"
+        },
+        {
+          "name": "芋圆葡萄",
+          "price": "￥8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0077-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0103": {
+      "name": "便利店",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0103-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0103-detail.jpg",
+      "recommend_score_override": 113.0,
+      "rating": 3.8,
+      "popularity": 58,
+      "avg_cost": 18.0,
+      "display_description": "便民连锁便利店，日用零食饮品齐全，就近购物十分便捷。",
+      "recommendation_note": "商品种类丰富齐全，营业时长充足，日常刚需、临时采购都能一站式搞定。",
+      "signature_dishes": [
+        {
+          "name": "杨掌柜粉面菜蛋金汤肥牛味",
+          "price": "￥6.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0103-dish-1.jpg"
+        },
+        {
+          "name": "娃哈哈AD钙",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0103-dish-2.jpg"
+        },
+        {
+          "name": "趣多多",
+          "price": "￥8.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0103-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0119": {
+      "name": "无忧烙锅纸包鱼",
+      "cuisine": "烤鱼",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0119-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0119-detail.jpg",
+      "recommend_score_override": 138.99,
+      "rating": 4.2,
+      "popularity": 86,
+      "avg_cost": 45.0,
+      "display_description": "特色烙锅与纸包鱼融合店，现点现做鲜香味浓，市井烟火足。",
+      "recommendation_note": "纸包鱼锁鲜细嫩、酱香入味，烙锅万物皆可煎，配秘制蘸水；食材新鲜、性价比高，夜宵小聚超合适。",
+      "signature_dishes": [
+        {
+          "name": "双人纸包鱼套餐",
+          "price": "￥75",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0119-dish-1.jpg"
+        },
+        {
+          "name": "三人套餐",
+          "price": "￥75",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0119-dish-2.jpg"
+        },
+        {
+          "name": "荤菜双人餐",
+          "price": "￥45",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0119-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0127": {
+      "name": "好伦哥",
+      "cuisine": "自助",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0127-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0127-detail.jpg",
+      "recommend_score_override": 136.99,
+      "rating": 4.3,
+      "popularity": 86,
+      "avg_cost": 102.0,
+      "display_description": "1998 年创立的老牌中西自助连锁，主打披萨牛排，菜品丰富性价比高。",
+      "recommendation_note": "榴莲披萨、现煎牛排不限量，含热菜海鲜甜品等，选择多，老少皆宜，聚餐实惠。",
+      "signature_dishes": [
+        {
+          "name": "榴莲披萨",
+          "price": "￥32",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0127-dish-1.jpg"
+        },
+        {
+          "name": "寿司",
+          "price": "￥99",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0127-dish-2.jpg"
+        },
+        {
+          "name": "冰淇淋",
+          "price": "￥4",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0127-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0128": {
+      "name": "咖喱状元",
+      "cuisine": "印度菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0128-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0128-detail.jpg",
+      "recommend_score_override": 101.98,
+      "rating": 4.2,
+      "popularity": 65,
+      "avg_cost": 30.0,
+      "display_description": "主打现熬咖喱蛋包饭，匠心风味，浓郁醇厚，平价治愈简餐。",
+      "recommendation_note": "每日鲜熬咖喱酱浓香不腻，蛋包饭滑嫩流心，配料丰富，出餐快，性价比高，一人食或工作餐都合适。",
+      "signature_dishes": [
+        {
+          "name": "劲脆鸡排咖喱蛋包饭",
+          "price": "￥25",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0128-dish-1.jpg"
+        },
+        {
+          "name": "吉列厚切猪排咖喱蛋包饭",
+          "price": "￥30",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0128-dish-2.jpg"
+        },
+        {
+          "name": "天妇罗大虾咖喱蛋包饭",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0128-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0130": {
+      "name": "潇湘阁",
+      "cuisine": "湘菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0130-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0130-detail.jpg",
+      "recommend_score_override": 129.0,
+      "rating": 3.9,
+      "popularity": 80,
+      "avg_cost": 75.0,
+      "display_description": "正宗地道湘菜馆，主打经典湘菜小炒，鲜辣够味、烟火气息浓厚。",
+      "recommendation_note": "菜品猛火现炒锅气十足，香辣醇厚不呛口，菜量实在性价比高，聚餐简餐都合适。",
+      "signature_dishes": [
+        {
+          "name": "酸菜粉皮",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0130-dish-1.jpg"
+        },
+        {
+          "name": "招牌臭厥鱼",
+          "price": "￥88",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0130-dish-2.jpg"
+        },
+        {
+          "name": "子姜鸡",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0130-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0131": {
+      "name": "东北盒饭",
+      "cuisine": "东北菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0131-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0131-detail.jpg",
+      "recommend_score_override": 115.99,
+      "rating": 4.1,
+      "popularity": 69,
+      "avg_cost": 12.0,
+      "display_description": "东北风味自助盒饭，荤素菜品多样任选，分量足性价比超高。",
+      "recommendation_note": "菜品丰富不限量，口味地道家常，打菜分量实在，出餐快捷，平价饱腹适合日常工作餐。",
+      "signature_dishes": [
+        {
+          "name": "东北溜肉段",
+          "price": "￥19.6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0131-dish-1.jpg"
+        },
+        {
+          "name": "地三鲜",
+          "price": "￥9.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0131-dish-2.jpg"
+        },
+        {
+          "name": "红烧肉虎皮鸡蛋",
+          "price": "￥20",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0131-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0132": {
+      "name": "一家人餐厅",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0132-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0132-detail.jpg",
+      "recommend_score_override": 124.0,
+      "rating": 4.0,
+      "popularity": 66,
+      "avg_cost": 27.0,
+      "display_description": "亲民家庭式家常菜餐厅，菜式丰富家常味，实惠接地气。",
+      "recommendation_note": "菜品口味温和适口，分量扎实价格亲民，环境温馨，适合家庭聚餐和日常便饭。",
+      "signature_dishes": [
+        {
+          "name": "砂锅红烧肉",
+          "price": "￥45",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0132-dish-1.jpg"
+        },
+        {
+          "name": "川味酸菜鱼",
+          "price": "￥58",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0132-dish-2.jpg"
+        },
+        {
+          "name": "铁锅鲶鱼",
+          "price": "￥38",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0132-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0134": {
+      "name": "港式茶点",
+      "cuisine": "粤菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0134-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0134-detail.jpg",
+      "recommend_score_override": 136.0,
+      "rating": 4.2,
+      "popularity": 89,
+      "avg_cost": 31.0,
+      "display_description": "正宗港式茶点茶楼，点心现点现蒸，品类齐全，复刻地道粤式风味。",
+      "recommendation_note": "虾饺、烧卖、凤爪等经典茶点口感地道，环境雅致，适合早茶下午茶、亲友闲坐小聚。",
+      "signature_dishes": [
+        {
+          "name": "虾饺凤爪灌汤包",
+          "price": "￥45.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0134-dish-1.jpg"
+        },
+        {
+          "name": "干炒牛河+牛筋丸汤",
+          "price": "￥30.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0134-dish-2.jpg"
+        },
+        {
+          "name": "鲜虾粥+水晶虾饺+酱香凤爪",
+          "price": "￥29.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0134-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0136": {
+      "name": "悬浮餐厅",
+      "cuisine": "西餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0136-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0136-detail.jpg",
+      "recommend_score_override": 125.99,
+      "rating": 4.4,
+      "popularity": 69,
+      "avg_cost": 145.0,
+      "display_description": "未来感科技主题西餐厅，主打轨道自动传菜，沉浸式体验氛围感拉满。",
+      "recommendation_note": "空中轨道送餐新奇有趣，牛排、汉堡等西餐品质在线，环境科技出片，适合亲子打卡、约会聚餐",
+      "signature_dishes": [
+        {
+          "name": "土豆泥沙拉",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0136-dish-1.jpg"
+        },
+        {
+          "name": "扇贝",
+          "price": "￥68",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0136-dish-2.jpg"
+        },
+        {
+          "name": "水果拼盘",
+          "price": "￥40",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0136-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0137": {
+      "name": "沙县小吃",
+      "cuisine": "小吃",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0137-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0137-detail.jpg",
+      "recommend_score_override": 127.01,
+      "rating": 4.0,
+      "popularity": 69,
+      "avg_cost": 10.0,
+      "display_description": "福建沙县起源的国民小吃，非遗技艺，全国遍布，主打实惠便捷简餐。",
+      "recommendation_note": "扁肉皮薄馅鲜、拌面花生酱香浓郁，炖罐暖心；人均 15 元，出餐快，24 小时营业，饱腹又划算。",
+      "signature_dishes": [
+        {
+          "name": "拌面",
+          "price": "￥10",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0137-dish-1.jpg"
+        },
+        {
+          "name": "香葱鲜肉蒸饺",
+          "price": "￥6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0137-dish-2.jpg"
+        },
+        {
+          "name": "花生酱拌面",
+          "price": "￥6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0137-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0138": {
+      "name": "紫溪粉面",
+      "cuisine": "面食",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0138-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0138-detail.jpg",
+      "recommend_score_override": 117.0,
+      "rating": 4.2,
+      "popularity": 75,
+      "avg_cost": 18.0,
+      "display_description": "闽北武夷风味粉面馆，主打手工紫溪粉，筒骨老火熬汤，柔韧弹牙。",
+      "recommendation_note": "招牌肉丝紫溪粉鲜滑入味，肥肠粉 / 猪肝粉料足味浓；粉可免费续，自助小菜随便加，性价比高，早餐工作餐优选。",
+      "signature_dishes": [
+        {
+          "name": "瘦肉紫溪粉",
+          "price": "￥35",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0138-dish-1.jpg"
+        },
+        {
+          "name": "小肠紫溪粉",
+          "price": "￥38",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0138-dish-2.jpg"
+        },
+        {
+          "name": "猪肝肉丝汤",
+          "price": "￥11",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0138-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0139": {
+      "name": "香锅冒菜",
+      "cuisine": "川菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0139-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0139-detail.jpg",
+      "recommend_score_override": 115.99,
+      "rating": 4.4,
+      "popularity": 69,
+      "avg_cost": 24.0,
+      "display_description": "集香锅与冒菜于一体，荤素自选混搭，麻辣鲜香，大众平价美食。",
+      "recommendation_note": "食材新鲜品类丰富，可做干吃香锅或汤煮冒菜，口味可调，分量足性价比高，一人食解馋超合适。",
+      "signature_dishes": [
+        {
+          "name": "香辣肉片",
+          "price": "￥7.3",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0139-dish-1.jpg"
+        },
+        {
+          "name": "麻辣香锅",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0139-dish-2.jpg"
+        },
+        {
+          "name": "毛血旺",
+          "price": "￥38.6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0139-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0140": {
+      "name": "萍姐火锅",
+      "cuisine": "火锅",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0140-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0140-detail.jpg",
+      "recommend_score_override": 123.98,
+      "rating": 4.5,
+      "popularity": 78,
+      "avg_cost": 110.0,
+      "display_description": "复古公路夜市风火锅，主打正宗牛油锅底与创意菜品，氛围感强。",
+      "recommendation_note": "锅底醇厚辣而不燥，耙鸡爪、鲜切牛肉等菜品新鲜入味，复古场景超适合打卡，朋友小聚优选。",
+      "signature_dishes": [
+        {
+          "name": "鸡蛋嫩牛肉",
+          "price": "￥33",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0140-dish-1.jpg"
+        },
+        {
+          "name": "耙鸡爪",
+          "price": "￥32",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0140-dish-2.jpg"
+        },
+        {
+          "name": "糖心蛋炒饭",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0140-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0141": {
+      "name": "一点点",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0141-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0141-detail.jpg",
+      "recommend_score_override": 141.98,
+      "rating": 4.2,
+      "popularity": 83,
+      "avg_cost": 15.0,
+      "display_description": "源自台湾的经典手摇茶饮，主打台式奶茶与免费加料，全国门店密集。",
+      "recommendation_note": "波霸Q弹、茶底纯正，甜度冰度可定制；四季奶青、红茶玛奇朵口碑好，12-18 元性价比高。",
+      "signature_dishes": [
+        {
+          "name": "四季奶青",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0141-dish-1.jpg"
+        },
+        {
+          "name": "波霸奶绿",
+          "price": "￥13",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0141-dish-2.jpg"
+        },
+        {
+          "name": "冰淇淋红茶",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0141-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0143": {
+      "name": "阿胖快餐店",
+      "cuisine": "快餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0143-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0143-detail.jpg",
+      "recommend_score_override": 101.97,
+      "rating": 3.7,
+      "popularity": 66,
+      "avg_cost": 12.0,
+      "display_description": "本地老牌家常快餐店，主打闽南风味简餐，平价实惠分量足。",
+      "recommendation_note": "菜品都是家常口味，食材新鲜味道地道，出餐速度快，性价比高，日常饱腹工作餐很合适。",
+      "signature_dishes": [
+        {
+          "name": "猪肚汤",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0143-dish-1.jpg"
+        },
+        {
+          "name": "糖醋里脊肉",
+          "price": "￥10",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0143-dish-2.jpg"
+        },
+        {
+          "name": "麻辣豆腐",
+          "price": "￥4",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0143-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0145": {
+      "name": "东北饺子馆",
+      "cuisine": "东北菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0145-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0145-detail.jpg",
+      "recommend_score_override": 100.0,
+      "rating": 4.2,
+      "popularity": 70,
+      "avg_cost": 20.0,
+      "display_description": "正宗东北特色饺子馆，手工现包饺子，搭配家常东北小菜。",
+      "recommendation_note": "饺子皮薄馅大、鲜香多汁，口味种类丰富，还有特色炖菜，实惠管饱，日常就餐很合适。",
+      "signature_dishes": [
+        {
+          "name": "韭菜鸡蛋饺子",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0145-dish-1.jpg"
+        },
+        {
+          "name": "牛肉大葱饺子",
+          "price": "￥16.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0145-dish-2.jpg"
+        },
+        {
+          "name": "猪肉三鲜饺子",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0145-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0146": {
+      "name": "蜀香诱惑",
+      "cuisine": "川菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0146-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0146-detail.jpg",
+      "recommend_score_override": 131.0,
+      "rating": 4.7,
+      "popularity": 88,
+      "avg_cost": 58.0,
+      "display_description": "川味特色美食店，主打麻辣香锅、冒菜，口味正宗地道。",
+      "recommendation_note": "食材新鲜可选品类多，麻辣醇厚入味，可自由搭配荤素，平价实惠，一人食、多人吃都适配。",
+      "signature_dishes": [
+        {
+          "name": "蒜香八爪鱼",
+          "price": "￥38",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0146-dish-1.jpg"
+        },
+        {
+          "name": "招牌水煮椒麻鱼",
+          "price": "￥68",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0146-dish-2.jpg"
+        },
+        {
+          "name": "精品毛血旺",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0146-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0147": {
+      "name": "望湘家土菜馆",
+      "cuisine": "湘菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0147-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0147-detail.jpg",
+      "recommend_score_override": 124.0,
+      "rating": 4.2,
+      "popularity": 85,
+      "avg_cost": 17.8,
+      "display_description": "地道农家湘味土菜馆，现炒家常菜为主，口味正宗朴实亲民。",
+      "recommendation_note": "柴火猛火现炒锅气十足，香辣入味分量足，食材新鲜接地气，日常吃饭、朋友小聚都很合适。",
+      "signature_dishes": [
+        {
+          "name": "辣椒炒肉",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0147-dish-1.jpg"
+        },
+        {
+          "name": "蒜苔炒肉丝",
+          "price": "￥13.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0147-dish-2.jpg"
+        },
+        {
+          "name": "小炒黄牛肉",
+          "price": "￥15.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0147-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0148": {
+      "name": "海底捞",
+      "cuisine": "火锅",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0148-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0148-detail.jpg",
+      "recommend_score_override": 140.99,
+      "rating": 4.3,
+      "popularity": 88,
+      "avg_cost": 100.0,
+      "display_description": "知名连锁川味火锅，锅底多样食材丰富，服务贴心环境舒适。",
+      "recommendation_note": "锅底口味可选多，菜品新鲜可点半份，服务细致周到，适合朋友聚会、家庭聚餐和日常解馋。",
+      "signature_dishes": [
+        {
+          "name": "苗族酸汤舂舂锅",
+          "price": "￥58",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0148-dish-1.jpg"
+        },
+        {
+          "name": "木姜子10秒牛肉",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0148-dish-2.jpg"
+        },
+        {
+          "name": "云南高山红香麦",
+          "price": "￥58",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0148-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0149": {
+      "name": "悦享来",
+      "cuisine": "自助",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0149-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0149-detail.jpg",
+      "recommend_score_override": 126.0,
+      "rating": 4.0,
+      "popularity": 79,
+      "avg_cost": 66.0,
+      "display_description": "2014 年创立，融合牛排与小火锅的自助连锁，菜品丰富，性价比高。",
+      "recommendation_note": "火焰牛排鲜嫩多汁，搭配百余种自助菜品，含海鲜、热菜、甜品等，人均实惠，适合聚餐。",
+      "signature_dishes": [
+        {
+          "name": "金牌战斧牛排",
+          "price": "￥109",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0149-dish-1.jpg"
+        },
+        {
+          "name": "甄选原切西冷",
+          "price": "￥79",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0149-dish-2.jpg"
+        },
+        {
+          "name": "儿童牛排",
+          "price": "￥52",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0149-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0150": {
+      "name": "莲旺烧烤",
+      "cuisine": "烧烤",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0150-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0150-detail.jpg",
+      "recommend_score_override": 102.98,
+      "rating": 3.9,
+      "popularity": 72,
+      "avg_cost": 59.0,
+      "display_description": "平价实惠的人气烧烤店，每日现切现串，炭火现烤，主打新鲜与高性价比。",
+      "recommendation_note": "羊肉串鲜嫩多汁，秘制酱料入味，烤鲫鱼、蒜蓉茄子是招牌，价格亲民，夜宵小聚超合适。",
+      "signature_dishes": [
+        {
+          "name": "烤鲫鱼",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0150-dish-1.jpg"
+        },
+        {
+          "name": "骨肉相连",
+          "price": "￥5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0150-dish-2.jpg"
+        },
+        {
+          "name": "羊排",
+          "price": "￥25",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0150-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0151": {
+      "name": "1+8快餐",
+      "cuisine": "快餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0151-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0151-detail.jpg",
+      "recommend_score_override": 100.98,
+      "rating": 3.7,
+      "popularity": 77,
+      "avg_cost": 21.0,
+      "display_description": "实惠便捷的中式自选快餐，菜品丰富，出餐快，主打性价比与家常口味。",
+      "recommendation_note": "荤素搭配选择多，新鲜现炒锅气足，米饭汤品可续，出餐快不贵，适合工作日简餐与赶时间食客。",
+      "signature_dishes": [
+        {
+          "name": "小卤肉",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0151-dish-1.jpg"
+        },
+        {
+          "name": "咖喱鸡丁",
+          "price": "￥20",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0151-dish-2.jpg"
+        },
+        {
+          "name": "黑椒牛柳",
+          "price": "￥39",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0151-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0153": {
+      "name": "星巴克",
+      "cuisine": "咖啡",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0153-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0153-cover.jpg",
+      "recommend_score_override": 168.0,
+      "rating": 4.1,
+      "popularity": 94,
+      "avg_cost": 37.0,
+      "display_description": "全球知名连锁咖啡品牌，主打精品现磨咖啡与舒适社交空间。",
+      "recommendation_note": "阿拉比卡豆品质稳定，门店环境优雅，是办公、小聚的理想“第三空间”，服务专业，饮品选择丰富。",
+      "signature_dishes": [
+        {
+          "name": "红颜草莓星冰乐",
+          "price": "￥35",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0153-dish-1.jpg"
+        },
+        {
+          "name": "比利时巧克力星冰乐",
+          "price": "￥35",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0153-dish-2.jpg"
+        },
+        {
+          "name": "香草风味高蛋白拿铁PRO",
+          "price": "￥39",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0153-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0154": {
+      "name": "和平小炒",
+      "cuisine": "小吃",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0154-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0154-detail.jpg",
+      "recommend_score_override": 127.0,
+      "rating": 4.1,
+      "popularity": 71,
+      "avg_cost": 52.0,
+      "display_description": "社区老牌家常小炒店，主打湘味 / 本地家常菜，现炒锅气足。",
+      "recommendation_note": "招牌辣椒炒肉、小炒黄牛肉鲜辣入味，猛火现炒；食材新鲜、出餐快、性价比高，日常简餐与小聚皆宜。",
+      "signature_dishes": [
+        {
+          "name": "老汤肘子",
+          "price": "￥85",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0154-dish-1.jpg"
+        },
+        {
+          "name": "溜肝尖",
+          "price": "￥39",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0154-dish-2.jpg"
+        },
+        {
+          "name": "京酱肉丝",
+          "price": "￥40",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0154-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0155": {
+      "name": "阿叶鲜捞",
+      "cuisine": "面食",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0155-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0155-detail.jpg",
+      "recommend_score_override": 105.99,
+      "rating": 3.9,
+      "popularity": 68,
+      "avg_cost": 11.0,
+      "display_description": "闽式鲜捞小店，骨汤清鲜、食材自选现烫，粉面劲道。",
+      "recommendation_note": "食材新鲜种类多，骨汤熬制醇厚，兴化粉吸满汤汁超入味，快捷实惠，日常简餐优选。",
+      "signature_dishes": [
+        {
+          "name": "小肠拌粉",
+          "price": "￥16",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0155-dish-1.jpg"
+        },
+        {
+          "name": "牛肉拌粉",
+          "price": "￥18.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0155-dish-2.jpg"
+        },
+        {
+          "name": "牛肚拌面",
+          "price": "￥19",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0155-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0156": {
+      "name": "粤知一二",
+      "cuisine": "粤菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0156-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0156-detail.jpg",
+      "recommend_score_override": 129.0,
+      "rating": 4.1,
+      "popularity": 84,
+      "avg_cost": 24.0,
+      "display_description": "主打广式烧腊隆江猪脚饭，正宗粤式风味，现卤现烤鲜香入味。",
+      "recommendation_note": "猪脚软烂脱骨、烧腊皮香肉嫩，配菜爽口解腻，出餐快捷价格亲民，日常工作简餐首选。",
+      "signature_dishes": [
+        {
+          "name": "潮汕卤肉卷饭",
+          "price": "￥29",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0156-dish-1.jpg"
+        },
+        {
+          "name": "盐焗鸡饭",
+          "price": "￥35",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0156-dish-2.jpg"
+        },
+        {
+          "name": "蜜汁叉烧饭",
+          "price": "￥37",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0156-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0157": {
+      "name": "一树",
+      "cuisine": "西餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0157-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0157-detail.jpg",
+      "recommend_score_override": 147.99,
+      "rating": 4.9,
+      "popularity": 96,
+      "avg_cost": 18.0,
+      "display_description": "文艺静谧网红小店，主打咖啡茶饮、甜品简餐，环境治愈有格调。",
+      "recommendation_note": "店内氛围清新雅致，饮品甜品口感细腻，适合下午茶打卡、闲坐聊天安静放空。",
+      "signature_dishes": [
+        {
+          "name": "黄金椰椰乌龙",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0157-dish-1.jpg"
+        },
+        {
+          "name": "黑糖粉圆生酪奶茶",
+          "price": "￥23",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0157-dish-2.jpg"
+        },
+        {
+          "name": "闽南红芭乐芒果冰茶",
+          "price": "￥19",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0157-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0158": {
+      "name": "家知味",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0158-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0158-detail.jpg",
+      "recommend_score_override": 131.99,
+      "rating": 4.6,
+      "popularity": 89,
+      "avg_cost": 94.0,
+      "display_description": "主打家常风味简餐小炒，菜品朴实入味，平价亲民。",
+      "recommendation_note": "菜品味道贴近家常菜，食材新鲜分量足，性价比高，日常吃饭、单人简餐都很合适。",
+      "signature_dishes": [
+        {
+          "name": "捞汁全家福",
+          "price": "￥89",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0158-dish-1.jpg"
+        },
+        {
+          "name": "葱烧素海参",
+          "price": "￥79",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0158-dish-2.jpg"
+        },
+        {
+          "name": "避风塘小河虾",
+          "price": "￥59",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0158-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0159": {
+      "name": "好想来",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0159-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0159-detail.jpg",
+      "recommend_score_override": 122.0,
+      "rating": 3.8,
+      "popularity": 83,
+      "avg_cost": 33.0,
+      "display_description": "社区量贩零食超市，品类齐全，大牌低价，一站式零食采购优选。",
+      "recommendation_note": "近 2000 种零食饮料随心选，产地直供省中间环节，价格亲民，环境整洁，日常解馋或囤货都合适。",
+      "signature_dishes": [
+        {
+          "name": "好想来甄选明前龙井春茶饮品",
+          "price": "￥9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0159-dish-1.jpg"
+        },
+        {
+          "name": "好想来甄选海苔肉松腰果仁",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0159-dish-2.jpg"
+        },
+        {
+          "name": "好想来甄选恋恋乳茶抹茶白兰",
+          "price": "￥3.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0159-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0170": {
+      "name": "醉面",
+      "cuisine": "面食",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0170-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0170-detail.jpg",
+      "recommend_score_override": 132.0,
+      "rating": 4.5,
+      "popularity": 72,
+      "avg_cost": 21.0,
+      "display_description": "连锁面食品牌，主打招牌肉酱面，明档厨房，性价比高。",
+      "recommendation_note": "招牌肉酱面肉酱慢熬四小时，酱香浓郁；面条筋道，现点现做。人均 20 元左右，出餐快，是打工人高效干饭的优质选择。",
+      "signature_dishes": [
+        {
+          "name": "招牌肉酱面",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0170-dish-1.jpg"
+        },
+        {
+          "name": "大师葱油面",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0170-dish-2.jpg"
+        },
+        {
+          "name": "擂椒肉酱拌面",
+          "price": "￥18.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0170-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0168": {
+      "name": "小咖咖啡",
+      "cuisine": "咖啡",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0168-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0168-detail.jpg",
+      "recommend_score_override": 116.97,
+      "rating": 4.2,
+      "popularity": 61,
+      "avg_cost": 15.1,
+      "display_description": "平价国民精品咖啡，茶饮咖啡品类齐全，便捷实惠。",
+      "recommendation_note": "咖啡口感醇香不苦涩，款式选择多，价格亲民，线下门店随处可见，日常解馋、提神都很合适。",
+      "signature_dishes": [
+        {
+          "name": "香草拿铁",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0168-dish-1.jpg"
+        },
+        {
+          "name": "今年米多多银拿铁",
+          "price": "￥22",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0168-dish-2.jpg"
+        },
+        {
+          "name": "小桃气厚椰拿铁",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0168-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0167": {
+      "name": "书亦烧仙草",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0167-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0167-detail.jpg",
+      "recommend_score_override": 107.0,
+      "rating": 4.1,
+      "popularity": 68,
+      "avg_cost": 12.0,
+      "display_description": "2007 年成都创立的国民茶饮，主打烧仙草，以 “半杯都是料” 为特色。",
+      "recommendation_note": "料足实惠，仙草 Q 弹、小料丰富；全系 0 植脂末更健康，招牌烧仙草、橙漫山茶花口碑好，10-16 元性价比高。",
+      "signature_dishes": [
+        {
+          "name": "书亦烧仙草",
+          "price": "￥14",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0167-dish-1.jpg"
+        },
+        {
+          "name": "芋泥全家福",
+          "price": "￥17",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0167-dish-2.jpg"
+        },
+        {
+          "name": "椰椰仙草清补凉",
+          "price": "￥14",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0167-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0178": {
+      "name": "牡丹亭",
+      "cuisine": "奶茶",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0178-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0178-detail.jpg",
+      "recommend_score_override": 136.0,
+      "rating": 4.4,
+      "popularity": 92,
+      "avg_cost": 16.0,
+      "display_description": "洛阳本土国风茶饮，2023年底创立，以牡丹入茶、鲜牛乳制作，融合古都文化。",
+      "recommendation_note": "招牌“国色天香”“神都花开”清雅花香、奶感醇厚；国风包装与盛唐环境出片，是打卡洛阳的特色伴手礼。",
+      "signature_dishes": [
+        {
+          "name": "牡丹赋",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0178-dish-1.jpg"
+        },
+        {
+          "name": "满庭芳",
+          "price": "￥15",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0178-dish-2.jpg"
+        },
+        {
+          "name": "神都花开",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0178-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0169": {
+      "name": "鸡柳大人",
+      "cuisine": "小吃",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0169-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0169-detail.jpg",
+      "recommend_score_override": 112.0,
+      "rating": 4.0,
+      "popularity": 65,
+      "avg_cost": 24.0,
+      "display_description": "浙江嵊州起家的国民小吃连锁，主打鸡柳年糕薯条三合一。",
+      "recommendation_note": "招牌三合一外酥里糯，空气年糕蓬松可拉丝；秘制撒粉咸甜交织，出餐快，性价比高，解馋优选。",
+      "signature_dishes": [
+        {
+          "name": "蜜汁鸡锁骨",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0169-dish-1.jpg"
+        },
+        {
+          "name": "爆汁鸡腿",
+          "price": "￥7",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0169-dish-2.jpg"
+        },
+        {
+          "name": "鸡柳年糕薯条山药四合一",
+          "price": "￥25",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0169-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0166": {
+      "name": "霸碗盖码饭",
+      "cuisine": "快餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0166-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0166-detail.jpg",
+      "recommend_score_override": 117.99,
+      "rating": 4.2,
+      "popularity": 61,
+      "avg_cost": 18.0,
+      "display_description": "2018年创立的湘菜快餐，靠炒菜机器人现炒盖码饭，全国超千家门店。",
+      "recommendation_note": "招牌辣椒炒肉锅气足，2分钟出餐，米饭无限续；人均15-20元，实惠下饭，打工人午餐热门之选。",
+      "signature_dishes": [
+        {
+          "name": "辣椒炒肉拼柴火香干炒肉",
+          "price": "￥12.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0166-dish-1.jpg"
+        },
+        {
+          "name": "孜然牛肉盖饭",
+          "price": "￥18",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0166-dish-2.jpg"
+        },
+        {
+          "name": "霸碗爆炒猪肝拼外婆菜炒鸡蛋",
+          "price": "￥29",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0166-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0161": {
+      "name": "农耕记湘菜小炒盖码饭",
+      "cuisine": "湘菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0161-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0161-detail.jpg",
+      "recommend_score_override": 102.99,
+      "rating": 4.3,
+      "popularity": 80,
+      "avg_cost": 37.0,
+      "display_description": "农耕记旗下湘味盖码饭，现炒土菜码，锅气足，主打地道湖南风味快餐。",
+      "recommendation_note": "辣椒炒肉、小炒黄牛肉鲜辣入味，猛火现炒锅气足；米饭软糯，人均 30 元左右，出餐快，工作餐优选。",
+      "signature_dishes": [
+        {
+          "name": "自选双拼盖码饭套餐",
+          "price": "￥25.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0161-dish-1.jpg"
+        },
+        {
+          "name": "木耳小炒鸡盖码饭",
+          "price": "￥19.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0161-dish-2.jpg"
+        },
+        {
+          "name": "小炒黄牛肉盖码饭",
+          "price": "￥26.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0161-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0172": {
+      "name": "粤京熹手工顺德菜",
+      "cuisine": "粤菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0172-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0172-detail.jpg",
+      "recommend_score_override": 124.0,
+      "rating": 4.5,
+      "popularity": 83,
+      "avg_cost": 97.0,
+      "display_description": "2020 年创立于北京，主打手工现做顺德菜，还原地道粤味，人均 80-100 元。",
+      "recommendation_note": "招牌桑拿鸡鲜嫩锁汁，手工鲜虾春卷外脆里弹；食材新鲜、清鲜爽滑，性价比高，适合聚餐。",
+      "signature_dishes": [
+        {
+          "name": "无骨鲫鱼",
+          "price": "￥89",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0172-dish-1.jpg"
+        },
+        {
+          "name": "传统桑拿鸡",
+          "price": "￥138",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0172-dish-2.jpg"
+        },
+        {
+          "name": "蜜汁叉烧",
+          "price": "￥68",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0172-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0175": {
+      "name": "人民公社大食堂",
+      "cuisine": "食堂",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0175-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0175-detail.jpg",
+      "recommend_score_override": 116.0,
+      "rating": 3.8,
+      "popularity": 83,
+      "avg_cost": 52.0,
+      "display_description": "怀旧风国民家常菜馆，主打东北 / 湘味农家菜，复古氛围浓。",
+      "recommendation_note": "招牌杀猪菜、锅包肉地道，柴火慢炖锅气足；菜量大实惠、烟火气浓，适合家庭聚餐与怀旧打卡。",
+      "signature_dishes": [
+        {
+          "name": "锅包肉",
+          "price": "￥49.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0175-dish-1.jpg"
+        },
+        {
+          "name": "肘子",
+          "price": "￥56",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0175-dish-2.jpg"
+        },
+        {
+          "name": "杀猪菜",
+          "price": "￥38.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0175-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0160": {
+      "name": "小炉灶东北菜铁锅炖",
+      "cuisine": "东北菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0160-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0160-detail.jpg",
+      "recommend_score_override": 134.99,
+      "rating": 4.8,
+      "popularity": 91,
+      "avg_cost": 57.0,
+      "display_description": "地道东北铁锅炖专门店，柴火慢炖、锅边贴饼，农家烟火浓。",
+      "recommendation_note": "招牌排骨炖豆角 / 小鸡炖蘑菇酥烂入味，玉米饼外焦里糯；分量扎实、热气暖胃，适合朋友小聚与家庭聚餐。",
+      "signature_dishes": [
+        {
+          "name": "黄桃锅包肉",
+          "price": "￥38.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0160-dish-1.jpg"
+        },
+        {
+          "name": "铁锅炖柴鸡排骨",
+          "price": "￥148",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0160-dish-2.jpg"
+        },
+        {
+          "name": "铁板滑蛋日本豆腐",
+          "price": "￥32.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0160-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0171": {
+      "name": "阿佑鲜烫牛肉米线",
+      "cuisine": "粉面",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0171-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0171-detail.jpg",
+      "recommend_score_override": 128.0,
+      "rating": 4.3,
+      "popularity": 77,
+      "avg_cost": 25.0,
+      "display_description": "主打鲜烫牛肉米线，牛骨熬汤、现切鲜牛肉，口味清淡鲜香。",
+      "recommendation_note": "牛肉现烫嫩滑，汤底醇厚不油腻，米线劲道入味，价格亲民，早餐正餐吃都合适。",
+      "signature_dishes": [
+        {
+          "name": "鲜烫牛肉米线",
+          "price": "￥19.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0171-dish-1.jpg"
+        },
+        {
+          "name": "云南炸酱米线",
+          "price": "￥18.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0171-dish-2.jpg"
+        },
+        {
+          "name": "鲜烫牛吊龙",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0171-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0176": {
+      "name": "卓面郎家常菜",
+      "cuisine": "家常菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0176-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0176-detail.jpg",
+      "recommend_score_override": 127.98,
+      "rating": 4.8,
+      "popularity": 74,
+      "avg_cost": 26.0,
+      "display_description": "亲民家常中式菜馆，各式家常小炒齐全，口味接地气性价比高。",
+      "recommendation_note": "菜品现炒锅气十足，荤素搭配丰富，分量实在价格实惠，适合日常就餐和简单小聚。",
+      "signature_dishes": [
+        {
+          "name": "牛肉面卤味套餐",
+          "price": "￥19.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0176-dish-1.jpg"
+        },
+        {
+          "name": "香辣羊杂面",
+          "price": "￥28.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0176-dish-2.jpg"
+        },
+        {
+          "name": "鱼香肉丝盖饭",
+          "price": "￥14.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0176-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0162": {
+      "name": "川香园家常菜",
+      "cuisine": "川菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0162-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0162-detail.jpg",
+      "recommend_score_override": 121.99,
+      "rating": 3.9,
+      "popularity": 84,
+      "avg_cost": 32.0,
+      "display_description": "正宗川味家常菜馆，主打麻辣鲜香小炒，口味地道亲民实惠。",
+      "recommendation_note": "菜品现炒锅气十足，麻辣适口不燥辣，菜量实在价格亲民，日常简餐和小聚都很合适。",
+      "signature_dishes": [
+        {
+          "name": "宫保鸡丁",
+          "price": "￥31.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0162-dish-1.jpg"
+        },
+        {
+          "name": "蒜苔炒腊肉",
+          "price": "￥43",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0162-dish-2.jpg"
+        },
+        {
+          "name": "炝炒空心菜",
+          "price": "￥28",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0162-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0163": {
+      "name": "鸿运四季铜锅涮肉",
+      "cuisine": "火锅",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0163-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0163-detail.jpg",
+      "recommend_score_override": 136.98,
+      "rating": 4.7,
+      "popularity": 98,
+      "avg_cost": 55.0,
+      "display_description": "传统铜锅炭火涮肉，主打鲜切牛羊肉，清汤锅底原汁原味。",
+      "recommendation_note": "铜锅涮肉鲜香不腻，肉质新鲜紧实，蘸料地道丰富，性价比高，适合秋冬聚餐解馋。",
+      "signature_dishes": [
+        {
+          "name": "超值麻辣小龙虾",
+          "price": "￥34.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0163-dish-1.jpg"
+        },
+        {
+          "name": "火锅涮肉4人餐",
+          "price": "￥215",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0163-dish-2.jpg"
+        },
+        {
+          "name": "原切牛腹肉",
+          "price": "￥36",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0163-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0164": {
+      "name": "老班长自助烤骨头",
+      "cuisine": "自助",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0164-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0164-detail.jpg",
+      "recommend_score_override": 134.99,
+      "rating": 4.1,
+      "popularity": 89,
+      "avg_cost": 43.0,
+      "display_description": "特色自助烤骨头，先卤后烤不限量，搭配火锅自助，性价比高。",
+      "recommendation_note": "烤骨头外焦里嫩、软烂脱骨，含丰富涮菜、凉菜、水果甜品，人均实惠，适合聚餐解馋。",
+      "signature_dishes": [
+        {
+          "name": "秘制烤骨头",
+          "price": "￥46.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0164-dish-1.jpg"
+        },
+        {
+          "name": "甜品",
+          "price": "￥39.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0164-dish-2.jpg"
+        },
+        {
+          "name": "凉菜",
+          "price": "￥39.9",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0164-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0165": {
+      "name": "老北京地摊烧烤",
+      "cuisine": "烧烤",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0165-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0165-detail.jpg",
+      "recommend_score_override": 111.0,
+      "rating": 4.0,
+      "popularity": 77,
+      "avg_cost": 44.0,
+      "display_description": "老北京风味地摊烧烤，炭火烤串品类丰富，充满市井烟火气息。",
+      "recommendation_note": "烤串焦香入味口味正宗，平价实惠氛围感十足，适合夜晚撸串、好友小聚放松消遣。",
+      "signature_dishes": [
+        {
+          "name": "碳烤羊肉串",
+          "price": "￥20",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0165-dish-1.jpg"
+        },
+        {
+          "name": "网红千层筋",
+          "price": "￥11.6",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0165-dish-2.jpg"
+        },
+        {
+          "name": "鲜羊鞭",
+          "price": "￥12",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0165-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0173": {
+      "name": "HUB西餐厅",
+      "cuisine": "西餐",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0173-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0173-detail.jpg",
+      "recommend_score_override": 127.0,
+      "rating": 4.5,
+      "popularity": 75,
+      "avg_cost": 100.0,
+      "display_description": "复古风老牌西餐厅，主打意式料理与牛排披萨，氛围浪漫适合约会小聚。",
+      "recommendation_note": "小龙虾披萨料足味浓，牛排香嫩多汁，周五六有爵士驻唱，环境出片，性价比高。",
+      "signature_dishes": [
+        {
+          "name": "菲力炙烤牛排",
+          "price": "￥128",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0173-dish-1.jpg"
+        },
+        {
+          "name": "经典玛格丽特披萨",
+          "price": "￥88",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0173-dish-2.jpg"
+        },
+        {
+          "name": "狂野派对巨无霸薯条",
+          "price": "￥48",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0173-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0174": {
+      "name": "皇家咖喱印度餐厅",
+      "cuisine": "印度菜",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0174-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0174-detail.jpg",
+      "recommend_score_override": 126.0,
+      "rating": 4.3,
+      "popularity": 71,
+      "avg_cost": 83.0,
+      "display_description": "正宗皇家风味印度餐厅，特色咖喱、烤馕齐全，异域氛围感十足。",
+      "recommendation_note": "咖喱香料醇厚入味，现烤馕饼松软喷香，菜品分量足性价比高，适合朋友小聚品尝异国风味。",
+      "signature_dishes": [
+        {
+          "name": "馕坑烤鸡",
+          "price": "￥52",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0174-dish-1.jpg"
+        },
+        {
+          "name": "馕坑烤羊排",
+          "price": "￥108",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0174-dish-2.jpg"
+        },
+        {
+          "name": "Prawns Chilli炒大虾",
+          "price": "￥68",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0174-dish-3.jpg"
+        }
+      ]
+    },
+    "xmu_manual_collector_facility_facility_0177": {
+      "name": "乐购达超市",
+      "cuisine": "超市便利",
+      "cover_image": "food_media/custom/xmu_manual_collector_facility_facility_0177-cover.jpg",
+      "detail_image": "food_media/custom/xmu_manual_collector_facility_facility_0177-detail.jpg",
+      "recommend_score_override": 141.98,
+      "rating": 4.5,
+      "popularity": 77,
+      "avg_cost": 24.0,
+      "display_description": "24小时即时零售超市，全品类好物，3公里范围30分钟极速送达。",
+      "recommendation_note": "日用、零食、美妆等8000+好物一站购齐，价格亲民，线上下单快速送达，满足日常急需与夜间采购。",
+      "signature_dishes": [
+        {
+          "name": "新鲜水果清甜多汁葡萄提子",
+          "price": "￥19.8",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0177-dish-1.jpg"
+        },
+        {
+          "name": "徐福记凤梨酥",
+          "price": "￥13.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0177-dish-2.jpg"
+        },
+        {
+          "name": "卫龙大面筋",
+          "price": "￥5.5",
+          "image": "food_media/custom/xmu_manual_collector_facility_facility_0177-dish-3.jpg"
+        }
+      ]
+    }
+  },
+  "updated_at": "2026-05-14T14:17:09"
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ building_name }} - 室内导航</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
+</head>
+<body class="indoor-page">
+    <a class="skip-link" href="#indoorMap">跳到室内平面图</a>
+
+    <header class="indoor-topbar">
+        <div>
+            <span class="indoor-topbar__mark" aria-hidden="true"></span>
+            个性化旅游系统 · 室内导航
+        </div>
+        <nav aria-label="室内导航操作">
+            <span>当前用户：{{ username }}</span>
+            <a class="nav-link" href="{{ url_for('route') }}">路线规划</a>
+            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+        </nav>
+    </header>
+
+    <main class="indoor-shell">
+        <aside class="indoor-console">
+            <section class="indoor-hero">
+                <span class="eyebrow">INDOOR ROUTE</span>
+                <h1>{{ building_name }}</h1>
+                <p>当前已针对不同楼宇类型加载专属楼层结构与房间名称，支持大门到电梯、多层电梯/步梯换乘、楼层内到房间的室内导航规划。</p>
+            </section>
+
+            <section class="indoor-panel">
+                <div class="indoor-panel__head">
+                    <h2>导航设置</h2>
+                    <p>选择起点、目标房间和换层方式。</p>
+                </div>
+                <form method="get" class="indoor-form">
+                    <input type="hidden" name="building_name" value="{{ building_name }}">
+                    <label>
+                        <span>选择楼宇 / 切换场景</span>
+                        <select name="building_id" onchange="this.form.building_name.value = ''; if(this.form.start) this.form.start.value = ''; if(this.form.end) this.form.end.value = ''; this.form.submit();">
+                            <option value="demo_building" {% if "library" not in building_id.lower() and "museum" not in building_id.lower() and "图书馆" not in building_id.lower() and "博物馆" not in building_id.lower() %}selected{% endif %}>通用教学楼 (3层)</option>
+                            <option value="route_point_德旺图书馆_100" {% if "library" in building_id.lower() or "图书馆" in building_id.lower() or "dewang" in building_id.lower() %}selected{% endif %}>德旺图书馆 (4层)</option>
+                            <option value="museum" {% if "museum" in building_id.lower() or "博物馆" in building_id.lower() or "校史" in building_id.lower() or "science" in building_id.lower() or "history" in building_id.lower() %}selected{% endif %}>校史与科技博物馆 (2层)</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>起点</span>
+                        <select name="start">
+                            {% for node in node_options %}
+                            <option value="{{ node.id }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span>终点</span>
+                        <select name="end">
+                            {% for node in node_options %}
+                            <option value="{{ node.id }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        <span>换层方式</span>
+                        <select name="vertical_mode">
+                            {% for mode in vertical_modes %}
+                            <option value="{{ mode.value }}" {% if vertical_mode == mode.value %}selected{% endif %}>{{ mode.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit">重新规划</button>
+                </form>
+            </section>
+
+            <section class="indoor-panel">
+                <div class="indoor-panel__head">
+                    <h2>路线说明</h2>
+                    {% if route_result %}
+                    <p>总距离 {{ "%.1f"|format(route_result.total) }} 米，算法：室内邻接表 + Dijkstra。</p>
+                    {% else %}
+                    <p>当前约束下未找到室内路线。</p>
+                    {% endif %}
+                </div>
+                {% if route_steps %}
+                <ol class="indoor-step-list">
+                    {% for step in route_steps %}
+                    <li class="is-{{ step.mode }}">
+                        <strong>{{ step.label }}</strong>
+                        <span>{{ step.text }}</span>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <div class="indoor-empty">请调整起点、终点或换层方式后重新规划。</div>
+                {% endif %}
+            </section>
+        </aside>
+
+        <section class="indoor-map-wrap" id="indoorMap" aria-label="{{ floors|length }}层楼室内平面图">
+            <div class="indoor-map-head">
+                <div>
+                    <span class="eyebrow">CROSS SECTION</span>
+                    <h2>{{ floors|length }}层楼横截面平面图</h2>
+                </div>
+                <div class="indoor-legend" aria-label="图例">
+                    <span><i class="is-route"></i>荧光路线</span>
+                    <span><i class="is-room"></i>科室/房间</span>
+                    <span><i class="is-core"></i>电梯/步梯</span>
+                </div>
+            </div>
+
+            <div class="indoor-floor-stack">
+                {% for floor in floors %}
+                <article class="indoor-floor {% if floor.active %}is-active{% endif %}">
+                    <div class="indoor-floor__label">
+                        <strong>{{ floor.number }}F</strong>
+                        <span>{% if floor.active %}路线经过{% else %}普通楼层{% endif %}</span>
+                    </div>
+                    <svg class="indoor-floor-plan indoor-floor-plan--courtyard" viewBox="0 0 900 640" role="img" aria-label="{{ floor.number }}层回型平面图">
+                        <defs>
+                            <pattern id="floorGrid{{ floor.number }}" width="24" height="24" patternUnits="userSpaceOnUse">
+                                <path d="M 24 0 L 0 0 0 24" class="indoor-grid-line"></path>
+                            </pattern>
+                            <filter id="routeGlow{{ floor.number }}" x="-40%" y="-40%" width="180%" height="180%">
+                                <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                                <feMerge>
+                                    <feMergeNode in="blur"></feMergeNode>
+                                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                                </feMerge>
+                            </filter>
+                        </defs>
+
+                        <rect x="28" y="24" width="844" height="592" rx="28" class="indoor-shell-shape"></rect>
+                        <rect x="48" y="44" width="804" height="552" rx="20" class="indoor-plan-paper"></rect>
+                        <rect x="48" y="44" width="804" height="552" rx="20" fill="url(#floorGrid{{ floor.number }})" class="indoor-grid-fill"></rect>
+                        <path d="M176 108H724V532H176Z M300 210H600V430H300Z" class="indoor-ring-corridor" fill-rule="evenodd"></path>
+                        <rect x="300" y="210" width="300" height="220" rx="20" class="indoor-courtyard"></rect>
+                        <path d="M316 226H584V414H316Z" class="indoor-courtyard-inner"></path>
+                        <text x="450" y="326" text-anchor="middle" class="indoor-courtyard-label">中庭</text>
+                        <text x="450" y="351" text-anchor="middle" class="indoor-courtyard-sub">不可通行区域</text>
+                        {% if floor.number == 1 %}
+                        <rect x="386" y="552" width="128" height="54" rx="14" class="indoor-lobby"></rect>
+                        <path d="M450 618 V594" class="indoor-main-entry"></path>
+                        <text x="450" y="585" text-anchor="middle" class="indoor-zone-label">入口大厅</text>
+                        {% endif %}
+                        <text x="450" y="158" text-anchor="middle" class="indoor-zone-label">北走廊</text>
+                        <text x="450" y="497" text-anchor="middle" class="indoor-zone-label">南走廊</text>
+                        <text x="650" y="323" text-anchor="middle" class="indoor-zone-label indoor-zone-label--vertical">东走廊</text>
+                        <text x="250" y="323" text-anchor="middle" class="indoor-zone-label indoor-zone-label--vertical">西走廊</text>
+                        {% for edge in floor.edges %}
+                            {% if edge.mode == 'walk' and edge.is_path %}
+                            <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path" filter="url(#routeGlow{{ floor.number }})"></line>
+                            {% endif %}
+                        {% endfor %}
+                        {% for node in floor.nodes %}
+                            {% if node.type == 'room' %}
+                            <rect x="{{ node.x - (node.w or 110) / 2 }}" y="{{ node.y - (node.h or 78) / 2 }}" width="{{ node.w or 110 }}" height="{{ node.h or 78 }}" rx="12" class="indoor-room is-{{ node.side }} {% if node.id == start %}is-start{% endif %}{% if node.id == end %} is-end{% endif %}{% if node in floor.path_nodes %} is-path-node{% endif %}"></rect>
+                            {% if node.side in ['north', 'south'] %}
+                            <rect x="{{ node.x - 18 }}" y="{{ node.y + ((node.h or 78) / 2 - 5 if node.side == 'north' else -((node.h or 78) / 2 + 3)) }}" width="36" height="8" rx="3" class="indoor-door {% if node in floor.path_nodes %}is-path-door{% endif %}"></rect>
+                            <line x1="{{ node.x - 45 }}" y1="{{ node.y - 10 }}" x2="{{ node.x + 45 }}" y2="{{ node.y - 10 }}" class="indoor-room-desk"></line>
+                            <line x1="{{ node.x - 45 }}" y1="{{ node.y + 10 }}" x2="{{ node.x + 45 }}" y2="{{ node.y + 10 }}" class="indoor-room-desk"></line>
+                            {% else %}
+                            <rect x="{{ node.x + ((node.w or 110) / 2 - 5 if node.side == 'west' else -((node.w or 110) / 2 + 3)) }}" y="{{ node.y - 18 }}" width="8" height="36" rx="3" class="indoor-door {% if node in floor.path_nodes %}is-path-door{% endif %}"></rect>
+                            <line x1="{{ node.x - 28 }}" y1="{{ node.y - 24 }}" x2="{{ node.x - 28 }}" y2="{{ node.y + 24 }}" class="indoor-room-desk"></line>
+                            <line x1="{{ node.x + 4 }}" y1="{{ node.y - 24 }}" x2="{{ node.x + 4 }}" y2="{{ node.y + 24 }}" class="indoor-room-desk"></line>
+                            {% endif %}
+                            <text x="{{ node.x }}" y="{{ node.y + 5 }}" text-anchor="middle" class="indoor-room-label">{{ node.name }}</text>
+                            {% elif node.type == 'gate' %}
+                            <rect x="{{ node.x - (node.w or 90) / 2 }}" y="{{ node.y - (node.h or 42) / 2 }}" width="{{ node.w or 90 }}" height="{{ node.h or 42 }}" rx="12" class="indoor-gate {% if node.id == start %}is-start{% endif %}"></rect>
+                            <text x="{{ node.x }}" y="{{ node.y + 5 }}" text-anchor="middle" class="indoor-core-label">入口</text>
+                            {% elif node.type in ['elevator', 'stairs'] %}
+                            <rect x="{{ node.x - (node.w or 58) / 2 }}" y="{{ node.y - (node.h or 62) / 2 }}" width="{{ node.w or 58 }}" height="{{ node.h or 62 }}" rx="12" class="indoor-core is-{{ node.type }} {% if node in floor.path_nodes %}is-path-node{% endif %}"></rect>
+                            {% if node.type == 'stairs' %}
+                            <path d="M{{ node.x - 18 }} {{ node.y + 15 }} H{{ node.x + 18 }} M{{ node.x - 14 }} {{ node.y + 4 }} H{{ node.x + 14 }} M{{ node.x - 10 }} {{ node.y - 7 }} H{{ node.x + 10 }} M{{ node.x - 6 }} {{ node.y - 18 }} H{{ node.x + 6 }}" class="indoor-stair-lines"></path>
+                            {% else %}
+                            <path d="M{{ node.x - 12 }} {{ node.y - 13 }} L{{ node.x }} {{ node.y - 23 }} L{{ node.x + 12 }} {{ node.y - 13 }} M{{ node.x - 12 }} {{ node.y + 13 }} L{{ node.x }} {{ node.y + 23 }} L{{ node.x + 12 }} {{ node.y + 13 }}" class="indoor-elevator-arrows"></path>
+                            {% endif %}
+                            <text x="{{ node.x }}" y="{{ node.y + 5 }}" text-anchor="middle" class="indoor-core-symbol">{% if node.type == 'elevator' %}EV{% else %}ST{% endif %}</text>
+                            {% else %}
+                            <circle cx="{{ node.x }}" cy="{{ node.y }}" r="8" class="indoor-hall {% if node in floor.path_nodes %}is-path-node{% endif %}"></circle>
+                            {% endif %}
+                        {% endfor %}
+                        {% for node in floor.path_nodes %}
+                            <circle cx="{{ node.x }}" cy="{{ node.y }}" r="11" class="indoor-route-dot"></circle>
+                        {% endfor %}
+                    </svg>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>

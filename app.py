@@ -16,6 +16,9 @@ import re
 import shutil
 import time
 from datetime import datetime
+from io import BytesIO
+from urllib.parse import urlencode
+from markupsafe import Markup, escape
 try:
     from PIL import Image
 except ImportError:
@@ -100,6 +103,8 @@ XMU_COLLECTOR_EDGES_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_edges.
 XMU_COLLECTOR_LINKS_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_links.json")
 XMU_COLLECTOR_FACILITIES_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_facilities.json")
 XMU_COLLECTOR_META_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_meta.json")
+XMU_FOOD_MEDIA_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_food_media.json")
+XMU_FOOD_CUSTOM_MEDIA_DIR = os.path.join(APP_DIR, "static", "food_media", "custom")
 XMU_ROAD_SNAP_METERS = 0
 XMU_COLLECTOR_SOURCE_FILES = [
     XMU_COLLECTOR_NODES_FILE,
@@ -123,6 +128,10 @@ FACILITIES_CACHE = {
     "records": [],
 }
 FOOD_CANDIDATES_CACHE = {}
+FOOD_MEDIA_CACHE = {
+    "signature": None,
+    "records": {},
+}
 PLACES_PAGE_SIZE = 18
 DIARIES_PAGE_SIZE = 12
 XMU_XIANG_AN_GENERATED_FACILITIES_FILE = os.path.join(
@@ -174,9 +183,17 @@ FOOD_CAMPUS_CONTEXTS = {
     }
 }
 DIARY_UPLOAD_DIR = os.path.join(APP_DIR, "data", "uploads", "diaries")
+USER_AVATAR_DIR = os.path.join(APP_DIR, "static", "uploads", "avatars")
 DIARY_ALLOWED_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 DIARY_ALLOWED_VIDEO_EXTS = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
 DIARY_ALLOWED_MEDIA_EXTS = DIARY_ALLOWED_IMAGE_EXTS | DIARY_ALLOWED_VIDEO_EXTS
+DIARY_ALLOWED_AVATAR_EXTS = DIARY_ALLOWED_IMAGE_EXTS | {".svg"}
+DIARY_VISIBLE_COMMENT_THREADS = 3
+DIARY_VISIBLE_REPLIES = 3
+INDOOR_BUILDING_TYPES = {"building", "teaching", "library", "dorm", "canteen"}
+INDOOR_DEFAULT_START = "gate_1f"
+INDOOR_DEFAULT_END = "room_302"
+INDOOR_VERTICAL_MODES = {"auto", "elevator", "stairs"}
 
 
 # =========================
@@ -229,6 +246,92 @@ def ensure_sqlite_column(cursor, table_name, column_name, column_definition):
         cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}")
 
 
+def avatar_relative_path(filename):
+    return os.path.relpath(os.path.join(USER_AVATAR_DIR, filename), os.path.join(APP_DIR, "static")).replace("\\", "/")
+
+
+def avatar_url_from_path(avatar_path, username="", user_id=None):
+    relative_path = avatar_path or ensure_user_avatar_asset(username, user_id)
+    return url_for("static", filename=relative_path)
+
+
+def avatar_initial(username):
+    clean_name = re.sub(r"\s+", "", (username or "").strip())
+    if not clean_name:
+        return "U"
+    first_char = clean_name[0]
+    return first_char.upper() if first_char.isascii() else first_char
+
+
+def avatar_palette(seed_text):
+    digest = hashlib.sha1((seed_text or "avatar").encode("utf-8")).hexdigest()
+    hues = [int(digest[index:index + 2], 16) for index in (0, 2, 4, 6, 8, 10)]
+    start = f"rgb({72 + hues[0] % 110},{118 + hues[1] % 90},{168 + hues[2] % 60})"
+    end = f"rgb({116 + hues[3] % 100},{160 + hues[4] % 70},{210 + hues[5] % 40})"
+    accent = f"rgb({50 + hues[2] % 120},{90 + hues[3] % 110},{138 + hues[4] % 80})"
+    return start, end, accent
+
+
+def build_avatar_svg(username, user_id=None):
+    start_color, end_color, accent_color = avatar_palette(f"{username}:{user_id or ''}")
+    initial = escape(avatar_initial(username))
+    label = escape((username or "User").strip()[:2] or "用户")
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="{label} 的头像">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{start_color}"/>
+      <stop offset="100%" stop-color="{end_color}"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="32%" cy="24%" r="72%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.52)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+  </defs>
+  <rect width="256" height="256" rx="64" fill="url(#bg)"/>
+  <circle cx="88" cy="74" r="60" fill="url(#glow)"/>
+  <circle cx="170" cy="170" r="78" fill="rgba(255,255,255,0.09)"/>
+  <path d="M46 176C72 156 98 148 128 148s56 8 82 28v38H46z" fill="rgba(255,255,255,0.20)"/>
+  <circle cx="128" cy="112" r="54" fill="rgba(255,255,255,0.86)"/>
+  <circle cx="128" cy="103" r="18" fill="{accent_color}"/>
+  <path d="M87 184c8-27 31-42 41-42s33 15 41 42" fill="{accent_color}" opacity="0.88"/>
+  <text x="128" y="156" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="800" fill="#fff">{initial}</text>
+</svg>"""
+
+
+def ensure_user_avatar_asset(username, user_id=None, avatar_path=""):
+    os.makedirs(USER_AVATAR_DIR, exist_ok=True)
+    if avatar_path:
+        candidate_path = os.path.join(APP_DIR, "static", avatar_path)
+        if os.path.exists(candidate_path):
+            return avatar_path
+
+    safe_user = re.sub(r"[^0-9a-zA-Z\u4e00-\u9fff]+", "_", (username or "user").strip()) or "user"
+    suffix = user_id if user_id is not None else hashlib.sha1((username or "user").encode("utf-8")).hexdigest()[:10]
+    filename = f"{safe_user}_{suffix}.svg"
+    file_path = os.path.join(USER_AVATAR_DIR, filename)
+    if not os.path.exists(file_path):
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(build_avatar_svg(username, user_id))
+    return avatar_relative_path(filename)
+
+
+def save_uploaded_user_avatar(uploaded_file, username, user_id):
+    if not uploaded_file or not uploaded_file.filename:
+        return ensure_user_avatar_asset(username, user_id)
+
+    original_name = secure_filename(uploaded_file.filename)
+    ext = os.path.splitext(original_name)[1].lower()
+    if ext not in DIARY_ALLOWED_AVATAR_EXTS:
+        return ensure_user_avatar_asset(username, user_id)
+
+    os.makedirs(USER_AVATAR_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+    filename = f"user_{user_id}_{timestamp}{ext or '.svg'}"
+    file_path = os.path.join(USER_AVATAR_DIR, filename)
+    uploaded_file.save(file_path)
+    return avatar_relative_path(filename)
+
+
 def initialize_database():
     ensure_parent_dir(DB_PATH)
 
@@ -240,13 +343,15 @@ def initialize_database():
         shutil.copy2(SEED_DB_PATH, DB_PATH)
 
     conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        avatar_path TEXT NOT NULL DEFAULT ''
     )
     """)
 
@@ -269,11 +374,66 @@ def initialize_database():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diary_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        diary_id INTEGER NOT NULL,
+        parent_id INTEGER,
+        author TEXT NOT NULL,
+        avatar_path TEXT NOT NULL DEFAULT '',
+        content TEXT NOT NULL,
+        like_count INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(diary_id) REFERENCES diaries(id) ON DELETE CASCADE,
+        FOREIGN KEY(parent_id) REFERENCES diary_comments(id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diary_comment_likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        comment_id INTEGER NOT NULL,
+        username TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        UNIQUE(comment_id, username),
+        FOREIGN KEY(comment_id) REFERENCES diary_comments(id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        item_type TEXT NOT NULL,
+        item_key TEXT NOT NULL,
+        title TEXT NOT NULL DEFAULT '',
+        subtitle TEXT NOT NULL DEFAULT '',
+        meta_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL,
+        UNIQUE(user_id, item_type, item_key),
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    """)
+
+    ensure_sqlite_column(cursor, "users", "avatar_path", "TEXT NOT NULL DEFAULT ''")
     ensure_sqlite_column(cursor, "diaries", "media_json", "TEXT NOT NULL DEFAULT '[]'")
     ensure_sqlite_column(cursor, "diaries", "compressed_content", "TEXT NOT NULL DEFAULT ''")
     ensure_sqlite_column(cursor, "diaries", "compression_algorithm", "TEXT NOT NULL DEFAULT 'plain'")
     ensure_sqlite_column(cursor, "diaries", "compression_original_length", "INTEGER NOT NULL DEFAULT 0")
     ensure_sqlite_column(cursor, "diaries", "compression_compressed_length", "INTEGER NOT NULL DEFAULT 0")
+    ensure_sqlite_column(cursor, "diary_comments", "avatar_path", "TEXT NOT NULL DEFAULT ''")
+    ensure_sqlite_column(cursor, "diary_comments", "like_count", "INTEGER NOT NULL DEFAULT 0")
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comments_diary_created ON diary_comments(diary_id, like_count DESC, created_at ASC, id ASC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comment_likes_comment_username ON diary_comment_likes(comment_id, username)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites_user_type_created ON user_favorites(user_id, item_type, created_at DESC)")
+
+    cursor.execute("SELECT id, username, avatar_path FROM users ORDER BY id ASC")
+    existing_users = cursor.fetchall()
+    for user in existing_users:
+        resolved_avatar = ensure_user_avatar_asset(user["username"], user["id"], user["avatar_path"])
+        if resolved_avatar != user["avatar_path"]:
+            cursor.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (resolved_avatar, user["id"]))
 
     cursor.execute("SELECT COUNT(*) FROM diaries")
     if cursor.fetchone()[0] == 0:
@@ -299,18 +459,34 @@ def initialize_database():
 initialize_database()
 
 
-def create_user(username, password):
+def update_user_avatar_path(user_id, avatar_path):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (avatar_path, user_id))
+    cursor.execute(
+        """
+        UPDATE diary_comments
+        SET avatar_path = ?
+        WHERE author = (SELECT username FROM users WHERE id = ?)
+        """,
+        (avatar_path, user_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def create_user(username, password, avatar_path=""):
     conn = get_db_connection()
     cursor = conn.cursor()
     hashed_password = generate_password_hash(password)
 
     try:
         cursor.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, hashed_password)
+            "INSERT INTO users (username, password, avatar_path) VALUES (?, ?, ?)",
+            (username, hashed_password, avatar_path or "")
         )
         conn.commit()
-        return True
+        return cursor.lastrowid
     except sqlite3.IntegrityError:
         return False
     finally:
@@ -324,6 +500,145 @@ def get_user_by_username(username):
     user = cursor.fetchone()
     conn.close()
     return user
+
+
+def get_user_by_id(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+
+def update_user_account(user_id, new_username="", current_password="", new_password=""):
+    user = get_user_by_id(user_id)
+    if user is None:
+        return False, "用户不存在"
+
+    new_username = (new_username or "").strip()
+    current_password = (current_password or "").strip()
+    new_password = (new_password or "").strip()
+    if not new_username:
+        return False, "用户名不能为空"
+    if new_username != user["username"] or new_password:
+        if not current_password or not check_password_hash(user["password"], current_password):
+            return False, "请先输入正确的当前密码"
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        old_username = user["username"]
+        password_hash = generate_password_hash(new_password) if new_password else user["password"]
+        cursor.execute(
+            "UPDATE users SET username = ?, password = ? WHERE id = ?",
+            (new_username, password_hash, user_id)
+        )
+        if new_username != old_username:
+            cursor.execute("UPDATE diaries SET author = ? WHERE author = ?", (new_username, old_username))
+            cursor.execute("UPDATE diary_comments SET author = ? WHERE author = ?", (new_username, old_username))
+            cursor.execute("UPDATE diary_comment_likes SET username = ? WHERE username = ?", (new_username, old_username))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        return False, "用户名已存在，请更换用户名"
+    finally:
+        conn.close()
+
+    if new_username != user["username"]:
+        invalidate_diary_index_cache()
+    return True, "账号信息已更新"
+
+
+def get_user_avatar_url(user_or_username):
+    if not user_or_username:
+        return ""
+    if isinstance(user_or_username, sqlite3.Row):
+        username = user_or_username["username"]
+        user_id = user_or_username["id"]
+        avatar_path = user_or_username["avatar_path"] if "avatar_path" in user_or_username.keys() else ""
+        return avatar_url_from_path(avatar_path, username, user_id)
+    if isinstance(user_or_username, dict):
+        username = user_or_username.get("username", "")
+        user_id = user_or_username.get("id")
+        avatar_path = user_or_username.get("avatar_path", "")
+        return avatar_url_from_path(avatar_path, username, user_id)
+    user = get_user_by_username(str(user_or_username))
+    if user is None:
+        return avatar_url_from_path("", str(user_or_username))
+    return get_user_avatar_url(user)
+
+
+def get_logged_in_user():
+    username = session.get("username")
+    if not username:
+        return None
+    user = get_user_by_username(username)
+    if user and (not user["avatar_path"] or not os.path.exists(os.path.join(APP_DIR, "static", user["avatar_path"]))):
+        resolved_avatar = ensure_user_avatar_asset(user["username"], user["id"], user["avatar_path"])
+        if resolved_avatar != user["avatar_path"]:
+            update_user_avatar_path(user["id"], resolved_avatar)
+            user = get_user_by_username(username)
+    return user
+
+
+def diary_comment_avatar_url(comment):
+    avatar_path = ""
+    if isinstance(comment, dict):
+        avatar_path = comment.get("resolved_avatar_path") or comment.get("avatar_path", "")
+    author = comment.get("author", "") if isinstance(comment, dict) else ""
+    return avatar_url_from_path(avatar_path, author, comment.get("author_user_id") if isinstance(comment, dict) else None)
+
+
+def build_diary_comment_tree(comment_rows):
+    comments = []
+    lookup = {}
+    for row in comment_rows:
+        comment = dict(row)
+        comment["avatar_url"] = diary_comment_avatar_url(comment)
+        comment["liked_by_current_user"] = bool(comment.get("liked_by_current_user", 0))
+        comment["reply_count"] = 0
+        comment["replies"] = []
+        comment["depth"] = 1
+        comment["parent_author"] = ""
+        lookup[comment["id"]] = comment
+        comments.append(comment)
+
+    roots = []
+    for comment in comments:
+        parent_id = comment.get("parent_id")
+        if parent_id and parent_id in lookup:
+            parent_comment = lookup[parent_id]
+            comment["depth"] = int(parent_comment.get("depth", 1)) + 1
+            comment["parent_author"] = parent_comment.get("author", "")
+            parent_comment["replies"].append(comment)
+        else:
+            roots.append(comment)
+
+    def comment_sort_key(item):
+        created_at = item.get("created_at", "")
+        return (-int(item.get("like_count", 0) or 0), created_at, item.get("id", 0))
+
+    def sort_comment_branch(items):
+        items.sort(key=comment_sort_key)
+        for item in items:
+            sort_comment_branch(item["replies"])
+            item["reply_count"] = len(item["replies"])
+        return items
+
+    return sort_comment_branch(roots), lookup
+
+
+def flatten_diary_comment_replies(replies):
+    flattened = []
+    for reply in replies:
+        display_reply = dict(reply)
+        depth = int(display_reply.get("depth", 2) or 2)
+        display_reply["display_depth"] = 2 if depth <= 2 else 3
+        display_reply["reply_to_author"] = display_reply.get("parent_author", "") if depth >= 3 else ""
+        flattened.append(display_reply)
+        flattened.extend(flatten_diary_comment_replies(reply.get("replies", [])))
+    return flattened
 
 
 def ensure_diaries_table():
@@ -431,13 +746,14 @@ def build_pagination(endpoint, page, total_pages, base_params, radius=2):
     window = build_page_window(page, total_pages, radius=radius)
 
     def page_url(target_page):
-        params = {
-            key: value
-            for key, value in dict(base_params).items()
-            if value not in ("", None)
-        }
-        params["page"] = target_page
-        return url_for(endpoint, **params)
+        params = []
+        for key, value in dict(base_params).items():
+            if isinstance(value, (list, tuple)):
+                params.extend((key, item) for item in value if item not in ("", None))
+            elif value not in ("", None):
+                params.append((key, value))
+        params.append(("page", target_page))
+        return url_for(endpoint) + "?" + urlencode(params)
 
     return {
         "page": page,
@@ -455,6 +771,22 @@ def build_pagination(endpoint, page, total_pages, base_params, radius=2):
             for target_page in window
         ],
     }
+
+
+def build_url_with_query(endpoint, params, anchor=None):
+    query_items = []
+    for key, value in dict(params or {}).items():
+        if isinstance(value, (list, tuple)):
+            query_items.extend((key, item) for item in value if item not in ("", None))
+        elif value not in ("", None, []):
+            query_items.append((key, value))
+
+    url = url_for(endpoint)
+    if query_items:
+        url += "?" + urlencode(query_items, doseq=True)
+    if anchor:
+        url += f"#{anchor}"
+    return url
 
 
 def diary_media_folder(diary_id):
@@ -1701,7 +2033,7 @@ def get_place_by_id(place_id):
             return place
     return None
 
-def get_food_by_key(food_key, place_id=""):
+def get_food_by_key(food_key, place_id="", origin_node=""):
     food_key = str(food_key or "").strip()
     if not food_key:
         return None
@@ -1709,11 +2041,19 @@ def get_food_by_key(food_key, place_id=""):
     if place_id in FOOD_CAMPUS_CONTEXTS:
         graph_place_id = FOOD_CAMPUS_CONTEXTS[place_id].get("graph_place_id", place_id)
         graph = load_route_graph(graph_place_id)
-        origin_node = get_food_origin_node(place_id)
+        effective_origin_node = origin_node if origin_node in graph.get("node_map", {}) else get_food_origin_node(place_id)
         for food in build_food_candidates_for_place(place_id):
             if food.get("food_key") == food_key:
-                enrich_food_distance(food, graph, origin_node)
-                food["recommend_score"] = calculate_food_recommend_score(food)
+                enrich_food_distance(food, graph, effective_origin_node)
+                breakdown = food_recommendation_breakdown(food)
+                food["recommend_score_detail"] = breakdown
+                food["recommend_score"] = breakdown["total"]
+                food["recommend_score_display"] = round(
+                    float(food.get("recommend_score_override"))
+                    if food.get("recommend_score_override") is not None
+                    else food["recommend_score"],
+                    2,
+                )
                 return food
     return None
 
@@ -1823,6 +2163,293 @@ def food_default_profile(category, name=""):
     return round(min(rating, 5.0), 1), int(popularity), round(avg_cost, 1)
 
 
+def load_food_media_payload():
+    if not os.path.exists(XMU_FOOD_MEDIA_FILE):
+        return {
+            "description": "厦门大学翔安校区美食系统本地媒体清单。",
+            "source_policy": "Local static paths only.",
+            "foods": {},
+        }
+    try:
+        with open(XMU_FOOD_MEDIA_FILE, "r", encoding="utf-8-sig") as f:
+            payload = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    foods_payload = payload.get("foods")
+    if not isinstance(foods_payload, dict):
+        payload["foods"] = {}
+    payload.setdefault("description", "厦门大学翔安校区美食系统本地媒体清单。")
+    payload.setdefault("source_policy", "Local static paths only.")
+    return payload
+
+
+def save_food_media_payload(payload):
+    ensure_parent_dir(XMU_FOOD_MEDIA_FILE)
+    with open(XMU_FOOD_MEDIA_FILE, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    FOOD_MEDIA_CACHE.update({"signature": None, "records": {}})
+    FOOD_CANDIDATES_CACHE.clear()
+
+
+def load_food_media_records():
+    signature = file_signature(XMU_FOOD_MEDIA_FILE)
+    if FOOD_MEDIA_CACHE.get("signature") == signature:
+        return FOOD_MEDIA_CACHE.get("records", {})
+
+    records = {}
+    if signature:
+        payload = load_food_media_payload()
+
+        raw_items = payload.get("foods", payload) if isinstance(payload, dict) else payload
+        if isinstance(raw_items, dict):
+            iterable = raw_items.items()
+        elif isinstance(raw_items, list):
+            iterable = ((item.get("food_key") or item.get("key"), item) for item in raw_items if isinstance(item, dict))
+        else:
+            iterable = []
+
+        for key, item in iterable:
+            if not isinstance(item, dict):
+                continue
+            normalized_key = str(key or item.get("food_key") or "").strip()
+            if not normalized_key:
+                continue
+            dishes = []
+            for dish in item.get("signature_dishes", [])[:3]:
+                if not isinstance(dish, dict):
+                    continue
+                dish_name = str(dish.get("name") or "").strip()
+                image = str(dish.get("image") or "").strip()
+                if not dish_name or not image:
+                    continue
+                dishes.append({
+                    "name": dish_name,
+                    "price": str(dish.get("price") or "").strip(),
+                    "image": image,
+                })
+            records[normalized_key] = {
+                "name": str(item.get("name") or "").strip(),
+                "cuisine": str(item.get("cuisine") or "").strip(),
+                "cover_image": str(item.get("cover_image") or "").strip(),
+                "detail_image": str(item.get("detail_image") or "").strip(),
+                "signature_dishes": dishes,
+                "recommend_score_override": item.get("recommend_score_override"),
+                "rating": item.get("rating"),
+                "popularity": item.get("popularity"),
+                "avg_cost": item.get("avg_cost"),
+                "display_description": str(item.get("display_description") or "").strip(),
+                "recommendation_note": str(item.get("recommendation_note") or "").strip(),
+            }
+
+    FOOD_MEDIA_CACHE.update({"signature": signature, "records": records})
+    return records
+
+
+def food_media_lookup_keys(food):
+    return [
+        str(food.get("food_key") or "").strip(),
+        str(food.get("id") or "").strip(),
+        str(food.get("name") or "").strip(),
+    ]
+
+
+def visible_food_tags(tags, category=""):
+    hidden = {
+        "餐饮",
+        "校园",
+        "手动采集",
+        "采集餐饮",
+        "手动采集点",
+        "模块三按道路图距离排序",
+        "超市",
+        "便利店",
+        "超市便利",
+    }
+    normalized_category = str(category or "").strip()
+    visible = []
+    seen = set()
+    for tag in normalize_tags(tags):
+        cleaned = tag.strip(" ·，,。；;")
+        if not cleaned or cleaned in hidden:
+            continue
+        if cleaned == normalized_category:
+            continue
+        if cleaned in seen:
+            continue
+        seen.add(cleaned)
+        visible.append(cleaned)
+    return visible
+
+
+def food_display_description(description, category="", source_kind=""):
+    text = re.sub(r"\s+", " ", str(description or "").strip())
+    generic_patterns = (
+        "餐饮，手动采集，模块三按道路图距离排序。",
+        "餐饮，手动采集，按道路图距离排序。",
+        "餐饮 ·",
+    )
+    if not text or any(text.startswith(pattern) for pattern in generic_patterns):
+        category_text = str(category or "美食").strip()
+        if source_kind == "graph_node":
+            return f"{category_text}窗口，来自路线图数据补位，已接入道路距离推荐。"
+        return f"{category_text}店铺，已接入路线图距离排序。"
+    return text.replace("模块三", "").replace("餐饮，", "").strip(" ，,")
+
+
+def default_signature_dishes(category, avg_cost=22):
+    dish_map = {
+        "食堂": ["招牌套餐", "热卤饭", "鲜蔬小炒"],
+        "快餐": ["脆皮汉堡", "香辣鸡块", "经典薯条"],
+        "奶茶": ["招牌奶茶", "芝士果茶", "珍珠鲜奶"],
+        "咖啡": ["拿铁咖啡", "冷萃咖啡", "可颂套餐"],
+        "火锅": ["鲜切牛肉", "手打虾滑", "时蔬拼盘"],
+        "烧烤": ["招牌烤串", "烤肉拼盘", "烤蔬菜"],
+        "烤鱼": ["招牌烤鱼", "蒜香鱼片", "香辣配菜"],
+        "粤菜": ["潮汕鸡煲", "石磨肠粉", "港式点心"],
+        "湘菜": ["小炒黄牛肉", "剁椒鱼片", "农家小炒肉"],
+        "川菜": ["香锅冒菜", "麻辣小碗", "口水鸡"],
+        "东北菜": ["东北盒饭", "手工饺子", "锅包肉"],
+        "印度菜": ["咖喱鸡饭", "香料烤饼", "黄油咖喱"],
+        "自助": ["自助披萨", "烤肉拼盘", "甜品杯"],
+        "西餐": ["意面套餐", "薄底披萨", "煎烤鸡排"],
+        "面食": ["招牌汤面", "拌面小碗", "鲜香粉面"],
+        "粉面": ["招牌粉面", "酸辣粉", "热汤米线"],
+        "小吃": ["炸串拼盘", "特色小吃", "风味蘸料"],
+        "超市便利": ["轻食饭团", "便当套餐", "冰饮零食"],
+        "饮品": ["冰爽果饮", "气泡水", "鲜榨果汁"],
+    }
+    names = dish_map.get(category, ["招牌主食", "人气小吃", "清爽饮品"])
+    base = max(8, int(float(avg_cost or 22) * 0.62))
+    return [
+        {"name": name, "price": f"￥{base + index * 4}", "image": ""}
+        for index, name in enumerate(names[:3])
+    ]
+
+
+def default_food_recommendation_note():
+    return "系统会综合口碑、人气、人均消费和路线可达性给出推荐；选择当前位置后，会优先参考道路距离。"
+
+
+def public_food_recommendation_note(note):
+    note = str(note or "").strip()
+    if not note:
+        return default_food_recommendation_note()
+    internal_words = ("评分*18", "热度*0.35", "来源加分", "校园加分", "模糊查找与排序算法")
+    if any(word in note for word in internal_words):
+        return default_food_recommendation_note()
+    return note
+
+
+def coerce_food_number(value, fallback, number_type=float, min_value=None, max_value=None):
+    try:
+        result = number_type(value)
+    except (TypeError, ValueError):
+        return fallback
+    if min_value is not None:
+        result = max(min_value, result)
+    if max_value is not None:
+        result = min(max_value, result)
+    return result
+
+
+def optional_food_float(value, min_value=None, max_value=None):
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        result = float(text)
+    except (TypeError, ValueError):
+        return None
+    if min_value is not None:
+        result = max(min_value, result)
+    if max_value is not None:
+        result = min(max_value, result)
+    return result
+
+
+def food_recommendation_breakdown(food, keyword_terms=None):
+    keyword_terms = keyword_terms or []
+    name_text = normalize_search_text(food.get("name", ""))
+    blob = food_search_blob(food)
+    matched_terms = [term for term in keyword_terms if term and term in blob]
+    matched_count = len(matched_terms)
+    keyword_bonus = matched_count * 12
+    name_bonus = 8 if keyword_terms and name_text and any(term in name_text for term in keyword_terms) else 0
+    rating_score = round(float(food.get("rating", 0)) * 18, 2)
+    popularity_score = round(float(food.get("popularity", 0)) * 0.35, 2)
+    cost_score = round(max(0, 34 - float(food.get("avg_cost", 0)) * 0.6), 2)
+    distance = food.get("distance_m")
+    distance_score = round(max(0, 40 - float(distance) / 30), 2) if distance is not None else 0.0
+    source_bonus = 8.0
+    campus_bonus = 10.0 if food.get("graph_place_id") in (FOOD_DEFAULT_PLACE_ID, "xmu_xiang_an") else 0.0
+    total = round(
+        rating_score
+        + popularity_score
+        + cost_score
+        + distance_score
+        + keyword_bonus
+        + name_bonus
+        + source_bonus
+        + campus_bonus,
+        2,
+    )
+    return {
+        "total": total,
+        "rating_score": rating_score,
+        "popularity_score": popularity_score,
+        "cost_score": cost_score,
+        "distance_score": distance_score,
+        "keyword_bonus": keyword_bonus,
+        "name_bonus": name_bonus,
+        "source_bonus": source_bonus,
+        "campus_bonus": campus_bonus,
+        "matched_terms": matched_terms,
+        "formula": "评分*18 + 热度*0.35 + 人均惩罚 + 距离加分 + 关键词加分 + 名称加分 + 来源/校园加分",
+    }
+
+
+def apply_food_media(food):
+    media_records = load_food_media_records()
+    media = None
+    for key in food_media_lookup_keys(food):
+        if key and key in media_records:
+            media = media_records[key]
+            break
+
+    food["visible_tags"] = visible_food_tags(food.get("tags_list", []), food.get("category", ""))
+    if media:
+        food["recommend_score_override"] = optional_food_float(media.get("recommend_score_override"))
+        food["rating"] = round(coerce_food_number(media.get("rating"), food.get("rating", 4.0), float, 0, 5), 1)
+        food["popularity"] = int(coerce_food_number(media.get("popularity"), food.get("popularity", 60), int, 0, 9999))
+        food["avg_cost"] = round(coerce_food_number(media.get("avg_cost"), food.get("avg_cost", 22), float, 0, 9999), 1)
+        if media.get("display_description"):
+            food["display_description"] = media["display_description"]
+        food["recommendation_note"] = public_food_recommendation_note(media.get("recommendation_note"))
+        food["cover_image"] = media.get("cover_image") or "food_media/shops/food-cover-placeholder.jpg"
+        food["detail_image"] = media.get("detail_image") or food["cover_image"]
+        dishes = [dish.copy() for dish in media.get("signature_dishes", []) if dish.get("image")]
+    else:
+        food["recommend_score_override"] = None
+        food["recommendation_note"] = default_food_recommendation_note()
+        food["cover_image"] = "food_media/shops/food-cover-placeholder.jpg"
+        food["detail_image"] = food["cover_image"]
+        dishes = []
+
+    if len(dishes) < 3:
+        fallback_dishes = default_signature_dishes(food.get("category", ""), food.get("avg_cost", 22))
+        for index in range(len(dishes), 3):
+            dish = fallback_dishes[index]
+            dish["image"] = "food_media/dishes/food-dish-placeholder.jpg"
+            dishes.append(dish)
+    food["signature_dishes"] = dishes[:3]
+    return food
+
+
 def food_search_blob(food):
     tags = food.get("tags_list", [])
     if isinstance(tags, str):
@@ -1876,6 +2503,7 @@ def make_food_candidate(raw_item, place_id, place_name, source_kind, graph=None)
 
     description = str(raw_item.get("description") or "").strip()
     explicit_cuisine = str(raw_item.get("cuisine") or raw_item.get("food_category") or "").strip()
+    has_explicit_cuisine = bool(explicit_cuisine and explicit_cuisine != "其他餐饮")
     if explicit_cuisine and explicit_cuisine != "其他餐饮":
         category = explicit_cuisine
     else:
@@ -1911,6 +2539,7 @@ def make_food_candidate(raw_item, place_id, place_name, source_kind, graph=None)
         "place_name": place_name,
         "category": category,
         "cuisine": category,
+        "has_explicit_cuisine": has_explicit_cuisine,
         "facility_type": raw_item.get("type") or raw_item.get("kind") or "",
         "rating": round(float(rating), 1),
         "popularity": int(popularity),
@@ -1930,6 +2559,8 @@ def make_food_candidate(raw_item, place_id, place_name, source_kind, graph=None)
     }
 
     candidate["description"] = candidate["description"] or "来自翔安校区图数据补位。"
+    candidate["display_description"] = food_display_description(candidate["description"], category, source_kind)
+    apply_food_media(candidate)
     return candidate
 
 
@@ -1942,7 +2573,7 @@ def build_food_candidates_for_place(place_id):
     graph = load_route_graph(graph_place_id)
     source_signature = (
         file_signature(get_route_graph_path(graph_place_id)),
-        files_signature([FACILITIES_FILE, XMU_COLLECTOR_FACILITIES_FILE, XMU_XIANG_AN_GENERATED_FACILITIES_FILE]),
+        files_signature([FACILITIES_FILE, XMU_COLLECTOR_FACILITIES_FILE, XMU_XIANG_AN_GENERATED_FACILITIES_FILE, XMU_FOOD_MEDIA_FILE]),
     )
     cached = FOOD_CANDIDATES_CACHE.get(place_id)
     if cached and cached.get("signature") == source_signature:
@@ -1962,6 +2593,10 @@ def build_food_candidates_for_place(place_id):
             return
         existing_priority = existing.get("source_priority", -1)
         if priority > existing_priority:
+            candidate["source_priority"] = priority
+            candidate_map[key] = candidate
+            return
+        if priority == existing_priority and candidate.get("has_explicit_cuisine") and not existing.get("has_explicit_cuisine"):
             candidate["source_priority"] = priority
             candidate_map[key] = candidate
             return
@@ -2052,22 +2687,7 @@ def enrich_food_distance(food, graph, origin_node, route_tree=None):
 
 
 def calculate_food_recommend_score(food, keyword_terms=None):
-    keyword_terms = keyword_terms or []
-    name_text = normalize_search_text(food.get("name", ""))
-    blob = food_search_blob(food)
-    matched_terms = sum(1 for term in keyword_terms if term and term in blob)
-    keyword_bonus = matched_terms * 12
-    if keyword_terms and name_text and any(term in name_text for term in keyword_terms):
-        keyword_bonus += 8
-
-    rating_score = float(food.get("rating", 0)) * 18
-    popularity_score = float(food.get("popularity", 0)) * 0.35
-    cost_score = max(0, 34 - float(food.get("avg_cost", 0)) * 0.6)
-    distance = food.get("distance_m")
-    distance_score = max(0, 40 - float(distance) / 30) if distance is not None else 0
-    source_bonus = 8
-    campus_bonus = 10 if food.get("graph_place_id") in (FOOD_DEFAULT_PLACE_ID, "xmu_xiang_an") else 0
-    return round(rating_score + popularity_score + cost_score + distance_score + keyword_bonus + source_bonus + campus_bonus, 2)
+    return food_recommendation_breakdown(food, keyword_terms=keyword_terms)["total"]
 
 
 def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by="default", limit=None, graph=None, origin_node=""):
@@ -2100,7 +2720,15 @@ def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by=
             enrich_food_distance(food_copy, graph, origin_node, route_tree=route_tree)
         else:
             food_copy["distance_m"] = food_copy.get("distance_m")
-        food_copy["recommend_score"] = calculate_food_recommend_score(food_copy, keyword_terms=keyword_terms)
+        breakdown = food_recommendation_breakdown(food_copy, keyword_terms=keyword_terms)
+        food_copy["recommend_score_detail"] = breakdown
+        food_copy["recommend_score"] = breakdown["total"]
+        food_copy["recommend_score_display"] = round(
+            float(food_copy.get("recommend_score_override"))
+            if food_copy.get("recommend_score_override") is not None
+            else food_copy["recommend_score"],
+            2,
+        )
         filtered.append(food_copy)
 
     if sort_by == "distance_asc":
@@ -2121,11 +2749,21 @@ def rank_food_candidates(foods, keyword="", category="", place_name="", sort_by=
     else:
         ranked = heapq.nlargest(limit, filtered, key=lambda item: (item.get("recommend_score", 0), item.get("rating", 0), item.get("popularity", 0))) if limit else sorted(filtered, key=lambda item: (item.get("recommend_score", 0), item.get("rating", 0), item.get("popularity", 0)), reverse=True)
 
+    algorithm_parts = []
+    if keyword_terms:
+        algorithm_parts.append("模糊查找")
+    if limit:
+        algorithm_parts.append("Top-K 堆排序")
+    else:
+        algorithm_parts.append("完整排序")
+    if graph and origin_node:
+        algorithm_parts.append("Dijkstra 最短路树")
+
     stats = {
         "scanned_count": scanned_count,
         "candidate_count": candidate_count,
         "returned_count": len(ranked),
-        "algorithm": "美食 Top-K（堆）" if limit else "美食排序",
+        "algorithm": " + ".join(algorithm_parts),
     }
     return ranked, stats
 
@@ -2504,6 +3142,298 @@ def route_from_shortest_tree(graph, route_tree, end):
     }
 
 
+def build_indoor_graph(building_id="demo_building"):
+    building_id_lower = str(building_id).lower()
+
+    # Classify building type to configure custom floor levels and room names
+    if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
+        b_type = "library"
+        floors_list = (1, 2, 3, 4)
+        floors_display = [4, 3, 2, 1]
+        room_names = {
+            101: "101 电子阅览室", 102: "102 报刊阅览室", 103: "103 服务大厅", 104: "104 自习室",
+            201: "201 社科图书借阅区", 202: "202 科技图书借阅区", 203: "203 研讨室A", 204: "204 研讨室B",
+            301: "301 特藏文献室", 302: "302 珍本阅览室", 303: "303 学术交流厅", 304: "304 休闲阅读区",
+            401: "401 古籍保护中心", 402: "402 专家研究室", 403: "403 创意空间", 404: "404 楼顶花园中心"
+        }
+    elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
+        b_type = "museum"
+        floors_list = (1, 2)
+        floors_display = [2, 1]
+        room_names = {
+            101: "101 校史展厅", 102: "102 科技探索厅", 103: "103 珍贵文物馆", 104: "104 文创体验区",
+            201: "201 艺术精品馆", 202: "202 自然标本厅", 203: "203 多媒体报告厅", 204: "204 互动体验厅"
+        }
+    else:
+        b_type = "teaching"
+        floors_list = (1, 2, 3)
+        floors_display = [3, 2, 1]
+        room_names = {
+            101: "101教室", 102: "102教室", 103: "103教室", 104: "104教室",
+            201: "201教室", 202: "202教室", 203: "203教室", 204: "204教室",
+            301: "301教室", 302: "302教室", 303: "303教室", 304: "304教室"
+        }
+
+    nodes = []
+    edges = []
+
+    def add_node(node_id, name, floor, x, y, node_type, **extra):
+        nodes.append({
+            "id": node_id,
+            "name": name,
+            "floor": floor,
+            "x": x,
+            "y": y,
+            "type": node_type,
+            **extra,
+        })
+
+    def add_edge(from_id, to_id, distance, mode="walk"):
+        edges.append({
+            "from": from_id,
+            "to": to_id,
+            "distance": distance,
+            "mode": mode,
+        })
+
+    corridor_points = [
+        ("nw", "西北转角", 250, 160),
+        ("north_w", "北走廊西段", 360, 160),
+        ("north_e", "北走廊东段", 540, 160),
+        ("ne", "东北转角", 650, 160),
+        ("east_n", "东走廊北段", 650, 270),
+        ("east_s", "东走廊南段", 650, 390),
+        ("se", "东南转角", 650, 480),
+        ("south_e", "南走廊东段", 540, 480),
+        ("south_w", "南走廊西段", 360, 480),
+        ("sw", "西南转角", 250, 480),
+        ("west_s", "西走廊南段", 250, 390),
+        ("west_n", "西走廊北段", 250, 270),
+    ]
+    room_layout = [
+        (1, "north", 360, 84, 128, 74, "north_w"),
+        (2, "north", 540, 84, 128, 74, "north_e"),
+        (3, "east", 748, 320, 126, 116, "east_s"),
+        (4, "south", 540, 556, 128, 74, "south_e"),
+        (5, "west", 152, 320, 126, 116, "west_s"),
+        (6, "south", 360, 556, 128, 74, "south_w"),
+    ]
+
+    def corridor_distance(a_id, b_id):
+        a = next(node for node in nodes if node["id"] == a_id)
+        b = next(node for node in nodes if node["id"] == b_id)
+        return round(math.hypot(a["x"] - b["x"], a["y"] - b["y"]), 1)
+
+    for floor in floors_list:
+        suffix = f"{floor}f"
+        for key, name, x, y in corridor_points:
+            add_node(f"hall_{key}_{suffix}", f"{floor}层{name}", floor, x, y, "hall")
+        add_node(f"elevator_a_{suffix}", f"{floor}层西电梯", floor, 206, 320, "elevator", w=58, h=74)
+        add_node(f"elevator_b_{suffix}", f"{floor}层东电梯", floor, 694, 320, "elevator", w=58, h=74)
+        add_node(f"stairs_a_{suffix}", f"{floor}层东北步梯", floor, 720, 152, "stairs", w=66, h=86)
+        add_node(f"stairs_b_{suffix}", f"{floor}层西南步梯", floor, 180, 488, "stairs", w=66, h=86)
+        if floor == 1:
+            add_node("gate_1f", "一层大厅入口", floor, 450, 604, "gate", w=110, h=44)
+            add_edge("gate_1f", "hall_south_w_1f", 54)
+
+        for room_index, side, x, y, width, height, anchor_key in room_layout:
+            room_number = floor * 100 + room_index
+            r_name = room_names.get(room_number, f"{room_number}房间")
+            add_node(
+                f"room_{room_number}",
+                r_name,
+                floor,
+                x,
+                y,
+                "room",
+                side=side,
+                w=width,
+                h=height,
+                door_anchor=f"hall_{anchor_key}_{suffix}",
+            )
+
+        corridor = [f"hall_{key}_{suffix}" for key, _name, _x, _y in corridor_points]
+        for left, right in zip(corridor, corridor[1:]):
+            add_edge(left, right, corridor_distance(left, right))
+        add_edge(corridor[-1], corridor[0], corridor_distance(corridor[-1], corridor[0]))
+
+        add_edge(f"elevator_a_{suffix}", f"hall_west_s_{suffix}", 24)
+        add_edge(f"elevator_b_{suffix}", f"hall_east_s_{suffix}", 24)
+        add_edge(f"stairs_a_{suffix}", f"hall_ne_{suffix}", 18)
+        add_edge(f"stairs_b_{suffix}", f"hall_sw_{suffix}", 18)
+
+        for room_index, _side, _x, _y, _width, _height, anchor_key in room_layout:
+            add_edge(f"room_{floor * 100 + room_index}", f"hall_{anchor_key}_{suffix}", 18)
+
+    for floor in floors_list[:-1]:
+        next_floor = floor + 1
+        add_edge(f"elevator_a_{floor}f", f"elevator_a_{next_floor}f", 16, "elevator")
+        add_edge(f"elevator_b_{floor}f", f"elevator_b_{next_floor}f", 16, "elevator")
+        add_edge(f"stairs_a_{floor}f", f"stairs_a_{next_floor}f", 24, "stairs")
+        add_edge(f"stairs_b_{floor}f", f"stairs_b_{next_floor}f", 24, "stairs")
+
+    node_map = {node["id"]: node for node in nodes}
+    adjacency = {node["id"]: [] for node in nodes}
+    for edge in edges:
+        if edge["from"] not in adjacency or edge["to"] not in adjacency:
+            continue
+        adjacency[edge["from"]].append({**edge, "neighbor": edge["to"]})
+        adjacency[edge["to"]].append({
+            **edge,
+            "from": edge["to"],
+            "to": edge["from"],
+            "neighbor": edge["from"],
+        })
+    return {
+        "nodes": nodes,
+        "edges": edges,
+        "node_map": node_map,
+        "adjacency": adjacency,
+        "floors": floors_display,
+    }
+
+
+def indoor_edge_weight(edge, vertical_mode="auto"):
+    mode = edge.get("mode", "walk")
+    if vertical_mode == "elevator" and mode == "stairs":
+        return None
+    if vertical_mode == "stairs" and mode == "elevator":
+        return None
+    return float(edge.get("distance", 0))
+
+
+def indoor_shortest_path(graph, start, end, vertical_mode="auto"):
+    if start not in graph["node_map"] or end not in graph["node_map"]:
+        return None
+
+    distances = {node_id: float("inf") for node_id in graph["node_map"]}
+    previous = {}
+    distances[start] = 0
+    heap = [(0, start)]
+
+    while heap:
+        current_distance, current = heapq.heappop(heap)
+        if current == end:
+            break
+        if current_distance > distances[current]:
+            continue
+        for edge in graph["adjacency"].get(current, []):
+            weight = indoor_edge_weight(edge, vertical_mode=vertical_mode)
+            if weight is None:
+                continue
+            neighbor = edge["neighbor"]
+            new_distance = current_distance + weight
+            if new_distance < distances[neighbor]:
+                distances[neighbor] = new_distance
+                previous[neighbor] = (current, edge, weight)
+                heapq.heappush(heap, (new_distance, neighbor))
+
+    if distances[end] == float("inf"):
+        return None
+
+    path_ids = [end]
+    edges = []
+    cursor = end
+    while cursor != start:
+        previous_node, edge, weight = previous[cursor]
+        edges.append({**edge, "weight": weight})
+        cursor = previous_node
+        path_ids.append(cursor)
+    path_ids.reverse()
+    edges.reverse()
+    return {
+        "path_ids": path_ids,
+        "path_nodes": [graph["node_map"][node_id] for node_id in path_ids],
+        "path_names": [graph["node_map"][node_id]["name"] for node_id in path_ids],
+        "edges": edges,
+        "total": distances[end],
+    }
+
+
+def indoor_route_steps(result, graph):
+    if not result:
+        return []
+    steps = []
+    current_nodes = []
+    current_mode = "walk"
+    for index, node_id in enumerate(result["path_ids"]):
+        node = graph["node_map"][node_id]
+        if index == 0:
+            current_nodes = [node]
+            continue
+        edge = result["edges"][index - 1]
+        edge_mode = edge.get("mode", "walk")
+        if edge_mode != current_mode and current_nodes:
+            steps.append({
+                "mode": current_mode,
+                "floor": current_nodes[0]["floor"],
+                "text": " → ".join(item["name"] for item in current_nodes),
+            })
+            current_nodes = [current_nodes[-1]]
+        current_mode = edge_mode
+        current_nodes.append(node)
+    if current_nodes:
+        steps.append({
+            "mode": current_mode,
+            "floor": current_nodes[0]["floor"],
+            "text": " → ".join(item["name"] for item in current_nodes),
+        })
+    for step in steps:
+        if step["mode"] == "elevator":
+            step["label"] = "乘坐电梯"
+        elif step["mode"] == "stairs":
+            step["label"] = "步梯换层"
+        else:
+            step["label"] = f"{step['floor']}层步行"
+    return steps
+
+
+def prepare_indoor_floors(graph, result):
+    path_ids = result["path_ids"] if result else []
+    path_id_set = set(path_ids)
+    edge_pairs = set()
+    if result:
+        for edge in result.get("edges", []):
+            edge_pairs.add(frozenset((edge["from"], edge["to"])))
+
+    floors = []
+    for floor in graph["floors"]:
+        floor_nodes = [node for node in graph["nodes"] if node["floor"] == floor]
+        floor_edges = []
+        for edge in graph["edges"]:
+            from_node = graph["node_map"][edge["from"]]
+            to_node = graph["node_map"][edge["to"]]
+            if from_node["floor"] != floor or to_node["floor"] != floor:
+                continue
+            floor_edges.append({
+                **edge,
+                "x1": from_node["x"],
+                "y1": from_node["y"],
+                "x2": to_node["x"],
+                "y2": to_node["y"],
+                "is_path": frozenset((edge["from"], edge["to"])) in edge_pairs,
+            })
+        floors.append({
+            "number": floor,
+            "nodes": floor_nodes,
+            "edges": floor_edges,
+            "path_nodes": [graph["node_map"][node_id] for node_id in path_ids if graph["node_map"][node_id]["floor"] == floor],
+            "active": any(node["floor"] == floor for node in (graph["node_map"][node_id] for node_id in path_ids)),
+        })
+    return floors
+
+
+def indoor_node_options(graph):
+    return [
+        node for node in graph["nodes"]
+        if node["type"] in {"gate", "room", "elevator", "stairs"}
+    ]
+
+
+def is_indoor_building_node(node):
+    return str((node or {}).get("kind", "")).strip() in INDOOR_BUILDING_TYPES
+
+
 def plan_multi_target_route(graph, start, targets, strategy="distance", transport="walk", return_to_start=False, final_target=None):
     final_target = final_target if final_target and final_target != start and final_target in graph["node_map"] else None
     unique_targets = []
@@ -2680,43 +3610,57 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword="", max_
     return sorted(result, key=lambda item: item["distance"])
 
 
-def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", city="", sort_by="default"):
-    result = places
+def parse_place_tag_query(tag_keyword):
+    return [
+        item.strip()
+        for item in re.split(r"[;；,，\s]+", tag_keyword or "")
+        if item.strip()
+    ]
 
+
+def place_matches_filters(place, keyword="", tag_keyword="", place_type="", city=""):
     if keyword:
-        keyword_lower = keyword.lower()
-        result = [
-            place for place in result
-            if keyword_lower in (
-                place.get("name", "")
-                + place.get("city", "")
-                + place.get("tags", "")
-                + place.get("description", "")
-            ).lower()
-        ]
+        keyword_terms = split_search_terms(keyword) or [normalize_search_text(keyword)]
+        place_blob = place_search_blob(place)
+        if not all(term in place_blob for term in keyword_terms if term):
+            return False
 
     if tag_keyword:
-        query_tags = [
-            item.strip().lower()
-            for item in tag_keyword.replace("；", ";").replace("，", ";").replace(",", ";").split(";")
-            if item.strip()
-        ]
-        result = [
-            place for place in result
-            if all(tag in place.get("tags", "").lower() for tag in query_tags)
-        ]
+        query_tags = [normalize_search_text(item) for item in parse_place_tag_query(tag_keyword)]
+        place_tags = normalize_search_text(place.get("tags", ""))
+        if not all(tag in place_tags for tag in query_tags if tag):
+            return False
 
-    if place_type:
-        result = [
-            place for place in result
-            if place["type"] == place_type
-        ]
+    if place_type and place.get("type") != place_type:
+        return False
 
-    if city:
-        result = [
-            place for place in result
-            if place["city"] == city
-        ]
+    if city and place.get("city") != city:
+        return False
+
+    return True
+
+
+def filter_place_candidates(places, keyword="", tag_keyword="", place_type="", city=""):
+    return [
+        place for place in places
+        if place_matches_filters(
+            place,
+            keyword=keyword,
+            tag_keyword=tag_keyword,
+            place_type=place_type,
+            city=city,
+        )
+    ]
+
+
+def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", city="", sort_by="default"):
+    result = filter_place_candidates(
+        places,
+        keyword=keyword,
+        tag_keyword=tag_keyword,
+        place_type=place_type,
+        city=city,
+    )
 
     if sort_by == "rating_desc":
         result = sorted(result, key=lambda x: x["rating"], reverse=True)
@@ -2727,7 +3671,7 @@ def filter_and_sort_places(places, keyword="", tag_keyword="", place_type="", ci
     elif sort_by == "popularity_asc":
         result = sorted(result, key=lambda x: x["popularity"])
     elif sort_by == "recommend_score_desc":
-        result = sorted(result, key=lambda x: x.get("recommend_score", 0), reverse=True)
+        result = sorted(result, key=lambda x: x.get("recommend_score_display", x.get("recommend_score", 0)), reverse=True)
 
     return result
 
@@ -2930,7 +3874,7 @@ def calculate_personalized_score(place, preferred_tags):
     return score
 
 
-def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", city=""):
+def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", city="", keyword="", tag_keyword=""):
     if preferred_tags is None:
         preferred_tags = []
 
@@ -2940,9 +3884,13 @@ def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", 
 
     for index, place in enumerate(places):
         scanned_count += 1
-        if place_type and place.get("type") != place_type:
-            continue
-        if city and place.get("city") != city:
+        if not place_matches_filters(
+            place,
+            keyword=keyword,
+            tag_keyword=tag_keyword,
+            place_type=place_type,
+            city=city,
+        ):
             continue
 
         candidate_count += 1
@@ -2961,7 +3909,7 @@ def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", 
         "scanned_count": scanned_count,
         "candidate_count": candidate_count,
         "returned_count": len(result),
-        "algorithm": "小根堆 Top-K",
+        "algorithm": "模糊查找 + 小根堆 Top-K",
     }
     return result, stats
 
@@ -2994,8 +3942,11 @@ def attach_diary_stats(row):
     diary["video_count"] = sum(1 for item in diary["media_items"] if item.get("kind") == "video")
     diary["has_media"] = diary["media_count"] > 0
     image_items = [item for item in diary["media_items"] if item.get("kind") == "image"]
+    video_items = [item for item in diary["media_items"] if item.get("kind") == "video"]
+    other_items = [item for item in diary["media_items"] if item.get("kind") not in {"image", "video"}]
     diary["cover_media"] = image_items[0] if image_items else (diary["media_items"][0] if diary["media_items"] else None)
-    diary["gallery_items"] = diary["media_items"][:6]
+    diary["gallery_items"] = (image_items + video_items + other_items)[:12]
+    diary["cover_summary"] = diary["content_preview"]
     diary["compression"] = diary_compression_summary(diary)
     return diary
 
@@ -3012,6 +3963,43 @@ def load_diaries(title_query="", search_mode="exact", keyword="", destination=""
     diaries = sort_diaries(diaries, sort_by)
 
     return diaries
+
+
+def get_diary_search_results(query="", index_cache=None):
+    diaries = load_diaries(sort_by="hot_rating_desc")
+    normalized_query = normalize_search_text(query)
+    if not normalized_query:
+        return diaries
+
+    index_cache = index_cache or get_diary_index_cache()
+    query_terms = split_search_terms(query)
+    ranked = []
+    for diary in diaries:
+        combined_text = " ".join([diary["title"], diary["destination"], diary["content"], diary["author"]])
+        normalized_text = normalize_search_text(combined_text)
+        score = 0
+        if normalize_search_text(diary["title"]) == normalized_query:
+            score += 160
+        if normalized_query in normalize_search_text(diary["title"]):
+            score += 120
+        if normalized_query in normalized_text:
+            score += 80
+        if query_terms:
+            term_hits = sum(1 for term in query_terms if term in normalized_text)
+            score += term_hits * 22
+        if diary.get("avg_rating", 0):
+            score += diary["avg_rating"] * 8
+        if diary.get("views", 0):
+            score += min(diary["views"], 4000) / 80
+        if diary.get("author", "") and normalized_query in normalize_search_text(diary["author"]):
+            score += 25
+        if diary.get("destination", "") and normalized_query in normalize_search_text(diary["destination"]):
+            score += 35
+        if score > 0:
+            ranked.append((score, diary))
+
+    ranked.sort(key=lambda item: (-item[0], -item[1].get("avg_rating", 0), -item[1].get("views", 0), item[1]["id"]))
+    return [diary for _score, diary in ranked]
 
 
 def create_diary(title, destination, content, author, compression_algorithm="huffman", media_items=None):
@@ -3106,6 +4094,273 @@ def rate_diary(diary_id, rating):
     invalidate_diary_index_cache()
 
 
+def create_diary_comment(diary_id, author, content, parent_id=None):
+    ensure_diaries_table()
+    content = (content or "").strip()
+    if not content:
+        return None
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    parent_comment_id = None
+    if parent_id:
+        cursor.execute("SELECT id FROM diary_comments WHERE id = ? AND diary_id = ?", (parent_id, diary_id))
+        parent_row = cursor.fetchone()
+        if parent_row:
+            parent_comment_id = int(parent_row["id"])
+    user = get_user_by_username(author)
+    avatar_path = ensure_user_avatar_asset(user["username"], user["id"], user["avatar_path"]) if user else ""
+    cursor.execute(
+        """
+        INSERT INTO diary_comments (diary_id, parent_id, author, avatar_path, content, like_count, created_at)
+        VALUES (?, ?, ?, ?, ?, 0, ?)
+        """,
+        (
+            diary_id,
+            parent_comment_id,
+            author,
+            avatar_path,
+            content,
+            datetime.now().strftime("%Y-%m-%d %H:%M"),
+        )
+    )
+    comment_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return comment_id
+
+
+def load_diary_comments(diary_id, username=None):
+    ensure_diaries_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if username:
+        cursor.execute(
+            """
+            SELECT
+                diary_comments.*,
+                users.id AS author_user_id,
+                COALESCE(NULLIF(users.avatar_path, ''), diary_comments.avatar_path) AS resolved_avatar_path,
+                EXISTS(
+                    SELECT 1
+                    FROM diary_comment_likes
+                    WHERE diary_comment_likes.comment_id = diary_comments.id
+                      AND diary_comment_likes.username = ?
+                ) AS liked_by_current_user
+            FROM diary_comments
+            LEFT JOIN users ON users.username = diary_comments.author
+            WHERE diary_id = ?
+            ORDER BY like_count DESC, created_at ASC, id ASC
+            """,
+            (username, diary_id)
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT
+                diary_comments.*,
+                users.id AS author_user_id,
+                COALESCE(NULLIF(users.avatar_path, ''), diary_comments.avatar_path) AS resolved_avatar_path,
+                0 AS liked_by_current_user
+            FROM diary_comments
+            LEFT JOIN users ON users.username = diary_comments.author
+            WHERE diary_id = ?
+            ORDER BY like_count DESC, created_at ASC, id ASC
+            """,
+            (diary_id,)
+        )
+    rows = cursor.fetchall()
+    conn.close()
+    comment_threads, lookup = build_diary_comment_tree(rows)
+    total_count = len(rows)
+    return {
+        "threads": comment_threads,
+        "total_count": total_count,
+        "lookup": lookup,
+    }
+
+
+def toggle_diary_comment_like(comment_id, username):
+    ensure_diaries_table()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id FROM diary_comment_likes WHERE comment_id = ? AND username = ?",
+        (comment_id, username)
+    )
+    existing_like = cursor.fetchone()
+    liked = False
+    if existing_like:
+        cursor.execute("DELETE FROM diary_comment_likes WHERE comment_id = ? AND username = ?", (comment_id, username))
+        cursor.execute(
+            """
+            UPDATE diary_comments
+            SET like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END
+            WHERE id = ?
+            """,
+            (comment_id,)
+        )
+    else:
+        cursor.execute(
+            "INSERT OR IGNORE INTO diary_comment_likes (comment_id, username, created_at) VALUES (?, ?, ?)",
+            (comment_id, username, datetime.now().strftime("%Y-%m-%d %H:%M"))
+        )
+        if cursor.rowcount:
+            liked = True
+            cursor.execute("UPDATE diary_comments SET like_count = like_count + 1 WHERE id = ?", (comment_id,))
+    cursor.execute("SELECT like_count FROM diary_comments WHERE id = ?", (comment_id,))
+    like_count = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return liked, (like_count["like_count"] if like_count else 0)
+
+
+def favorite_key(value):
+    return str(value or "").strip()
+
+
+def is_item_favorited(user_id, item_type, item_key):
+    if not user_id:
+        return False
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT 1 FROM user_favorites WHERE user_id = ? AND item_type = ? AND item_key = ?",
+        (user_id, item_type, favorite_key(item_key))
+    )
+    exists = cursor.fetchone() is not None
+    conn.close()
+    return exists
+
+
+def toggle_user_favorite(user_id, item_type, item_key, title="", subtitle="", meta=None):
+    item_key = favorite_key(item_key)
+    meta = meta if isinstance(meta, dict) else {}
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id FROM user_favorites WHERE user_id = ? AND item_type = ? AND item_key = ?",
+        (user_id, item_type, item_key)
+    )
+    existing = cursor.fetchone()
+    favorited = False
+    if existing:
+        cursor.execute("DELETE FROM user_favorites WHERE id = ?", (existing["id"],))
+    else:
+        cursor.execute(
+            """
+            INSERT INTO user_favorites (user_id, item_type, item_key, title, subtitle, meta_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user_id,
+                item_type,
+                item_key,
+                title or "",
+                subtitle or "",
+                json.dumps(meta, ensure_ascii=False),
+                datetime.now().strftime("%Y-%m-%d %H:%M"),
+            )
+        )
+        favorited = True
+    conn.commit()
+    conn.close()
+    return favorited
+
+
+def load_user_favorites(user_id, item_type="", limit=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    params = [user_id]
+    where = "WHERE user_id = ?"
+    if item_type:
+        where += " AND item_type = ?"
+        params.append(item_type)
+    sql = f"SELECT * FROM user_favorites {where} ORDER BY created_at DESC, id DESC"
+    if limit:
+        sql += " LIMIT ?"
+        params.append(int(limit))
+    cursor.execute(sql, params)
+    rows = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    for row in rows:
+        row["meta"] = parse_diary_package(row.get("meta_json")) or {}
+    return rows
+
+
+def load_favorite_diaries(user_id, limit=None):
+    favorites = load_user_favorites(user_id, "diary", limit=limit)
+    diaries = []
+    for favorite in favorites:
+        try:
+            diary_id = int(favorite["item_key"])
+        except (TypeError, ValueError):
+            continue
+        diary = get_diary_by_id(diary_id, increase_views=False)
+        if diary:
+            diary["favorite_created_at"] = favorite["created_at"]
+            diaries.append(diary)
+    return diaries
+
+
+def load_favorite_foods(user_id, limit=None):
+    favorites = load_user_favorites(user_id, "food", limit=limit)
+    foods = []
+    for favorite in favorites:
+        meta = favorite.get("meta", {})
+        place_id = meta.get("place_id") or FOOD_DEFAULT_PLACE_ID
+        origin_node = meta.get("origin_node") or ""
+        food = get_food_by_key(favorite["item_key"], place_id=place_id, origin_node=origin_node)
+        if food is None:
+            food = {
+                "food_key": favorite["item_key"],
+                "name": favorite.get("title") or "已收藏美食",
+                "display_description": favorite.get("subtitle") or "该美食数据暂未加载",
+                "cuisine": meta.get("cuisine", ""),
+                "rating": meta.get("rating", 0),
+                "avg_cost": meta.get("avg_cost", 0),
+                "cover_image": meta.get("cover_image") or "food_media/shops/food-cover-placeholder.jpg",
+                "missing": True,
+            }
+        food["favorite_created_at"] = favorite["created_at"]
+        food["favorite_place_id"] = place_id
+        food["favorite_origin_node"] = origin_node
+        foods.append(food)
+    return foods
+
+
+def load_user_diaries(username, limit=None):
+    user_diaries = [diary for diary in load_diaries(sort_by="created_desc") if diary.get("author") == username]
+    return user_diaries[:limit] if limit else user_diaries
+
+
+def get_user_activity_stats(user):
+    username = user["username"]
+    own_diaries = load_user_diaries(username)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM diary_comments WHERE author = ?", (username,))
+    comment_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ?", (user["id"],))
+    favorite_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ? AND item_type = 'diary'", (user["id"],))
+    favorite_diary_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ? AND item_type = 'food'", (user["id"],))
+    favorite_food_count = cursor.fetchone()[0]
+    conn.close()
+    total_views = sum(int(diary.get("views", 0)) for diary in own_diaries)
+    rated_diaries = [diary for diary in own_diaries if diary.get("avg_rating", 0)]
+    avg_rating = round(sum(diary["avg_rating"] for diary in rated_diaries) / len(rated_diaries), 1) if rated_diaries else 0
+    return {
+        "diary_count": len(own_diaries),
+        "comment_count": comment_count,
+        "favorite_count": favorite_count,
+        "favorite_diary_count": favorite_diary_count,
+        "favorite_food_count": favorite_food_count,
+        "total_views": total_views,
+        "avg_rating": avg_rating,
+    }
+
+
 # =========================
 # 路由
 # =========================
@@ -3122,6 +4377,7 @@ def register():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
+        avatar_file = request.files.get("avatar")
 
         if not username or not password or not confirm_password:
             flash("用户名和密码不能为空")
@@ -3131,10 +4387,13 @@ def register():
             flash("两次输入的密码不一致")
             return render_template("register.html")
 
-        success = create_user(username, password)
-        if not success:
+        user_id = create_user(username, password)
+        if not user_id:
             flash("用户名已存在，请更换用户名")
             return render_template("register.html")
+
+        avatar_path = save_uploaded_user_avatar(avatar_file, username, user_id)
+        update_user_avatar_path(user_id, avatar_path)
 
         flash("注册成功，请登录")
         return redirect(url_for("login"))
@@ -3156,6 +4415,7 @@ def login():
 
         if user and check_password_hash(user["password"], password):
             session["username"] = user["username"]
+            session["avatar_path"] = user["avatar_path"] if "avatar_path" in user.keys() else ""
             return redirect(url_for("home"))
         else:
             flash("用户名或密码错误")
@@ -3170,7 +4430,13 @@ def home():
         flash("请先登录")
         return redirect(url_for("login"))
 
-    return render_template("home.html", username=session["username"])
+    current_user = get_logged_in_user()
+    return render_template(
+        "home.html",
+        username=session["username"],
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
+    )
 
 
 @app.route("/logout")
@@ -3180,8 +4446,171 @@ def logout():
     return redirect(url_for("login"))
 
 
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    current_user = get_logged_in_user()
+    if current_user is None:
+        flash("账号不存在，请重新登录")
+        session.pop("username", None)
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        action = request.form.get("action", "account").strip().lower()
+        if action == "avatar":
+            avatar_file = request.files.get("avatar")
+            if not avatar_file or not avatar_file.filename:
+                flash("请选择头像文件")
+            else:
+                avatar_path = save_uploaded_user_avatar(avatar_file, current_user["username"], current_user["id"])
+                update_user_avatar_path(current_user["id"], avatar_path)
+                session["avatar_path"] = avatar_path
+                flash("头像已更新")
+            return redirect(url_for("profile"))
+
+        new_username = request.form.get("username", "").strip()
+        current_password = request.form.get("current_password", "").strip()
+        new_password = request.form.get("new_password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+        if new_password and new_password != confirm_password:
+            flash("两次输入的新密码不一致")
+            return redirect(url_for("profile"))
+        ok, message = update_user_account(
+            current_user["id"],
+            new_username=new_username,
+            current_password=current_password,
+            new_password=new_password,
+        )
+        flash(message)
+        if ok:
+            session["username"] = new_username
+        return redirect(url_for("profile"))
+
+    current_user = get_logged_in_user()
+    stats = get_user_activity_stats(current_user)
+    my_diaries = load_user_diaries(current_user["username"], limit=6)
+    favorite_diaries = load_favorite_diaries(current_user["id"], limit=6)
+    favorite_foods = load_favorite_foods(current_user["id"], limit=6)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT diary_comments.*, diaries.title AS diary_title
+        FROM diary_comments
+        LEFT JOIN diaries ON diaries.id = diary_comments.diary_id
+        WHERE diary_comments.author = ?
+        ORDER BY diary_comments.created_at DESC, diary_comments.id DESC
+        LIMIT 5
+        """,
+        (current_user["username"],)
+    )
+    recent_comments = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return render_template(
+        "profile.html",
+        username=current_user["username"],
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user),
+        stats=stats,
+        my_diaries=my_diaries,
+        favorite_diaries=favorite_diaries,
+        favorite_foods=favorite_foods,
+        recent_comments=recent_comments,
+    )
+
+
+@app.route("/user/<int:user_id>")
+def user_profile(user_id):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    profile_user = get_user_by_id(user_id)
+    if profile_user is None:
+        flash("未找到该用户")
+        return redirect(url_for("diaries"))
+
+    current_user = get_logged_in_user()
+    user_diaries = load_user_diaries(profile_user["username"], limit=12)
+    stats = get_user_activity_stats(profile_user)
+    return render_template(
+        "user_profile.html",
+        username=session["username"],
+        current_user=current_user,
+        profile_user=profile_user,
+        profile_avatar_url=get_user_avatar_url(profile_user),
+        stats=stats,
+        user_diaries=user_diaries,
+        is_self=current_user and current_user["id"] == profile_user["id"],
+    )
+
+
+@app.route("/indoor")
+def indoor():
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    building_id = request.args.get("building_id", "demo_building").strip() or "demo_building"
+    building_name = request.args.get("building_name", "").strip()
+
+    building_id_lower = building_id.lower()
+    if not building_name:
+        if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
+            building_name = "德旺图书馆"
+        elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
+            building_name = "校史与科技博物馆"
+        else:
+            building_name = "通用教学楼"
+
+    graph = build_indoor_graph(building_id)
+
+    # Determine building-specific fallback defaults for start/end
+    default_start = INDOOR_DEFAULT_START
+    if "library" in building_id_lower or "图书馆" in building_id_lower or "dewang" in building_id_lower:
+        default_end = "room_402"
+    elif "museum" in building_id_lower or "博物馆" in building_id_lower or "校史" in building_id_lower or "science" in building_id_lower or "history" in building_id_lower:
+        default_end = "room_202"
+    else:
+        default_end = "room_302"
+
+    start = request.args.get("start", default_start).strip() or default_start
+    end = request.args.get("end", default_end).strip() or default_end
+    vertical_mode = request.args.get("vertical_mode", "auto").strip().lower()
+
+    if start not in graph["node_map"]:
+        start = default_start
+    if end not in graph["node_map"]:
+        end = default_end
+    if vertical_mode not in INDOOR_VERTICAL_MODES:
+        vertical_mode = "auto"
+
+    route_result = indoor_shortest_path(graph, start, end, vertical_mode=vertical_mode)
+    return render_template(
+        "indoor.html",
+        username=session["username"],
+        building_id=building_id,
+        building_name=building_name,
+        start=start,
+        end=end,
+        vertical_mode=vertical_mode,
+        node_options=indoor_node_options(graph),
+        floors=prepare_indoor_floors(graph, route_result),
+        route_result=route_result,
+        route_steps=indoor_route_steps(route_result, graph),
+        vertical_modes=[
+            {"value": "auto", "label": "自动选择"},
+            {"value": "elevator", "label": "优先电梯"},
+            {"value": "stairs", "label": "只走步梯"},
+        ],
+    )
+
+
 # =========================
-# places 模块：列表查询
+# places ??????????
 # =========================
 @app.route("/places")
 def places():
@@ -3194,6 +4623,12 @@ def places():
     place_type = request.args.get("type", "").strip()
     city = request.args.get("city", "").strip()
     sort_by = request.args.get("sort_by", "default").strip()
+    selected_tags = request.args.getlist("preferred_tags")
+    try:
+        k = int(request.args.get("k", "10"))
+    except ValueError:
+        k = 10
+    k = max(1, min(k, 20))
 
     all_places = load_places()
     filtered_places = filter_and_sort_places(
@@ -3205,6 +4640,15 @@ def places():
         sort_by=sort_by
     )
     filter_options = get_place_filter_options(all_places)
+    recommended_places, recommendation_stats = get_top_k_recommendations(
+        all_places,
+        preferred_tags=selected_tags,
+        k=k,
+        place_type=place_type,
+        city=city,
+        keyword=keyword,
+        tag_keyword=tag_keyword,
+    )
     page = parse_positive_int(request.args.get("page", 1))
     visible_places, pagination_state = paginate_items(filtered_places, page, PLACES_PAGE_SIZE)
     pagination = build_pagination(
@@ -3217,6 +4661,8 @@ def places():
             "type": place_type,
             "city": city,
             "sort_by": sort_by,
+            "preferred_tags": selected_tags,
+            "k": k,
         },
     )
 
@@ -3224,6 +4670,8 @@ def places():
         "places.html",
         username=session["username"],
         places=visible_places,
+        recommended_places=recommended_places,
+        recommendation_stats=recommendation_stats,
         total_places=len(all_places),
         filtered_places_total=len(filtered_places),
         pagination=pagination,
@@ -3232,13 +4680,16 @@ def places():
         place_type=place_type,
         city=city,
         sort_by=sort_by,
+        selected_tags=selected_tags,
+        all_available_tags=filter_options["tags"],
+        k=k,
         cities=filter_options["cities"],
         place_types=filter_options["place_types"],
     )
 
 
 # =========================
-# places 模块：详情页
+# places ??????
 # =========================
 @app.route("/place/<int:place_id>")
 def place_detail(place_id):
@@ -3248,7 +4699,7 @@ def place_detail(place_id):
 
     place = get_place_by_id(place_id)
     if place is None:
-        flash("未找到该景点/校园信息")
+        flash("未找到该景点或学校")
         return redirect(url_for("places"))
 
     related_diaries = get_related_diaries_for_place(place, load_diaries(sort_by="hot_rating_desc"), limit=6)
@@ -3262,7 +4713,7 @@ def place_detail(place_id):
 
 
 # =========================
-# places 模块：推荐页
+# places ?????????
 # =========================
 @app.route("/places/recommend", methods=["GET", "POST"])
 def recommend_places():
@@ -3270,40 +4721,17 @@ def recommend_places():
         flash("请先登录")
         return redirect(url_for("login"))
 
-    all_places = load_places()
-    filter_options = get_place_filter_options(all_places)
-    selected_tags = request.form.getlist("preferred_tags") if request.method == "POST" else request.args.getlist("preferred_tags")
-    place_type = request.values.get("type", "").strip()
-    city = request.values.get("city", "").strip()
-    try:
-        k = int(request.values.get("k", "10"))
-    except ValueError:
-        k = 10
-    k = max(1, min(k, 20))
-
-    recommended_places, recommendation_stats = get_top_k_recommendations(
-        all_places,
-        preferred_tags=selected_tags,
-        k=k,
-        place_type=place_type,
-        city=city
-    )
-
-    return render_template(
-        "recommend_places.html",
-        username=session["username"],
-        recommended_places=recommended_places,
-        recommendation_stats=recommendation_stats,
-        selected_tags=selected_tags,
-        all_available_tags=filter_options["tags"],
-        cities=filter_options["cities"],
-        place_types=filter_options["place_types"],
-        place_type=place_type,
-        city=city,
-        k=k,
-    )
+    params = []
+    source = request.values if request.method == "POST" else request.args
+    for key in source.keys():
+        values = source.getlist(key)
+        params.extend((key, value) for value in values if value not in ("", None))
+    return redirect(url_for("places") + ("?" + urlencode(params, doseq=True) if params else ""))
 
 
+# =========================
+# route ?????????
+# =========================
 @app.route("/route")
 def route():
     if not is_logged_in():
@@ -3313,6 +4741,10 @@ def route():
     place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
     collect_mode = request.args.get("collect", "").strip() in ("1", "true", "yes", "on")
     food_pick_mode = request.args.get("food_pick", "").strip() in ("1", "true", "yes", "on")
+    return_to = request.args.get("return_to", "").strip()
+    return_food_key = request.args.get("return_food_key", "").strip()
+    return_place_id = request.args.get("return_place_id", place_id).strip() or place_id
+    edit_roads = request.args.get("edit_roads", "").strip() in ("1", "true", "yes", "on")
 
     graph = load_route_graph(place_id)
     start = request.args.get("start", "").strip()
@@ -3322,7 +4754,6 @@ def route():
     targets = request.args.getlist("targets")
     route_type = request.args.get("route_type", "single").strip()
     effective_targets = normalize_route_targets(start, end, targets, route_type)
-    edit_roads = request.args.get("edit_roads", "").strip() in ("1", "true", "yes", "on")
 
     result = None
     multi_result = None
@@ -3335,7 +4766,7 @@ def route():
             strategy=strategy,
             transport=transport,
             return_to_start=route_type == "round_trip",
-            final_target=final_target
+            final_target=final_target,
         )
     elif start and end:
         result = dijkstra_shortest_path(
@@ -3343,7 +4774,125 @@ def route():
             start,
             end,
             strategy=strategy,
-            transport=transport
+            transport=transport,
+        )
+
+    keyword = request.args.get("keyword", "").strip()
+    tag_keyword = request.args.get("tag_keyword", "").strip()
+    place_type = request.args.get("type", "").strip()
+    city = request.args.get("city", "").strip()
+    sort_by = request.args.get("sort_by", "default").strip()
+    selected_tags = request.args.getlist("preferred_tags")
+    try:
+        k = int(request.args.get("k", "10"))
+    except ValueError:
+        k = 10
+    k = max(1, min(k, 20))
+    page = parse_positive_int(request.args.get("page", 1))
+
+    all_places = load_places()
+    filtered_places = filter_and_sort_places(
+        all_places,
+        keyword=keyword,
+        tag_keyword=tag_keyword,
+        place_type=place_type,
+        city=city,
+        sort_by=sort_by,
+    )
+    place_filter_options = get_place_filter_options(all_places)
+    recommended_places, recommendation_stats = get_top_k_recommendations(
+        all_places,
+        preferred_tags=selected_tags,
+        k=k,
+        place_type=place_type,
+        city=city,
+        keyword=keyword,
+        tag_keyword=tag_keyword,
+    )
+    visible_places, pagination_state = paginate_items(filtered_places, page, PLACES_PAGE_SIZE)
+
+    facility_start_node = request.args.get("facility_start_node", "").strip() or start
+    facility_type = request.args.get("facility_type", "").strip()
+    facility_keyword = request.args.get("facility_keyword", "").strip()
+    max_distance_raw = request.args.get("max_distance", "").strip()
+    try:
+        max_distance = float(max_distance_raw) if max_distance_raw else None
+    except ValueError:
+        max_distance = None
+
+    all_facilities = load_facilities(graph.get("place_id"))
+    facility_types = sorted({facility["type"] for facility in all_facilities if facility.get("type")})
+    facilities_result = find_nearby_facilities(
+        graph,
+        facility_start_node,
+        facility_type=facility_type,
+        keyword=facility_keyword,
+        max_distance=max_distance,
+    )
+
+    base_query_params = {
+        "place_id": place_id,
+        "start": start,
+        "end": end,
+        "targets": effective_targets,
+        "strategy": strategy,
+        "transport": transport,
+        "route_type": route_type,
+        "collect": "1" if collect_mode else None,
+        "food_pick": "1" if food_pick_mode else None,
+        "edit_roads": "1" if edit_roads else None,
+        "keyword": keyword,
+        "tag_keyword": tag_keyword,
+        "type": place_type,
+        "city": city,
+        "sort_by": sort_by,
+        "preferred_tags": selected_tags,
+        "k": k,
+        "facility_start_node": facility_start_node,
+        "facility_type": facility_type,
+        "facility_keyword": facility_keyword,
+        "max_distance": max_distance_raw,
+    }
+    place_pagination = build_pagination(
+        "route",
+        pagination_state["page"],
+        pagination_state["total_pages"],
+        base_query_params,
+    )
+
+    route_state_params = {
+        **base_query_params,
+        "page": page,
+    }
+    for facility in facilities_result:
+        nearest_node = str(facility.get("nearest_node", "")).strip()
+        if not nearest_node:
+            continue
+        facility["set_start_url"] = build_url_with_query(
+            "route",
+            {
+                **route_state_params,
+                "start": nearest_node,
+                "facility_start_node": nearest_node,
+            },
+            anchor="routeSummary",
+        )
+        facility["set_end_url"] = build_url_with_query(
+            "route",
+            {
+                **route_state_params,
+                "end": nearest_node,
+                "facility_start_node": nearest_node,
+            },
+            anchor="routeSummary",
+        )
+        facility["focus_url"] = build_url_with_query(
+            "route",
+            {
+                **route_state_params,
+                "facility_start_node": nearest_node,
+            },
+            anchor="facilityResults",
         )
 
     route_foods, route_food_stats = get_route_linked_foods(place_id, graph, start, limit=5)
@@ -3380,9 +4929,172 @@ def route():
         route_edit_roads=edit_roads,
         route_collect_mode=collect_mode,
         route_food_pick_mode=food_pick_mode,
+        route_return_to=return_to,
+        route_return_food_key=return_food_key,
+        route_return_place_id=return_place_id,
         route_foods=route_foods,
         route_food_stats=route_food_stats,
+        keyword=keyword,
+        tag_keyword=tag_keyword,
+        place_type=place_type,
+        city=city,
+        sort_by=sort_by,
+        selected_tags=selected_tags,
+        k=k,
+        page=page,
+        places=visible_places,
+        recommended_places=recommended_places,
+        recommendation_stats=recommendation_stats,
+        total_places=len(all_places),
+        filtered_places_total=len(filtered_places),
+        place_pagination=place_pagination,
+        all_available_tags=place_filter_options["tags"],
+        cities=place_filter_options["cities"],
+        place_types=place_filter_options["place_types"],
+        facility_start_node=facility_start_node,
+        facility_type=facility_type,
+        facility_keyword=facility_keyword,
+        max_distance=max_distance_raw,
+        facility_types=facility_types,
+        facilities=facilities_result,
+        facility_total=len(facilities_result),
+        facility_source_total=len(all_facilities),
+        place_form_state={
+            "keyword": keyword,
+            "tag_keyword": tag_keyword,
+            "type": place_type,
+            "city": city,
+            "sort_by": sort_by,
+            "k": k,
+            "page": page,
+            "preferred_tags": selected_tags,
+            "place_id": place_id,
+            "start": start,
+            "end": end,
+            "targets": effective_targets,
+            "strategy": strategy,
+            "transport": transport,
+            "route_type": route_type,
+            "collect": "1" if collect_mode else "",
+            "food_pick": "1" if food_pick_mode else "",
+            "edit_roads": "1" if edit_roads else "",
+            "facility_start_node": facility_start_node,
+            "facility_type": facility_type,
+            "facility_keyword": facility_keyword,
+            "max_distance": max_distance_raw,
+        },
+        route_form_state={
+            "place_id": place_id,
+            "start": start,
+            "end": end,
+            "targets": effective_targets,
+            "strategy": strategy,
+            "transport": transport,
+            "route_type": route_type,
+            "collect": "1" if collect_mode else "",
+            "food_pick": "1" if food_pick_mode else "",
+            "return_to": return_to,
+            "return_food_key": return_food_key,
+            "return_place_id": return_place_id,
+            "edit_roads": "1" if edit_roads else "",
+            "keyword": keyword,
+            "tag_keyword": tag_keyword,
+            "type": place_type,
+            "city": city,
+            "sort_by": sort_by,
+            "k": k,
+            "page": page,
+            "preferred_tags": selected_tags,
+            "facility_start_node": facility_start_node,
+            "facility_type": facility_type,
+            "facility_keyword": facility_keyword,
+            "max_distance": max_distance_raw,
+        },
+        facility_form_state={
+            "place_id": place_id,
+            "facility_start_node": facility_start_node,
+            "facility_type": facility_type,
+            "facility_keyword": facility_keyword,
+            "max_distance": max_distance_raw,
+            "keyword": keyword,
+            "tag_keyword": tag_keyword,
+            "type": place_type,
+            "city": city,
+            "sort_by": sort_by,
+            "k": k,
+            "page": page,
+            "preferred_tags": selected_tags,
+            "start": start,
+            "end": end,
+            "targets": effective_targets,
+            "strategy": strategy,
+            "transport": transport,
+            "route_type": route_type,
+            "collect": "1" if collect_mode else "",
+            "food_pick": "1" if food_pick_mode else "",
+            "return_to": return_to,
+            "return_food_key": return_food_key,
+            "return_place_id": return_place_id,
+            "edit_roads": "1" if edit_roads else "",
+        },
+        route_food_pick_url=build_url_with_query(
+            "route",
+            {
+                "place_id": place_id,
+                "start": start,
+                "food_pick": "1",
+                "return_to": return_to,
+                "return_food_key": return_food_key,
+                "return_place_id": return_place_id,
+                "strategy": strategy,
+                "transport": transport,
+                "route_type": route_type,
+                "collect": "1" if collect_mode else "",
+                "edit_roads": "1" if edit_roads else "",
+                "keyword": keyword,
+                "tag_keyword": tag_keyword,
+                "type": place_type,
+                "city": city,
+                "sort_by": sort_by,
+                "k": k,
+                "page": page,
+                "preferred_tags": selected_tags,
+                "facility_start_node": facility_start_node,
+                "facility_type": facility_type,
+                "facility_keyword": facility_keyword,
+                "max_distance": max_distance_raw,
+            },
+        ),
     )
+
+
+@app.route("/facilities")
+def facilities():
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    params = []
+    facility_start_node = request.args.get("start_node", "").strip()
+    if facility_start_node:
+        params.append(("facility_start_node", facility_start_node))
+    facility_type = request.args.get("type", "").strip()
+    if facility_type:
+        params.append(("facility_type", facility_type))
+    facility_keyword = request.args.get("keyword", "").strip()
+    if facility_keyword:
+        params.append(("facility_keyword", facility_keyword))
+    max_distance = request.args.get("max_distance", "").strip()
+    if max_distance:
+        params.append(("max_distance", max_distance))
+    for key in ("place_id", "start", "end", "strategy", "transport", "route_type", "collect", "food_pick", "edit_roads"):
+        values = request.args.getlist(key)
+        if values:
+            params.extend((key, value) for value in values if value not in ("", None))
+    for tag in request.args.getlist("preferred_tags"):
+        if tag:
+            params.append(("preferred_tags", tag))
+    return redirect(url_for("route") + ("?" + urlencode(params, doseq=True) if params else ""))
 
 
 @app.route("/collector")
@@ -3961,46 +5673,6 @@ def collector_clear_api():
     return jsonify({"ok": True, "summary": collector_summary(graph), "graph": serialize_graph_for_map(graph)})
 
 
-@app.route("/facilities")
-def facilities():
-    if not is_logged_in():
-        flash("请先登录")
-        return redirect(url_for("login"))
-
-    place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
-    graph = load_route_graph(place_id)
-    start_node = request.args.get("start_node", "").strip()
-    facility_type = request.args.get("type", "").strip()
-    keyword = request.args.get("keyword", "").strip()
-    max_distance_raw = request.args.get("max_distance", "").strip()
-    try:
-        max_distance = float(max_distance_raw) if max_distance_raw else None
-    except ValueError:
-        max_distance = None
-    all_facilities = load_facilities(graph.get("place_id"))
-    facility_types = sorted({facility["type"] for facility in all_facilities})
-    facilities_result = find_nearby_facilities(
-        graph,
-        start_node,
-        facility_type=facility_type,
-        keyword=keyword,
-        max_distance=max_distance
-    )
-
-    return render_template(
-        "facilities.html",
-        username=session["username"],
-        place_id=place_id,
-        nodes=get_selectable_nodes(graph),
-        start_node=start_node,
-        facility_type=facility_type,
-        keyword=keyword,
-        max_distance=max_distance_raw,
-        facility_types=facility_types,
-        facilities=facilities_result
-    )
-
-
 @app.route("/diaries", methods=["GET", "POST"])
 def diaries():
     if not is_logged_in():
@@ -4032,63 +5704,43 @@ def diaries():
             flash("日记发布成功")
             return redirect(url_for("diaries"))
 
-    title_query = request.args.get("title_query", "").strip()
-    search_mode = request.args.get("search_mode", "exact").strip()
-    keyword = request.args.get("keyword", "").strip()
-    destination = request.args.get("destination", "").strip()
-    sort_by = request.args.get("sort_by", "created_desc").strip()
-    if destination and sort_by == "created_desc":
-        sort_by = "hot_rating_desc"
-    diaries_list = load_diaries(
-        title_query=title_query,
-        search_mode=search_mode,
-        keyword=keyword,
-        destination=destination,
-        sort_by=sort_by
-    )
-    destination_place = find_place_match(destination, all_places)
-    related_places = get_related_places_for_diary(
-        {
-            "title": title_query or keyword or destination,
-            "destination": destination,
-            "content": keyword,
-        },
-        all_places,
-        limit=6
-    ) if (destination or title_query or keyword) else []
-    if destination_place:
-        related_places = [place for place in related_places if place["id"] != destination_place["id"]]
-    page = parse_positive_int(request.args.get("page", 1))
-    visible_diaries, pagination_state = paginate_items(diaries_list, page, DIARIES_PAGE_SIZE)
-    pagination = build_pagination(
-        "diaries",
-        pagination_state["page"],
-        pagination_state["total_pages"],
-        {
-            "title_query": title_query,
-            "search_mode": search_mode,
-            "keyword": keyword,
-            "destination": destination,
-            "sort_by": sort_by,
-        },
-    )
-
+    diaries_list = load_diaries(sort_by="hot_rating_desc")
+    current_user = get_logged_in_user()
     return render_template(
         "diaries.html",
         username=session["username"],
-        diaries=visible_diaries,
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
+        diaries=diaries_list,
         diaries_total=len(diaries_list),
         place_name_options=place_name_options,
-        destination_place=destination_place,
-        related_places=related_places,
-        title_query=title_query,
-        search_mode=search_mode,
-        keyword=keyword,
-        destination=destination,
-        sort_by=sort_by,
-        pagination=pagination,
-        compression_preview=None,
-        compression_algorithm="huffman",
+        publish_default_destination="",
+    )
+
+
+@app.route("/diaries/search")
+def diary_search():
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    query = request.args.get("q", "").strip()
+    all_places = load_places()
+    place_name_options = get_place_name_options(all_places)
+    if query:
+        diaries_list = get_diary_search_results(query)
+    else:
+        diaries_list = load_diaries(sort_by="hot_rating_desc")[:16]
+    current_user = get_logged_in_user()
+    return render_template(
+        "diary_search.html",
+        username=session["username"],
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
+        diaries=diaries_list,
+        query=query,
+        recommendations=load_diaries(sort_by="hot_rating_desc")[:12],
+        place_name_options=place_name_options,
     )
 
 
@@ -4099,19 +5751,33 @@ def diary_detail(diary_id):
         return redirect(url_for("login"))
 
     if request.method == "POST":
+        action = request.form.get("action", "rating").strip().lower()
+        if action == "comment":
+            content = request.form.get("content", "").strip()
+            parent_id = parse_positive_int(request.form.get("parent_id", 0))
+            if not content:
+                flash("评论内容不能为空")
+                return redirect(url_for("diary_detail", diary_id=diary_id))
+            comment_id = create_diary_comment(diary_id, session["username"], content, parent_id=parent_id)
+            flash("评论已发布")
+            if comment_id:
+                return redirect(url_for("diary_detail", diary_id=diary_id, comment_posted=1, _anchor=f"comment-{comment_id}"))
+            return redirect(url_for("diary_detail", diary_id=diary_id))
+
         rating = request.form.get("rating", "5")
         rate_diary(diary_id, rating)
         flash("评分成功")
         return redirect(url_for("diary_detail", diary_id=diary_id))
 
-    diary = get_diary_by_id(diary_id, increase_views=True)
+    increase_views = request.method == "GET" and request.args.get("count_view", "1") != "0"
+    diary = get_diary_by_id(diary_id, increase_views=increase_views)
     if diary is None:
         flash("未找到该旅游日记")
         return redirect(url_for("diaries"))
 
     all_places = load_places()
     matched_place = find_place_match(diary.get("destination", ""), all_places)
-    related_places = get_related_places_for_diary(diary, all_places, limit=6)
+    related_places = get_related_places_for_diary(diary, all_places, limit=4)
     if matched_place:
         related_places = [place for place in related_places if place["id"] != matched_place["id"]]
 
@@ -4120,17 +5786,76 @@ def diary_detail(diary_id):
         diary.get("compression", {}).get("algorithm", "huffman")
     ).strip().lower()
     compression_preview = get_diary_compression_preview(diary_id, compression_algorithm)
+    current_user = get_logged_in_user()
+    diary_author = get_user_by_username(diary.get("author", ""))
+    comment_payload = load_diary_comments(diary_id, current_user["username"] if current_user else None)
+    visible_threads = comment_payload["threads"][:DIARY_VISIBLE_COMMENT_THREADS]
+    hidden_threads = comment_payload["threads"][DIARY_VISIBLE_COMMENT_THREADS:]
+    for comment_group in (visible_threads, hidden_threads):
+        for thread in comment_group:
+            thread["flat_replies"] = flatten_diary_comment_replies(thread.get("replies", []))
 
     return render_template(
         "diary_detail.html",
         username=session["username"],
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
         diary=diary,
+        diary_author=diary_author,
+        diary_author_avatar_url=get_user_avatar_url(diary.get("author", "")),
+        diary_favorited=is_item_favorited(current_user["id"], "diary", diary_id) if current_user else False,
         place_name_options=get_place_name_options(all_places),
         matched_place=matched_place,
         related_places=related_places,
         compression_preview=compression_preview,
-        compression_algorithm=compression_algorithm
+        compression_algorithm=compression_algorithm,
+        comments=visible_threads,
+        hidden_comments=hidden_threads,
+        comment_total=comment_payload["total_count"],
+        visible_comment_threads=DIARY_VISIBLE_COMMENT_THREADS,
+        visible_comment_replies=DIARY_VISIBLE_REPLIES,
+        comment_posted=request.args.get("comment_posted", "").strip() == "1",
     )
+
+
+@app.route("/diary/<int:diary_id>/favorite", methods=["POST"])
+def diary_favorite(diary_id):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    current_user = get_logged_in_user()
+    diary = get_diary_by_id(diary_id, increase_views=False)
+    if current_user is None or diary is None:
+        flash("未找到该旅游日记")
+        return redirect(url_for("diaries"))
+    favorited = toggle_user_favorite(
+        current_user["id"],
+        "diary",
+        diary_id,
+        title=diary["title"],
+        subtitle=f"{diary['destination']} · {diary['author']}",
+        meta={"destination": diary["destination"], "author": diary["author"]},
+    )
+    flash("已收藏这篇日记" if favorited else "已取消收藏")
+    return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0))
+
+
+@app.route("/diary/<int:diary_id>/comments/<int:comment_id>/like", methods=["POST"])
+def diary_comment_like(diary_id, comment_id):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM diary_comments WHERE id = ? AND diary_id = ?", (comment_id, diary_id))
+    comment = cursor.fetchone()
+    conn.close()
+    if comment is None:
+        flash("评论不存在")
+        return redirect(url_for("diary_detail", diary_id=diary_id))
+    toggle_diary_comment_like(comment_id, session["username"])
+    return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0, _anchor=f"comment-{comment_id}"))
 
 
 @app.route("/diary-media/<int:diary_id>/<path:filename>")
@@ -4171,10 +5896,31 @@ def foods():
         category=category,
         place_name=place_name,
         sort_by=sort_by,
-        limit=food_context.get("top_k", FOOD_TOP_K),
+        limit=None,
         graph=graph,
         origin_node=origin_node,
     )
+    food_page = parse_positive_int(request.args.get("page", 1))
+    paged_foods, page_info = paginate_items(filtered_foods, page=food_page, per_page=FOOD_TOP_K)
+    food_pagination = build_pagination(
+        "foods",
+        page_info["page"],
+        page_info["total_pages"],
+        {
+            "place_id": place_id,
+            "keyword": keyword,
+            "category": category,
+            "sort_by": sort_by,
+            "origin_node": origin_node,
+        },
+    )
+    food_pagination["per_page"] = FOOD_TOP_K
+    food_pagination["total"] = len(filtered_foods)
+    food_stats = dict(food_stats or {})
+    food_stats["returned_count"] = len(paged_foods)
+    food_stats["filtered_count"] = len(filtered_foods)
+    food_stats["page"] = page_info["page"]
+    food_stats["page_size"] = FOOD_TOP_K
     present_categories = {food["category"] for food in campus_foods if food.get("category")}
     categories = [option for option in FOOD_CUISINE_OPTIONS if option in present_categories]
     categories.extend(sorted(present_categories - set(categories)))
@@ -4182,7 +5928,7 @@ def foods():
     return render_template(
         "foods.html",
         username=session["username"],
-        foods=filtered_foods,
+        foods=paged_foods,
         keyword=keyword,
         category=category,
         place_name=place_name,
@@ -4190,8 +5936,11 @@ def foods():
         categories=categories,
         place_id=place_id,
         origin_node=origin_node,
+        food_pagination=food_pagination,
         food_context={
             **food_context,
+            "top_k": FOOD_TOP_K,
+            "show_all": False,
             "origin_node": origin_node,
             "origin_node_name": graph.get("node_map", {}).get(origin_node, {}).get("name", ""),
         },
@@ -4209,17 +5958,295 @@ def food_detail(food_key):
     place_id = request.args.get("place_id", FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
     if place_id not in FOOD_CAMPUS_CONTEXTS:
         place_id = FOOD_DEFAULT_PLACE_ID
-    food = get_food_by_key(food_key, place_id=place_id)
+    requested_origin_node = request.args.get("origin_node", "").strip()
+    keyword = request.args.get("keyword", "").strip()
+    category = request.args.get("category", "").strip()
+    sort_by = request.args.get("sort_by", "").strip()
+    page = parse_positive_int(request.args.get("page", 1))
+    food_context = FOOD_CAMPUS_CONTEXTS[place_id]
+    graph = load_route_graph(food_context.get("graph_place_id", place_id))
+    origin_node = requested_origin_node if requested_origin_node in graph.get("node_map", {}) else ""
+    food = get_food_by_key(food_key, place_id=place_id, origin_node=origin_node)
     if food is None:
         flash("未找到该美食信息")
         return redirect(url_for("foods", place_id=place_id) if place_id else url_for("foods"))
+    current_user = get_logged_in_user()
 
     return render_template(
         "food_detail.html",
         username=session["username"],
+        current_user=current_user,
         food=food,
+        food_favorited=is_item_favorited(current_user["id"], "food", food_key) if current_user else False,
         place_id=place_id,
+        origin_node=origin_node,
+        keyword=keyword,
+        category=category,
+        sort_by=sort_by,
+        page=page,
+        return_to="food_detail",
+        return_food_key=food_key,
+        return_place_id=place_id,
+        route_food_pick_url=build_url_with_query(
+            "route",
+            {
+                "place_id": place_id,
+                "food_pick": "1",
+                "return_to": "food_detail",
+                "return_food_key": food_key,
+                "return_place_id": place_id,
+            },
+        ),
+        food_context={
+            **food_context,
+            "origin_node": origin_node,
+            "origin_node_name": graph.get("node_map", {}).get(origin_node, {}).get("name", ""),
+        },
     )
+
+
+@app.route("/food/<food_key>/favorite", methods=["POST"])
+def food_favorite(food_key):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    current_user = get_logged_in_user()
+    place_id = request.form.get("place_id", request.args.get("place_id", FOOD_DEFAULT_PLACE_ID)).strip() or FOOD_DEFAULT_PLACE_ID
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        place_id = FOOD_DEFAULT_PLACE_ID
+    origin_node = request.form.get("origin_node", request.args.get("origin_node", "")).strip()
+    keyword = request.form.get("keyword", request.args.get("keyword", "")).strip()
+    category = request.form.get("category", request.args.get("category", "")).strip()
+    sort_by = request.form.get("sort_by", request.args.get("sort_by", "")).strip()
+    page = parse_positive_int(request.form.get("page", request.args.get("page", 1)))
+    food = get_food_by_key(food_key, place_id=place_id, origin_node=origin_node)
+    if current_user is None or food is None:
+        flash("未找到该美食信息")
+        return redirect(url_for("foods", place_id=place_id))
+    favorited = toggle_user_favorite(
+        current_user["id"],
+        "food",
+        food_key,
+        title=food["name"],
+        subtitle=f"{food.get('cuisine') or food.get('category', '')} · 评分 {food.get('rating', 0)}",
+        meta={
+            "place_id": place_id,
+            "origin_node": origin_node,
+            "keyword": keyword,
+            "category": category,
+            "sort_by": sort_by,
+            "page": page,
+            "cuisine": food.get("cuisine") or food.get("category", ""),
+            "rating": food.get("rating", 0),
+            "avg_cost": food.get("avg_cost", 0),
+            "cover_image": food.get("cover_image", ""),
+        },
+    )
+    flash("已收藏这家美食" if favorited else "已取消收藏")
+    return redirect(url_for(
+        "food_detail",
+        food_key=food_key,
+        place_id=place_id,
+        origin_node=origin_node,
+        keyword=keyword,
+        category=category,
+        sort_by=sort_by,
+        page=page,
+    ))
+
+
+def save_food_data_url(data_url, food_key, image_kind, index=None):
+    if not data_url:
+        return ""
+    if Image is None:
+        raise ValueError("当前环境缺少 Pillow，无法处理图片")
+    data_url = str(data_url)
+    if "," in data_url:
+        header, encoded = data_url.split(",", 1)
+        if "image/" not in header:
+            raise ValueError("请粘贴图片格式的数据")
+    else:
+        encoded = data_url
+    try:
+        raw = base64.b64decode(encoded, validate=True)
+        image = Image.open(BytesIO(raw)).convert("RGB")
+    except Exception as exc:
+        raise ValueError("图片解析失败，请重新粘贴图片") from exc
+    safe_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(food_key or "food")).strip("._") or "food"
+    kind = str(image_kind or "").strip().lower()
+    if kind == "cover":
+        suffix = "cover"
+    elif kind == "detail":
+        suffix = "detail"
+    else:
+        suffix = f"dish-{int(index or 0) + 1}"
+    filename = f"{safe_key}-{suffix}.jpg"
+    os.makedirs(XMU_FOOD_CUSTOM_MEDIA_DIR, exist_ok=True)
+    abs_path = os.path.join(XMU_FOOD_CUSTOM_MEDIA_DIR, filename)
+    image.save(abs_path, "JPEG", quality=88, optimize=True, progressive=True)
+    return "/".join(["food_media", "custom", filename])
+
+
+def save_food_uploaded_file(upload, food_key, image_kind, index=None):
+    if not upload:
+        return ""
+    if Image is None:
+        raise ValueError("当前环境缺少 Pillow，无法处理图片")
+    filename = str(getattr(upload, "filename", "") or "").strip()
+    try:
+        upload.stream.seek(0)
+    except Exception:
+        pass
+    try:
+        image = Image.open(upload.stream).convert("RGB")
+    except Exception as exc:
+        raise ValueError("上传图片解析失败，请重新选择文件") from exc
+    safe_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(food_key or "food")).strip("._") or "food"
+    kind = str(image_kind or "").strip().lower()
+    if kind == "cover":
+        suffix = "cover"
+    elif kind == "detail":
+        suffix = "detail"
+    else:
+        suffix = f"dish-{int(index or 0) + 1}"
+    filename = f"{safe_key}-{suffix}.jpg"
+    os.makedirs(XMU_FOOD_CUSTOM_MEDIA_DIR, exist_ok=True)
+    abs_path = os.path.join(XMU_FOOD_CUSTOM_MEDIA_DIR, filename)
+    image.save(abs_path, "JPEG", quality=88, optimize=True, progressive=True)
+    return "/".join(["food_media", "custom", filename])
+
+
+def normalize_food_media_record(food, existing_record=None):
+    existing_record = existing_record if isinstance(existing_record, dict) else {}
+    dishes = []
+    source_dishes = existing_record.get("signature_dishes") if isinstance(existing_record.get("signature_dishes"), list) else []
+    food_dishes = food.get("signature_dishes") or []
+    for index in range(3):
+        source = source_dishes[index] if index < len(source_dishes) and isinstance(source_dishes[index], dict) else {}
+        fallback = food_dishes[index] if index < len(food_dishes) and isinstance(food_dishes[index], dict) else {}
+        dishes.append({
+            "name": str(source.get("name") or fallback.get("name") or "").strip(),
+            "price": str(source.get("price") or fallback.get("price") or "").strip(),
+            "image": str(source.get("image") or fallback.get("image") or "food_media/dishes/food-dish-placeholder.jpg").strip(),
+        })
+    return {
+        "name": str(existing_record.get("name") or food.get("name") or "").strip(),
+        "cuisine": str(existing_record.get("cuisine") or food.get("cuisine") or food.get("category") or "").strip(),
+        "cover_image": str(existing_record.get("cover_image") or food.get("cover_image") or "food_media/shops/food-cover-placeholder.jpg").strip(),
+        "detail_image": str(
+            existing_record.get("detail_image")
+            or food.get("detail_image")
+            or existing_record.get("cover_image")
+            or food.get("cover_image")
+            or "food_media/shops/food-cover-placeholder.jpg"
+        ).strip(),
+        "recommend_score_override": existing_record.get("recommend_score_override"),
+        "rating": food.get("rating"),
+        "popularity": food.get("popularity"),
+        "avg_cost": food.get("avg_cost"),
+        "display_description": str(existing_record.get("display_description") or food.get("display_description") or "").strip(),
+        "recommendation_note": str(existing_record.get("recommendation_note") or food.get("recommendation_note") or default_food_recommendation_note()).strip(),
+        "signature_dishes": dishes,
+    }
+
+
+@app.route("/api/food-media/<food_key>/update", methods=["POST"])
+def update_food_media(food_key):
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+
+    if request.is_json:
+        payload = request.get_json(force=True, silent=True) or {}
+        files = {}
+    else:
+        payload = request.form.to_dict(flat=True)
+        files = request.files
+    place_id = str(payload.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        place_id = FOOD_DEFAULT_PLACE_ID
+    food = get_food_by_key(food_key, place_id=place_id)
+    if food is None:
+        return jsonify({"error": "未找到该美食"}), 404
+
+    media_payload = load_food_media_payload()
+    records = media_payload.setdefault("foods", {})
+    record = normalize_food_media_record(food, records.get(food_key, {}))
+
+    try:
+        cover_file = files.get("cover_file")
+        if cover_file and getattr(cover_file, "filename", ""):
+            record["cover_image"] = save_food_uploaded_file(cover_file, food_key, "cover")
+        elif payload.get("cover_image"):
+            record["cover_image"] = save_food_data_url(payload.get("cover_image"), food_key, "cover")
+
+        detail_file = files.get("detail_file")
+        if detail_file and getattr(detail_file, "filename", ""):
+            record["detail_image"] = save_food_uploaded_file(detail_file, food_key, "detail")
+        elif payload.get("detail_image"):
+            record["detail_image"] = save_food_data_url(payload.get("detail_image"), food_key, "detail")
+
+        if "rating" in payload:
+            record["rating"] = round(coerce_food_number(payload.get("rating"), food.get("rating", 4.0), float, 0, 5), 1)
+        if "popularity" in payload:
+            record["popularity"] = int(coerce_food_number(payload.get("popularity"), food.get("popularity", 60), int, 0, 9999))
+        if "avg_cost" in payload:
+            record["avg_cost"] = round(coerce_food_number(payload.get("avg_cost"), food.get("avg_cost", 22), float, 0, 9999), 1)
+        if "display_description" in payload:
+            record["display_description"] = str(payload.get("display_description") or "").strip()
+        if "recommendation_note" in payload:
+            record["recommendation_note"] = str(payload.get("recommendation_note") or "").strip() or default_food_recommendation_note()
+        if "recommend_score_override" in payload:
+            record["recommend_score_override"] = optional_food_float(payload.get("recommend_score_override"))
+
+        incoming_dishes = payload.get("dishes")
+        if isinstance(incoming_dishes, str):
+            try:
+                incoming_dishes = json.loads(incoming_dishes)
+            except json.JSONDecodeError:
+                incoming_dishes = []
+        if not isinstance(incoming_dishes, list):
+            incoming_dishes = []
+        if not incoming_dishes:
+            for index in range(3):
+                name_key = f"dish_name_{index}"
+                price_key = f"dish_price_{index}"
+                if name_key in payload or price_key in payload:
+                    incoming_dishes.append({
+                        "name": payload.get(name_key, ""),
+                        "price": payload.get(price_key, ""),
+                    })
+        if isinstance(incoming_dishes, list):
+            for index, dish_payload in enumerate(incoming_dishes[:3]):
+                if not isinstance(dish_payload, dict):
+                    continue
+                dish = record["signature_dishes"][index]
+                if "name" in dish_payload:
+                    dish["name"] = str(dish_payload.get("name") or "").strip()
+                if "price" in dish_payload:
+                    dish["price"] = str(dish_payload.get("price") or "").strip()
+                if dish_payload.get("image"):
+                    dish["image"] = save_food_data_url(dish_payload.get("image"), food_key, "dish", index=index)
+
+        dish_index = payload.get("dish_index")
+        dish_file = files.get("dish_file")
+        if dish_index is not None and dish_file and getattr(dish_file, "filename", ""):
+            index = int(dish_index)
+            if index < 0 or index > 2:
+                raise ValueError("招牌菜序号不合法")
+            record["signature_dishes"][index]["image"] = save_food_uploaded_file(dish_file, food_key, "dish", index=index)
+        elif dish_index is not None and payload.get("dish_image"):
+            index = int(dish_index)
+            if index < 0 or index > 2:
+                raise ValueError("招牌菜序号不合法")
+            record["signature_dishes"][index]["image"] = save_food_data_url(payload.get("dish_image"), food_key, "dish", index=index)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    records[food_key] = record
+    media_payload["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    save_food_media_payload(media_payload)
+    return jsonify({"ok": True, "food_key": food_key, "record": record})
 
 
 if __name__ == "__main__":

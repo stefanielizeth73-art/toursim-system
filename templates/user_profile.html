@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ profile_user.username }} 的主页 - 旅游日记广场</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
+</head>
+<body class="profile-page public-profile-page">
+    <a class="skip-link" href="#main-content">跳到内容</a>
+
+    <header class="profile-topbar">
+        <a class="profile-brand" href="{{ url_for('diaries') }}">旅游日记广场</a>
+        <nav class="profile-nav" aria-label="用户主页导航">
+            <a href="{{ url_for('diaries') }}">返回广场</a>
+            <a href="{{ url_for('home') }}">系统主页</a>
+            {% if is_self %}
+            <a href="{{ url_for('profile') }}">编辑个人中心</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main id="main-content" class="profile-shell">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message-stack" aria-live="polite">
+                    {% for message in messages %}
+                    <div class="message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="profile-hero profile-hero--public">
+            <div class="profile-identity">
+                <img class="profile-avatar-large" src="{{ profile_avatar_url }}" alt="{{ profile_user.username }} 的头像">
+                <div>
+                    <span class="profile-kicker">Traveler Profile</span>
+                    <h1>{{ profile_user.username }}</h1>
+                    <p>这里展示该用户公开发布的旅游日记和互动数据。</p>
+                </div>
+            </div>
+            <div class="profile-stat-strip" aria-label="公开数据">
+                <div><strong>{{ stats.diary_count }}</strong><span>日记</span></div>
+                <div><strong>{{ stats.comment_count }}</strong><span>评论</span></div>
+                <div><strong>{{ stats.total_views }}</strong><span>浏览</span></div>
+                <div><strong>{{ stats.avg_rating }}</strong><span>平均评分</span></div>
+            </div>
+        </section>
+
+        <section class="profile-panel profile-panel--wide">
+            <div class="profile-section-head">
+                <h2>{{ profile_user.username }} 发布的日记</h2>
+                <p>按发布时间展示，点击进入详情页评论或收藏。</p>
+            </div>
+            {% if user_diaries %}
+            <div class="profile-public-diary-grid">
+                {% for diary in user_diaries %}
+                <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                    <strong>{{ diary.title }}</strong>
+                    <span>{{ diary.destination }} · {{ diary.created_at }} · 浏览 {{ diary.views }}</span>
+                    <p>{{ diary.content_preview }}</p>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="profile-empty">这位用户还没有发布公开日记。</div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

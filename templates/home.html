@@ -11,44 +11,48 @@
     <div class="topbar">
         <div>个性化旅游系统</div>
         <div>
+            {% if current_user_avatar_url %}
+            <img class="topbar-avatar" src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像">
+            {% endif %}
             当前用户：{{ username }}
+            <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
         </div>
     </div>
 
     <div class="container">
         <h2>欢迎来到系统主页</h2>
-        <p class="subtitle">请选择你想进入的功能模块</p>
+        <p class="subtitle">请选择你想进入的功能模块。</p>
 
         <div class="menu-grid">
             <a class="menu-card" href="{{ url_for('places') }}">
-                <h3>景点推荐 / 校园查询</h3>
-                <p>查看景区与校园列表，支持搜索、筛选、排序</p>
-            </a>
-
-            <a class="menu-card" href="{{ url_for('recommend_places') }}">
-                <h3>Top-10 推荐</h3>
-                <p>根据评分、热度和兴趣标签生成推荐结果</p>
+                <h3>景点探索</h3>
+                <p>整合景区与校园检索、条件筛选、排序和 Top-K 个性化推荐。</p>
             </a>
 
             <a class="menu-card" href="{{ url_for('route') }}">
-                <h3>路线规划</h3>
-                <p>基于道路图和 Dijkstra 算法，支持单目标与多目标路线规划</p>
+                <h3>路线规划与场所查询</h3>
+                <p>基于道路图和 Dijkstra 算法规划路线，并按道路最短距离查询周边服务设施。</p>
             </a>
 
-            <a class="menu-card" href="{{ url_for('facilities') }}">
-                <h3>场所查询</h3>
-                <p>按道路最短距离查询厕所、商店、超市等服务设施</p>
+            <a class="menu-card" href="{{ url_for('indoor') }}">
+                <h3>室内导航</h3>
+                <p>演示三层教学楼内的大门、电梯、步梯和教室最短路径导航。</p>
             </a>
 
             <a class="menu-card" href="{{ url_for('diaries') }}">
                 <h3>旅游日记</h3>
-                <p>支持日记发布、检索、浏览热度统计与评分排序</p>
+                <p>支持日记发布、检索、浏览热度统计与评分排序。</p>
             </a>
 
             <a class="menu-card" href="{{ url_for('foods') }}">
                 <h3>美食推荐</h3>
-                <p>基于厦门大学翔安校区图数据的距离优先美食推荐</p>
+                <p>基于厦门大学翔安校区图数据的距离优先美食推荐。</p>
+            </a>
+
+            <a class="menu-card" href="{{ url_for('profile') }}">
+                <h3>个人中心</h3>
+                <p>管理头像、账号密码，查看发布日记、收藏日记与收藏美食。</p>
             </a>
         </div>
     </div>

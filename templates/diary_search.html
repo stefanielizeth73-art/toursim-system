@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>旅游日记广场</title>
+    <title>搜索日记 - 旅游日记广场</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
 </head>
-<body class="diary-hub-page diary-list-page">
+<body class="diary-hub-page diary-search-page">
     <a class="skip-link" href="#main-content">跳到内容</a>
 
     <div class="diary-shell" data-diary-feed-page>
@@ -19,11 +19,10 @@
             </div>
 
             <div class="diary-topbar-actions">
-                <form class="diary-search-form" action="{{ url_for('diary_search') }}" method="get">
-                    <input type="search" name="q" placeholder="搜索日记、作者、目的地" value="{{ request.args.get('q', '') if request else '' }}">
+                <form class="diary-search-form is-focus" action="{{ url_for('diary_search') }}" method="get">
+                    <input type="search" name="q" placeholder="搜索日记、作者、目的地" value="{{ query }}" autofocus>
                     <button type="submit" aria-label="搜索日记">搜索</button>
                 </form>
-
                 <details class="publish-panel">
                     <summary class="publish-trigger">发布日记</summary>
                     <div class="publish-panel__body">
@@ -61,11 +60,11 @@
                     </div>
                 </details>
                 <a class="diary-topbar-link" href="{{ url_for('profile') }}">个人中心</a>
-                <a class="diary-topbar-link" href="{{ url_for('home') }}">返回主页</a>
+                <a class="diary-topbar-link js-diary-back" href="{{ url_for('diaries') }}">返回广场</a>
             </div>
         </header>
 
-        <main id="main-content" class="diary-main">
+        <main id="main-content" class="diary-main diary-search-main">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     <div class="message-stack" aria-live="polite">
@@ -76,9 +75,23 @@
                 {% endif %}
             {% endwith %}
 
-            {% if diaries %}
-            <section class="diary-feed js-masonry-feed" aria-label="旅游日记列表">
-                {% for diary in diaries %}
+            {% if query %}
+                <section class="search-headline">
+                    <h2>搜索结果</h2>
+                    <p>“{{ query }}”</p>
+                </section>
+                {% set result_diaries = diaries %}
+            {% else %}
+                <section class="search-headline">
+                    <h2>高分推荐</h2>
+                    <p>先看看评分和热度都比较高的日记。</p>
+                </section>
+                {% set result_diaries = recommendations %}
+            {% endif %}
+
+            {% if result_diaries %}
+            <section class="diary-feed js-masonry-feed" aria-label="{% if query %}搜索结果{% else %}高分推荐{% endif %}">
+                {% for diary in result_diaries %}
                 <a class="diary-post js-diary-entry {% if not diary.cover_media %}is-text-only{% endif %}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
                     <div class="diary-post__cover">
                         {% if diary.cover_media %}
@@ -108,8 +121,8 @@
             </section>
             {% else %}
             <section class="empty-state">
-                <h2>还没有日记</h2>
-                <p>先点右上角发布一篇，再回来看看四列信息流。</p>
+                <h2>没有搜到结果</h2>
+                <p>换个关键词试试，或者清空搜索看看高分推荐。</p>
             </section>
             {% endif %}
 

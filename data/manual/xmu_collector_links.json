@@ -36134,34 +36134,6 @@
     },
     {
       "a": {
-        "id": "route_point_齐齐哈尔家庭烤肉_201",
-        "type": "poi"
-      },
-      "amap_geometry": [
-        [
-          118.303002,
-          24.607631
-        ],
-        [
-          118.303019,
-          24.607538
-        ]
-      ],
-      "b": {
-        "edge": "edge_0053",
-        "point_index": 20,
-        "type": "road"
-      },
-      "bike": true,
-      "congestion": 0.82,
-      "distance": 10.5,
-      "id": "link_1260",
-      "kind": "poi_road",
-      "source": "manual_collector_link",
-      "walk": true
-    },
-    {
-      "a": {
         "id": "route_point_香山里营地_露营团建_202",
         "type": "poi"
       },
@@ -36184,34 +36156,6 @@
       "congestion": 0.82,
       "distance": 5.1,
       "id": "link_1261",
-      "kind": "poi_road",
-      "source": "manual_collector_link",
-      "walk": true
-    },
-    {
-      "a": {
-        "id": "route_point_无忧烙锅纸包鱼_203",
-        "type": "poi"
-      },
-      "amap_geometry": [
-        [
-          118.309459,
-          24.60728
-        ],
-        [
-          118.30942,
-          24.607262
-        ]
-      ],
-      "b": {
-        "edge": "edge_0309",
-        "point_index": 5,
-        "type": "road"
-      },
-      "bike": true,
-      "congestion": 0.82,
-      "distance": 4.4,
-      "id": "link_1262",
       "kind": "poi_road",
       "source": "manual_collector_link",
       "walk": true
@@ -36469,6 +36413,208 @@
       "kind": "poi_road",
       "source": "manual_collector_link",
       "walk": true
+    },
+    {
+      "a": {
+        "edge": "edge_0676",
+        "point_index": 0,
+        "type": "road"
+      },
+      "amap_geometry": [
+        [
+          118.309632,
+          24.611787
+        ],
+        [
+          118.309666,
+          24.611794
+        ]
+      ],
+      "b": {
+        "edge": "edge_0169",
+        "point_index": 31,
+        "type": "road"
+      },
+      "bike": true,
+      "congestion": 0.82,
+      "distance": 3.5,
+      "id": "link_1272",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
+    },
+    {
+      "a": {
+        "edge": "edge_0677",
+        "point_index": 0,
+        "type": "road"
+      },
+      "amap_geometry": [
+        [
+          118.303151,
+          24.608004
+        ],
+        [
+          118.303167,
+          24.608031
+        ]
+      ],
+      "b": {
+        "edge": "edge_0059",
+        "point_index": 10,
+        "type": "road"
+      },
+      "bike": true,
+      "congestion": 0.82,
+      "distance": 3.4,
+      "id": "link_1273",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
+    },
+    {
+      "id": "link_1274",
+      "kind": "road_road",
+      "a": {
+        "type": "road",
+        "edge": "edge_0678",
+        "point_index": 0
+      },
+      "b": {
+        "type": "road",
+        "edge": "edge_0053",
+        "point_index": 11
+      },
+      "amap_geometry": [
+        [
+          118.302731,
+          24.607559
+        ],
+        [
+          118.302732,
+          24.607536
+        ]
+      ],
+      "distance": 2.6,
+      "walk": true,
+      "bike": true,
+      "congestion": 0.82,
+      "source": "manual_collector_link"
+    },
+    {
+      "id": "link_1275",
+      "kind": "road_road",
+      "a": {
+        "type": "road",
+        "edge": "edge_0679",
+        "point_index": 0
+      },
+      "b": {
+        "type": "road",
+        "edge": "edge_0678",
+        "point_index": 6
+      },
+      "amap_geometry": [
+        [
+          118.302803,
+          24.607701
+        ],
+        [
+          118.302774,
+          24.607706
+        ]
+      ],
+      "distance": 3.0,
+      "walk": true,
+      "bike": true,
+      "congestion": 0.82,
+      "source": "manual_collector_link"
+    },
+    {
+      "id": "link_1276",
+      "kind": "road_road",
+      "a": {
+        "type": "road",
+        "edge": "edge_0679",
+        "point_index": 10
+      },
+      "b": {
+        "type": "road",
+        "edge": "edge_0677",
+        "point_index": 6
+      },
+      "amap_geometry": [
+        [
+          118.303122,
+          24.607793
+        ],
+        [
+          118.303138,
+          24.607843
+        ]
+      ],
+      "distance": 5.8,
+      "walk": true,
+      "bike": true,
+      "congestion": 0.82,
+      "source": "manual_collector_link"
+    },
+    {
+      "id": "link_1277",
+      "kind": "poi_road",
+      "a": {
+        "type": "poi",
+        "id": "route_point_齐齐哈尔家庭烤肉_210"
+      },
+      "b": {
+        "type": "road",
+        "edge": "edge_0679",
+        "point_index": 3
+      },
+      "amap_geometry": [
+        [
+          118.30293,
+          24.607742
+        ],
+        [
+          118.302886,
+          24.607718
+        ]
+      ],
+      "distance": 5.2,
+      "walk": true,
+      "bike": true,
+      "congestion": 0.82,
+      "source": "manual_collector_link"
+    },
+    {
+      "id": "link_1278",
+      "kind": "road_road",
+      "a": {
+        "type": "road",
+        "edge": "edge_0634",
+        "point_index": 10
+      },
+      "b": {
+        "type": "road",
+        "edge": "edge_0521",
+        "point_index": 25
+      },
+      "amap_geometry": [
+        [
+          118.316627,
+          24.610745
+        ],
+        [
+          118.31661,
+          24.610767
+        ]
+      ],
+      "distance": 3.0,
+      "walk": true,
+      "bike": true,
+      "congestion": 0.82,
+      "source": "manual_collector_link"
     }
   ]
 }

@@ -3201,22 +3201,6 @@
       ]
     },
     {
-      "amap_lat": 24.607631,
-      "amap_lng": 118.303002,
-      "category": "食堂",
-      "id": "route_point_齐齐哈尔家庭烤肉_201",
-      "kind": "canteen",
-      "lat": 24.607631,
-      "lon": 118.303002,
-      "name": "齐齐哈尔家庭烤肉",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "食堂"
-      ]
-    },
-    {
       "amap_lat": 24.603104,
       "amap_lng": 118.301212,
       "category": "食堂",
@@ -3225,22 +3209,6 @@
       "lat": 24.603104,
       "lon": 118.301212,
       "name": "香山里营地/露营团建",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "食堂"
-      ]
-    },
-    {
-      "amap_lat": 24.60728,
-      "amap_lng": 118.309459,
-      "category": "食堂",
-      "id": "route_point_无忧烙锅纸包鱼_203",
-      "kind": "canteen",
-      "lat": 24.60728,
-      "lon": 118.309459,
-      "name": "无忧烙锅纸包鱼",
       "role": "route_point",
       "selectable": true,
       "source": "manual_collector_node",
@@ -3359,6 +3327,22 @@
       "tags": [
         "食堂"
       ]
+    },
+    {
+      "id": "route_point_齐齐哈尔家庭烤肉_210",
+      "name": "齐齐哈尔家庭烤肉",
+      "category": "食堂",
+      "tags": [
+        "食堂"
+      ],
+      "role": "route_point",
+      "kind": "canteen",
+      "lat": 24.607742,
+      "lon": 118.30293,
+      "amap_lng": 118.30293,
+      "amap_lat": 24.607742,
+      "selectable": true,
+      "source": "manual_collector_node"
     }
   ]
 }
