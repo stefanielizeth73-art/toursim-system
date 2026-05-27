@@ -3809,7 +3809,26 @@ def indoor_collector_summary(payload=None):
     }
 
 
-def normalize_indoor_collector_node(payload, existing_count=0):
+def next_indoor_collector_id(prefix, floor, existing_items=None):
+    existing_items = existing_items or []
+    used_ids = {str(item.get("id")) for item in existing_items if isinstance(item, dict) and item.get("id")}
+    id_prefix = f"{prefix}_{floor}f_"
+    id_pattern = re.compile(rf"^{re.escape(id_prefix)}(\d+)$")
+    max_index = 0
+    for item_id in used_ids:
+        match = id_pattern.match(item_id)
+        if match:
+            max_index = max(max_index, int(match.group(1)))
+
+    next_index = max(max_index, len(used_ids)) + 1
+    while True:
+        candidate = f"{id_prefix}{next_index:03d}"
+        if candidate not in used_ids:
+            return candidate, next_index
+        next_index += 1
+
+
+def normalize_indoor_collector_node(payload, existing_items=None):
     floor = int(payload.get("floor", 1))
     if floor not in INDOOR_FLOOR_ASSETS:
         raise ValueError("楼层无效")
@@ -3829,8 +3848,9 @@ def normalize_indoor_collector_node(payload, existing_count=0):
             core_id = ""
     else:
         core_id = ""
-    name = str(payload.get("name") or f"{floor}F采集点{existing_count + 1}").strip()
-    node_id = str(payload.get("id") or f"indoor_{floor}f_{existing_count + 1:03d}").strip()
+    node_id, next_index = next_indoor_collector_id("indoor", floor, existing_items)
+    name = str(payload.get("name") or f"{floor}F采集点{next_index}").strip()
+    node_id = str(payload.get("id") or node_id).strip()
     node = {
         "id": node_id,
         "name": name,
@@ -3845,7 +3865,7 @@ def normalize_indoor_collector_node(payload, existing_count=0):
     return node
 
 
-def normalize_indoor_collector_edge(payload, nodes, existing_count=0):
+def normalize_indoor_collector_edge(payload, nodes, existing_items=None):
     floor = int(payload.get("floor", 1))
     if floor not in INDOOR_FLOOR_ASSETS:
         raise ValueError("楼层无效")
@@ -3890,10 +3910,11 @@ def normalize_indoor_collector_edge(payload, nodes, existing_count=0):
         target_edge = str(link.get("edge") or "").strip()
         if target_edge and 0 <= index < len(points) and target_index >= 0:
             road_links.append({"index": index, "edge": target_edge, "target_index": target_index})
-    edge_id = str(payload.get("id") or f"indoor_edge_{floor}f_{existing_count + 1:03d}").strip()
+    edge_id, next_index = next_indoor_collector_id("indoor_edge", floor, existing_items)
+    edge_id = str(payload.get("id") or edge_id).strip()
     return {
         "id": edge_id,
-        "name": str(payload.get("name") or f"{floor}F室内路径{existing_count + 1}").strip(),
+        "name": str(payload.get("name") or f"{floor}F室内路径{next_index}").strip(),
         "floor": floor,
         "from": from_id,
         "to": to_id,
@@ -3949,7 +3970,7 @@ def normalize_indoor_collector_ref(ref, nodes, edges):
     raise ValueError("吸附端点类型无效")
 
 
-def normalize_indoor_collector_link(payload, nodes, edges, existing_count=0):
+def normalize_indoor_collector_link(payload, nodes, edges, existing_items=None):
     floor = int(payload.get("floor", 1))
     if floor not in INDOOR_FLOOR_ASSETS:
         raise ValueError("楼层无效")
@@ -3963,7 +3984,8 @@ def normalize_indoor_collector_link(payload, nodes, edges, existing_count=0):
     point_b = indoor_collector_ref_point(b_ref, nodes, edges)
     if not point_a or not point_b:
         raise ValueError("吸附端点坐标无效")
-    link_id = str(payload.get("id") or f"indoor_link_{floor}f_{existing_count + 1:03d}").strip()
+    link_id, _ = next_indoor_collector_id("indoor_link", floor, existing_items)
+    link_id = str(payload.get("id") or link_id).strip()
     return {
         "id": link_id,
         "floor": floor,
@@ -4013,9 +4035,9 @@ def build_indoor_graph_from_collector(payload):
             except (TypeError, ValueError):
                 continue
             add_node(normalized)
-        for edge_index, raw_edge in enumerate(floor_payload.get("edges", [])):
+        for raw_edge in floor_payload.get("edges", []):
             try:
-                edge = normalize_indoor_collector_edge(raw_edge, floor_payload.get("nodes", []), edge_index)
+                edge = normalize_indoor_collector_edge(raw_edge, floor_payload.get("nodes", []), floor_payload.get("edges", []))
             except (TypeError, ValueError):
                 continue
             previous_node_id = ""
@@ -4050,13 +4072,13 @@ def build_indoor_graph_from_collector(payload):
                         [node_map[from_id]["x"], node_map[from_id]["y"]],
                         [node_map[to_id]["x"], node_map[to_id]["y"]],
                     ))
-        for link_index, raw_link in enumerate(floor_payload.get("links", [])):
+        for raw_link in floor_payload.get("links", []):
             try:
                 link = normalize_indoor_collector_link(
                     raw_link,
                     floor_payload.get("nodes", []),
                     floor_payload.get("edges", []),
-                    link_index,
+                    floor_payload.get("links", []),
                 )
             except (TypeError, ValueError):
                 continue
@@ -5415,7 +5437,7 @@ def indoor_collector_node_api():
         source = request.get_json(force=True) or {}
         floor_key = str(int(source.get("floor", 1)))
         floor_payload = payload["floors"].setdefault(floor_key, {"nodes": [], "edges": [], "links": []})
-        node = normalize_indoor_collector_node(source, len(floor_payload.get("nodes", [])))
+        node = normalize_indoor_collector_node(source, floor_payload.get("nodes", []))
         floor_payload["nodes"] = [item for item in floor_payload.get("nodes", []) if item.get("id") != node["id"]]
         floor_payload["nodes"].append(node)
         save_indoor_collector_payload(payload)
@@ -5436,7 +5458,7 @@ def indoor_collector_edge_api():
         edge = normalize_indoor_collector_edge(
             source,
             floor_payload.get("nodes", []),
-            len(floor_payload.get("edges", [])),
+            floor_payload.get("edges", []),
         )
         floor_payload["edges"] = [item for item in floor_payload.get("edges", []) if item.get("id") != edge["id"]]
         floor_payload["edges"].append(edge)
@@ -5459,7 +5481,7 @@ def indoor_collector_link_api():
             source,
             floor_payload.get("nodes", []),
             floor_payload.get("edges", []),
-            len(floor_payload.get("links", [])),
+            floor_payload.get("links", []),
         )
 
         def ref_key(ref):
