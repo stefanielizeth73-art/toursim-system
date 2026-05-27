@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>美食推荐</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='food_dev_tools.js', v=asset_version('food_dev_tools.js')) }}"></script>
+    <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="food-product-page food-feed-open-page" data-place-id="{{ place_id }}">
     <div class="food-feed-layout">
@@ -20,7 +21,6 @@
                 <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
                 <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
                 <a class="food-map-pick food-map-pick--compact" href="{{ url_for('route', place_id=place_id, food_pick=1) }}">选择当前位置</a>
-                <button type="button" class="food-dev-toggle" data-food-dev-toggle>开发者模式</button>
             </nav>
             <section class="food-side-rail__panel food-side-rail__search-panel">
                 <span class="eyebrow">SEARCH</span>
@@ -110,9 +110,9 @@
 
             <section class="food-feed" aria-label="美食信息流">
                 {% for food in foods %}
-                <a class="food-card" href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=food_pagination.page) }}" aria-label="查看 {{ food.name }} 详情" data-food-key="{{ food.food_key }}" data-food-name="{{ food.name }}">
-                    <div class="food-card__media" data-food-cover-edit data-food-key="{{ food.food_key }}" data-food-name="{{ food.name }}">
-                        <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 店面代表图" loading="lazy" width="720" height="540" data-food-image-role="cover" data-food-key="{{ food.food_key }}">
+                <a class="food-card" href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=food_pagination.page) }}" aria-label="查看 {{ food.name }} 详情">
+                    <div class="food-card__media">
+                        <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 店面代表图" loading="lazy" width="720" height="540">
                         <span>{{ "%02d"|format(loop.index + (food_pagination.page - 1) * food_pagination.per_page) }}</span>
                     </div>
                     <div class="food-card__body">

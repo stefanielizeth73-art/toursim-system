@@ -713,20 +713,6 @@
       "type": "卫生间"
     },
     {
-      "amap_lat": 24.607992,
-      "amap_lng": 118.318157,
-      "description": "饮水，手动采集，模块三按道路图距离排序。",
-      "id": "facility_0058",
-      "name": "自助柜",
-      "nearest_node": "road_edge_0497_000",
-      "parent_place": "xmu_manual",
-      "source": "manual_collector_facility",
-      "tags": [
-        "饮水"
-      ],
-      "type": "饮水"
-    },
-    {
       "amap_lat": 24.610838,
       "amap_lng": 118.317228,
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
@@ -951,34 +937,6 @@
         "饮水"
       ],
       "type": "饮水"
-    },
-    {
-      "amap_lat": 24.615153,
-      "amap_lng": 118.310156,
-      "description": "便利店，手动采集，模块三按道路图距离排序。",
-      "id": "facility_0075",
-      "name": "自助柜",
-      "nearest_node": "road_edge_0176_001",
-      "parent_place": "xmu_manual",
-      "source": "manual_collector_facility",
-      "tags": [
-        "便利店"
-      ],
-      "type": "便利店"
-    },
-    {
-      "amap_lat": 24.61515,
-      "amap_lng": 118.310151,
-      "description": "便利店，手动采集，模块三按道路图距离排序。",
-      "id": "facility_0076",
-      "name": "自助柜",
-      "nearest_node": "road_edge_0176_001",
-      "parent_place": "xmu_manual",
-      "source": "manual_collector_facility",
-      "tags": [
-        "便利店"
-      ],
-      "type": "便利店"
     },
     {
       "amap_lat": 24.607933,
@@ -1471,34 +1429,6 @@
         "卫生间"
       ],
       "type": "卫生间"
-    },
-    {
-      "amap_lat": 24.612875,
-      "amap_lng": 118.309974,
-      "description": "便利店，手动采集，模块三按道路图距离排序。",
-      "id": "facility_0113",
-      "name": "自助柜",
-      "nearest_node": "road_edge_0619_101",
-      "parent_place": "xmu_manual",
-      "source": "manual_collector_facility",
-      "tags": [
-        "便利店"
-      ],
-      "type": "便利店"
-    },
-    {
-      "amap_lat": 24.614583,
-      "amap_lng": 118.310927,
-      "description": "便利店，手动采集，模块三按道路图距离排序。",
-      "id": "facility_0114",
-      "name": "自助柜",
-      "nearest_node": "road_edge_0621_059",
-      "parent_place": "xmu_manual",
-      "source": "manual_collector_facility",
-      "tags": [
-        "便利店"
-      ],
-      "type": "便利店"
     },
     {
       "amap_lat": 24.611879,

@@ -53,43 +53,17 @@
                     <label>
                         <span>关键点类型</span>
                         <select id="collectorNodeType">
-                            <option value="room">房间门点</option>
-                            <option value="gate">出入口</option>
                             <option value="elevator">电梯</option>
                             <option value="stairs">步梯</option>
-                            <option value="hall">走廊辅助点</option>
+                            <option value="other">其他</option>
                         </select>
                     </label>
                     <label>
                         <span>关键点名称</span>
-                        <input id="collectorNodeName" type="text" placeholder="例如：101 北侧教室A">
-                    </label>
-                    <label id="collectorCoreField" class="is-hidden">
-                        <span>跨层核心筒</span>
-                        <select id="collectorCoreId">
-                            <option value="">不关联跨层</option>
-                            <option value="west_elevator" data-core-type="elevator">西电梯</option>
-                            <option value="east_elevator" data-core-type="elevator">东电梯</option>
-                            <option value="northwest_stairs" data-core-type="stairs">西北步梯</option>
-                            <option value="east_stairs" data-core-type="stairs">东侧步梯</option>
-                        </select>
+                        <input id="collectorNodeName" type="text" placeholder="例如：电梯1号 / 步梯1号 / 101教室">
                     </label>
                 </div>
-                <div class="collector-fieldset is-hidden" data-mode-panel="road">
-                    <label>
-                        <span>道路名称</span>
-                        <input id="collectorRoadName" type="text" placeholder="例如：1F 北侧主走廊">
-                    </label>
-                    <label>
-                        <span>道路类型</span>
-                        <select id="collectorRoadType">
-                            <option value="corridor">走廊</option>
-                            <option value="bridge">连廊</option>
-                            <option value="lobby">大厅</option>
-                        </select>
-                    </label>
-                </div>
-                <p class="collector-hint" id="collectorModeHint">左键在底图上添加房间门、电梯、步梯或入口关键点。右键已有对象可删除。</p>
+                <p class="collector-hint" id="collectorModeHint">左键在底图上添加电梯、步梯或其他关键点；同名电梯/步梯会按楼层自动跨层连接。</p>
                 <div class="collector-button-row">
                     <button type="button" data-indoor-action="undo">撤销</button>
                     <button type="button" data-indoor-action="redo">恢复</button>
@@ -115,7 +89,18 @@
                     <span><i class="is-core"></i>吸附端点</span>
                 </div>
             </div>
-            <svg id="indoorCollectorMap" class="indoor-floor-plan indoor-floor-plan--image indoor-collector-map" viewBox="0 0 {{ payload.meta.width }} {{ payload.meta.height }}" role="application" aria-label="室内采集地图"></svg>
+            <div class="indoor-collector-floor-stack">
+                {% for floor in payload.meta.floor_assets.keys()|sort %}
+                <article class="indoor-collector-floor" data-collector-floor-card="{{ floor }}">
+                    <div class="indoor-collector-floor__badge">{{ floor }}F</div>
+                    <svg class="indoor-floor-plan indoor-floor-plan--image indoor-collector-map"
+                         data-collector-map="{{ floor }}"
+                         viewBox="0 0 {{ payload.meta.width }} {{ payload.meta.height }}"
+                         role="application"
+                         aria-label="{{ floor }}F 室内采集地图"></svg>
+                </article>
+                {% endfor %}
+            </div>
         </section>
     </main>
 

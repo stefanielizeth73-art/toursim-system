@@ -49,6 +49,35 @@ AMAP_SECURITY_JS_CODE=your_js_security_code
 AMAP_WEB_KEY=your_web_key
 ```
 
+### AI assistant
+
+TourSim includes a floating AI travel assistant on the main logged-in pages.
+It combines the existing local data and functions for places, campus food,
+outdoor routes, facilities, indoor navigation, and travel diaries.
+
+The assistant works in two modes:
+
+- Local mode: if the selected provider key is empty, it still returns structured
+  recommendations from the project's local data.
+- Model mode: set the provider key in `.env`; the Flask server calls the model
+  from the backend only, so the key is never rendered into browser HTML or JS.
+
+Default DeepSeek V4 Pro 1M context `.env` values:
+
+```powershell
+AI_ASSISTANT_ENABLED=1
+AI_PROVIDER=deepseek
+AI_MODEL=deepseek-v4-pro
+AI_REASONING_MODEL=deepseek-v4-pro
+AI_BASE_URL=https://api.deepseek.com
+AI_THINKING=enabled
+AI_REASONING_EFFORT=high
+DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+To switch back to OpenAI, set `AI_PROVIDER=openai`, choose an OpenAI model, and
+set `OPENAI_API_KEY`.
+
 Open the collector:
 
 ```text

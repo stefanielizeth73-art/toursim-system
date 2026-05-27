@@ -16,8 +16,8 @@ import os
 import re
 import shutil
 import time
+import uuid
 from datetime import datetime
-from io import BytesIO
 from urllib.parse import urlencode
 from markupsafe import Markup, escape
 try:
@@ -98,6 +98,12 @@ MAX_ROUTE_TARGETS = 8
 AMAP_JS_KEY = os.getenv("AMAP_JS_KEY", "")
 AMAP_SECURITY_JS_CODE = os.getenv("AMAP_SECURITY_JS_CODE", "")
 AMAP_WEB_KEY = os.getenv("AMAP_WEB_KEY", "")
+AI_PROVIDER = os.getenv("AI_PROVIDER", "deepseek")
+AI_MODEL = os.getenv("AI_MODEL", "deepseek-v4-pro")
+AI_REASONING_MODEL = os.getenv("AI_REASONING_MODEL", AI_MODEL)
+AI_ASSISTANT_ENABLED = os.getenv("AI_ASSISTANT_ENABLED", "1")
+AI_CHAT_HISTORY_LIMIT = 12
+DEEPSEEK_BASE_URL = os.getenv("AI_BASE_URL", "https://api.deepseek.com")
 XMU_MANUAL_PLACE_ID = "xmu_manual"
 XMU_MANUAL_GRAPH_FILE = os.path.join(ROUTE_GRAPHS_DIR, "xmu_manual.json")
 XMU_COLLECTOR_DIR = os.path.join(APP_DIR, "data", "manual")
@@ -107,7 +113,6 @@ XMU_COLLECTOR_LINKS_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_links.
 XMU_COLLECTOR_FACILITIES_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_facilities.json")
 XMU_COLLECTOR_META_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_collector_meta.json")
 XMU_FOOD_MEDIA_FILE = os.path.join(XMU_COLLECTOR_DIR, "xmu_food_media.json")
-XMU_FOOD_CUSTOM_MEDIA_DIR = os.path.join(APP_DIR, "static", "food_media", "custom")
 INDOOR_DATA_DIR = os.path.join(APP_DIR, "data", "indoor")
 INDOOR_COLLECTOR_FILE = os.path.join(INDOOR_DATA_DIR, "manual_collector.json")
 XMU_ROAD_SNAP_METERS = 0
@@ -607,6 +612,31 @@ def initialize_database():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ai_user_profiles (
+        user_id INTEGER PRIMARY KEY,
+        travel_style TEXT NOT NULL DEFAULT '',
+        budget_level TEXT NOT NULL DEFAULT '',
+        food_preferences_json TEXT NOT NULL DEFAULT '{}',
+        mobility_preferences_json TEXT NOT NULL DEFAULT '{}',
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ai_chat_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        conversation_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL,
+        tool_calls_json TEXT NOT NULL DEFAULT '[]',
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    """)
+
     ensure_place_images_table(cursor)
     ensure_sqlite_column(cursor, "users", "avatar_path", "TEXT NOT NULL DEFAULT ''")
     ensure_sqlite_column(cursor, "diaries", "media_json", "TEXT NOT NULL DEFAULT '[]'")
@@ -620,6 +650,7 @@ def initialize_database():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comments_diary_created ON diary_comments(diary_id, like_count DESC, created_at ASC, id ASC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comment_likes_comment_username ON diary_comment_likes(comment_id, username)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites_user_type_created ON user_favorites(user_id, item_type, created_at DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_user_conversation_created ON ai_chat_messages(user_id, conversation_id, created_at DESC, id DESC)")
 
     cursor.execute("SELECT id, username, avatar_path FROM users ORDER BY id ASC")
     existing_users = cursor.fetchall()
@@ -2632,8 +2663,21 @@ def apply_food_media(food):
             media = media_records[key]
             break
 
-    food["visible_tags"] = visible_food_tags(food.get("tags_list", []), food.get("category", ""))
     if media:
+        cuisine_override = str(media.get("cuisine") or "").strip()
+        if cuisine_override and cuisine_override != "其他餐饮":
+            previous_category = str(food.get("category") or "").strip()
+            food["category"] = cuisine_override
+            food["cuisine"] = cuisine_override
+            food["has_explicit_cuisine"] = True
+            tags_list = []
+            for tag in normalize_tags(food.get("tags_list") or food.get("tags")):
+                if tag and tag != previous_category and tag not in tags_list:
+                    tags_list.append(tag)
+            if cuisine_override not in tags_list:
+                tags_list.append(cuisine_override)
+            food["tags_list"] = tags_list
+            food["tags"] = ";".join(tags_list)
         food["recommend_score_override"] = optional_food_float(media.get("recommend_score_override"))
         food["rating"] = round(coerce_food_number(media.get("rating"), food.get("rating", 4.0), float, 0, 5), 1)
         food["popularity"] = int(coerce_food_number(media.get("popularity"), food.get("popularity", 60), int, 0, 9999))
@@ -2658,6 +2702,7 @@ def apply_food_media(food):
             dish["image"] = "food_media/dishes/food-dish-placeholder.jpg"
             dishes.append(dish)
     food["signature_dishes"] = dishes[:3]
+    food["visible_tags"] = visible_food_tags(food.get("tags_list", []), food.get("category", ""))
     return food
 
 
@@ -3355,8 +3400,7 @@ def route_from_shortest_tree(graph, route_tree, end):
 
 def build_indoor_graph(building_id="demo_building"):
     collector_payload = load_indoor_collector_payload()
-    collector_summary_data = indoor_collector_summary(collector_payload)
-    if collector_summary_data.get("manual_nodes", 0) or collector_summary_data.get("manual_edges", 0):
+    if os.path.exists(INDOOR_COLLECTOR_FILE):
         return build_indoor_graph_from_collector(collector_payload)
 
     floors_list = (1, 2, 3, 4)
@@ -3648,7 +3692,7 @@ def prepare_indoor_floors(graph, result):
 def indoor_node_options(graph):
     return [
         node for node in graph["nodes"]
-        if node["type"] in {"gate", "room", "elevator", "stairs"}
+        if node["type"] in {"gate", "room", "elevator", "stairs", "other"}
     ]
 
 
@@ -3728,8 +3772,10 @@ def normalize_indoor_collector_node(payload, existing_count=0):
     x = min(max(float(payload.get("x", 0)), 0), INDOOR_FLOOR_WIDTH)
     y = min(max(float(payload.get("y", 0)), 0), INDOOR_FLOOR_HEIGHT)
     node_type = str(payload.get("type") or "hall").strip()
-    if node_type not in {"hall", "room", "gate", "elevator", "stairs"}:
-        node_type = "hall"
+    if node_type in {"hall", "room", "gate"}:
+        node_type = "other"
+    if node_type not in {"other", "elevator", "stairs"}:
+        node_type = "other"
     core_id = str(payload.get("core_id") or payload.get("core") or "").strip()
     core_meta = INDOOR_VERTICAL_CORES.get(core_id)
     if node_type in {"elevator", "stairs"}:
@@ -3980,12 +4026,24 @@ def build_indoor_graph_from_collector(payload):
             to_id = graph_node_for_ref(link.get("b") or {})
             add_edge(from_id, to_id, link.get("distance", 0), link.get("mode", "walk"))
 
+    def vertical_node_name_key(node):
+        return normalize_search_text(str(node.get("name") or "").strip())
+
     for floor in sorted(INDOOR_FLOOR_ASSETS)[:-1]:
         current = [node for node in nodes if node.get("floor") == floor and node.get("type") in {"elevator", "stairs"}]
         upper = [node for node in nodes if node.get("floor") == floor + 1 and node.get("type") in {"elevator", "stairs"}]
         for node in current:
             candidates = [item for item in upper if item.get("type") == node.get("type")]
             if not candidates:
+                continue
+            node_name_key = vertical_node_name_key(node)
+            same_name = [
+                item for item in candidates
+                if node_name_key and vertical_node_name_key(item) == node_name_key
+            ]
+            if same_name:
+                target = same_name[0]
+                add_edge(node["id"], target["id"], 16 if node.get("type") == "elevator" else 24, node.get("type"))
                 continue
             same_core = [
                 item for item in candidates
@@ -4637,6 +4695,60 @@ def update_diary_media(diary_id, media_items):
     invalidate_diary_index_cache()
 
 
+def update_diary_dev_fields(diary_id, title, destination, content, media_items, compression_algorithm="huffman"):
+    ensure_diaries_table()
+    compression_package, original_length, compressed_length = compress_diary_text(content, compression_algorithm)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE diaries
+        SET title = ?,
+            destination = ?,
+            content = ?,
+            media_json = ?,
+            compressed_content = ?,
+            compression_algorithm = ?,
+            compression_original_length = ?,
+            compression_compressed_length = ?
+        WHERE id = ?
+        """,
+        (
+            title,
+            destination,
+            content,
+            json.dumps(media_items or [], ensure_ascii=False),
+            json.dumps(compression_package, ensure_ascii=False),
+            compression_package["algorithm"],
+            original_length,
+            compressed_length,
+            diary_id,
+        )
+    )
+    conn.commit()
+    conn.close()
+    invalidate_diary_index_cache()
+
+
+def stored_diary_media_items(diary):
+    return parse_diary_package(diary.get("media_json")) or []
+
+
+def remove_diary_media_files(diary_id, filenames):
+    media_folder = os.path.abspath(diary_media_folder(diary_id))
+    for filename in filenames:
+        safe_filename = os.path.basename(filename or "")
+        if not safe_filename:
+            continue
+        file_path = os.path.abspath(os.path.join(media_folder, safe_filename))
+        if os.path.dirname(file_path) != media_folder:
+            continue
+        try:
+            os.remove(file_path)
+        except FileNotFoundError:
+            pass
+
+
 def get_diary_by_id(diary_id, increase_views=False):
     ensure_diaries_table()
     conn = get_db_connection()
@@ -5022,11 +5134,39 @@ def home():
         return redirect(url_for("login"))
 
     current_user = get_logged_in_user()
+
+    # 获取统计数据
+    places_count = 0
+    try:
+        places_count = len(load_places())
+    except Exception:
+        pass
+
+    diaries_count = 0
+    favorites_count = 0
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM diaries")
+        diaries_count = cursor.fetchone()[0]
+
+        if current_user:
+            cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ?", (current_user["id"],))
+            favorites_count = cursor.fetchone()[0]
+
+        conn.close()
+    except Exception:
+        pass
+
     return render_template(
         "home.html",
         username=session["username"],
         current_user=current_user,
         current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
+        places_count=places_count,
+        diaries_count=diaries_count,
+        favorites_count=favorites_count,
     )
 
 
@@ -5971,6 +6111,1312 @@ def facilities():
     return redirect(url_for("route") + ("?" + urlencode(params, doseq=True) if params else ""))
 
 
+def ai_env_flag(name, default="0"):
+    return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
+
+
+def ai_assistant_config():
+    provider = os.getenv("AI_PROVIDER", AI_PROVIDER).strip().lower() or "deepseek"
+    default_model = "deepseek-v4-pro" if provider == "deepseek" else AI_MODEL
+    api_key = os.getenv("DEEPSEEK_API_KEY", "").strip() if provider == "deepseek" else os.getenv("OPENAI_API_KEY", "").strip()
+    return {
+        "enabled": ai_env_flag("AI_ASSISTANT_ENABLED", AI_ASSISTANT_ENABLED),
+        "provider": provider,
+        "model": os.getenv("AI_MODEL", default_model).strip() or default_model,
+        "reasoning_model": os.getenv("AI_REASONING_MODEL", AI_REASONING_MODEL).strip() or AI_REASONING_MODEL,
+        "api_key": api_key,
+        "base_url": os.getenv("AI_BASE_URL", DEEPSEEK_BASE_URL).strip() or DEEPSEEK_BASE_URL,
+        "thinking": os.getenv("AI_THINKING", "enabled").strip().lower() or "enabled",
+        "reasoning_effort": os.getenv("AI_REASONING_EFFORT", "high").strip().lower() or "high",
+    }
+
+
+def ai_safe_text(value, limit=300):
+    text = str(value or "").strip()
+    if len(text) > limit:
+        return text[:limit].rstrip() + "..."
+    return text
+
+
+def ai_parse_budget(text):
+    match = re.search(r"(\d+(?:\.\d+)?)\s*(?:元|块|rmb|RMB|yuan|预算)", text or "")
+    if not match:
+        return None
+    try:
+        return float(match.group(1))
+    except ValueError:
+        return None
+
+
+def ai_food_intent_from_text(text):
+    raw_text = str(text or "").strip()
+    compact = normalize_search_text(raw_text)
+    is_followup = any(word in raw_text for word in ("没有吗", "还有吗", "换一个", "再来", "别的", "更多"))
+    food_words = ("吃", "饭", "饿", "美食", "食堂", "餐厅", "清淡", "夜宵", "奶茶", "咖啡", "预算", "便宜", "近一点")
+    is_food = is_followup or any(word in raw_text for word in food_words)
+
+    category = ""
+    if any(word in raw_text for word in ("食堂", "饭堂", "餐厅", "吃饭")):
+        category = "食堂"
+    elif any(word in raw_text for word in ("咖啡", "拿铁", "美式")):
+        category = "咖啡饮品"
+    elif any(word in raw_text for word in ("超市", "便利", "零食", "饮料")):
+        category = "超市便利"
+    elif any(word in raw_text for word in ("西餐", "汉堡", "披萨")):
+        category = "西餐"
+
+    preference_notes = []
+    if "清淡" in raw_text:
+        preference_notes.append("清淡一点")
+    if any(word in raw_text for word in ("便宜", "预算", "实惠", "不贵")):
+        preference_notes.append("价格友好")
+    if any(word in raw_text for word in ("近", "附近", "就近")):
+        preference_notes.append("尽量近一点")
+    if any(word in raw_text for word in ("快", "赶时间", "马上")):
+        preference_notes.append("出餐快一点")
+
+    # Only keep a keyword when it looks like a concrete shop/dish name. Full
+    # sentences such as "我好饿，想吃清淡的" should not become hard search terms.
+    keyword = raw_text
+    generic_terms = ("我", "想", "现在", "好饿", "有点", "东西", "推荐", "帮我", "吃点", "吃饭", "清淡", "预算", "附近")
+    if len(compact) > 12 or any(term in raw_text for term in generic_terms):
+        keyword = ""
+    if is_followup:
+        keyword = ""
+        category = ""
+
+    return {
+        "is_food": is_food,
+        "is_followup": is_followup,
+        "keyword": keyword,
+        "category": category,
+        "budget": ai_parse_budget(raw_text),
+        "preference_notes": preference_notes,
+    }
+
+
+def ai_human_food_summary(result, original_text="", intent=None):
+    cards = result.get("cards", [])
+    intent = intent or {}
+    notes = intent.get("preference_notes") or []
+    relaxed = result.get("relaxed", False)
+    if cards:
+        if relaxed:
+            opener = "有的。我刚才把条件放宽了一点，先挑几个更稳妥的校园选择给你。"
+        elif notes:
+            opener = "懂，你现在更像是想要" + "、".join(notes) + "的选择。"
+        else:
+            opener = "可以，我先按校园里比较稳的选择帮你筛了一轮。"
+        names = [card.get("title", "") for card in cards[:3] if card.get("title")]
+        if names:
+            return f"{opener} 我查了系统里的美食数据，先看这几个：{'、'.join(names)}。想少走路的话，可以点卡片进详情或直接打开美食推荐。"
+        return f"{opener} 我查了系统里的美食数据，下面这些可以先看。"
+    if notes:
+        return "我按你的偏好查了一轮，但条件太窄没有直接命中。我建议先放宽到食堂和餐厅范围，再按距离或评分挑。"
+    return "我查了一轮系统数据，暂时没有直接命中的结果。你可以告诉我预算、当前位置，或者想吃食堂/咖啡/超市，我再帮你缩小范围。"
+
+
+def ai_normalize_limit(value, default=5, max_limit=8):
+    try:
+        limit = int(value)
+    except (TypeError, ValueError):
+        limit = default
+    return max(1, min(limit, max_limit))
+
+
+def ai_url_for(endpoint, **values):
+    try:
+        return url_for(endpoint, **values)
+    except RuntimeError:
+        with app.test_request_context():
+            return url_for(endpoint, **values)
+
+
+def ai_build_url(endpoint, params=None, anchor=None):
+    try:
+        return build_url_with_query(endpoint, params or {}, anchor=anchor)
+    except RuntimeError:
+        with app.test_request_context():
+            return build_url_with_query(endpoint, params or {}, anchor=anchor)
+
+
+def ai_action(kind, label, url):
+    return {
+        "kind": kind,
+        "label": label,
+        "url": url,
+    }
+
+
+def ai_food_card(food, place_id, origin_node=""):
+    url_args = {"place_id": place_id}
+    if origin_node:
+        url_args["origin_node"] = origin_node
+    return {
+        "type": "food",
+        "title": food.get("name", "校园美食"),
+        "subtitle": food.get("cuisine") or food.get("category") or food.get("source_label", ""),
+        "description": ai_safe_text(food.get("display_description") or food.get("recommendation_note"), 140),
+        "meta": {
+            "rating": food.get("rating"),
+            "avg_cost": food.get("avg_cost"),
+            "distance_text": food.get("distance_text", ""),
+            "score": food.get("recommend_score"),
+        },
+        "image": food.get("cover_image", ""),
+        "url": ai_url_for("food_detail", food_key=food.get("food_key", ""), **url_args),
+    }
+
+
+def ai_tool_recommend_foods(arguments=None):
+    args = arguments or {}
+    place_id = str(args.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        place_id = FOOD_DEFAULT_PLACE_ID
+    keyword = str(args.get("keyword") or "").strip()
+    category = str(args.get("category") or "").strip()
+    if not category and any(word in keyword for word in ("食堂", "餐厅", "吃饭")):
+        category = "食堂"
+    budget = args.get("budget")
+    if budget in ("", None):
+        budget = ai_parse_budget(keyword)
+    try:
+        budget = float(budget) if budget not in ("", None) else None
+    except (TypeError, ValueError):
+        budget = None
+    origin_node = str(args.get("origin_node") or "").strip()
+    limit = ai_normalize_limit(args.get("limit"), default=5, max_limit=8)
+
+    food_context = FOOD_CAMPUS_CONTEXTS[place_id]
+    graph = load_route_graph(food_context.get("graph_place_id", place_id))
+    if origin_node not in graph.get("node_map", {}):
+        origin_node = ""
+    foods = build_food_candidates_for_place(place_id)
+    sort_by = "distance_asc" if origin_node else food_context.get("default_sort", "recommend_score_desc")
+    ranked, stats = rank_food_candidates(
+        foods,
+        keyword=keyword,
+        category=category,
+        sort_by=sort_by,
+        graph=graph,
+        origin_node=origin_node,
+    )
+    if budget is not None:
+        budgeted = [food for food in ranked if float(food.get("avg_cost") or 0) <= budget]
+        if budgeted:
+            ranked = budgeted
+
+    cards = [ai_food_card(food, place_id, origin_node=origin_node) for food in ranked[:limit]]
+    query = {
+        "place_id": place_id,
+        "keyword": keyword,
+        "category": category,
+        "sort_by": sort_by,
+        "origin_node": origin_node,
+    }
+    return {
+        "type": "food_recommendations",
+        "summary": f"找到 {len(cards)} 个适合当前条件的美食候选。",
+        "cards": cards,
+        "actions": [
+            ai_action("open_foods", "打开美食推荐", ai_build_url("foods", query)),
+        ],
+        "stats": stats,
+    }
+
+
+def ai_tool_recommend_foods(arguments=None):
+    args = arguments or {}
+    place_id = str(args.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    if place_id not in FOOD_CAMPUS_CONTEXTS:
+        place_id = FOOD_DEFAULT_PLACE_ID
+    raw_keyword = str(args.get("keyword") or "").strip()
+    intent = args.get("intent") if isinstance(args.get("intent"), dict) else ai_food_intent_from_text(raw_keyword)
+    keyword_value = args.get("keyword_override") if args.get("keyword_override") is not None else intent.get("keyword", raw_keyword)
+    keyword = str(keyword_value or "").strip()
+    category = str(args.get("category") or intent.get("category") or "").strip()
+    budget = args.get("budget")
+    if budget in ("", None):
+        budget = intent.get("budget")
+    try:
+        budget = float(budget) if budget not in ("", None) else None
+    except (TypeError, ValueError):
+        budget = None
+    origin_node = str(args.get("origin_node") or "").strip()
+    limit = ai_normalize_limit(args.get("limit"), default=5, max_limit=8)
+
+    food_context = FOOD_CAMPUS_CONTEXTS[place_id]
+    graph = load_route_graph(food_context.get("graph_place_id", place_id))
+    if origin_node not in graph.get("node_map", {}):
+        origin_node = ""
+    foods = build_food_candidates_for_place(place_id)
+    sort_by = "distance_asc" if origin_node else food_context.get("default_sort", "recommend_score_desc")
+
+    def rank_with(active_keyword, active_category, active_budget):
+        ranked_items, active_stats = rank_food_candidates(
+            foods,
+            keyword=active_keyword,
+            category=active_category,
+            sort_by=sort_by,
+            graph=graph,
+            origin_node=origin_node,
+        )
+        if active_budget is not None:
+            budgeted = [food for food in ranked_items if float(food.get("avg_cost") or 0) <= active_budget]
+            if budgeted:
+                ranked_items = budgeted
+        return ranked_items, active_stats
+
+    ranked, stats = rank_with(keyword, category, budget)
+    relaxed = False
+    if not ranked and (keyword or category):
+        relaxed = True
+        ranked, stats = rank_with("", category, budget)
+    if not ranked and budget is not None:
+        relaxed = True
+        ranked, stats = rank_with("", category, None)
+    if not ranked:
+        relaxed = True
+        ranked, stats = rank_with("", "", None)
+
+    cards = [ai_food_card(food, place_id, origin_node=origin_node) for food in ranked[:limit]]
+    query = {
+        "place_id": place_id,
+        "keyword": keyword,
+        "category": category,
+        "sort_by": sort_by,
+        "origin_node": origin_node,
+    }
+    result = {
+        "type": "food_recommendations",
+        "summary": "",
+        "cards": cards,
+        "actions": [
+            ai_action("open_foods", "打开美食推荐", ai_build_url("foods", query)),
+        ],
+        "stats": stats,
+        "intent": intent,
+        "relaxed": relaxed or bool(intent.get("is_followup")),
+    }
+    result["summary"] = ai_human_food_summary(result, raw_keyword, intent)
+    return result
+
+
+def ai_resolve_node_id(graph, raw_value):
+    value = str(raw_value or "").strip()
+    if not value:
+        return ""
+    node_map = graph.get("node_map", {})
+    if value in node_map:
+        return value
+    normalized = normalize_search_text(value)
+    for node in graph.get("nodes", []):
+        node_name = str(node.get("name", ""))
+        if normalized and normalized in normalize_search_text(node_name):
+            return str(node.get("id", ""))
+    return ""
+
+
+def ai_route_card(result, graph, strategy="distance"):
+    if not result or result.get("error"):
+        return None
+    unit = "米" if strategy == "distance" else "秒"
+    return {
+        "type": "route",
+        "title": "路线规划结果",
+        "subtitle": f"{float(result.get('total') or 0):.1f} {unit}",
+        "description": " -> ".join(result.get("display_path_names") or result.get("path") or []),
+        "meta": {
+            "path": result.get("path", []),
+            "total": result.get("total"),
+            "place_id": graph.get("place_id", DEFAULT_PLACE_ID),
+        },
+        "url": ai_build_url(
+            "route",
+            {
+                "place_id": graph.get("place_id", DEFAULT_PLACE_ID),
+                "start": (result.get("path") or [""])[0],
+                "end": (result.get("path") or [""])[-1],
+                "strategy": strategy,
+            },
+        ),
+    }
+
+
+def ai_tool_plan_route(arguments=None):
+    args = arguments or {}
+    place_id = str(args.get("place_id") or DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
+    graph = load_route_graph(place_id)
+    strategy = str(args.get("strategy") or "distance").strip() or "distance"
+    transport = str(args.get("transport") or "walk").strip() or "walk"
+    start = ai_resolve_node_id(graph, args.get("start") or graph.get("default_start", ""))
+    end = ai_resolve_node_id(graph, args.get("end"))
+    if not start or not end:
+        return {
+            "type": "route_plan",
+            "summary": "还需要明确起点和终点。",
+            "cards": [],
+            "actions": [ai_action("open_route", "打开路线规划", ai_url_for("route", place_id=place_id))],
+        }
+    result = dijkstra_shortest_path(graph, start, end, strategy=strategy, transport=transport)
+    card = ai_route_card(result, graph, strategy=strategy)
+    return {
+        "type": "route_plan",
+        "summary": "已按当前图数据计算路线。" if card else "没有找到可达路线。",
+        "cards": [card] if card else [],
+        "actions": [
+            ai_action(
+                "open_route",
+                "查看路线",
+                ai_url_for("route", place_id=place_id, start=start, end=end, strategy=strategy, transport=transport),
+            )
+        ],
+    }
+
+
+def ai_tool_plan_indoor(arguments=None):
+    args = arguments or {}
+    building_id = str(args.get("building_id") or "demo_building").strip() or "demo_building"
+    graph = build_indoor_graph(building_id)
+    start = str(args.get("start") or INDOOR_DEFAULT_START).strip() or INDOOR_DEFAULT_START
+    end = str(args.get("end") or INDOOR_DEFAULT_END).strip() or INDOOR_DEFAULT_END
+    vertical_mode = str(args.get("vertical_mode") or "auto").strip().lower()
+    if start not in graph["node_map"]:
+        start = INDOOR_DEFAULT_START
+    if end not in graph["node_map"]:
+        end = INDOOR_DEFAULT_END
+    if vertical_mode not in INDOOR_VERTICAL_MODES:
+        vertical_mode = "auto"
+    result = indoor_shortest_path(graph, start, end, vertical_mode=vertical_mode)
+    steps = indoor_route_steps(result, graph)
+    return {
+        "type": "indoor_route",
+        "summary": "已生成室内导航步骤。" if result and not result.get("error") else "没有找到室内路线。",
+        "cards": [{
+            "type": "indoor",
+            "title": "室内导航",
+            "subtitle": f"{start} -> {end}",
+            "description": "；".join(step.get("text", "") for step in steps[:6]),
+            "meta": {"steps": steps, "vertical_mode": vertical_mode},
+            "url": ai_url_for("indoor", building_id=building_id, start=start, end=end, vertical_mode=vertical_mode),
+        }],
+        "actions": [ai_action("open_indoor", "查看室内导航", ai_url_for("indoor", building_id=building_id, start=start, end=end, vertical_mode=vertical_mode))],
+    }
+
+
+def ai_tool_search_diaries(arguments=None):
+    args = arguments or {}
+    keyword = str(args.get("keyword") or args.get("query") or "").strip()
+    limit = ai_normalize_limit(args.get("limit"), default=4, max_limit=6)
+    diaries = load_diaries(keyword=keyword, sort_by="rating_desc") if keyword else load_diaries(sort_by="rating_desc")
+    cards = []
+    for diary in diaries[:limit]:
+        cards.append({
+            "type": "diary",
+            "title": diary.get("title", "旅行日记"),
+            "subtitle": diary.get("destination", ""),
+            "description": ai_safe_text(diary.get("content", ""), 120),
+            "meta": {"views": diary.get("views"), "avg_rating": diary.get("avg_rating")},
+            "url": ai_url_for("diary_detail", diary_id=diary.get("id")),
+        })
+    return {
+        "type": "diary_search",
+        "summary": f"找到 {len(cards)} 篇可参考的日记。",
+        "cards": cards,
+        "actions": [ai_action("open_diaries", "打开日记广场", ai_url_for("diaries", keyword=keyword))],
+    }
+
+
+def ai_local_assistant_payload(message, page_context=None):
+    context = page_context or {}
+    text = str(message or "").strip()
+    place_id = str(context.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    lower_text = text.lower()
+    tool_results = []
+
+    if any(word in text for word in ("吃", "饭", "食堂", "餐厅", "美食", "预算")) or context.get("page") == "foods":
+        tool_results.append(ai_tool_recommend_foods({
+            "keyword": text,
+            "budget": ai_parse_budget(text),
+            "place_id": place_id,
+            "origin_node": context.get("origin_node") or context.get("start") or "",
+            "limit": 5,
+        }))
+    elif any(word in text for word in ("室内", "电梯", "楼梯", "教室")) or context.get("page") == "indoor":
+        tool_results.append(ai_tool_plan_indoor({
+            "building_id": context.get("building_id", "demo_building"),
+            "start": context.get("start", INDOOR_DEFAULT_START),
+            "end": context.get("end", INDOOR_DEFAULT_END),
+            "vertical_mode": "elevator" if "电梯" in text else ("stairs" if "楼梯" in text else context.get("vertical_mode", "auto")),
+        }))
+    elif any(word in text for word in ("日记", "攻略", "参考", "游记")):
+        tool_results.append(ai_tool_search_diaries({"keyword": text, "limit": 4}))
+    elif any(word in text for word in ("路线", "怎么走", "到", "路径", "导航")) or context.get("page") == "route":
+        tool_results.append(ai_tool_plan_route({
+            "place_id": place_id,
+            "start": context.get("start", ""),
+            "end": context.get("end", ""),
+            "strategy": context.get("strategy", "distance"),
+            "transport": context.get("transport", "walk"),
+        }))
+    else:
+        tool_results.append(ai_tool_recommend_foods({"keyword": "", "place_id": place_id, "limit": 3}))
+        tool_results.append(ai_tool_search_diaries({"keyword": text, "limit": 2}))
+
+    cards = list(itertools.chain.from_iterable(result.get("cards", []) for result in tool_results))
+    actions = list(itertools.chain.from_iterable(result.get("actions", []) for result in tool_results))
+    summary = " ".join(result.get("summary", "") for result in tool_results if result.get("summary"))
+    if not summary:
+        summary = "我先根据系统本地数据给你整理了可操作的建议。"
+
+    api_key_note = ""
+    config = ai_assistant_config()
+    if not config.get("api_key"):
+        key_name = "DEEPSEEK_API_KEY" if config.get("provider") == "deepseek" else "OPENAI_API_KEY"
+        api_key_note = f"当前未配置 {key_name}，所以先使用本地数据助手模式；配置后可升级为更自然的 AI 对话。"
+    return {
+        "answer": (api_key_note + " " + summary).strip(),
+        "cards": cards[:8],
+        "actions": actions[:6],
+        "tool_results": tool_results,
+        "suggestions": [
+            "按我当前位置推荐吃饭",
+            "帮我规划三点一线游览",
+            "只坐电梯的室内路线",
+            "找几篇相关游记参考",
+        ],
+    }
+
+
+def ai_local_assistant_payload(message, page_context=None):
+    context = page_context or {}
+    text = str(message or "").strip()
+    place_id = str(context.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    tool_results = []
+    food_intent = ai_food_intent_from_text(text)
+
+    if food_intent["is_food"] or context.get("page") == "foods":
+        tool_results.append(ai_tool_recommend_foods({
+            "keyword": text,
+            "intent": food_intent,
+            "budget": food_intent.get("budget"),
+            "place_id": place_id,
+            "origin_node": context.get("origin_node") or context.get("start") or "",
+            "limit": 5,
+        }))
+    elif any(word in text for word in ("室内", "电梯", "楼梯", "教室")) or context.get("page") == "indoor":
+        tool_results.append(ai_tool_plan_indoor({
+            "building_id": context.get("building_id", "demo_building"),
+            "start": context.get("start", INDOOR_DEFAULT_START),
+            "end": context.get("end", INDOOR_DEFAULT_END),
+            "vertical_mode": "elevator" if "电梯" in text else ("stairs" if "楼梯" in text else context.get("vertical_mode", "auto")),
+        }))
+    elif any(word in text for word in ("日记", "攻略", "参考", "游记")):
+        tool_results.append(ai_tool_search_diaries({"keyword": text, "limit": 4}))
+    elif any(word in text for word in ("路线", "怎么走", "到", "路径", "导航")) or context.get("page") == "route":
+        tool_results.append(ai_tool_plan_route({
+            "place_id": place_id,
+            "start": context.get("start", ""),
+            "end": context.get("end", ""),
+            "strategy": context.get("strategy", "distance"),
+            "transport": context.get("transport", "walk"),
+        }))
+    else:
+        tool_results.append(ai_tool_recommend_foods({"keyword": "", "place_id": place_id, "limit": 3}))
+        tool_results.append(ai_tool_search_diaries({"keyword": text, "limit": 2}))
+
+    cards = list(itertools.chain.from_iterable(result.get("cards", []) for result in tool_results))
+    actions = list(itertools.chain.from_iterable(result.get("actions", []) for result in tool_results))
+    summaries = [result.get("summary", "") for result in tool_results if result.get("summary")]
+    summary = " ".join(summaries).strip() or "我先查了一下系统里的数据，给你整理几个可以马上点开的选择。"
+
+    config = ai_assistant_config()
+    api_key_note = ""
+    if not config.get("api_key"):
+        key_name = "DEEPSEEK_API_KEY" if config.get("provider") == "deepseek" else "OPENAI_API_KEY"
+        api_key_note = f"当前未配置 {key_name}，我先用系统本地数据陪你挑。"
+    return {
+        "answer": (api_key_note + " " + summary).strip(),
+        "cards": cards[:8],
+        "actions": actions[:6],
+        "tool_results": tool_results,
+        "suggestions": [
+            "我想吃清淡一点",
+            "按当前位置少走路",
+            "帮我规划三点一线",
+            "找几篇游记参考",
+        ],
+    }
+
+
+def ai_detect_system_module(text):
+    raw_text = str(text or "").strip()
+    module_keywords = {
+        "food": (
+            "校园美食", "美食推荐", "食堂", "饭堂", "餐厅", "附近吃饭", "附近美食",
+            "校内吃饭", "查美食", "推荐吃饭", "预算", "少走路吃", "吃完顺路",
+        ),
+        "indoor": (
+            "室内导航", "室内路线", "电梯", "楼梯", "教室", "教学楼", "从大门",
+            "只坐电梯", "不走楼梯",
+        ),
+        "route": (
+            "路线规划", "规划路线", "怎么走", "导航", "路径", "三点一线",
+            "少走路逛", "半日游", "顺路去哪", "走完再",
+        ),
+        "diary": (
+            "游记", "日记", "攻略", "参考别人", "热门日记", "拍照感", "按游记",
+        ),
+    }
+    for module_name, keywords in module_keywords.items():
+        if any(keyword in raw_text for keyword in keywords):
+            return module_name
+    return "general"
+
+
+def ai_generic_local_answer(text):
+    raw_text = str(text or "").strip()
+    if any(word in raw_text for word in ("你好", "嗨", "hello", "Hello", "hi", "Hi")):
+        return "你好呀，我在。你可以把我当成通用聊天助手来用，想闲聊、问问题、整理想法都可以；如果你说到校园美食、路线规划、室内导航、游记攻略这些关键词，我再去联动系统里的数据。"
+    if "清淡" in raw_text:
+        return "听起来你现在想要清淡一点的选择。我可以先像普通助手一样帮你想口味和搭配；如果你想让我查 TourSim 里的校园美食数据，可以直接说“帮我查校园美食推荐，想吃清淡点”。"
+    if any(word in raw_text for word in ("饿", "吃", "饭")):
+        return "饿了先别硬扛。你可以告诉我想吃清淡、热乎、便宜还是近一点；如果要我调用系统推荐，就加上“校园美食”或“食堂”这类关键词。"
+    return "我在，可以直接聊。普通问题我按通用助手来回答；只有你明确提到校园美食、路线规划、室内导航、游记攻略等关键词时，我才会去调用 TourSim 的系统模块。"
+
+
+def ai_local_assistant_payload(message, page_context=None):
+    context = page_context or {}
+    text = str(message or "").strip()
+    place_id = str(context.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    module_name = ai_detect_system_module(text)
+    tool_results = []
+
+    if module_name == "general":
+        return {
+            "mode": "general",
+            "answer": ai_generic_local_answer(text),
+            "cards": [],
+            "actions": [],
+            "tool_results": [],
+            "suggestions": [
+                "随便聊聊",
+                "帮我解释一个概念",
+                "帮我查校园美食推荐",
+                "帮我做路线规划",
+            ],
+        }
+
+    if module_name == "food":
+        food_intent = ai_food_intent_from_text(text)
+        tool_results.append(ai_tool_recommend_foods({
+            "keyword": text,
+            "intent": food_intent,
+            "budget": food_intent.get("budget"),
+            "place_id": place_id,
+            "origin_node": context.get("origin_node") or context.get("start") or "",
+            "limit": 5,
+        }))
+    elif module_name == "indoor":
+        tool_results.append(ai_tool_plan_indoor({
+            "building_id": context.get("building_id", "demo_building"),
+            "start": context.get("start", INDOOR_DEFAULT_START),
+            "end": context.get("end", INDOOR_DEFAULT_END),
+            "vertical_mode": "elevator" if "电梯" in text else ("stairs" if "楼梯" in text else context.get("vertical_mode", "auto")),
+        }))
+    elif module_name == "diary":
+        tool_results.append(ai_tool_search_diaries({"keyword": text, "limit": 4}))
+    elif module_name == "route":
+        tool_results.append(ai_tool_plan_route({
+            "place_id": place_id,
+            "start": context.get("start", ""),
+            "end": context.get("end", ""),
+            "strategy": context.get("strategy", "distance"),
+            "transport": context.get("transport", "walk"),
+        }))
+
+    cards = list(itertools.chain.from_iterable(result.get("cards", []) for result in tool_results))
+    actions = list(itertools.chain.from_iterable(result.get("actions", []) for result in tool_results))
+    summaries = [result.get("summary", "") for result in tool_results if result.get("summary")]
+    summary = " ".join(summaries).strip() or "我已经按你的关键词查了 TourSim 里的相关模块。"
+    config = ai_assistant_config()
+    api_key_note = ""
+    if not config.get("api_key"):
+        key_name = "DEEPSEEK_API_KEY" if config.get("provider") == "deepseek" else "OPENAI_API_KEY"
+        api_key_note = f"当前未配置 {key_name}，我先用系统本地数据给你结果。"
+    return {
+        "mode": "system",
+        "module": module_name,
+        "answer": (api_key_note + " " + summary).strip(),
+        "cards": cards[:8],
+        "actions": actions[:6],
+        "tool_results": tool_results,
+        "suggestions": [
+            "帮我查校园美食推荐",
+            "帮我做路线规划",
+            "只坐电梯的室内导航",
+            "找几篇游记攻略",
+        ],
+    }
+
+
+def ai_build_model_prompt(message, page_context, local_payload):
+    if local_payload.get("mode") == "general":
+        return {
+            "user_message": message,
+            "page_context": page_context or {},
+            "assistant_mode": "general_chat",
+            "instruction": (
+                "你是一个通用人工智能助手，能力类似日常聊天助手。"
+                "默认不要调用或提及 TourSim 系统模块，除非用户明确提出校园美食、路线规划、室内导航、游记攻略等关键词。"
+                "对寒暄、知识问答、写作、解释、建议、闲聊都直接自然回答。"
+                "中文回答，语气亲切，不要机械，不要使用表情符号。"
+            ),
+        }
+    return {
+        "user_message": message,
+        "page_context": page_context or {},
+        "local_tool_context": {
+            "summary": local_payload.get("answer", ""),
+            "cards": local_payload.get("cards", [])[:5],
+            "actions": local_payload.get("actions", [])[:4],
+        },
+        "instruction": (
+            "用亲切、像真人校园助手的中文回答。先回应用户当下状态，比如饿了、赶时间、想少走路；"
+            "再自然说明你已经查了系统里的景点、美食、路线、室内导航或日记数据；"
+            "把 local_tool_context 里的卡片结果融进一句建议里，不要机械复述'找到X个候选'。"
+            "如果系统结果为空，说明你会放宽条件或追问一个最关键的信息。"
+            "必须基于 local_tool_context，不要编造不存在的地点、路线、价格。"
+            "回答控制在 3 到 6 句，语气轻松，但不要使用表情符号。"
+        ),
+    }
+
+
+def ai_openai_answer(message, page_context, local_payload):
+    config = ai_assistant_config()
+    if not config.get("api_key") or config.get("provider") != "openai":
+        return None
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
+
+    client = OpenAI(api_key=config["api_key"])
+    prompt = ai_build_model_prompt(message, page_context, local_payload)
+    response = client.responses.create(
+        model=config["model"],
+        input=json.dumps(prompt, ensure_ascii=False),
+    )
+    return getattr(response, "output_text", "") or None
+
+
+def ai_deepseek_answer(message, page_context, local_payload):
+    config = ai_assistant_config()
+    if not config.get("api_key") or config.get("provider") != "deepseek":
+        return None
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
+
+    prompt = ai_build_model_prompt(message, page_context, local_payload)
+    client = OpenAI(api_key=config["api_key"], base_url=config["base_url"])
+    response = client.chat.completions.create(
+        model=config["model"],
+        messages=[
+            {
+                "role": "system",
+                "content": "你是 TourSim 校园旅游系统的 AI 助手，只能基于系统提供的本地工具结果回答。",
+            },
+            {
+                "role": "user",
+                "content": json.dumps(prompt, ensure_ascii=False),
+            },
+        ],
+        reasoning_effort=config["reasoning_effort"],
+        extra_body={"thinking": {"type": config["thinking"]}},
+    )
+    choice = response.choices[0] if getattr(response, "choices", None) else None
+    message_obj = getattr(choice, "message", None) if choice else None
+    return getattr(message_obj, "content", "") or None
+
+
+def ai_provider_answer(message, page_context, local_payload):
+    config = ai_assistant_config()
+    if config.get("provider") == "deepseek":
+        return ai_deepseek_answer(message, page_context, local_payload)
+    if config.get("provider") == "openai":
+        return ai_openai_answer(message, page_context, local_payload)
+    return None
+
+
+def ai_json_from_text(text):
+    raw_text = str(text or "").strip()
+    if not raw_text:
+        return None
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        pass
+    start = raw_text.find("{")
+    end = raw_text.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        return None
+    try:
+        return json.loads(raw_text[start:end + 1])
+    except json.JSONDecodeError:
+        return None
+
+
+def ai_recent_chat_messages(user_id, conversation_id="", limit=AI_CHAT_HISTORY_LIMIT):
+    if not user_id:
+        return []
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if conversation_id:
+        cursor.execute(
+            """
+            SELECT role, content, tool_calls_json, created_at
+            FROM ai_chat_messages
+            WHERE user_id = ? AND conversation_id = ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (user_id, conversation_id, limit),
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT role, content, tool_calls_json, created_at
+            FROM ai_chat_messages
+            WHERE user_id = ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        )
+    rows = list(reversed(cursor.fetchall()))
+    conn.close()
+    messages = []
+    for row in rows:
+        metadata = ai_json_from_text(row["tool_calls_json"]) or {}
+        if not isinstance(metadata, dict):
+            metadata = {"tool_results": metadata}
+        messages.append({
+            "role": row["role"],
+            "content": row["content"],
+            "metadata": metadata,
+            "created_at": row["created_at"],
+        })
+    return messages
+
+
+def ai_latest_conversation_id(user_id):
+    if not user_id:
+        return ""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT conversation_id
+        FROM ai_chat_messages
+        WHERE user_id = ?
+        GROUP BY conversation_id
+        ORDER BY MAX(id) DESC
+        LIMIT 1
+        """,
+        (user_id,),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    return row["conversation_id"] if row else ""
+
+
+def ai_context_memory_bundle(history=None):
+    history = history or []
+    recent_messages = []
+    last_system_modules = []
+    last_cards = []
+    last_actions = []
+    for item in history[-AI_CHAT_HISTORY_LIMIT:]:
+        metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+        recent_messages.append({
+            "role": item.get("role"),
+            "content": ai_safe_text(item.get("content", ""), 500),
+            "created_at": item.get("created_at", ""),
+            "mode": metadata.get("mode", ""),
+            "modules": metadata.get("modules", []),
+        })
+        if item.get("role") == "assistant" and metadata:
+            for module in metadata.get("modules", []) or []:
+                if module not in last_system_modules:
+                    last_system_modules.append(module)
+            for card in metadata.get("cards", []) or []:
+                last_cards.append({
+                    "type": card.get("type", ""),
+                    "title": card.get("title", ""),
+                    "subtitle": card.get("subtitle", ""),
+                    "description": ai_safe_text(card.get("description", ""), 120),
+                    "url": card.get("url", ""),
+                })
+            for action in metadata.get("actions", []) or []:
+                last_actions.append({
+                    "kind": action.get("kind", ""),
+                    "label": action.get("label", ""),
+                    "url": action.get("url", ""),
+                })
+    return {
+        "recent_messages": recent_messages[-8:],
+        "last_system_modules": last_system_modules[-5:],
+        "last_cards": last_cards[-6:],
+        "last_actions": last_actions[-4:],
+    }
+
+
+def ai_llm_chat_text(messages, temperature=0.2):
+    config = ai_assistant_config()
+    if not config.get("api_key"):
+        return None
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
+
+    if config.get("provider") == "deepseek":
+        client = OpenAI(api_key=config["api_key"], base_url=config["base_url"])
+        kwargs = {
+            "model": config["model"],
+            "messages": messages,
+            "temperature": temperature,
+            "reasoning_effort": config["reasoning_effort"],
+            "extra_body": {"thinking": {"type": config["thinking"]}},
+        }
+        response = client.chat.completions.create(**kwargs)
+        choice = response.choices[0] if getattr(response, "choices", None) else None
+        message_obj = getattr(choice, "message", None) if choice else None
+        return getattr(message_obj, "content", "") or None
+
+    if config.get("provider") == "openai":
+        client = OpenAI(api_key=config["api_key"])
+        response = client.chat.completions.create(
+            model=config["model"],
+            messages=messages,
+            temperature=temperature,
+        )
+        choice = response.choices[0] if getattr(response, "choices", None) else None
+        message_obj = getattr(choice, "message", None) if choice else None
+        return getattr(message_obj, "content", "") or None
+    return None
+
+
+def ai_model_route_decision(message, page_context=None, history=None):
+    config = ai_assistant_config()
+    if not config.get("api_key"):
+        return None
+    memory = ai_context_memory_bundle(history)
+    prompt_payload = {
+        "user_message": message,
+        "page_context": page_context or {},
+        "memory": memory,
+        "available_modules": {
+            "food": "校园美食、食堂、餐厅、口味、预算、少走路吃饭",
+            "place": "景点、校园参观、拍照点、游览建议",
+            "route": "室外路线规划、从A到B、三点一线、少走路",
+            "indoor": "室内导航、电梯、楼梯、教学楼内路线",
+            "diary": "游记、攻略、他人经验、参考日记",
+        },
+    }
+    text = ai_llm_chat_text(
+        [
+            {
+                "role": "system",
+                "content": (
+                    "你是 TourSim 助手的意图路由器。只输出 JSON，不要解释。"
+                    "如果用户只是闲聊、写作、解释概念、常识问答，返回 mode=general 且 modules=[]。"
+                    "如果用户的真实需求需要 TourSim 的本地数据或页面能力，返回 mode=system，并选择 modules。"
+                    "要结合 memory.recent_messages 理解省略说法，例如“还有吗”“换一个”“就近点”“按刚才那个”。"
+                    "如果 memory.last_system_modules 或 memory.last_cards 显示上一轮刚在某模块检索，用户追问时可延续该模块。"
+                    "不要要求用户必须说固定关键词；要根据语义判断。"
+                    "JSON 结构：{\"mode\":\"general|system\",\"modules\":[\"food|place|route|indoor|diary\"],"
+                    "\"arguments\":{\"keyword\":\"\",\"budget\":null,\"start\":\"\",\"end\":\"\",\"vertical_mode\":\"auto\"},"
+                    "\"reason\":\"short\"}"
+                ),
+            },
+            {"role": "user", "content": json.dumps(prompt_payload, ensure_ascii=False)},
+        ],
+        temperature=0,
+    )
+    data = ai_json_from_text(text)
+    if not isinstance(data, dict):
+        return None
+    modules = data.get("modules") if isinstance(data.get("modules"), list) else []
+    clean_modules = []
+    for module in modules:
+        module = str(module or "").strip().lower()
+        if module in ("food", "place", "route", "indoor", "diary") and module not in clean_modules:
+            clean_modules.append(module)
+    mode = "system" if data.get("mode") == "system" or clean_modules else "general"
+    args = data.get("arguments") if isinstance(data.get("arguments"), dict) else {}
+    return {
+        "mode": mode,
+        "modules": clean_modules if mode == "system" else [],
+        "arguments": args,
+        "reason": ai_safe_text(data.get("reason", ""), 180),
+        "source": config.get("provider"),
+    }
+
+
+def ai_fallback_route_decision(message, page_context=None):
+    text = str(message or "").strip()
+    context = page_context or {}
+    modules = []
+    food_words = ("吃", "饿", "清淡", "口味", "食堂", "餐厅", "美食", "饭", "咖啡", "奶茶", "预算")
+    route_words = ("路线", "怎么走", "导航", "从", "到", "三点", "少走路", "路径")
+    indoor_words = ("室内", "电梯", "楼梯", "教学楼", "教室", "只坐电梯")
+    diary_words = ("游记", "攻略", "日记", "参考", "别人", "经验")
+    place_words = ("景点", "参观", "逛", "游览", "拍照", "去哪", "哪里好玩", "半日游")
+    if any(word in text for word in food_words) or context.get("page") == "foods":
+        modules.append("food")
+    if any(word in text for word in indoor_words) or context.get("page") == "indoor":
+        modules.append("indoor")
+    if any(word in text for word in route_words) or context.get("page") == "route":
+        modules.append("route")
+    if any(word in text for word in diary_words) or context.get("page") == "diaries":
+        modules.append("diary")
+    if any(word in text for word in place_words) or context.get("page") == "places":
+        modules.append("place")
+    if "推荐" in text and not modules:
+        modules.append("place")
+    return {
+        "mode": "system" if modules else "general",
+        "modules": modules,
+        "arguments": {"keyword": text},
+        "reason": "fallback",
+        "source": "local",
+    }
+
+
+def ai_place_card(place):
+    return {
+        "type": "place",
+        "title": place.get("name", "景点"),
+        "subtitle": " · ".join(part for part in (place.get("city", ""), place.get("type", "")) if part),
+        "description": ai_safe_text(place.get("description", ""), 140),
+        "meta": {
+            "rating": place.get("rating"),
+            "popularity": place.get("popularity"),
+            "tags": place.get("tags_list", []),
+        },
+        "image": place.get("cover_image", ""),
+        "url": ai_url_for("place_detail", place_id=place.get("id", 0)),
+    }
+
+
+def ai_tool_recommend_places(arguments=None):
+    args = arguments or {}
+    keyword = str(args.get("keyword") or args.get("query") or "").strip()
+    limit = ai_normalize_limit(args.get("limit"), default=4, max_limit=6)
+    normalized = normalize_search_text(keyword)
+    places = load_places()
+    scored = []
+    for place in places:
+        haystack = " ".join([
+            place.get("name", ""),
+            place.get("type", ""),
+            place.get("city", ""),
+            place.get("tags", ""),
+            place.get("description", ""),
+        ])
+        score = float(place.get("rating") or 0) * 10 + float(place.get("popularity") or 0) / 10
+        if normalized and normalized in normalize_search_text(haystack):
+            score += 80
+        for token in ("拍照", "校园", "湖", "建筑", "人文", "半日游", "安静"):
+            if token in keyword and token in haystack:
+                score += 20
+        scored.append((score, place))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    cards = [ai_place_card(place) for _, place in scored[:limit]]
+    return {
+        "type": "place_recommendations",
+        "summary": f"我从景点库里筛出了 {len(cards)} 个可参考地点。",
+        "cards": cards,
+        "actions": [
+            ai_action("open_places", "打开景点列表", ai_url_for("places", keyword=keyword)),
+            ai_action("open_recommend_places", "打开个性化推荐", ai_url_for("recommend_places")),
+        ],
+    }
+
+
+def ai_run_rag_tools(message, page_context=None, route_decision=None):
+    context = page_context or {}
+    decision = route_decision or ai_fallback_route_decision(message, context)
+    modules = decision.get("modules") or []
+    args = decision.get("arguments") if isinstance(decision.get("arguments"), dict) else {}
+    place_id = str(context.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    keyword = str(args.get("keyword") or message or "").strip()
+    tool_results = []
+
+    if "food" in modules:
+        food_intent = ai_food_intent_from_text(keyword)
+        tool_results.append(ai_tool_recommend_foods({
+            "keyword": keyword,
+            "intent": food_intent,
+            "budget": args.get("budget") if args.get("budget") not in ("", None) else food_intent.get("budget"),
+            "place_id": place_id,
+            "origin_node": context.get("origin_node") or context.get("start") or "",
+            "limit": 5,
+        }))
+    if "place" in modules:
+        tool_results.append(ai_tool_recommend_places({"keyword": keyword, "limit": 4}))
+    if "route" in modules:
+        tool_results.append(ai_tool_plan_route({
+            "place_id": place_id,
+            "start": args.get("start") or context.get("start", ""),
+            "end": args.get("end") or context.get("end", ""),
+            "strategy": context.get("strategy", "distance"),
+            "transport": context.get("transport", "walk"),
+        }))
+    if "indoor" in modules:
+        vertical_mode = str(args.get("vertical_mode") or context.get("vertical_mode", "auto")).strip() or "auto"
+        tool_results.append(ai_tool_plan_indoor({
+            "building_id": context.get("building_id", "demo_building"),
+            "start": args.get("start") or context.get("start", INDOOR_DEFAULT_START),
+            "end": args.get("end") or context.get("end", INDOOR_DEFAULT_END),
+            "vertical_mode": vertical_mode,
+        }))
+    if "diary" in modules:
+        tool_results.append(ai_tool_search_diaries({"keyword": keyword, "limit": 4}))
+
+    cards = list(itertools.chain.from_iterable(result.get("cards", []) for result in tool_results))
+    actions = list(itertools.chain.from_iterable(result.get("actions", []) for result in tool_results))
+    retrieved_context = []
+    for result in tool_results:
+        retrieved_context.append({
+            "type": result.get("type", ""),
+            "summary": result.get("summary", ""),
+            "items": [
+                {
+                    "title": card.get("title", ""),
+                    "subtitle": card.get("subtitle", ""),
+                    "description": card.get("description", ""),
+                    "meta": card.get("meta", {}),
+                    "url": card.get("url", ""),
+                }
+                for card in result.get("cards", [])[:5]
+            ],
+        })
+    return {
+        "mode": "system" if modules else "general",
+        "module": ",".join(modules),
+        "modules": modules,
+        "routing": decision,
+        "answer": " ".join(result.get("summary", "") for result in tool_results if result.get("summary")).strip(),
+        "cards": cards[:8],
+        "actions": actions[:6],
+        "tool_results": tool_results,
+        "retrieved_context": retrieved_context,
+        "suggestions": [
+            "按我的偏好继续细化",
+            "给我更少走路的方案",
+            "顺手规划下一站",
+            "找几篇游记参考",
+        ],
+    }
+
+
+def ai_local_assistant_payload(message, page_context=None, history=None):
+    context = page_context or {}
+    decision = ai_model_route_decision(message, context, history)
+    if not decision:
+        decision = ai_fallback_route_decision(message, context)
+    if decision.get("mode") == "general":
+        return {
+            "mode": "general",
+            "module": "general",
+            "modules": [],
+            "routing": decision,
+            "answer": ai_generic_local_answer(message),
+            "cards": [],
+            "actions": [],
+            "tool_results": [],
+            "retrieved_context": [],
+            "suggestions": [
+                "随便聊聊",
+                "帮我解释一个概念",
+                "帮我查校园美食推荐",
+                "帮我做路线规划",
+            ],
+        }
+    payload = ai_run_rag_tools(message, context, decision)
+    if not payload.get("answer"):
+        payload["answer"] = "我先查了 TourSim 的本地数据，给你整理了这些可以继续点开的结果。"
+    return payload
+
+
+def ai_build_model_prompt(message, page_context, local_payload, history=None):
+    memory = ai_context_memory_bundle(history)
+    base = {
+        "user_message": message,
+        "page_context": page_context or {},
+        "memory": memory,
+        "routing": local_payload.get("routing", {}),
+        "assistant_mode": local_payload.get("mode", "general"),
+    }
+    if local_payload.get("mode") == "general":
+        base["instruction"] = (
+            "你是一个通用人工智能助手，像真实同学一样自然交流。"
+            "普通聊天、解释、写作、建议、常识问题都直接回答。"
+            "回答前参考 memory.recent_messages，延续用户上一轮的称呼、偏好和话题。"
+            "不要生硬提醒关键词，也不要假装查了 TourSim 数据。"
+            "中文回答，语气亲切、简洁，不使用表情符号。"
+        )
+        return base
+    base["local_tool_context"] = {
+        "retrieved_context": local_payload.get("retrieved_context", []),
+        "cards": local_payload.get("cards", [])[:5],
+        "actions": local_payload.get("actions", [])[:4],
+    }
+    base["instruction"] = (
+        "你是 TourSim 里的通用 AI 助手。你已经根据用户语义判断需要结合系统数据，"
+        "并拿到了 RAG 检索结果 local_tool_context。"
+        "回答前参考 memory.recent_messages、memory.last_cards 和 memory.last_actions，理解用户是否在追问上一轮结果。"
+        "先像人一样回应用户当前需求，再把检索到的地点、美食、路线、室内导航或游记自然融入建议。"
+        "只能基于 local_tool_context 里的真实结果说具体名称、价格、路线和链接，不要编造。"
+        "如果结果不足，说明还差哪个关键信息，并给一个可继续操作的下一步。"
+        "回答控制在 3 到 6 句。"
+    )
+    return base
+
+
+def ai_openai_answer(message, page_context, local_payload, history=None):
+    config = ai_assistant_config()
+    if not config.get("api_key") or config.get("provider") != "openai":
+        return None
+    prompt = ai_build_model_prompt(message, page_context, local_payload, history)
+    return ai_llm_chat_text(
+        [
+            {"role": "system", "content": "你是 TourSim 的通用 AI 助手，会在需要时基于系统检索上下文回答。"},
+            {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
+        ],
+        temperature=0.4,
+    )
+
+
+def ai_deepseek_answer(message, page_context, local_payload, history=None):
+    config = ai_assistant_config()
+    if not config.get("api_key") or config.get("provider") != "deepseek":
+        return None
+    prompt = ai_build_model_prompt(message, page_context, local_payload, history)
+    return ai_llm_chat_text(
+        [
+            {"role": "system", "content": "你是 TourSim 的通用 AI 助手，会在需要时基于系统检索上下文回答。"},
+            {"role": "user", "content": json.dumps(prompt, ensure_ascii=False)},
+        ],
+        temperature=0.4,
+    )
+
+
+def ai_provider_answer(message, page_context, local_payload, history=None):
+    config = ai_assistant_config()
+    if config.get("provider") == "deepseek":
+        return ai_deepseek_answer(message, page_context, local_payload, history)
+    if config.get("provider") == "openai":
+        return ai_openai_answer(message, page_context, local_payload, history)
+    return None
+
+
+def ai_store_chat_message(user_id, conversation_id, role, content, tool_calls=None):
+    if not user_id:
+        return
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        INSERT INTO ai_chat_messages
+        (user_id, conversation_id, role, content, tool_calls_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            conversation_id,
+            role,
+            ai_safe_text(content, 4000),
+            json.dumps(tool_calls or [], ensure_ascii=False),
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+
+@app.route("/api/assistant/chat", methods=["POST"])
+def assistant_chat_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    config = ai_assistant_config()
+    if not config["enabled"]:
+        return jsonify({"error": "AI 助手已关闭"}), 503
+
+    payload = request.get_json(silent=True) or {}
+    message = ai_safe_text(payload.get("message"), 1200)
+    if not message:
+        return jsonify({"error": "请输入问题"}), 400
+    page_context = payload.get("page_context") if isinstance(payload.get("page_context"), dict) else {}
+    conversation_id = ai_safe_text(payload.get("conversation_id"), 80) or str(uuid.uuid4())
+    current_user = get_logged_in_user()
+    user_id = current_user["id"] if current_user else 0
+    history = ai_recent_chat_messages(user_id, conversation_id, limit=AI_CHAT_HISTORY_LIMIT)
+
+    local_payload = ai_local_assistant_payload(message, page_context, history)
+    provider = "local"
+    model_error = ""
+    try:
+        model_answer = ai_provider_answer(message, page_context, local_payload, history)
+    except Exception as exc:
+        model_answer = None
+        model_error = f"{type(exc).__name__}: {exc}"
+    if model_answer:
+        local_payload["answer"] = model_answer
+        provider = config["provider"]
+
+    ai_store_chat_message(user_id, conversation_id, "user", message)
+    response_payload = {
+        "conversation_id": conversation_id,
+        "provider": provider,
+        "model": config["model"] if provider != "local" else "",
+        "mode": local_payload.get("mode", "general"),
+        "modules": local_payload.get("modules", []),
+        "routing": local_payload.get("routing", {}),
+        "answer": local_payload["answer"],
+        "cards": local_payload.get("cards", []),
+        "actions": local_payload.get("actions", []),
+        "suggestions": local_payload.get("suggestions", []),
+        "model_error": model_error,
+    }
+    ai_store_chat_message(user_id, conversation_id, "assistant", local_payload["answer"], response_payload)
+
+    return jsonify(response_payload)
+
+
+@app.route("/api/assistant/history")
+def assistant_history_api():
+    if not is_logged_in():
+        return jsonify({"error": "请先登录"}), 401
+    current_user = get_logged_in_user()
+    user_id = current_user["id"] if current_user else 0
+    conversation_id = ai_safe_text(request.args.get("conversation_id"), 80)
+    if not conversation_id:
+        conversation_id = ai_latest_conversation_id(user_id)
+    if not conversation_id:
+        return jsonify({"conversation_id": "", "messages": []})
+
+    messages = ai_recent_chat_messages(user_id, conversation_id, limit=60)
+    return jsonify({
+        "conversation_id": conversation_id,
+        "messages": messages,
+    })
+
+
 @app.route("/collector")
 def collector():
     if not is_logged_in():
@@ -6692,6 +8138,51 @@ def diary_detail(diary_id):
     )
 
 
+@app.route("/diary/<int:diary_id>/dev-edit", methods=["GET", "POST"])
+def diary_dev_edit(diary_id):
+    if not is_logged_in():
+        flash("请先登录")
+        return redirect(url_for("login"))
+
+    diary = get_diary_by_id(diary_id, increase_views=False)
+    if diary is None:
+        flash("未找到该旅游日记")
+        return redirect(url_for("diaries"))
+
+    all_places = load_places()
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        destination = request.form.get("destination", "").strip()
+        content = request.form.get("content", "").strip()
+        if not title or not destination or not content:
+            flash("标题、目的地和正文不能为空")
+            return redirect(url_for("diary_dev_edit", diary_id=diary_id))
+
+        removed_filenames = set(request.form.getlist("remove_media"))
+        media_items = [
+            item for item in stored_diary_media_items(diary)
+            if item.get("filename") not in removed_filenames
+        ]
+        appended_items = save_diary_media_files(diary_id, request.files.getlist("attachments"))
+        media_items.extend(appended_items)
+        compression_algorithm = diary.get("compression", {}).get("algorithm", "huffman")
+        update_diary_dev_fields(diary_id, title, destination, content, media_items, compression_algorithm)
+        if removed_filenames:
+            remove_diary_media_files(diary_id, removed_filenames)
+        flash("临时开发者编辑已保存")
+        return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0))
+
+    current_user = get_logged_in_user()
+    return render_template(
+        "diary_dev_edit.html",
+        username=session["username"],
+        current_user=current_user,
+        current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
+        diary=diary,
+        place_name_options=get_place_name_options(all_places),
+    )
+
+
 @app.route("/diary/<int:diary_id>/favorite", methods=["POST"])
 def diary_favorite(diary_id):
     if not is_logged_in():
@@ -6928,199 +8419,6 @@ def food_favorite(food_key):
         sort_by=sort_by,
         page=page,
     ))
-
-
-def save_food_data_url(data_url, food_key, image_kind, index=None):
-    if not data_url:
-        return ""
-    if Image is None:
-        raise ValueError("当前环境缺少 Pillow，无法处理图片")
-    data_url = str(data_url)
-    if "," in data_url:
-        header, encoded = data_url.split(",", 1)
-        if "image/" not in header:
-            raise ValueError("请粘贴图片格式的数据")
-    else:
-        encoded = data_url
-    try:
-        raw = base64.b64decode(encoded, validate=True)
-        image = Image.open(BytesIO(raw)).convert("RGB")
-    except Exception as exc:
-        raise ValueError("图片解析失败，请重新粘贴图片") from exc
-    safe_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(food_key or "food")).strip("._") or "food"
-    kind = str(image_kind or "").strip().lower()
-    if kind == "cover":
-        suffix = "cover"
-    elif kind == "detail":
-        suffix = "detail"
-    else:
-        suffix = f"dish-{int(index or 0) + 1}"
-    filename = f"{safe_key}-{suffix}.jpg"
-    os.makedirs(XMU_FOOD_CUSTOM_MEDIA_DIR, exist_ok=True)
-    abs_path = os.path.join(XMU_FOOD_CUSTOM_MEDIA_DIR, filename)
-    image.save(abs_path, "JPEG", quality=88, optimize=True, progressive=True)
-    return "/".join(["food_media", "custom", filename])
-
-
-def save_food_uploaded_file(upload, food_key, image_kind, index=None):
-    if not upload:
-        return ""
-    if Image is None:
-        raise ValueError("当前环境缺少 Pillow，无法处理图片")
-    filename = str(getattr(upload, "filename", "") or "").strip()
-    try:
-        upload.stream.seek(0)
-    except Exception:
-        pass
-    try:
-        image = Image.open(upload.stream).convert("RGB")
-    except Exception as exc:
-        raise ValueError("上传图片解析失败，请重新选择文件") from exc
-    safe_key = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(food_key or "food")).strip("._") or "food"
-    kind = str(image_kind or "").strip().lower()
-    if kind == "cover":
-        suffix = "cover"
-    elif kind == "detail":
-        suffix = "detail"
-    else:
-        suffix = f"dish-{int(index or 0) + 1}"
-    filename = f"{safe_key}-{suffix}.jpg"
-    os.makedirs(XMU_FOOD_CUSTOM_MEDIA_DIR, exist_ok=True)
-    abs_path = os.path.join(XMU_FOOD_CUSTOM_MEDIA_DIR, filename)
-    image.save(abs_path, "JPEG", quality=88, optimize=True, progressive=True)
-    return "/".join(["food_media", "custom", filename])
-
-
-def normalize_food_media_record(food, existing_record=None):
-    existing_record = existing_record if isinstance(existing_record, dict) else {}
-    dishes = []
-    source_dishes = existing_record.get("signature_dishes") if isinstance(existing_record.get("signature_dishes"), list) else []
-    food_dishes = food.get("signature_dishes") or []
-    for index in range(3):
-        source = source_dishes[index] if index < len(source_dishes) and isinstance(source_dishes[index], dict) else {}
-        fallback = food_dishes[index] if index < len(food_dishes) and isinstance(food_dishes[index], dict) else {}
-        dishes.append({
-            "name": str(source.get("name") or fallback.get("name") or "").strip(),
-            "price": str(source.get("price") or fallback.get("price") or "").strip(),
-            "image": str(source.get("image") or fallback.get("image") or "food_media/dishes/food-dish-placeholder.jpg").strip(),
-        })
-    return {
-        "name": str(existing_record.get("name") or food.get("name") or "").strip(),
-        "cuisine": str(existing_record.get("cuisine") or food.get("cuisine") or food.get("category") or "").strip(),
-        "cover_image": str(existing_record.get("cover_image") or food.get("cover_image") or "food_media/shops/food-cover-placeholder.jpg").strip(),
-        "detail_image": str(
-            existing_record.get("detail_image")
-            or food.get("detail_image")
-            or existing_record.get("cover_image")
-            or food.get("cover_image")
-            or "food_media/shops/food-cover-placeholder.jpg"
-        ).strip(),
-        "recommend_score_override": existing_record.get("recommend_score_override"),
-        "rating": food.get("rating"),
-        "popularity": food.get("popularity"),
-        "avg_cost": food.get("avg_cost"),
-        "display_description": str(existing_record.get("display_description") or food.get("display_description") or "").strip(),
-        "recommendation_note": str(existing_record.get("recommendation_note") or food.get("recommendation_note") or default_food_recommendation_note()).strip(),
-        "signature_dishes": dishes,
-    }
-
-
-@app.route("/api/food-media/<food_key>/update", methods=["POST"])
-def update_food_media(food_key):
-    if not is_logged_in():
-        return jsonify({"error": "请先登录"}), 401
-
-    if request.is_json:
-        payload = request.get_json(force=True, silent=True) or {}
-        files = {}
-    else:
-        payload = request.form.to_dict(flat=True)
-        files = request.files
-    place_id = str(payload.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
-    if place_id not in FOOD_CAMPUS_CONTEXTS:
-        place_id = FOOD_DEFAULT_PLACE_ID
-    food = get_food_by_key(food_key, place_id=place_id)
-    if food is None:
-        return jsonify({"error": "未找到该美食"}), 404
-
-    media_payload = load_food_media_payload()
-    records = media_payload.setdefault("foods", {})
-    record = normalize_food_media_record(food, records.get(food_key, {}))
-
-    try:
-        cover_file = files.get("cover_file")
-        if cover_file and getattr(cover_file, "filename", ""):
-            record["cover_image"] = save_food_uploaded_file(cover_file, food_key, "cover")
-        elif payload.get("cover_image"):
-            record["cover_image"] = save_food_data_url(payload.get("cover_image"), food_key, "cover")
-
-        detail_file = files.get("detail_file")
-        if detail_file and getattr(detail_file, "filename", ""):
-            record["detail_image"] = save_food_uploaded_file(detail_file, food_key, "detail")
-        elif payload.get("detail_image"):
-            record["detail_image"] = save_food_data_url(payload.get("detail_image"), food_key, "detail")
-
-        if "rating" in payload:
-            record["rating"] = round(coerce_food_number(payload.get("rating"), food.get("rating", 4.0), float, 0, 5), 1)
-        if "popularity" in payload:
-            record["popularity"] = int(coerce_food_number(payload.get("popularity"), food.get("popularity", 60), int, 0, 9999))
-        if "avg_cost" in payload:
-            record["avg_cost"] = round(coerce_food_number(payload.get("avg_cost"), food.get("avg_cost", 22), float, 0, 9999), 1)
-        if "display_description" in payload:
-            record["display_description"] = str(payload.get("display_description") or "").strip()
-        if "recommendation_note" in payload:
-            record["recommendation_note"] = str(payload.get("recommendation_note") or "").strip() or default_food_recommendation_note()
-        if "recommend_score_override" in payload:
-            record["recommend_score_override"] = optional_food_float(payload.get("recommend_score_override"))
-
-        incoming_dishes = payload.get("dishes")
-        if isinstance(incoming_dishes, str):
-            try:
-                incoming_dishes = json.loads(incoming_dishes)
-            except json.JSONDecodeError:
-                incoming_dishes = []
-        if not isinstance(incoming_dishes, list):
-            incoming_dishes = []
-        if not incoming_dishes:
-            for index in range(3):
-                name_key = f"dish_name_{index}"
-                price_key = f"dish_price_{index}"
-                if name_key in payload or price_key in payload:
-                    incoming_dishes.append({
-                        "name": payload.get(name_key, ""),
-                        "price": payload.get(price_key, ""),
-                    })
-        if isinstance(incoming_dishes, list):
-            for index, dish_payload in enumerate(incoming_dishes[:3]):
-                if not isinstance(dish_payload, dict):
-                    continue
-                dish = record["signature_dishes"][index]
-                if "name" in dish_payload:
-                    dish["name"] = str(dish_payload.get("name") or "").strip()
-                if "price" in dish_payload:
-                    dish["price"] = str(dish_payload.get("price") or "").strip()
-                if dish_payload.get("image"):
-                    dish["image"] = save_food_data_url(dish_payload.get("image"), food_key, "dish", index=index)
-
-        dish_index = payload.get("dish_index")
-        dish_file = files.get("dish_file")
-        if dish_index is not None and dish_file and getattr(dish_file, "filename", ""):
-            index = int(dish_index)
-            if index < 0 or index > 2:
-                raise ValueError("招牌菜序号不合法")
-            record["signature_dishes"][index]["image"] = save_food_uploaded_file(dish_file, food_key, "dish", index=index)
-        elif dish_index is not None and payload.get("dish_image"):
-            index = int(dish_index)
-            if index < 0 or index > 2:
-                raise ValueError("招牌菜序号不合法")
-            record["signature_dishes"][index]["image"] = save_food_data_url(payload.get("dish_image"), food_key, "dish", index=index)
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
-
-    records[food_key] = record
-    media_payload["updated_at"] = datetime.now().isoformat(timespec="seconds")
-    save_food_media_payload(media_payload)
-    return jsonify({"ok": True, "food_key": food_key, "record": record})
 
 
 if __name__ == "__main__":

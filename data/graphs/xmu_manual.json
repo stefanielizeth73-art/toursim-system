@@ -879825,7 +879825,7 @@
   ],
   "collector_source_signature": {
     "algorithm": "sha256",
-    "digest": "8c41c2139afd24cada78a024f106ba0bcb0699256c9ec8e4e3dc660488fcfe49",
+    "digest": "c0044fa9cf153a5279dee4dfee7016fedfe71ed82900811ac884b378e6e0f0d8",
     "files": [
       {
         "name": "xmu_collector_nodes.json",
@@ -879841,7 +879841,7 @@
       },
       {
         "name": "xmu_collector_facilities.json",
-        "bytes": 74314
+        "bytes": 69781
       },
       {
         "name": "xmu_collector_meta.json",
@@ -879857,7 +879857,7 @@
     "manual_edges": 677,
     "road_points": 20441,
     "links": 1275,
-    "facilities": 168,
+    "facilities": 163,
     "place_id": "xmu_manual"
   }
 }

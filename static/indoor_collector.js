@@ -1,14 +1,11 @@
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const NS = "http://www.w3.org/2000/svg";
-        const svg = document.getElementById("indoorCollectorMap");
+        const maps = Array.from(document.querySelectorAll("[data-collector-map]"));
+        let activeSvg = maps[0] || document.getElementById("indoorCollectorMap");
         const floorSelect = document.getElementById("collectorFloor");
         const typeSelect = document.getElementById("collectorNodeType");
-        const coreField = document.getElementById("collectorCoreField");
-        const coreSelect = document.getElementById("collectorCoreId");
         const nameInput = document.getElementById("collectorNodeName");
-        const roadNameInput = document.getElementById("collectorRoadName");
-        const roadTypeSelect = document.getElementById("collectorRoadType");
         const statusEl = document.getElementById("indoorCollectorStatus");
         const summaryEl = document.getElementById("indoorCollectorSummary");
         const exportEl = document.getElementById("indoorCollectorExport");
@@ -25,18 +22,14 @@
         let undoStack = [];
         let redoStack = [];
 
-        if (!svg || !floorSelect) {
+        if (!activeSvg || !floorSelect) {
             return;
         }
 
         const modeHints = {
-            node: "左键在底图上添加房间门、电梯、步梯或入口关键点；电梯/步梯可选择跨层核心筒编号。",
+            node: "左键在底图上添加电梯、步梯或其他关键点；同名电梯/步梯会按楼层自动跨层连接。",
             road: "左键逐点绘制道路；右键开始连续打点，移动鼠标采样，再次右键或双击保存。",
             snap: "依次点击一个关键点和一个道路点，或两个道路点，系统会保存吸附连接。"
-        };
-        const defaultCoreByType = {
-            elevator: "west_elevator",
-            stairs: "northwest_stairs"
         };
 
         function floorKey() {
@@ -110,11 +103,12 @@
             return requestJson(url, { method: "DELETE" });
         }
 
-        function svgPoint(event) {
-            const point = svg.createSVGPoint();
+        function svgPoint(event, targetSvg) {
+            const mapSvg = targetSvg || activeSvg;
+            const point = mapSvg.createSVGPoint();
             point.x = event.clientX;
             point.y = event.clientY;
-            const matrix = svg.getScreenCTM();
+            const matrix = mapSvg.getScreenCTM();
             if (!matrix) {
                 return null;
             }
@@ -210,29 +204,6 @@
             render();
         }
 
-        function updateCoreField() {
-            if (!typeSelect || !coreField || !coreSelect) {
-                return;
-            }
-            const nodeType = typeSelect.value;
-            const isVerticalCore = nodeType === "elevator" || nodeType === "stairs";
-            coreField.classList.toggle("is-hidden", !isVerticalCore);
-            Array.from(coreSelect.options).forEach(function (option) {
-                const optionType = option.getAttribute("data-core-type");
-                option.hidden = Boolean(optionType && optionType !== nodeType);
-            });
-            if (!isVerticalCore) {
-                coreSelect.value = "";
-                return;
-            }
-            const selectedType = coreSelect.selectedOptions[0]
-                ? coreSelect.selectedOptions[0].getAttribute("data-core-type")
-                : "";
-            if (!coreSelect.value || selectedType !== nodeType) {
-                coreSelect.value = defaultCoreByType[nodeType] || "";
-            }
-        }
-
         function makeSvg(tag, attrs) {
             const node = document.createElementNS(NS, tag);
             Object.keys(attrs || {}).forEach(function (key) {
@@ -245,7 +216,27 @@
             return `indoor-collector-node is-${node.type || "hall"}`;
         }
 
-        function drawNode(node) {
+        function setActiveFloor(key, options) {
+            const nextKey = String(key || floorKey());
+            const switched = nextKey !== floorKey();
+            if (switched) {
+                editPoints = [];
+                rightDrawing = false;
+                selectedSnapEndpoints = [];
+            }
+            floorSelect.value = nextKey;
+            activeSvg = maps.find(function (map) {
+                return String(map.getAttribute("data-collector-map")) === nextKey;
+            }) || activeSvg;
+            if (floorTitle) {
+                floorTitle.textContent = `${nextKey}F`;
+            }
+            if (!(options && options.skipRender)) {
+                render();
+            }
+        }
+
+        function drawNode(targetSvg, node) {
             const group = makeSvg("g", {
                 class: markerClass(node),
                 "data-node-id": node.id,
@@ -259,10 +250,13 @@
             });
             label.textContent = node.name || node.id;
             group.appendChild(label);
-            svg.appendChild(group);
+            targetSvg.appendChild(group);
         }
 
-        function drawEndpointSelection() {
+        function drawEndpointSelection(targetSvg, key) {
+            if (String(key) !== floorKey()) {
+                return;
+            }
             selectedSnapEndpoints.forEach(function (endpoint, index) {
                 const point = endpointPoint(endpoint);
                 if (!point) {
@@ -276,13 +270,16 @@
                 const text = makeSvg("text", { y: 5, "text-anchor": "middle" });
                 text.textContent = String(index + 1);
                 group.appendChild(text);
-                svg.appendChild(group);
+                targetSvg.appendChild(group);
             });
         }
 
-        function drawEditRoad() {
+        function drawEditRoad(targetSvg, key) {
+            if (String(key) !== floorKey()) {
+                return;
+            }
             if (editPoints.length >= 2) {
-                svg.appendChild(makeSvg("polyline", {
+                targetSvg.appendChild(makeSvg("polyline", {
                     class: "indoor-edit-edge",
                     points: pointsAttr(editPoints)
                 }));
@@ -296,25 +293,21 @@
                 const text = makeSvg("text", { y: 4, "text-anchor": "middle" });
                 text.textContent = String(index + 1);
                 group.appendChild(text);
-                svg.appendChild(group);
+                targetSvg.appendChild(group);
             });
         }
 
-        function render() {
-            const key = floorKey();
+        function renderMap(targetSvg, key) {
             const floor = floorPayload(key);
             const meta = data.meta || {};
             const width = Number(meta.width || 1672);
             const height = Number(meta.height || 941);
             const asset = (meta.floor_assets || {})[key] || (meta.floor_assets || {})[Number(key)];
-            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-            svg.innerHTML = "";
-            if (floorTitle) {
-                floorTitle.textContent = `${key}F`;
-            }
+            targetSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+            targetSvg.innerHTML = "";
 
             if (asset) {
-                svg.appendChild(makeSvg("image", {
+                targetSvg.appendChild(makeSvg("image", {
                     href: `/static/${asset}`,
                     x: 0,
                     y: 0,
@@ -329,7 +322,7 @@
                 if (geometry.length < 2) {
                     return;
                 }
-                svg.appendChild(makeSvg("polyline", {
+                targetSvg.appendChild(makeSvg("polyline", {
                     class: "indoor-collector-edge",
                     "data-edge-id": edge.id,
                     points: pointsAttr(geometry)
@@ -341,7 +334,7 @@
                 if (geometry.length < 2) {
                     return;
                 }
-                svg.appendChild(makeSvg("polyline", {
+                targetSvg.appendChild(makeSvg("polyline", {
                     class: "indoor-collector-link",
                     "data-link-id": link.id,
                     points: pointsAttr(geometry)
@@ -358,40 +351,60 @@
                             transform: `translate(${point[0]}, ${point[1]})`
                         });
                         group.appendChild(makeSvg("circle", { r: mode === "snap" ? 8 : 5 }));
-                        svg.appendChild(group);
+                        targetSvg.appendChild(group);
                     });
                 });
             }
 
-            floor.nodes.forEach(drawNode);
-            drawEndpointSelection();
-            drawEditRoad();
+            floor.nodes.forEach(function (node) {
+                drawNode(targetSvg, node);
+            });
+            drawEndpointSelection(targetSvg, key);
+            drawEditRoad(targetSvg, key);
+        }
+
+        function render() {
+            const key = floorKey();
+            if (floorTitle) {
+                floorTitle.textContent = `${key}F`;
+            }
+            maps.forEach(function (mapSvg) {
+                const mapKey = String(mapSvg.getAttribute("data-collector-map") || key);
+                renderMap(mapSvg, mapKey);
+            });
+            document.querySelectorAll("[data-collector-floor-card]").forEach(function (card) {
+                card.classList.toggle("is-active", String(card.getAttribute("data-collector-floor-card")) === key);
+            });
             updateSummary();
             updateExport();
         }
 
-        function addNode(event) {
-            const point = svgPoint(event);
+        function addNode(event, targetSvg) {
+            const point = svgPoint(event, targetSvg);
             if (!point) {
                 return;
             }
             const key = floorKey();
             const floor = floorPayload(key);
-            const nodeType = typeSelect ? typeSelect.value : "room";
+            const nodeType = typeSelect ? typeSelect.value : "other";
+            const typeLabelMap = {
+                elevator: "电梯",
+                stairs: "步梯",
+                other: "关键点"
+            };
+            const existingSameType = floor.nodes.filter(function (node) {
+                return node.type === nodeType;
+            }).length;
             const name = nameInput && nameInput.value.trim()
                 ? nameInput.value.trim()
-                : `${key}F ${nodeType === "room" ? "房间门点" : "关键点"}${floor.nodes.length + 1}`;
-            const coreId = coreSelect && (nodeType === "elevator" || nodeType === "stairs")
-                ? coreSelect.value
-                : "";
+                : `${typeLabelMap[nodeType] || "关键点"}${existingSameType + 1}号`;
             pushUndo();
             requestJson(endpoints.node, {
                 floor: Number(key),
                 x: point[0],
                 y: point[1],
                 type: nodeType,
-                name: name,
-                core_id: coreId
+                name: name
             }).then(function (payload) {
                 floor.nodes = floor.nodes.filter(function (item) { return item.id !== payload.node.id; });
                 floor.nodes.push(payload.node);
@@ -422,14 +435,12 @@
             }
             const key = floorKey();
             const floor = floorPayload(key);
-            const name = roadNameInput && roadNameInput.value.trim()
-                ? roadNameInput.value.trim()
-                : `${key}F 室内道路${floor.edges.length + 1}`;
+            const name = `${key}F 室内道路${floor.edges.length + 1}`;
             pushUndo();
             return requestJson(endpoints.edge, {
                 floor: Number(key),
                 name: name,
-                road_type: roadTypeSelect ? roadTypeSelect.value : "corridor",
+                road_type: "corridor",
                 geometry: editPoints
             }).then(function (payload) {
                 floor.edges = floor.edges.filter(function (item) { return item.id !== payload.edge.id; });
@@ -566,7 +577,9 @@
             });
         }
 
-        svg.addEventListener("click", function (event) {
+        maps.forEach(function (mapSvg) {
+            mapSvg.addEventListener("click", function (event) {
+                setActiveFloor(mapSvg.getAttribute("data-collector-map"), { skipRender: true });
             const nodeMarker = event.target.closest("[data-node-id]");
             const roadPoint = event.target.closest("[data-point-index]");
             const linkLine = event.target.closest("[data-link-id]");
@@ -594,14 +607,17 @@
                 return;
             }
             if (mode === "road") {
-                addEditPoint(svgPoint(event));
+                addEditPoint(svgPoint(event, mapSvg));
                 return;
             }
-            addNode(event);
+            addNode(event, mapSvg);
+            });
         });
 
-        svg.addEventListener("contextmenu", function (event) {
+        maps.forEach(function (mapSvg) {
+            mapSvg.addEventListener("contextmenu", function (event) {
             event.preventDefault();
+            setActiveFloor(mapSvg.getAttribute("data-collector-map"), { skipRender: true });
             const nodeMarker = event.target.closest("[data-node-id]");
             const roadPoint = event.target.closest("[data-point-index]");
             const edgeLine = event.target.closest("[data-edge-id]");
@@ -630,7 +646,7 @@
             if (mode !== "road") {
                 return;
             }
-            const point = svgPoint(event);
+            const point = svgPoint(event, mapSvg);
             if (!rightDrawing) {
                 rightDrawing = true;
                 lastDragPoint = point;
@@ -642,38 +658,44 @@
                 addEditPoint(point);
             }
             saveRoad();
+            });
         });
 
-        svg.addEventListener("mousemove", function (event) {
+        maps.forEach(function (mapSvg) {
+            mapSvg.addEventListener("mousemove", function (event) {
             if (!rightDrawing || mode !== "road") {
                 return;
             }
-            const point = svgPoint(event);
+            if (String(mapSvg.getAttribute("data-collector-map")) !== floorKey()) {
+                return;
+            }
+            const point = svgPoint(event, mapSvg);
             if (!point || (lastDragPoint && pointDistance(lastDragPoint, point) < 18)) {
                 return;
             }
             lastDragPoint = point;
             addEditPoint(point);
+            });
         });
 
-        svg.addEventListener("dblclick", function (event) {
+        maps.forEach(function (mapSvg) {
+            mapSvg.addEventListener("dblclick", function (event) {
             if (mode !== "road") {
                 return;
             }
             event.preventDefault();
+            setActiveFloor(mapSvg.getAttribute("data-collector-map"), { skipRender: true });
             saveRoad();
+            });
         });
 
         floorSelect.addEventListener("change", function () {
             editPoints = [];
             rightDrawing = false;
             selectedSnapEndpoints = [];
+            setActiveFloor(floorKey(), { skipRender: true });
             render();
         });
-
-        if (typeSelect) {
-            typeSelect.addEventListener("change", updateCoreField);
-        }
 
         document.addEventListener("click", function (event) {
             const modeButton = event.target.closest("[data-indoor-mode]");
@@ -737,7 +759,6 @@
         });
 
         setMode("node");
-        updateCoreField();
         render();
     });
 }());

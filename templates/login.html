@@ -3,35 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>个性化旅游系统 - 登录</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <title>TourSim Travel - 鐧诲綍绯荤粺</title>
+    <!-- Use dedicated isolated CSS for extreme fidelity and zero collision -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_login.css', v=asset_version('home_login.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body class="login-page">
     <main class="login-cover" aria-labelledby="login-title">
-        <section class="login-story" aria-label="系统介绍">
+        <!-- Left narrative story block -->
+        <section class="login-story" aria-label="绯荤粺浠嬬粛">
             <div class="login-brand">
                 <span class="login-brand__mark" aria-hidden="true"></span>
                 <span>TourSim Travel</span>
             </div>
-            <p class="login-kicker">CURATED CAMPUS JOURNEYS</p>
-            <h1 id="login-title">为你的下一段旅程，生成更合适的路线。</h1>
-            <p class="login-lede">从景点推荐、路线规划到旅行日记，系统会把分散的信息整理成一条更清晰的出行线索。</p>
-            <div class="login-story__meta" aria-label="系统能力">
-                <span>Scenic Spots</span>
-                <span>Route Planning</span>
-                <span>Travel Diaries</span>
+
+            <div class="login-story__content">
+                <p class="login-kicker">CURATED CAMPUS JOURNEYS</p>
+                <h1 id="login-title">涓轰綘鐨勪笅涓€娈垫梾绋嬶紝<br>鐢熸垚鏇村悎閫傜殑璺嚎銆?/h1>
+                <p class="login-lede">鏁村悎鏅鸿兘鏅偣鎺㈢储銆佹渶鐭矾寰勮矾绾跨敓鎴愪笌绮剧編鏃呮父鏃ヨ璁板綍锛屽皢鍒嗘暎鐨勪俊鎭暣鐞嗘垚鎮ㄤ笓灞炵殑鍑烘父绾跨储銆?/p>
+            </div>
+
+            <div class="login-story__meta" aria-label="绯荤粺鑳藉姏">
+                <span>鏅鸿兘鏅偣</span>
+                <span>Dijkstra 瀵艰埅</span>
+                <span>缇庨鎺ㄨ崘</span>
             </div>
         </section>
 
-        <section class="login-panel" aria-label="登录表单">
+        <!-- Right Card Form Block -->
+        <section class="login-panel" aria-label="鐧诲綍琛ㄥ崟">
             <div class="login-card">
-                <div class="card-header">
+                <header class="card-header">
                     <p class="login-kicker">MEMBER ACCESS</p>
-                    <h2>登录系统</h2>
-                    <p class="card-subtitle">输入账号密码，继续你的个性化旅游规划。</p>
-                </div>
+                    <h2>鐧诲綍绯荤粺</h2>
+                    <p class="card-subtitle">杈撳叆鎮ㄧ殑璐﹀彿瀵嗙爜锛岀户缁帰绱釜鎬у寲璺嚎銆?/p>
+                </header>
 
+                <!-- Flask Flash Error Messages -->
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
@@ -45,26 +53,26 @@
 
                 <form method="post" class="login-form">
                     <div class="form-group">
-                        <label for="username">用户名</label>
-                        <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
+                        <label for="username">鐢ㄦ埛鍚?/label>
+                        <input type="text" id="username" name="username" placeholder="璇疯緭鍏ョ敤鎴峰悕" autocomplete="username" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="password">密码</label>
-                        <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
+                        <label for="password">瀵嗙爜</label>
+                        <input type="password" id="password" name="password" placeholder="璇疯緭鍏ュ瘑鐮? autocomplete="current-password" required>
                     </div>
 
-                    <button type="submit" class="submit-btn">进入系统</button>
+                    <button type="submit" class="submit-btn">杩涘叆绯荤粺</button>
                 </form>
 
                 <div class="divider">
-                    <span>或</span>
+                    <span>鎴?/span>
                 </div>
 
                 <div class="auth-links">
                     <p class="auth-text">
-                        还没有账号？
-                        <a href="{{ url_for('register') }}" class="auth-link">立即注册</a>
+                        杩樻病鏈夎处鍙凤紵
+                        <a href="{{ url_for('register') }}" class="auth-link">绔嬪嵆娉ㄥ唽</a>
                     </p>
                 </div>
             </div>

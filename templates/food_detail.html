@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ food.name }} - 美食详情</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='food_dev_tools.js', v=asset_version('food_dev_tools.js')) }}"></script>
+    <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
-<body class="food-product-page food-detail-open-page" data-place-id="{{ place_id }}" data-food-key="{{ food.food_key }}">
+<body class="food-product-page food-detail-open-page" data-place-id="{{ place_id }}">
     <div class="topbar food-detail-topbar">
         <div class="food-topbar__brand">
             <span class="eyebrow">XMU XIANG'AN FOOD</span>
@@ -16,7 +17,6 @@
         </div>
         <div class="food-topbar__actions">
             <span class="food-topbar__user">当前用户：{{ username }}</span>
-            <button type="button" class="food-dev-toggle" data-food-dev-toggle>开发者模式</button>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="nav-link" href="{{ url_for('foods', place_id=place_id, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=page) }}">返回美食列表</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
@@ -34,8 +34,8 @@
             {% endif %}
         {% endwith %}
 
-        <section class="food-detail-panorama" aria-labelledby="foodDetailTitle" data-food-detail-edit data-food-key="{{ food.food_key }}" data-food-name="{{ food.name }}">
-            <img src="{{ url_for('static', filename=food.detail_image or food.cover_image) }}" alt="{{ food.name }} 店铺代表照片" width="1200" height="760" data-food-image-role="detail" data-food-key="{{ food.food_key }}">
+        <section class="food-detail-panorama" aria-labelledby="foodDetailTitle">
+            <img src="{{ url_for('static', filename=food.detail_image or food.cover_image) }}" alt="{{ food.name }} 店铺代表照片" width="1200" height="760">
             <div class="food-detail-panorama__copy">
                 <span class="eyebrow">{{ food.cuisine or food.category }}</span>
                 <h1 id="foodDetailTitle">{{ food.name }}</h1>
@@ -122,57 +122,6 @@
                 <section class="food-detail-rail-card food-detail-rail-card--note">
                     <span class="eyebrow">ALGORITHM</span>
                     <p class="food-detail-algorithm-note">搜索：内容模糊查找。排序：Top-K 堆排序。距离：选择当前位置后按路线图做 Dijkstra 最短路计算。</p>
-                </section>
-
-                <section class="food-detail-rail-card food-dev-panel" data-food-dev-panel hidden>
-                    <span class="eyebrow">DEVELOPER</span>
-                    <h2>编辑展示数据</h2>
-                    <form class="food-dev-form" data-food-dev-form>
-                        <label>
-                            <span>评分</span>
-                            <input name="rating" type="number" min="0" max="5" step="0.1" value="{{ food.rating }}">
-                        </label>
-                        <label>
-                            <span>热度</span>
-                            <input name="popularity" type="number" min="0" max="9999" step="1" value="{{ food.popularity }}">
-                        </label>
-                        <label>
-                            <span>人均</span>
-                            <input name="avg_cost" type="number" min="0" max="9999" step="0.1" value="{{ food.avg_cost }}">
-                        </label>
-                        <label>
-                            <span>推荐分覆盖（可选）</span>
-                            <input name="recommend_score_override" type="number" min="0" max="9999" step="0.01" value="{{ food.recommend_score_override if food.recommend_score_override is not none else '' }}">
-                        </label>
-                        <label class="food-dev-field-wide">
-                            <span>列表简介</span>
-                            <textarea name="display_description" rows="3">{{ food.display_description }}</textarea>
-                        </label>
-                        <label class="food-dev-field-wide">
-                            <span>推荐依据简述</span>
-                            <textarea name="recommendation_note" rows="5">{{ food.recommendation_note }}</textarea>
-                        </label>
-                        <div class="food-dev-media-preview">
-                            <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 门店封面预览" data-food-image-role="cover" data-food-key="{{ food.food_key }}">
-                            <div class="food-dev-media-actions">
-                                <button type="button" class="food-dev-paste-action" data-food-dev-cover>选择本地门店图</button>
-                                <button type="button" class="food-dev-paste-action" data-food-dev-detail>选择本地详情头图</button>
-                            </div>
-                        </div>
-                        <div class="food-dev-dish-editor">
-                            {% for dish in food.signature_dishes %}
-                            <fieldset data-food-dev-dish="{{ loop.index0 }}">
-                                <legend>招牌菜 {{ loop.index }}</legend>
-                                <input name="dish_name_{{ loop.index0 }}" value="{{ dish.name }}" aria-label="招牌菜 {{ loop.index }} 名称">
-                                <input name="dish_price_{{ loop.index0 }}" value="{{ dish.price }}" aria-label="招牌菜 {{ loop.index }} 单价">
-                                <img src="{{ url_for('static', filename=dish.image) }}" alt="{{ food.name }} - {{ dish.name }}" loading="lazy" width="420" height="315" data-food-image-role="dish" data-food-key="{{ food.food_key }}" data-dish-index="{{ loop.index0 }}">
-                                <button type="button" data-food-dev-dish-image="{{ loop.index0 }}">选择本地菜品图</button>
-                            </fieldset>
-                            {% endfor %}
-                        </div>
-                        <button type="submit" class="food-dev-save">保存修改</button>
-                        <p class="food-dev-status" data-food-dev-status aria-live="polite"></p>
-                    </form>
                 </section>
             </aside>
         </div>

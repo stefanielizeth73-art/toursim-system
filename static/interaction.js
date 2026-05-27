@@ -450,10 +450,144 @@
         media.addEventListener("loadedmetadata", layoutMasonryFeeds, { once: true });
     });
 
+    function initCanvasParticles() {
+        if (reduceMotion) return;
+        const canvas = document.createElement("canvas");
+        canvas.id = "lux-particle-canvas";
+        canvas.style.position = "fixed";
+        canvas.style.top = "0";
+        canvas.style.left = "0";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.zIndex = "-2";
+        canvas.style.pointerEvents = "none";
+        body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const particles = [];
+        const maxParticles = width < 768 ? 35 : 90;
+        const connectionDist = 180;
+
+        const mouse = {
+            x: null,
+            y: null,
+            active: false
+        };
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * height;
+                this.x = Math.random() * width;
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = -10;
+                this.radius = Math.random() * 1.5 + 1.2;
+                this.baseVx = (Math.random() - 0.5) * 0.3;
+                this.baseVy = Math.random() * 0.4 + 0.15; // slow drift down
+                this.vx = this.baseVx;
+                this.vy = this.baseVy;
+                // Pastel translucent colors matching the light HSL theme
+                const colors = [
+                    "rgba(99, 102, 241, 0.28)",  // Indigo
+                    "rgba(6, 182, 212, 0.28)",   // Cyan
+                    "rgba(16, 185, 129, 0.25)",  // Emerald
+                    "rgba(244, 63, 94, 0.25)",   // Rose
+                    "rgba(139, 92, 246, 0.28)"   // Violet
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (mouse.active && mouse.x !== null && mouse.y !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist < connectionDist) {
+                        const force = (connectionDist - dist) / connectionDist;
+                        // Magnetic tracking spring effect
+                        this.vx += (dx / dist) * force * 0.14;
+                        this.vy += (dy / dist) * force * 0.14;
+
+                        // Connecting line
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${force * 0.14})`;
+                        ctx.lineWidth = 0.65;
+                        ctx.stroke();
+                    }
+                }
+
+                // Damping
+                this.vx *= 0.93;
+                this.vy *= 0.93;
+
+                // Drift retention
+                this.vx += this.baseVx * 0.07;
+                this.vy += this.baseVy * 0.07;
+
+                // Border wraps/recreation
+                if (this.y > height + 10 || this.x < -10 || this.x > width + 10) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < maxParticles; i++) {
+            particles.push(new Particle());
+        }
+
+        window.addEventListener("pointermove", function (e) {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouse.active = true;
+        }, { passive: true });
+
+        window.addEventListener("pointerleave", function () {
+            mouse.active = false;
+        }, { passive: true });
+
+        window.addEventListener("resize", function () {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }, { passive: true });
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
     initDiaryFeedMemory();
     initDiaryBackLink();
     initDiaryGallery();
     initCommentDrafts();
+    initCanvasParticles();
 
     layoutMasonryFeeds();
     window.addEventListener("load", layoutMasonryFeeds);

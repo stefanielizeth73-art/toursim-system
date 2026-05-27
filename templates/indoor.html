@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ building_name }} - 室内导航</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
+    <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="indoor-page">
     <a class="skip-link" href="#indoorMap">跳到室内平面图</a>
@@ -16,11 +18,8 @@
             个性化旅游系统 · 室内导航
         </div>
         <nav aria-label="室内导航操作">
-            <span>当前用户：{{ username }}</span>
-            <a class="nav-link" href="{{ url_for('indoor_collector') }}">室内采集</a>
-            <a class="nav-link" href="{{ url_for('route') }}">路线规划</a>
-            <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+            <a class="indoor-home-pill indoor-mode-pill" href="{{ url_for('indoor_collector') }}">采集模式</a>
+            <a class="indoor-home-pill" href="{{ url_for('home') }}">返回主页</a>
         </nav>
     </header>
 
@@ -110,10 +109,6 @@
             <div class="indoor-floor-stack">
                 {% for floor in floors %}
                 <article class="indoor-floor indoor-floor--image {% if floor.active %}is-active{% endif %}">
-                    <div class="indoor-floor__label">
-                        <strong>{{ floor.number }}F</strong>
-                        <span>{% if floor.active %}路线经过{% else %}普通楼层{% endif %}</span>
-                    </div>
                     <svg class="indoor-floor-plan indoor-floor-plan--image" viewBox="0 0 {{ floor.width }} {{ floor.height }}" role="img" aria-label="{{ floor.number }}层室内平面图">
                         <defs>
                             <filter id="routeGlow{{ floor.number }}" x="-30%" y="-30%" width="160%" height="160%">
@@ -133,6 +128,13 @@
                             <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path" filter="url(#routeGlow{{ floor.number }})"></line>
                             {% endif %}
                         {% endfor %}
+                        <g class="indoor-floor-pill {% if floor.active %}is-active{% endif %}" transform="translate(24 24)" aria-hidden="true">
+                            <rect x="0" y="0" rx="22" ry="22" width="{% if floor.active %}122{% else %}82{% endif %}" height="44"></rect>
+                            <text x="18" y="28">{{ floor.number }}F</text>
+                            {% if floor.active %}
+                            <circle cx="96" cy="22" r="7"></circle>
+                            {% endif %}
+                        </g>
                     </svg>
                 </article>
                 {% endfor %}
