@@ -1,0 +1,1216 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ==========================================================================
+   LUXURY DESIGN SYSTEM VARIABLES
+   ========================================================================== */
+:root {
+    /* Typographic Fonts */
+    --font-display-serif: 'Cinzel', Georgia, serif;
+    --font-display-sans: 'Outfit', 'Inter', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+
+    /* Elegant Metallic Palette */
+    --lux-gold: #c5a880;           /* Luxury champagne gold */
+    --lux-gold-light: rgba(197, 168, 128, 0.15);
+    --lux-gold-glow: rgba(197, 168, 128, 0.3);
+    --lux-charcoal: #0e0f12;       /* Matte charcoal black */
+    --lux-slate-dark: #1f2026;     /* Deep brand slate */
+    --lux-slate-muted: #5e616b;    /* Polished steel grey */
+    --lux-platinum: #eceef2;       /* Liquid platinum */
+    --lux-ivory: #f7f8fa;          /* Delicate ivory white background */
+
+    /* Glassmorphism Refined Props */
+    --lux-glass-bg: rgba(255, 255, 255, 0.48);
+    --lux-glass-bg-hover: rgba(255, 255, 255, 0.78);
+    --lux-glass-border: rgba(255, 255, 255, 0.7);
+    --lux-glass-border-gold: rgba(197, 168, 128, 0.25);
+    --lux-glass-shadow:
+        0 24px 64px rgba(31, 38, 135, 0.05),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+
+    /* Radii */
+    --lux-radius-xl: 32px;
+    --lux-radius-lg: 24px;
+    --lux-radius-md: 16px;
+    --lux-radius-sm: 12px;
+
+    /* Custom Accents - Platinum Form */
+    --color-emerald: #059669;
+    --color-amber: #d97706;
+    --color-cyan: #0891b2;
+    --color-purple: #7c3aed;
+    --color-rose: #db2777;
+    --color-sapphire: #2563eb;
+}
+
+/* ==========================================================================
+   RESET & LAYOUT SCENE
+   ========================================================================== */
+body.home-page {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--lux-slate-dark);
+    background-color: var(--lux-ivory);
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Immersive Luxury Light Ambient */
+    background:
+        radial-gradient(circle at 5% 5%, rgba(197, 168, 128, 0.12), transparent 40vw),
+        radial-gradient(circle at 95% 85%, rgba(37, 99, 235, 0.06), transparent 45vw),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8), transparent 70vw),
+        linear-gradient(135deg, #f7f9fc 0%, #e9ecf2 100%);
+    position: relative;
+    box-sizing: border-box;
+}
+
+body.home-page * {
+    box-sizing: inherit;
+}
+
+/* ==========================================================================
+   ASYNCHRONOUS EDITORIAL SPLIT STAGE
+   ========================================================================== */
+.lux-layout-wrapper {
+    display: grid;
+    grid-template-columns: minmax(360px, 30vw) 1fr;
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+/* LEFT COLUMN - Sticky Editorial Console */
+.lux-brand-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid rgba(197, 168, 128, 0.15);
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10;
+}
+
+/* RIGHT COLUMN - Flowing Portal Horizon */
+.lux-portal-stage {
+    padding: 50px min(80px, 6vw) 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    max-width: 1300px;
+    width: 100%;
+}
+
+/* ==========================================================================
+   LEFT SIDEBAR COMPONENTS
+   ========================================================================== */
+.lux-sidebar-top {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+}
+
+/* Floating Luxury Header Dock */
+.lux-header-dock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    box-shadow:
+        0 8px 32px rgba(31, 38, 135, 0.03),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.lux-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--lux-slate-dark);
+    text-decoration: none;
+}
+
+.lux-brand__logo {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lux-gold);
+    box-shadow: 0 0 12px var(--lux-gold);
+    display: inline-block;
+}
+
+/* User Badge with Platinum Ring */
+.lux-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--lux-slate-dark);
+    font-family: var(--font-display-sans);
+}
+
+.lux-user-badge img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--lux-gold);
+    object-fit: cover;
+}
+
+/* Luxury Typographic Editorial Greeting */
+.lux-greeting-editorial {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lux-greeting-kicker {
+    font-family: var(--font-display-serif);
+    font-weight: 900;
+    font-size: 0.78rem;
+    color: var(--lux-gold);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.lux-greeting-title {
+    font-family: var(--font-display-serif);
+    font-weight: 400;
+    font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+    line-height: 1.15;
+    color: var(--lux-charcoal);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.lux-greeting-title strong {
+    font-weight: 700;
+    display: block;
+    color: var(--lux-slate-dark);
+}
+
+.lux-greeting-editorial .subtitle {
+    font-size: 0.85rem;
+    color: var(--lux-slate-muted);
+    line-height: 1.6;
+    margin: 4px 0 0 0;
+}
+
+/* Custom greeting icons/badges */
+.greeting-icon {
+    font-family: var(--font-display-serif);
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--lux-gold);
+    border: 1px solid var(--lux-gold);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    display: inline-block;
+    background: var(--lux-gold-light);
+}
+
+/* Luxury Perfume stat columns */
+.lux-stats-rack {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.lux-stat-vial {
+    position: relative;
+    padding: 20px 10px;
+    border: 1px solid var(--lux-glass-border);
+    border-radius: var(--lux-radius-md);
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: var(--lux-glass-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 120px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Gold vial inner fluid riser */
+.lux-stat-vial::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
+    background: linear-gradient(180deg, var(--lux-gold-light) 0%, transparent 100%);
+    transition: height 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+}
+
+.lux-stat-vial:hover {
+    transform: translateY(-4px);
+    border-color: var(--lux-gold-light);
+    box-shadow: 0 12px 30px rgba(197, 168, 128, 0.1);
+}
+
+.lux-stat-vial:hover::before {
+    height: 100%;
+}
+
+.lux-stat-value {
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: var(--lux-slate-dark);
+    line-height: 1.1;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+
+.lux-stat-label {
+    font-family: var(--font-display-sans);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--lux-slate-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 2;
+}
+
+.lux-stat-vial:hover .lux-stat-value {
+    color: #92754e;
+}
+
+/* Delicate SVG Astrolabe/Compass instrument */
+.lux-compass-anchor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.lux-compass-instrument {
+    width: min(150px, 14vw);
+    height: min(150px, 14vw);
+    opacity: 0.75;
+    transition: transform 0.2s ease-out, opacity 0.3s ease;
+    animation: slowInstrumentDrift 45s linear infinite;
+}
+
+.lux-compass-instrument:hover {
+    opacity: 1;
+}
+
+@keyframes slowInstrumentDrift {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Sidebar Footer Links */
+.lux-sidebar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid rgba(197, 168, 128, 0.08);
+}
+
+.lux-footer-btn {
+    font-family: var(--font-display-sans);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 99px;
+    transition: all 0.3s ease;
+}
+
+.lux-footer-btn.profile {
+    color: var(--lux-slate-dark);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: transparent;
+}
+
+.lux-footer-btn.profile:hover {
+    border-color: var(--lux-slate-dark);
+    background: rgba(0, 0, 0, 0.02);
+    transform: translateY(-1px);
+}
+
+.lux-footer-btn.logout {
+    color: #c2410c;
+    border: 1px solid rgba(194, 65, 12, 0.1);
+    background: rgba(194, 65, 12, 0.02);
+}
+
+.lux-footer-btn.logout:hover {
+    color: #ffffff;
+    background: #c2410c;
+    border-color: #c2410c;
+    box-shadow: 0 4px 12px rgba(194, 65, 12, 0.2);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   RIGHT PORTAL STAGE & ASYMMETRIC BLADES
+   ========================================================================== */
+.lux-stage-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lux-stage-kicker {
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--lux-gold);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.lux-stage-title {
+    font-family: var(--font-display-serif);
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--lux-slate-dark);
+    margin: 0;
+}
+
+/* Asymmetric Ribbon Portal Blade layout */
+.lux-portal-horizon {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.portal-blade {
+    position: relative;
+    padding: 36px 48px;
+    margin-bottom: 28px;
+    border: 1px solid var(--lux-glass-border);
+    border-radius: var(--lux-radius-lg);
+    background: var(--lux-glass-bg);
+    backdrop-filter: blur(24px) saturate(130%);
+    -webkit-backdrop-filter: blur(24px) saturate(130%);
+    box-shadow: var(--lux-glass-shadow);
+    text-decoration: none;
+    color: var(--lux-slate-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    transition:
+        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+        background 0.4s ease;
+    overflow: hidden;
+    z-index: 1;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Asymmetric width stagger based on golden ratio */
+.portal-blade:nth-child(1) { max-width: 93%; animation-delay: 0.1s; }
+.portal-blade:nth-child(2) { max-width: 88%; margin-left: auto; animation-delay: 0.18s; }
+.portal-blade:nth-child(3) { max-width: 90%; animation-delay: 0.26s; }
+.portal-blade:nth-child(4) { max-width: 89%; margin-left: auto; animation-delay: 0.34s; }
+.portal-blade:nth-child(5) { max-width: 92%; animation-delay: 0.42s; }
+.portal-blade:nth-child(6) { max-width: 87%; margin-left: auto; animation-delay: 0.5s; }
+
+/* Elegant Roman/Classic serial number */
+.portal-blade__index {
+    font-family: var(--font-display-serif);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--lux-gold);
+    opacity: 0.65;
+    min-width: 48px;
+    letter-spacing: 0.05em;
+    transition: transform 0.4s ease;
+}
+
+.portal-blade__body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.portal-blade h3 {
+    font-family: var(--font-display-serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--lux-slate-dark);
+    margin: 0;
+    transition: color 0.4s ease;
+}
+
+.portal-blade p {
+    font-size: 0.85rem;
+    color: var(--lux-slate-muted);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 60ch;
+    transition: color 0.4s ease;
+}
+
+/* Platinum Halo Circle Button */
+.portal-blade__halo {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.01);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+}
+
+.portal-blade__arrow {
+    font-family: var(--font-display-serif);
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--lux-slate-muted);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s ease;
+}
+
+/* Card custom neon/accent variables */
+.portal-blade.places   { --accent: var(--color-emerald);   --accent-glow: rgba(5, 150, 105, 0.12); }
+.portal-blade.route    { --accent: var(--color-amber);     --accent-glow: rgba(217, 119, 6, 0.12); }
+.portal-blade.indoor   { --accent: var(--color-cyan);      --accent-glow: rgba(8, 145, 178, 0.12); }
+.portal-blade.diaries  { --accent: var(--color-purple);    --accent-glow: rgba(124, 58, 237, 0.12); }
+.portal-blade.foods    { --accent: var(--color-rose);      --accent-glow: rgba(219, 39, 119, 0.12); }
+.portal-blade.profile  { --accent: var(--color-sapphire);  --accent-glow: rgba(37, 99, 235, 0.12); }
+
+/* Card sweep shimmer effect */
+.portal-blade::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    transition: none;
+    opacity: 0;
+    z-index: -1;
+}
+
+/* Hover behaviors */
+.portal-blade:hover {
+    transform: translateY(-5px) scale(1.01);
+    background: var(--lux-glass-bg-hover);
+    border-color: var(--accent);
+    box-shadow:
+        0 20px 48px rgba(31, 38, 135, 0.08),
+        0 8px 24px var(--accent-glow);
+}
+
+.portal-blade:hover::before {
+    left: 100%;
+    opacity: 1;
+    transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.portal-blade:hover h3 {
+    color: var(--accent);
+}
+
+.portal-blade:hover .portal-blade__index {
+    transform: translateX(-4px) scale(1.05);
+    color: var(--accent);
+}
+
+.portal-blade:hover .portal-blade__halo {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.08) rotate(5deg);
+    box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.portal-blade:hover .portal-blade__arrow {
+    color: #ffffff;
+    transform: translateX(3px);
+}
+
+/* Interactive Cursor radial glow highlight inside card */
+.portal-blade.is-pointer-active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+        circle 180px at var(--card-x) var(--card-y),
+        var(--accent),
+        transparent 70%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.portal-blade:hover::after {
+    opacity: 0.7;
+}
+
+/* ==========================================================================
+   ENTRANCE FADE IN
+   ========================================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE SCENARIO OVERLAYS (Luxury Mobile Grid Adaptive)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .lux-layout-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .lux-brand-sidebar {
+        position: relative;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(197, 168, 128, 0.15);
+        padding: 40px min(60px, 5vw) 30px;
+        gap: 30px;
+    }
+
+    .lux-sidebar-top {
+        gap: 24px;
+    }
+
+    .lux-compass-anchor {
+        display: none; /* Hide instrument in mobile layout to save space */
+    }
+
+    .lux-portal-stage {
+        padding: 40px min(40px, 5vw) 60px;
+    }
+
+    .portal-blade,
+    .portal-blade:nth-child(odd),
+    .portal-blade:nth-child(even) {
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .lux-brand-sidebar {
+        padding: 24px 16px;
+    }
+
+    .lux-header-dock {
+        padding: 8px 12px;
+    }
+
+    .lux-stats-rack {
+        gap: 8px;
+    }
+
+    .lux-stat-vial {
+        padding: 16px 8px;
+        min-height: 100px;
+    }
+
+    .lux-stat-value {
+        font-size: 1.4rem;
+    }
+
+    .lux-stat-label {
+        font-size: 0.6rem;
+    }
+
+    .lux-portal-stage {
+        padding: 30px 16px 50px;
+    }
+
+    .portal-blade {
+        padding: 24px 20px;
+        border-radius: var(--lux-radius-md);
+        gap: 16px;
+    }
+
+    .portal-blade__index {
+        display: none; /* Hide index on small screens */
+    }
+
+    .portal-blade h3 {
+        font-size: 1.15rem;
+    }
+
+    .portal-blade p {
+        font-size: 0.8rem;
+    }
+
+    .portal-blade__halo {
+        width: 42px;
+        height: 42px;
+    }
+}
+
+/* Respect user preferences for animations */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .lux-compass-instrument {
+        animation: none !important;
+    }
+}
+
+/* ==========================================================================
+   LUXURY BOUTIQUE AUTHENTICATION STYLES (Login & Register Rebirth)
+   ========================================================================== */
+body.login-page {
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--lux-slate-dark);
+    /* Deep rich onyx charcoal luxury backdrop */
+    background-color: #07080a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto; /* Enable page scrolling if window is very small */
+    position: relative;
+    box-sizing: border-box;
+}
+
+body.login-page * {
+    box-sizing: inherit;
+}
+
+/* Floating Jewelry Box Cover wrapper */
+.login-cover {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    width: min(1200px, 94vw);
+    height: 85vh; /* Viewport-based height limit for desktop */
+    min-height: 600px;
+    border: 1px solid var(--lux-glass-border);
+    border-radius: var(--lux-radius-xl);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    box-shadow: var(--lux-glass-shadow);
+    overflow: hidden;
+    z-index: 2;
+    position: relative;
+    animation: panelRise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes panelRise {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Left Narrative Block: Cinematic Showcase */
+.login-story {
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Luxury Cinematic Background Video & Overlay Filters */
+.lux-video-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.lux-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Luxury Champagne to Deep Matte Charcoal overlay filter */
+    background: linear-gradient(135deg, rgba(14, 15, 18, 0.8) 0%, rgba(197, 168, 128, 0.4) 100%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.15em;
+    color: #ffffff;
+}
+
+.login-brand__mark {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--lux-gold);
+    box-shadow: 0 0 16px var(--lux-gold);
+}
+
+.login-story__content {
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.login-kicker {
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.25em;
+    color: var(--lux-gold);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.login-story h1 {
+    font-family: var(--font-display-serif);
+    font-weight: 400;
+    font-size: clamp(2rem, 2.5vw, 3rem);
+    line-height: 1.25;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+}
+
+.login-lede {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.75;
+    margin: 4px 0 0 0;
+    max-width: 46ch;
+}
+
+.login-story__meta {
+    display: flex;
+    gap: 28px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-display-sans);
+}
+
+.login-story__meta span {
+    position: relative;
+    padding-left: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.login-story__meta span::before {
+    position: absolute;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--lux-gold);
+    opacity: 0.8;
+    content: "";
+}
+
+/* Right Interactive Platinum Frosted Section */
+.login-panel {
+    padding: 48px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Top-aligned to look good during scroll */
+    background: rgba(255, 255, 255, 0.12);
+    overflow-y: auto; /* Internal scrolling to show avatar picker completely */
+    height: 100%;
+}
+
+/* Luxury Thin Custom Scrollbar for login-panel */
+.login-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.login-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+.login-panel::-webkit-scrollbar-thumb {
+    background: var(--lux-gold-light);
+    border-radius: 99px;
+    border: 1px solid transparent;
+}
+.login-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--lux-gold);
+}
+
+.login-card {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.login-card h2 {
+    font-family: var(--font-display-serif);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 2vw, 2.1rem);
+    color: var(--lux-slate-dark);
+    margin: 4px 0 0 0;
+}
+
+.card-subtitle {
+    font-size: 0.85rem;
+    color: var(--lux-slate-muted);
+    margin: 0;
+}
+
+/* Elegant Form Slots & Glare Underlines */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--lux-slate-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: var(--font-display-sans);
+}
+
+.form-group input {
+    height: 48px;
+    padding: 0 16px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--lux-slate-dark);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: var(--lux-radius-sm);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.form-group input::placeholder {
+    color: rgba(0, 0, 0, 0.25);
+}
+
+.form-group input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: var(--lux-gold);
+    box-shadow:
+        0 8px 24px rgba(197, 168, 128, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+}
+
+/* Custom interactive border highlight for input files in register */
+.form-group input[type="file"] {
+    background: rgba(255, 255, 255, 0.35);
+    padding: 8px 16px;
+    height: auto;
+    font-size: 0.85rem;
+}
+
+/* Luxury Champagne Gold Spring Button */
+.submit-btn {
+    height: 52px;
+    margin-top: 10px;
+    font-family: var(--font-display-serif);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    border: none;
+    border-radius: var(--lux-radius-sm);
+    background: linear-gradient(135deg, var(--lux-gold) 0%, #b39368 100%);
+    box-shadow: 0 8px 24px rgba(197, 168, 128, 0.32);
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-20deg);
+    transition: none;
+    z-index: -1;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 12px 28px rgba(197, 168, 128, 0.45);
+    background: linear-gradient(135deg, #b39368 0%, var(--lux-gold) 100%);
+}
+
+.submit-btn:hover::before {
+    left: 100%;
+    transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.submit-btn:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+/* Split Line Divider */
+.divider {
+    position: relative;
+    margin: 18px 0;
+    text-align: center;
+}
+
+.divider::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.05);
+    content: "";
+}
+
+.divider span {
+    position: relative;
+    padding: 0 14px;
+    font-size: 0.78rem;
+    color: var(--lux-slate-muted);
+    background: #eaeef4; /* matching panel glass container background */
+    border-radius: 99px;
+    font-family: var(--font-body);
+}
+
+/* Secondary Actions button */
+.auth-links {
+    text-align: center;
+}
+
+.auth-text {
+    font-size: 0.85rem;
+    color: var(--lux-slate-muted);
+    margin: 0;
+}
+
+.auth-link {
+    font-weight: 700;
+    color: var(--lux-gold);
+    text-decoration: none;
+    margin-left: 4px;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+    color: #92754e;
+    border-bottom-color: #92754e;
+}
+
+/* Beautiful Flash Error Alerts (Polished) */
+.message.error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    margin-bottom: 12px;
+    background: rgba(194, 65, 12, 0.06);
+    border: 1px solid rgba(194, 65, 12, 0.2);
+    border-radius: var(--lux-radius-sm);
+    color: #c2410c;
+    font-size: 0.88rem;
+    font-weight: 600;
+    animation: alertShake 0.4s ease;
+}
+
+@keyframes alertShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+.error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #c2410c;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 900;
+}
+
+/* Interactive Cursor Glow follow coordinate tracker in inputs */
+.form-group.is-pointer-active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+        circle 120px at var(--card-x) var(--card-y),
+        var(--lux-gold),
+        transparent 70%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.form-group:hover::after {
+    opacity: 0.5;
+}
+
+/* ==========================================================================
+   AUTHENTICATION RESPONSIVE LAYOUTS (Luxury Mobile Adaptive)
+   ========================================================================== */
+@media (max-width: 992px) {
+    .login-cover {
+        grid-template-columns: 1fr;
+        height: auto; /* Stack naturally on mobile devices */
+        min-height: auto;
+        border-radius: var(--lux-radius-lg);
+    }
+
+    .login-story {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 50px 40px;
+        min-height: 320px;
+    }
+
+    .login-story h1 {
+        font-size: 2.2rem;
+    }
+
+    .login-panel {
+        padding: 40px 30px;
+        height: auto; /* Do not limit height on mobile */
+        max-height: none;
+        overflow-y: visible; /* Scroll naturally via body */
+    }
+}
+
+@media (max-width: 576px) {
+    body.login-page {
+        padding: 16px 8px;
+    }
+
+    .login-story, .login-panel {
+        padding: 30px 20px;
+    }
+
+    .login-story {
+        min-height: 260px;
+    }
+
+    .login-story h1 {
+        font-size: 1.7rem;
+    }
+
+    .login-lede {
+        font-size: 0.85rem;
+    }
+
+    .login-panel {
+        padding: 30px 20px;
+    }
+
+    .login-card h2 {
+        font-size: 1.45rem;
+    }
+
+    .form-group input {
+        height: 44px;
+        font-size: 0.9rem;
+    }
+
+    .submit-btn {
+        height: 46px;
+        font-size: 0.9rem;
+    }
+}

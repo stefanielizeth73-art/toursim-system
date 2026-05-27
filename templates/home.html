@@ -4,165 +4,243 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TourSim Travel - 规划控制台</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='home_login.css', v=asset_version('home_login.css')) }}">
+    <!-- Google Fonts Preconnect and Import for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Premium Stylesheet Loading -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+
+    <!-- Defer loading of interactive scripts -->
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="home-page">
-    <header class="dash-header">
-        <a href="{{ url_for('home') }}" class="dash-brand">
-            <span class="dash-brand__logo" aria-hidden="true"></span>
-            <span>TourSim Dashboard</span>
-        </a>
-        <div class="dash-user-nav">
-            <div class="user-badge">
-                {% if current_user_avatar_url %}
-                <img src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像">
-                {% endif %}
-                <span>{{ username }}</span>
+    <div class="lux-layout-wrapper">
+        <!-- LEFT SIDEBAR: Sticky Editorial Console -->
+        <aside class="lux-brand-sidebar" aria-label="侧边控制台">
+            <div class="lux-sidebar-top">
+                <div class="lux-header-dock">
+                    <a href="{{ url_for('home') }}" class="lux-brand" id="lux-brand-logo">
+                        <span class="lux-brand__logo" aria-hidden="true"></span>
+                        <span>TourSim</span>
+                    </a>
+                    <div class="lux-user-badge" id="lux-user-badge">
+                        {% if current_user_avatar_url %}
+                        <img src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像" id="lux-user-avatar">
+                        {% endif %}
+                        <span id="lux-username">{{ username }}</span>
+                    </div>
+                </div>
+
+                <section class="lux-greeting-editorial" aria-label="欢迎面板">
+                    <span class="lux-greeting-kicker" id="greeting-emoji-container">HELLO / AI</span>
+                    <h1 class="lux-greeting-title" id="greeting-text">
+                        你好，<strong>{{ username }}</strong>
+                    </h1>
+                    <p class="subtitle">欢迎开启您尊贵的个性化旅游规划探索旅程。在此处检索路线、畅游景点，尊享AI伴游，记录足迹日记。</p>
+                </section>
+
+                <!-- Luxury Vial Statistics -->
+                <section class="lux-stats-rack" aria-label="旅游足迹状态仪">
+                    <div class="lux-stat-vial" id="stat-places-vial" title="您当前可探索的景点总数">
+                        <span class="lux-stat-value" id="stat-places-val">{{ places_count }}</span>
+                        <span class="lux-stat-label">探索景点</span>
+                    </div>
+                    <div class="lux-stat-vial" id="stat-diaries-vial" title="您已发布的日记数">
+                        <span class="lux-stat-value" id="stat-diaries-val">{{ diaries_count }}</span>
+                        <span class="lux-stat-label">旅游日记</span>
+                    </div>
+                    <div class="lux-stat-vial" id="stat-favorites-vial" title="您的收藏总数">
+                        <span class="lux-stat-value" id="stat-favorites-val">{{ favorites_count }}</span>
+                        <span class="lux-stat-label">我的收藏</span>
+                    </div>
+                </section>
             </div>
-            <div class="dash-nav-links">
-                <a class="dash-nav-btn secondary" href="{{ url_for('profile') }}">个人中心</a>
-                <a class="dash-nav-btn danger" href="{{ url_for('logout') }}">退出登录</a>
+
+            <!-- Sleek SVG Circular Astrolabe/Compass Instrument -->
+            <div class="lux-compass-anchor" aria-hidden="true">
+                <!-- Circular dial design reminiscent of an elegant mechanical chronometer -->
+                <svg class="lux-compass-instrument" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.3" />
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.4" />
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.15" />
+                    <circle cx="100" cy="100" r="4" fill="var(--lux-gold)" />
+                    <!-- Fine Compass ticks -->
+                    <g stroke="var(--lux-gold)" stroke-width="1" opacity="0.5">
+                        <line x1="100" y1="10" x2="100" y2="18" />
+                        <line x1="100" y1="182" x2="100" y2="190" />
+                        <line x1="10" y1="100" x2="18" y2="100" />
+                        <line x1="182" y1="100" x2="190" y2="100" />
+                        <line x1="36.36" y1="36.36" x2="43.43" y2="43.43" />
+                        <line x1="156.57" y1="156.57" x2="163.64" y2="163.64" />
+                        <line x1="36.36" y1="163.64" x2="43.43" y2="156.57" />
+                        <line x1="156.57" y1="43.43" x2="163.64" y2="36.36" />
+                    </g>
+                    <!-- Dial Letters in serif style -->
+                    <text x="100" y="32" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">N</text>
+                    <text x="100" y="178" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">S</text>
+                    <text x="175" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">E</text>
+                    <text x="25" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">W</text>
+                    <!-- Thin Pointer hand -->
+                    <polygon points="100,20 104,100 96,100" fill="url(#pointerGold)" />
+                    <polygon points="100,180 103,100 97,100" fill="rgba(0, 0, 0, 0.15)" />
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="50%" stop-color="#b8935c" />
+                            <stop offset="100%" stop-color="#eadaa2" />
+                        </linearGradient>
+                        <linearGradient id="pointerGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="100%" stop-color="#b8935c" />
+                        </linearGradient>
+                    </defs>
+                </svg>
             </div>
-        </div>
-    </header>
 
-    <main class="dash-container">
-        <section class="greeting-hero" aria-label="欢迎面板">
-            <div class="greeting-info">
-                <h2 id="greeting-text">
-                    你好，{{ username }}！
-                    <span class="greeting-icon" id="greeting-emoji">AI</span>
-                </h2>
-                <p class="subtitle">欢迎使用个性化旅游系统。选择下方功能模块，继续景点探索、路线规划、室内导航、美食推荐与游记管理。</p>
-            </div>
-        </section>
+            <!-- Footer dock: Secondary Actions -->
+            <footer class="lux-sidebar-footer">
+                <a class="lux-footer-btn profile" href="{{ url_for('profile') }}" id="lux-btn-profile">个人中心</a>
+                <a class="lux-footer-btn logout" href="{{ url_for('logout') }}" id="lux-btn-logout">退出登录</a>
+            </footer>
+        </aside>
 
-        <section class="stats-grid" aria-label="系统统计">
-            <div class="stat-widget">
-                <div>
-                    <div class="stat-value">{{ places_count }}</div>
-                    <div class="stat-label">探索景点</div>
-                </div>
-                <div class="stat-badge-icon">P</div>
-            </div>
-            <div class="stat-widget">
-                <div>
-                    <div class="stat-value">{{ diaries_count }}</div>
-                    <div class="stat-label">旅游日记</div>
-                </div>
-                <div class="stat-badge-icon">D</div>
-            </div>
-            <div class="stat-widget">
-                <div>
-                    <div class="stat-value">{{ favorites_count }}</div>
-                    <div class="stat-label">我的收藏</div>
-                </div>
-                <div class="stat-badge-icon">F</div>
-            </div>
-        </section>
+        <!-- RIGHT PORTAL STAGE: Flowing Asymmetric Horizon -->
+        <main class="lux-portal-stage">
+            <header class="lux-stage-header">
+                <span class="lux-stage-kicker">Navigation Portal</span>
+                <h1 class="lux-stage-title">开启您的旅游规划探索旅程</h1>
+            </header>
 
-        <section class="menu-grid" aria-label="核心功能导航">
-            <a class="menu-card places" href="{{ url_for('places') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">POI</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>景点探索</h3>
-                    <p>整合景区与校园检索、条件筛选、排序和 Top-K 个性化推荐。</p>
-                </div>
-            </a>
+            <!-- Asymmetric Golden Ratio Ribbon Portal -->
+            <nav class="lux-portal-horizon" aria-label="核心功能入口">
+                <a class="portal-blade places is-pointer-active" href="{{ url_for('places') }}" id="portal-places">
+                    <span class="portal-blade__index" aria-hidden="true">I</span>
+                    <div class="portal-blade__body">
+                        <h3>景点探索</h3>
+                        <p>为您精选景区与校园检索、条件筛选、多属性排序和 Top-K 个性化推荐，寻找专属于您的精神绿洲。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
 
-            <a class="menu-card route" href="{{ url_for('route') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">MAP</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>路线规划与场所查询</h3>
-                    <p>基于道路图和 Dijkstra 算法规划路线，并按道路最短距离查询周边服务设施。</p>
-                </div>
-            </a>
+                <a class="portal-blade route is-pointer-active" href="{{ url_for('route') }}" id="portal-route">
+                    <span class="portal-blade__index" aria-hidden="true">II</span>
+                    <div class="portal-blade__body">
+                        <h3>路线规划与场所查询</h3>
+                        <p>基于顶级道路图及高效 Dijkstra 算法提供多路径路线规划，一键尊享最短距离周边服务设施导航。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
 
-            <a class="menu-card indoor" href="{{ url_for('indoor') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">IN</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>室内导航</h3>
-                    <p>展示多楼层建筑内部的大门、电梯、步梯和房间最短路径导航。</p>
-                </div>
-            </a>
+                <a class="portal-blade indoor is-pointer-active" href="{{ url_for('indoor') }}" id="portal-indoor">
+                    <span class="portal-blade__index" aria-hidden="true">III</span>
+                    <div class="portal-blade__body">
+                        <h3>室内导航</h3>
+                        <p>支持精细化多楼层建筑内部纵向与横向的最短路径导航，无缝连接大门、电梯、步梯与专属房间。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
 
-            <a class="menu-card diaries" href="{{ url_for('diaries') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">LOG</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>旅游日记</h3>
-                    <p>支持日记发布、检索、浏览热度统计、评分排序、收藏与评论互动。</p>
-                </div>
-            </a>
+                <a class="portal-blade diaries is-pointer-active" href="{{ url_for('diaries') }}" id="portal-diaries">
+                    <span class="portal-blade__index" aria-hidden="true">IV</span>
+                    <div class="portal-blade__body">
+                        <h3>旅游日记</h3>
+                        <p>支持日记发布、多关键字检索、热度浏览统计、评分排序、收藏评论等尊贵旅伴间的情感互动。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
 
-            <a class="menu-card foods" href="{{ url_for('foods') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">FOOD</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>美食推荐</h3>
-                    <p>基于厦门大学翔安校区图数据和周边设施信息，提供距离优先的美食推荐。</p>
-                </div>
-            </a>
+                <a class="portal-blade foods is-pointer-active" href="{{ url_for('foods') }}" id="portal-foods">
+                    <span class="portal-blade__index" aria-hidden="true">V</span>
+                    <div class="portal-blade__body">
+                        <h3>美食推荐</h3>
+                        <p>精心融合厦门大学翔安校区及周边精品设施信息，为您深度推荐距离优先、风味绝佳的饕餮盛宴。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
 
-            <a class="menu-card profile" href="{{ url_for('profile') }}">
-                <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">ME</span>
-                    <span class="menu-card__arrow">-&gt;</span>
-                </div>
-                <div>
-                    <h3>个人中心</h3>
-                    <p>管理头像、账号密码，查看发布日记、收藏日记、收藏美食与个人公开主页。</p>
-                </div>
-            </a>
-        </section>
-    </main>
+                <a class="portal-blade profile is-pointer-active" href="{{ url_for('profile') }}" id="portal-profile">
+                    <span class="portal-blade__index" aria-hidden="true">VI</span>
+                    <div class="portal-blade__body">
+                        <h3>个人中心</h3>
+                        <p>精雕细琢的个人资产管理中枢，管理您的头像信息、密码凭证，随时查看日记、收藏美食与公开主页。</p>
+                    </div>
+                    <div class="portal-blade__halo" aria-hidden="true">
+                        <span class="portal-blade__arrow">&rarr;</span>
+                    </div>
+                </a>
+            </nav>
+        </main>
+    </div>
 
+    <!-- Client-side logic for dynamic time of day greeting -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const greetingText = document.getElementById("greeting-text");
+            const greetingEmojiContainer = document.getElementById("greeting-emoji-container");
+            const compass = document.querySelector(".lux-compass-instrument");
             const hour = new Date().getHours();
+
             let greetStr = "你好";
-            let badge = "AI";
+            let kickerEmoji = "HELLO / AI";
 
             if (hour >= 5 && hour < 12) {
                 greetStr = "早上好";
-                badge = "AM";
+                kickerEmoji = "BONJOUR / AM";
             } else if (hour >= 12 && hour < 14) {
                 greetStr = "中午好";
-                badge = "NOON";
+                kickerEmoji = "WELCOME / NOON";
             } else if (hour >= 14 && hour < 18) {
                 greetStr = "下午好";
-                badge = "PM";
+                kickerEmoji = "APRES-MIDI / PM";
             } else {
                 greetStr = "晚上好";
-                badge = "NIGHT";
+                kickerEmoji = "BONSOIR / NIGHT";
             }
 
             if (greetingText) {
-                greetingText.innerHTML = `${greetStr}，{{ username }}！<span class="greeting-icon" id="greeting-emoji">${badge}</span>`;
+                greetingText.innerHTML = `${greetStr}，<strong>{{ username }}</strong>`;
             }
 
-            const root = document.documentElement;
+            if (greetingEmojiContainer) {
+                greetingEmojiContainer.innerHTML = kickerEmoji;
+            }
+
+            // High-precision mouse interactive rotation for the luxury compass instrument
+            let currentRotation = 0;
+            let targetRotation = 0;
+
             window.addEventListener("pointermove", function (e) {
-                root.style.setProperty("--cursor-x", e.clientX + "px");
-                root.style.setProperty("--cursor-y", e.clientY + "px");
+                // Rotate the compass slightly based on mouse movement coordinate ratio
+                const ratioX = e.clientX / window.innerWidth - 0.5;
+                const ratioY = e.clientY / window.innerHeight - 0.5;
+                targetRotation = (ratioX * 45) + (ratioY * 45);
             }, { passive: true });
+
+            // Smooth linear interpolation (lerp) damping animation loop
+            function updateCompassRotation() {
+                if (compass) {
+                    currentRotation += (targetRotation - currentRotation) * 0.08;
+                    // Keep the slow base drift going, superposed with the mouse influence
+                    const drift = (Date.now() / 150) % 360;
+                    compass.style.transform = `rotate(${currentRotation + drift}deg)`;
+                }
+                requestAnimationFrame(updateCompassRotation);
+            }
+
+            updateCompassRotation();
         });
     </script>
 </body>

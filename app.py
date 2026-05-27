@@ -60,7 +60,10 @@ def inject_asset_version():
         except OSError:
             return str(int(time.time() * 1000))
 
-    return {"asset_version": asset_version}
+    return {
+        "asset_version": asset_version,
+        "preset_avatar_options": get_preset_avatar_options,
+    }
 
 
 @app.after_request
@@ -447,6 +450,46 @@ def avatar_relative_path(filename):
     return os.path.relpath(os.path.join(USER_AVATAR_DIR, filename), os.path.join(APP_DIR, "static")).replace("\\", "/")
 
 
+PRESET_AVATAR_DIR = "images/avatars"
+PRESET_AVATAR_OPTIONS = tuple(
+    {
+        "id": f"chrome-avatar-{index:02d}",
+        "path": f"{PRESET_AVATAR_DIR}/chrome-avatar-{index:02d}.svg",
+        "label": f"预设头像 {index:02d}",
+    }
+    for index in range(1, 21)
+)
+PRESET_AVATAR_PATHS = {option["path"] for option in PRESET_AVATAR_OPTIONS}
+LEGACY_GENERATED_AVATAR_RE = re.compile(r"^uploads/avatars/(?!user_)[^/]+_\w+\.svg$")
+
+
+def get_preset_avatar_options():
+    return [dict(option) for option in PRESET_AVATAR_OPTIONS]
+
+
+def is_preset_avatar_path(avatar_path):
+    return (avatar_path or "").replace("\\", "/") in PRESET_AVATAR_PATHS
+
+
+def default_preset_avatar_path(username="", user_id=None):
+    seed = f"{username}:{user_id if user_id is not None else ''}"
+    digest = hashlib.sha1((seed or "avatar").encode("utf-8")).hexdigest()
+    index = int(digest[:8], 16) % len(PRESET_AVATAR_OPTIONS)
+    return PRESET_AVATAR_OPTIONS[index]["path"]
+
+
+def is_legacy_generated_avatar_path(avatar_path):
+    normalized = (avatar_path or "").replace("\\", "/")
+    return bool(LEGACY_GENERATED_AVATAR_RE.match(normalized))
+
+
+def select_preset_avatar_path(selected_avatar_path, username="", user_id=None):
+    normalized = (selected_avatar_path or "").replace("\\", "/").strip()
+    if is_preset_avatar_path(normalized):
+        return normalized
+    return default_preset_avatar_path(username, user_id)
+
+
 def avatar_url_from_path(avatar_path, username="", user_id=None):
     relative_path = avatar_path or ensure_user_avatar_asset(username, user_id)
     return url_for("static", filename=relative_path)
@@ -496,20 +539,15 @@ def build_avatar_svg(username, user_id=None):
 
 
 def ensure_user_avatar_asset(username, user_id=None, avatar_path=""):
-    os.makedirs(USER_AVATAR_DIR, exist_ok=True)
     if avatar_path:
+        normalized_avatar_path = avatar_path.replace("\\", "/")
+        if is_preset_avatar_path(normalized_avatar_path):
+            return normalized_avatar_path
         candidate_path = os.path.join(APP_DIR, "static", avatar_path)
-        if os.path.exists(candidate_path):
-            return avatar_path
+        if os.path.exists(candidate_path) and not is_legacy_generated_avatar_path(normalized_avatar_path):
+            return normalized_avatar_path
 
-    safe_user = re.sub(r"[^0-9a-zA-Z\u4e00-\u9fff]+", "_", (username or "user").strip()) or "user"
-    suffix = user_id if user_id is not None else hashlib.sha1((username or "user").encode("utf-8")).hexdigest()[:10]
-    filename = f"{safe_user}_{suffix}.svg"
-    file_path = os.path.join(USER_AVATAR_DIR, filename)
-    if not os.path.exists(file_path):
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(build_avatar_svg(username, user_id))
-    return avatar_relative_path(filename)
+    return default_preset_avatar_path(username, user_id)
 
 
 def save_uploaded_user_avatar(uploaded_file, username, user_id):
@@ -527,6 +565,12 @@ def save_uploaded_user_avatar(uploaded_file, username, user_id):
     file_path = os.path.join(USER_AVATAR_DIR, filename)
     uploaded_file.save(file_path)
     return avatar_relative_path(filename)
+
+
+def save_user_avatar_choice(uploaded_file, selected_avatar_path, username, user_id):
+    if uploaded_file and uploaded_file.filename:
+        return save_uploaded_user_avatar(uploaded_file, username, user_id)
+    return select_preset_avatar_path(selected_avatar_path, username, user_id)
 
 
 def initialize_database():
@@ -5081,6 +5125,7 @@ def register():
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
         avatar_file = request.files.get("avatar")
+        selected_avatar_path = request.form.get("preset_avatar", "").strip()
 
         if not username or not password or not confirm_password:
             flash("用户名和密码不能为空")
@@ -5095,7 +5140,7 @@ def register():
             flash("用户名已存在，请更换用户名")
             return render_template("register.html")
 
-        avatar_path = save_uploaded_user_avatar(avatar_file, username, user_id)
+        avatar_path = save_user_avatar_choice(avatar_file, selected_avatar_path, username, user_id)
         update_user_avatar_path(user_id, avatar_path)
 
         flash("注册成功，请登录")
@@ -5193,10 +5238,16 @@ def profile():
         action = request.form.get("action", "account").strip().lower()
         if action == "avatar":
             avatar_file = request.files.get("avatar")
-            if not avatar_file or not avatar_file.filename:
-                flash("请选择头像文件")
+            selected_avatar_path = request.form.get("preset_avatar", "").strip()
+            if (not avatar_file or not avatar_file.filename) and not selected_avatar_path:
+                flash("请选择头像")
             else:
-                avatar_path = save_uploaded_user_avatar(avatar_file, current_user["username"], current_user["id"])
+                avatar_path = save_user_avatar_choice(
+                    avatar_file,
+                    selected_avatar_path,
+                    current_user["username"],
+                    current_user["id"],
+                )
                 update_user_avatar_path(current_user["id"], avatar_path)
                 session["avatar_path"] = avatar_path
                 flash("头像已更新")

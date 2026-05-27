@@ -4,15 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TourSim Travel - 登录系统</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='home_login.css', v=asset_version('home_login.css')) }}">
+    <!-- Google Fonts Preconnect and Import for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Premium Stylesheet Loading -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
+
+    <!-- Defer loading of interactive scripts -->
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body class="login-page">
+    <!-- Luxury Astrolabe / Glowing canvas background particles are handled by interaction.js -->
+
     <main class="login-cover" aria-labelledby="login-title">
+        <!-- LEFT PANEL: Cinematic Luxury Travel Video Narratives -->
         <section class="login-story" aria-label="系统介绍">
+            <!-- Pexels/Mixkit High-end Resort Aerial Background Video -->
+            <video class="lux-video-bg" autoplay muted loop playsinline aria-hidden="true">
+                <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-resort-with-swimming-pools-42172-large.mp4" type="video/mp4">
+                您的浏览器不支持 HTML5 视频播放。
+            </video>
+            <div class="lux-video-overlay" aria-hidden="true"></div>
+
             <div class="login-brand">
                 <span class="login-brand__mark" aria-hidden="true"></span>
-                <span>TourSim Travel</span>
+                <span>TourSim</span>
             </div>
 
             <div class="login-story__content">
@@ -28,12 +45,13 @@
             </div>
         </section>
 
+        <!-- RIGHT PANEL: Elegant Frosted Glass Form Console -->
         <section class="login-panel" aria-label="登录表单">
             <div class="login-card">
                 <header class="card-header">
                     <p class="login-kicker">MEMBER ACCESS</p>
                     <h2>登录系统</h2>
-                    <p class="card-subtitle">输入账号密码，继续你的个性化旅游规划。</p>
+                    <p class="card-subtitle">输入账号密码，继续您的个性化旅游规划。</p>
                 </header>
 
                 {% with messages = get_flashed_messages() %}
@@ -47,28 +65,31 @@
                     {% endif %}
                 {% endwith %}
 
-                <form method="post" class="login-form">
-                    <div class="form-group">
+                <form method="post" class="login-form" id="login-form-submit">
+                    <!-- Username Input Group -->
+                    <div class="form-group is-pointer-active" id="input-username-group">
                         <label for="username">用户名</label>
                         <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
                     </div>
 
-                    <div class="form-group">
+                    <!-- Password Input Group -->
+                    <div class="form-group is-pointer-active" id="input-password-group">
                         <label for="password">密码</label>
                         <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
                     </div>
 
-                    <button type="submit" class="submit-btn">进入系统</button>
+                    <!-- Magnetic Spring Gold Button -->
+                    <button type="submit" class="submit-btn" id="login-submit-btn">进入系统</button>
                 </form>
 
-                <div class="divider">
+                <div class="divider" id="login-divider">
                     <span>或</span>
                 </div>
 
-                <div class="auth-links">
+                <div class="auth-links" id="login-register-redirect">
                     <p class="auth-text">
                         还没有账号？
-                        <a href="{{ url_for('register') }}" class="auth-link">立即注册</a>
+                        <a href="{{ url_for('register') }}" class="auth-link" id="login-register-link">立即注册</a>
                     </p>
                 </div>
             </div>

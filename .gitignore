@@ -22,6 +22,7 @@ data/raw/
 data/generated/
 data/uploads/
 .codex_presentation/
+.superpowers/
 .playwright-cli/
 output/
 tmp/

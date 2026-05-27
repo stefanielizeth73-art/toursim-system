@@ -1,3 +1,4 @@
+{% from "avatar_picker.html" import avatar_picker %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -6,8 +7,10 @@
     <title>个人中心 - 个性化旅游系统</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css', v=asset_version('avatar_picker.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
+    <script defer src="{{ url_for('static', filename='avatar_picker.js', v=asset_version('avatar_picker.js')) }}"></script>
 </head>
 <body class="profile-page">
     <a class="skip-link" href="#main-content">跳到内容</a>
@@ -58,9 +61,17 @@
                 </div>
                 <form method="post" enctype="multipart/form-data" class="profile-form profile-avatar-form">
                     <input type="hidden" name="action" value="avatar">
-                    <label>
+                    <div class="avatar-form-group">
+                    {{ avatar_picker(
+                        preset_avatar_options(),
+                        selected_path=current_user.avatar_path,
+                        preview_url=current_user_avatar_url,
+                        title='更换个人头像'
+                    ) }}
+                    </div>
+                    <label class="avatar-upload-legacy">
                         <span>头像文件</span>
-                        <input type="file" name="avatar" accept="image/*,.svg">
+                        <input type="file" name="avatar_legacy" accept="image/*,.svg">
                     </label>
                     <button type="submit">更新头像</button>
                 </form>

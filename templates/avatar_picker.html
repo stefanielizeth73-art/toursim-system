@@ -1,0 +1,49 @@
+{% macro avatar_picker(presets, selected_path='', field_name='preset_avatar', file_field_name='avatar', preview_url='', title='选择头像') %}
+{% set selected = selected_path if selected_path else (presets[0].path if presets else '') %}
+<div class="avatar-picker" data-avatar-picker>
+    <div class="avatar-picker__top">
+        {% if preview_url %}
+        <img class="avatar-picker__preview" data-avatar-preview src="{{ preview_url }}" alt="当前头像预览">
+        {% else %}
+        <img class="avatar-picker__preview" data-avatar-preview src="{{ url_for('static', filename=selected) }}" alt="头像预览">
+        {% endif %}
+        <div>
+            <span class="avatar-picker__eyebrow">Chrome Style</span>
+            <strong>{{ title }}</strong>
+            <p>选择一个预置卡通头像，或上传自己的图片。</p>
+        </div>
+    </div>
+
+    <div class="avatar-picker__panel">
+        <div class="avatar-picker__search" aria-hidden="true">
+            <span>Q</span>
+            <em>搜索头像</em>
+        </div>
+        <div class="avatar-picker__section">
+            <span class="avatar-picker__spark" aria-hidden="true">◇</span>
+            <span>开始浏览</span>
+        </div>
+        <div class="avatar-picker__grid">
+            {% for preset in presets %}
+            <label class="avatar-choice{% if preset.path == selected %} is-selected{% endif %}" data-avatar-choice>
+                <input
+                    type="radio"
+                    name="{{ field_name }}"
+                    value="{{ preset.path }}"
+                    {% if preset.path == selected %}checked{% endif %}
+                >
+                <img src="{{ url_for('static', filename=preset.path) }}" alt="{{ preset.label }}" loading="lazy">
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <label class="avatar-upload-choice" data-avatar-upload>
+        <span>
+            <strong>自选头像</strong>
+            <em data-avatar-file-name>支持 jpg / png / webp / gif / svg</em>
+        </span>
+        <input type="file" name="{{ file_field_name }}" accept="image/*,.svg">
+    </label>
+</div>
+{% endmacro %}
