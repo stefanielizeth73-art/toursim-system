@@ -879825,7 +879825,7 @@
   ],
   "collector_source_signature": {
     "algorithm": "sha256",
-    "digest": "c0044fa9cf153a5279dee4dfee7016fedfe71ed82900811ac884b378e6e0f0d8",
+    "digest": "ae242b9a5c4630c19903f9e2690dce244f115bee71419645487cde2705d888a0",
     "files": [
       {
         "name": "xmu_collector_nodes.json",
@@ -879841,7 +879841,7 @@
       },
       {
         "name": "xmu_collector_facilities.json",
-        "bytes": 69781
+        "bytes": 72196
       },
       {
         "name": "xmu_collector_meta.json",
