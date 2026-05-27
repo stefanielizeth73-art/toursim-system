@@ -3937,8 +3937,8 @@
                     saveRoad().catch(function (error) { status(error.message); });
                 }
                 if (action === "clear-all") {
-                    if (window.confirm("??????????????????????????????????????????")) {
-                        stopRightDrawing("??????????????????????");
+                    if (window.confirm("确定要清空当前采集数据吗？此操作会删除已保存的路线点、道路、设施和吸附关系。")) {
+                        stopRightDrawing("已清空当前道路绘制状态。");
                         editPoints = [];
                         editBreaks = [];
                         pointPoiLinks = [];
@@ -3972,7 +3972,7 @@
                                 updateConnectorOptions();
                                 redrawEditor();
                                 redrawSavedV2();
-                                status("?????????????????????????????????????");
+                                status("采集数据已清空，可以重新添加路线点、道路、设施和吸附关系。");
                             })
                             .catch(function (error) { status(error.message); });
                     }

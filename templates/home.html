@@ -3,168 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TourSim Travel - 瑙勫垝鎺у埗鍙?/title>
-    <!-- Link to dedicated isolated CSS to offer highly aesthetic visual dashboard without clashing -->
+    <title>TourSim Travel - 规划控制台</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home_login.css', v=asset_version('home_login.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="home-page">
-    <!-- Sticky Glassmorphism Header -->
     <header class="dash-header">
         <a href="{{ url_for('home') }}" class="dash-brand">
-            <span class="dash-brand__logo"></span>
+            <span class="dash-brand__logo" aria-hidden="true"></span>
             <span>TourSim Dashboard</span>
         </a>
         <div class="dash-user-nav">
             <div class="user-badge">
                 {% if current_user_avatar_url %}
-                <img src="{{ current_user_avatar_url }}" alt="{{ username }} 鐨勫ご鍍?>
+                <img src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像">
                 {% endif %}
                 <span>{{ username }}</span>
             </div>
             <div class="dash-nav-links">
-                <a class="dash-nav-btn secondary" href="{{ url_for('profile') }}">涓汉涓績</a>
-                <a class="dash-nav-btn danger" href="{{ url_for('logout') }}">閫€鍑虹櫥褰?/a>
+                <a class="dash-nav-btn secondary" href="{{ url_for('profile') }}">个人中心</a>
+                <a class="dash-nav-btn danger" href="{{ url_for('logout') }}">退出登录</a>
             </div>
         </div>
     </header>
 
     <main class="dash-container">
-        <!-- Interactive Greeting Banner -->
-        <section class="greeting-hero" aria-label="娆㈣繋闈㈡澘">
+        <section class="greeting-hero" aria-label="欢迎面板">
             <div class="greeting-info">
                 <h2 id="greeting-text">
-                    浣犲ソ锛寋{ username }}锛?
-                    <span class="greeting-icon" id="greeting-emoji">馃憢</span>
+                    你好，{{ username }}！
+                    <span class="greeting-icon" id="greeting-emoji">AI</span>
                 </h2>
-                <p class="subtitle">娆㈣繋浣跨敤涓€у寲鏃呮父绯荤粺銆傚湪涓嬫柟閫夋嫨鎯宠杩涘叆鐨勫姛鑳芥ā鍧楋紝寮€鍚偍鐨勬櫤鑳借矾绾胯鍒掓梾绋嬨€?/p>
+                <p class="subtitle">欢迎使用个性化旅游系统。选择下方功能模块，继续景点探索、路线规划、室内导航、美食推荐与游记管理。</p>
             </div>
         </section>
 
-        <!-- System Stats Indicators -->
-        <section class="stats-grid" aria-label="绯荤粺缁熻">
+        <section class="stats-grid" aria-label="系统统计">
             <div class="stat-widget">
                 <div>
                     <div class="stat-value">{{ places_count }}</div>
-                    <div class="stat-label">鎺㈢储鏅偣</div>
+                    <div class="stat-label">探索景点</div>
                 </div>
-                <div class="stat-badge-icon">馃Л</div>
+                <div class="stat-badge-icon">P</div>
             </div>
             <div class="stat-widget">
                 <div>
                     <div class="stat-value">{{ diaries_count }}</div>
-                    <div class="stat-label">鏃呮父鏃ヨ</div>
+                    <div class="stat-label">旅游日记</div>
                 </div>
-                <div class="stat-badge-icon">馃摉</div>
+                <div class="stat-badge-icon">D</div>
             </div>
             <div class="stat-widget">
                 <div>
                     <div class="stat-value">{{ favorites_count }}</div>
-                    <div class="stat-label">鎴戠殑鏀惰棌</div>
+                    <div class="stat-label">我的收藏</div>
                 </div>
-                <div class="stat-badge-icon">猸?/div>
+                <div class="stat-badge-icon">F</div>
             </div>
         </section>
 
-        <!-- Dynamic Category Cards -->
-        <section class="menu-grid" aria-label="鏍稿績鍔熻兘瀵艰埅">
+        <section class="menu-grid" aria-label="核心功能导航">
             <a class="menu-card places" href="{{ url_for('places') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">馃Л</span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">POI</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>鏅偣鎺㈢储</h3>
-                    <p>鏁村悎鏅鸿兘鏅尯涓庢牎鍥俊鎭悳绱紝鎻愪緵涓€у寲澶氱淮鏉′欢绛涢€夈€佺儹搴︽帓搴忎互鍙?Top-K 鏅鸿兘鎺ㄨ崘銆?/p>
+                    <h3>景点探索</h3>
+                    <p>整合景区与校园检索、条件筛选、排序和 Top-K 个性化推荐。</p>
                 </div>
             </a>
 
             <a class="menu-card route" href="{{ url_for('route') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">馃椇锔?/span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">MAP</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>璺嚎瑙勫垝涓庡満鎵€鏌ヨ</h3>
-                    <p>鍩轰簬閬撹矾鏉冮噸鍥句笌缁忓吀 Dijkstra 鏈€鐭矾寰勭畻娉曪紝涓€閿敓鎴愬嚭琛屾渶浼樿矾绾匡紝骞舵煡璇㈠懆杈归厤濂楁湇鍔¤鏂姐€?/p>
+                    <h3>路线规划与场所查询</h3>
+                    <p>基于道路图和 Dijkstra 算法规划路线，并按道路最短距离查询周边服务设施。</p>
                 </div>
             </a>
 
             <a class="menu-card indoor" href="{{ url_for('indoor') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">馃彚</span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">IN</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>瀹ゅ唴涓夌淮瀵艰埅</h3>
-                    <p>鐩磋婕旂ず鏁欏妤煎唴閮ㄧ殑澶氭ゼ灞傚鑸€傛敮鎸佸湪澶ч棬銆佹暀瀹ゃ€佺數姊€佹姊箣闂存櫤鑳界敓鎴愭渶鐭璧拌矾寰勩€?/p>
+                    <h3>室内导航</h3>
+                    <p>展示多楼层建筑内部的大门、电梯、步梯和房间最短路径导航。</p>
                 </div>
             </a>
 
             <a class="menu-card diaries" href="{{ url_for('diaries') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">鉁嶏笍</span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">LOG</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>鏃呮父鏃ヨ骞垮満</h3>
-                    <p>鍒嗕韩骞惰褰曟偍鐨勬瘡涓€娈电簿褰╁嚭琛屻€傛敮鎸佸彂甯冨浘鏂囨棩璁般€佹悳绱㈡棩璁般€佹父瑙堢儹搴︾粺璁′笌璇勫垎浜や簰銆?/p>
+                    <h3>旅游日记</h3>
+                    <p>支持日记发布、检索、浏览热度统计、评分排序、收藏与评论互动。</p>
                 </div>
             </a>
 
             <a class="menu-card foods" href="{{ url_for('foods') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">馃崝</span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">FOOD</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>缇庨鎺ㄨ崘</h3>
-                    <p>鍩轰簬缈斿畨鏍″尯浣嶇疆鍥炬暟鎹殑璺濈浼樺厛绠楁硶锛屾櫤鑳芥帹鑽愭偍韬竟鐨勬嫑鐗岀編鍛充笌楂樿瘎鍒嗘牎鍥鍫傘€?/p>
+                    <h3>美食推荐</h3>
+                    <p>基于厦门大学翔安校区图数据和周边设施信息，提供距离优先的美食推荐。</p>
                 </div>
             </a>
 
             <a class="menu-card profile" href="{{ url_for('profile') }}">
                 <div class="menu-card__icon-header">
-                    <span class="menu-card__icon">馃懁</span>
-                    <span class="menu-card__arrow">鈫?/span>
+                    <span class="menu-card__icon">ME</span>
+                    <span class="menu-card__arrow">-&gt;</span>
                 </div>
                 <div>
-                    <h3>涓汉涓績</h3>
-                    <p>鍦ㄨ繖閲岀鐞嗘偍鐨勪釜鎬у寲澶村儚銆佷慨鏀硅处鍙峰瘑鐮侊紝闅忔椂鏌ョ湅宸插彂甯冩棩璁般€佹敹钘忕殑缇庨涓庢櫙鐐硅矾绾胯褰曘€?/p>
+                    <h3>个人中心</h3>
+                    <p>管理头像、账号密码，查看发布日记、收藏日记、收藏美食与个人公开主页。</p>
                 </div>
             </a>
         </section>
     </main>
 
-    <!-- Client-side dynamic time-aware greetings -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const greetingText = document.getElementById("greeting-text");
             const hour = new Date().getHours();
-            let greetStr = "浣犲ソ";
-            let emoji = "馃憢";
+            let greetStr = "你好";
+            let badge = "AI";
 
             if (hour >= 5 && hour < 12) {
-                greetStr = "鏃╀笂濂?;
-                emoji = "馃寘";
+                greetStr = "早上好";
+                badge = "AM";
             } else if (hour >= 12 && hour < 14) {
-                greetStr = "涓崍濂?;
-                emoji = "鈽€锔?;
+                greetStr = "中午好";
+                badge = "NOON";
             } else if (hour >= 14 && hour < 18) {
-                greetStr = "涓嬪崍濂?;
-                emoji = "馃寚";
+                greetStr = "下午好";
+                badge = "PM";
             } else {
-                greetStr = "鏅氫笂濂?;
-                emoji = "馃寵";
+                greetStr = "晚上好";
+                badge = "NIGHT";
             }
 
             if (greetingText) {
-                greetingText.innerHTML = `${greetStr}锛寋{ username }}锛?<span class="greeting-icon" id="greeting-emoji">${emoji}</span>`;
+                greetingText.innerHTML = `${greetStr}，{{ username }}！<span class="greeting-icon" id="greeting-emoji">${badge}</span>`;
             }
 
-            // Mouse cursor glowing ambient effect coordinates tracker
             const root = document.documentElement;
             window.addEventListener("pointermove", function (e) {
                 root.style.setProperty("--cursor-x", e.clientX + "px");

@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TourSim Travel - 娉ㄥ唽璐﹀彿</title>
-    <!-- Use dedicated isolated CSS for extreme fidelity and zero collision -->
+    <title>TourSim Travel - 用户注册</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home_login.css', v=asset_version('home_login.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
 </head>
 <body class="login-page">
     <main class="login-cover" aria-labelledby="register-title">
-        <!-- Left narrative story block -->
-        <section class="login-story" aria-label="绯荤粺浠嬬粛">
+        <section class="login-story" aria-label="注册介绍">
             <div class="login-brand">
                 <span class="login-brand__mark" aria-hidden="true"></span>
                 <span>TourSim Travel</span>
@@ -19,27 +17,25 @@
 
             <div class="login-story__content">
                 <p class="login-kicker">CREATE ACCOUNT</p>
-                <h1 id="register-title">鍔犲叆 TourSim锛?br>寮€鍚櫤鑳借鍒掋€?/h1>
-                <p class="login-lede">寮€鍚偍鐨勪釜鎬у寲鏅偣鎺㈢储涔嬫梾锛屼綋楠屽熀浜庡浘绠楁硶鐨勬櫤鑳借矾绾胯鍒掞紝骞剁敤绮剧編鐨勫浘鏂囨棩璁板垎浜偍鐨勬瘡涓€涓簿褰╃灛闂淬€?/p>
+                <h1 id="register-title">创建 TourSim 账号，保存你的旅行灵感。</h1>
+                <p class="login-lede">注册后可以发布游记、收藏景点与美食、管理头像资料，并在校园路线与室内导航中获得更完整的个性化体验。</p>
             </div>
 
-            <div class="login-story__meta" aria-label="绯荤粺鑳藉姏">
-                <span>鏍″洯瀵艰</span>
-                <span>鏈€鐭矾寰?/span>
-                <span>鏃ヨ鍒嗕韩</span>
+            <div class="login-story__meta" aria-label="注册能力">
+                <span>收藏同步</span>
+                <span>头像资料</span>
+                <span>日记发布</span>
             </div>
         </section>
 
-        <!-- Right Card Form Block -->
-        <section class="login-panel" aria-label="娉ㄥ唽琛ㄥ崟">
+        <section class="login-panel" aria-label="注册表单">
             <div class="login-card">
                 <header class="card-header">
                     <p class="login-kicker">NEW MEMBER</p>
-                    <h2>娉ㄥ唽璐﹀彿</h2>
-                    <p class="card-subtitle">濉啓鍩烘湰璐︽埛淇℃伅锛岀珛鍗冲紑鍚櫤鑳芥牎鍥瑙堜綋楠屻€?/p>
+                    <h2>用户注册</h2>
+                    <p class="card-subtitle">填写账号信息，创建你的 TourSim 个人空间。</p>
                 </header>
 
-                <!-- Flask Flash Error Messages -->
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
@@ -53,36 +49,36 @@
 
                 <form method="post" enctype="multipart/form-data" class="login-form">
                     <div class="form-group">
-                        <label for="username">鐢ㄦ埛鍚?/label>
-                        <input type="text" id="username" name="username" placeholder="璇疯緭鍏ョ敤鎴峰悕" autocomplete="username" required>
+                        <label for="username">用户名</label>
+                        <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="password">瀵嗙爜</label>
-                        <input type="password" id="password" name="password" placeholder="璇疯緭鍏ュ瘑鐮? autocomplete="new-password" required>
+                        <label for="password">密码</label>
+                        <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="new-password" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="confirm_password">纭瀵嗙爜</label>
-                        <input type="password" id="confirm_password" name="confirm_password" placeholder="璇峰啀娆¤緭鍏ュ瘑鐮? autocomplete="new-password" required>
+                        <label for="confirm_password">确认密码</label>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="请再次输入密码" autocomplete="new-password" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="avatar">澶村儚锛堝彲閫夛級</label>
+                        <label for="avatar">头像（可选）</label>
                         <input type="file" id="avatar" name="avatar" accept="image/*" style="padding-top: 10px;">
                     </div>
 
-                    <button type="submit" class="submit-btn">绔嬪嵆娉ㄥ唽</button>
+                    <button type="submit" class="submit-btn">立即注册</button>
                 </form>
 
                 <div class="divider">
-                    <span>鎴?/span>
+                    <span>或</span>
                 </div>
 
                 <div class="auth-links">
                     <p class="auth-text">
-                        宸茬粡鏈夎处鍙凤紵
-                        <a href="{{ url_for('login') }}" class="auth-link">绔嬪嵆鐧诲綍</a>
+                        已有账号？
+                        <a href="{{ url_for('login') }}" class="auth-link">去登录</a>
                     </p>
                 </div>
             </div>

@@ -5600,7 +5600,7 @@ def indoor_collector_clear_api():
 
 
 # =========================
-# places ??????????
+# places list and recommendation overview
 # =========================
 @app.route("/places")
 def places():
@@ -5679,7 +5679,7 @@ def places():
 
 
 # =========================
-# places ??????
+# place detail
 # =========================
 @app.route("/place/<int:place_id>")
 def place_detail(place_id):
@@ -5727,7 +5727,7 @@ def upload_place_image(place_id):
 
 
 # =========================
-# places ?????????
+# place recommendation redirect
 # =========================
 @app.route("/places/recommend", methods=["GET", "POST"])
 def recommend_places():
@@ -5744,7 +5744,7 @@ def recommend_places():
 
 
 # =========================
-# route ?????????
+# route planning
 # =========================
 @app.route("/route")
 def route():
@@ -7502,7 +7502,7 @@ def route_api():
 @app.route("/api/route/graph-data")
 def route_graph_data_api():
     if not is_logged_in():
-        return jsonify({"error": "璇峰厛鐧诲綍"}), 401
+        return jsonify({"error": "请先登录"}), 401
 
     place_id = request.args.get("place_id", DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
     full_graph = request.args.get("full", "").strip() in ("1", "true", "yes", "on")
