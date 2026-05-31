@@ -77,30 +77,101 @@
                 {% endif %}
             {% endwith %}
 
-            {% if query %}
-                <section class="search-headline">
-                    <h2>搜索结果</h2>
-                    <p>“{{ query }}”</p>
-                </section>
-                {% set result_diaries = diaries %}
-            {% else %}
-                <section class="search-headline">
-                    <h2>高分推荐</h2>
-                    <p>先看看评分和热度都比较高的日记。</p>
-                </section>
-                {% set result_diaries = recommendations %}
-            {% endif %}
+            <section class="diary-search-console" data-diary-search-console>
+                <div class="diary-search-console__head">
+                    <div>
+                        <p class="eyebrow">Search & Sort Algorithms</p>
+                        <h2>日记查询与排序</h2>
+                        <p>在同一个搜索入口中展示标题查找、内容全文检索、目的地筛选，以及按热度和评分排序。</p>
+                    </div>
+                    <div class="diary-search-console__stats">
+                        <strong>{{ search_state.result_count }}</strong>
+                        <span>篇目标日记</span>
+                    </div>
+                </div>
+
+                <form class="diary-search-controlbar" action="{{ url_for('diary_search') }}" method="get">
+                    <label class="diary-search-field">
+                        <span>日记名称查询</span>
+                        <input type="search" name="title_query" value="{{ search_state.title_query }}" placeholder="输入标题关键词">
+                    </label>
+
+                    <fieldset class="diary-search-mode">
+                        <legend>查找方式</legend>
+                        <div class="diary-search-segments">
+                            {% for option in search_mode_options %}
+                            <label class="diary-search-segment">
+                                <input type="radio" name="search_mode" value="{{ option.value }}" {% if search_state.search_mode == option.value %}checked{% endif %}>
+                                <strong>{{ option.label }}</strong>
+                                <span>{{ option.note }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+
+                    <label class="diary-search-field">
+                        <span>正文 / 全文检索</span>
+                        <input type="search" name="keyword" value="{{ search_state.keyword }}" placeholder="输入正文、作者、目的地相关词">
+                    </label>
+
+                    <label class="diary-search-field">
+                        <span>目的地筛选</span>
+                        <input type="search" name="destination" list="place-name-options" value="{{ search_state.destination }}" placeholder="输入旅游目的地">
+                    </label>
+
+                    <label class="diary-search-field">
+                        <span>排序方法</span>
+                        <select name="sort_by">
+                            {% for option in sort_options %}
+                            <option value="{{ option.value }}" {% if search_state.sort_by == option.value %}selected{% endif %}>{{ option.label }}：{{ option.note }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <div class="diary-search-actions">
+                        <button type="submit">搜索并排序</button>
+                        <a href="{{ url_for('diary_search') }}">重置</a>
+                    </div>
+                </form>
+
+                <div class="diary-search-proof">
+                    <span>查找：{{ search_state.mode_label }}</span>
+                    <span>排序：{{ search_state.sort_label }}</span>
+                    {% if search_state.keyword %}<span>全文关键词：{{ search_state.keyword }}</span>{% endif %}
+                    {% if search_state.destination %}<span>目的地：{{ search_state.destination }}</span>{% endif %}
+                </div>
+            </section>
+
+            <section class="search-headline search-headline--results">
+                {% if search_state.has_filters %}
+                <h2>搜索结果</h2>
+                <p>当前按照“{{ search_state.sort_label }}”展示匹配日记。</p>
+                {% else %}
+                <h2>高分推荐</h2>
+                <p>未输入条件时，默认展示综合热度较高的日记。</p>
+                {% endif %}
+            </section>
+            {% set result_diaries = diaries %}
 
             {% if result_diaries %}
-            <section class="diary-feed js-masonry-feed" aria-label="{% if query %}搜索结果{% else %}高分推荐{% endif %}">
+            <section class="diary-feed js-masonry-feed" aria-label="{% if search_state.has_filters %}搜索结果{% else %}高分推荐{% endif %}">
                 {% for diary in result_diaries %}
                 <a class="diary-post js-diary-entry {% if not diary.cover_media %}is-text-only{% endif %}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
                     <div class="diary-post__cover">
                         {% if diary.cover_media %}
                             {% if diary.cover_media.kind == 'image' %}
-                            <img src="{{ diary.cover_media.url }}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="lazy">
+                            {% set cover_src = diary.cover_media.thumbnail_url or diary.cover_media.url %}
+                            {% if loop.index <= 4 %}
+                            <img src="{{ cover_src }}" style="{% if diary.cover_media.blur_base64 %}background: url('{{ diary.cover_media.blur_base64 }}') no-repeat center center; background-size: cover;{% endif %}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="{% if loop.index <= 2 %}eager{% else %}lazy{% endif %}" decoding="async" fetchpriority="{% if loop.index <= 2 %}high{% else %}low{% endif %}">
+                            {% else %}
+                            <img src="{{ diary.cover_media.blur_base64 or 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'%3E%3C/svg%3E' }}" data-diary-lazy-src="{{ cover_src }}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="lazy" decoding="async" fetchpriority="low">
+                            {% endif %}
                             {% elif diary.cover_media.kind == 'video' %}
+                            {% if loop.index <= 4 %}
                             <video muted playsinline preload="metadata" src="{{ diary.cover_media.url }}"></video>
+                            {% else %}
+                            <video muted playsinline preload="none" data-diary-lazy-video="{{ diary.cover_media.url }}"></video>
+                            {% endif %}
                             <span class="media-badge">视频</span>
                             {% else %}
                             <div class="cover-placeholder"><span>媒体附件</span><strong>{{ diary.title }}</strong></div>
@@ -113,6 +184,11 @@
                     </div>
                     <div class="diary-post__body">
                         <h3>{{ diary.title }}</h3>
+                        <div class="diary-post__metrics">
+                            <span>浏览 {{ diary.views }}</span>
+                            <span>评分 {{ diary.avg_rating }}</span>
+                            <span>{{ diary.destination }}</span>
+                        </div>
                         <div class="diary-post__footer">
                             <div class="diary-post__author"><span class="diary-post__author-name">{{ diary.author }}</span></div>
                             <div class="diary-post__rating">★ {{ diary.avg_rating }}</div>
@@ -121,6 +197,31 @@
                 </a>
                 {% endfor %}
             </section>
+            {% if pagination is defined and pagination.total_pages > 1 %}
+            <nav class="pagination-bar diary-pagination" aria-label="日记搜索分页">
+                {% if pagination.has_prev %}
+                <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">上一页</span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for item in pagination.pages %}
+                    {% if item.is_current %}
+                    <span class="pagination-page is-current">{{ item.page }}</span>
+                    {% else %}
+                    <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagination.has_next %}
+                <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">下一页</span>
+                {% endif %}
+            </nav>
+            {% endif %}
             {% else %}
             <section class="empty-state">
                 <h2>没有搜到结果</h2>

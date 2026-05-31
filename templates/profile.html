@@ -4,189 +4,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>个人中心 - 个性化旅游系统</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <title>个人中心 - TourSim Travel</title>
+    <!-- Google Fonts Preconnect and Import for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- 叠加载低调奢华版主页样式表，以无缝共享其变量系统、字体以及侧边控制台样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css', v=asset_version('avatar_picker.css')) }}">
+
+    <!-- 引入个人中心专属高阶奢华样式表 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+
+    <!-- 延迟加载交互式动效与助理脚本 -->
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='avatar_picker.js', v=asset_version('avatar_picker.js')) }}"></script>
+
+    <!-- 引入专属动力学动效脚本 -->
+    <script defer src="{{ url_for('static', filename='luxury_profile_premium.js', v=asset_version('luxury_profile_premium.js')) }}"></script>
 </head>
-<body class="profile-page">
+<body class="home-page profile-premium-page">
     <a class="skip-link" href="#main-content">跳到内容</a>
 
-    <header class="profile-topbar">
-        <a class="profile-brand" href="{{ url_for('home') }}">个性化旅游系统</a>
-        <nav class="profile-nav" aria-label="个人中心导航">
-            <a href="{{ url_for('diaries') }}">日记广场</a>
-            <a href="{{ url_for('foods') }}">美食推荐</a>
-            <a href="{{ url_for('user_profile', user_id=current_user.id) }}">公开主页</a>
-            <a href="{{ url_for('logout') }}">退出登录</a>
-        </nav>
-    </header>
+    <!-- 贯穿全局的金色流光叙事生长线 (Narrative Thread) -->
+    <div class="narrative-container">
+        <div class="narrative-line-glow"></div>
+        <div class="narrative-bead"></div>
+    </div>
 
-    <main id="main-content" class="profile-shell">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="message-stack" aria-live="polite">
-                    {% for message in messages %}
-                    <div class="message">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    <!-- 全局双栏杂志式非对称控制台布局 -->
+    <div class="lux-layout-wrapper">
 
-        <section class="profile-hero">
-            <div class="profile-identity">
-                <img class="profile-avatar-large" src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像">
-                <div>
-                    <span class="profile-kicker">Personal Center</span>
-                    <h1>{{ username }}</h1>
-                    <p>管理头像与账号信息，查看你的日记、收藏和近期互动。</p>
-                </div>
-            </div>
-            <div class="profile-stat-strip" aria-label="账号数据">
-                <div><strong>{{ stats.diary_count }}</strong><span>发布日记</span></div>
-                <div><strong>{{ stats.favorite_count }}</strong><span>全部收藏</span></div>
-                <div><strong>{{ stats.total_views }}</strong><span>日记浏览</span></div>
-                <div><strong>{{ stats.avg_rating }}</strong><span>平均评分</span></div>
-            </div>
-        </section>
-
-        <section class="profile-grid">
-            <article class="profile-panel profile-panel--settings">
-                <div class="profile-section-head">
-                    <h2>资料设置</h2>
-                    <p>修改头像、用户名和登录密码。</p>
-                </div>
-                <form method="post" enctype="multipart/form-data" class="profile-form profile-avatar-form">
-                    <input type="hidden" name="action" value="avatar">
-                    <div class="avatar-form-group">
-                    {{ avatar_picker(
-                        preset_avatar_options(),
-                        selected_path=current_user.avatar_path,
-                        preview_url=current_user_avatar_url,
-                        title='更换个人头像'
-                    ) }}
+        <!-- LEFT SIDEBAR: Sticky Editorial Console (行者主控制台) -->
+        <aside class="lux-brand-sidebar" aria-label="行者主控制台" id="lux-profile-sidebar">
+            <div class="lux-sidebar-top">
+                <!-- 顶部标志性徽章 -->
+                <div class="lux-header-dock">
+                    <a href="{{ url_for('home') }}" class="lux-brand" id="lux-brand-logo">
+                        <span class="lux-brand__logo" aria-hidden="true"></span>
+                        <span>TourSim</span>
+                    </a>
+                    <div class="lux-user-badge" id="lux-user-badge">
+                        {% if current_user_avatar_url %}
+                        <img src="{{ current_user_avatar_url }}" alt="{{ username }} 的头像" id="lux-user-avatar">
+                        {% endif %}
+                        <span id="lux-username">{{ username }}</span>
                     </div>
-                    <label class="avatar-upload-legacy">
-                        <span>头像文件</span>
-                        <input type="file" name="avatar_legacy" accept="image/*,.svg">
-                    </label>
-                    <button type="submit">更新头像</button>
-                </form>
-                <form method="post" class="profile-form">
-                    <input type="hidden" name="action" value="account">
-                    <label>
-                        <span>用户名</span>
-                        <input type="text" name="username" value="{{ username }}" required>
-                    </label>
-                    <label>
-                        <span>当前密码</span>
-                        <input type="password" name="current_password" autocomplete="current-password" placeholder="改用户名或密码时填写">
-                    </label>
-                    <label>
-                        <span>新密码</span>
-                        <input type="password" name="new_password" autocomplete="new-password" placeholder="不修改可留空">
-                    </label>
-                    <label>
-                        <span>确认新密码</span>
-                        <input type="password" name="confirm_password" autocomplete="new-password">
-                    </label>
-                    <button type="submit">保存账号</button>
-                </form>
-            </article>
+                </div>
 
-            <article class="profile-panel">
-                <div class="profile-section-head">
-                    <h2>收藏概览</h2>
-                    <p>已收藏 {{ stats.favorite_diary_count }} 篇日记，{{ stats.favorite_food_count }} 家美食。</p>
-                </div>
-                <div class="profile-mini-metrics">
-                    <div><span>评论</span><strong>{{ stats.comment_count }}</strong></div>
-                    <div><span>收藏日记</span><strong>{{ stats.favorite_diary_count }}</strong></div>
-                    <div><span>收藏美食</span><strong>{{ stats.favorite_food_count }}</strong></div>
-                </div>
-                {% if recent_comments %}
-                <div class="profile-activity-list">
-                    {% for comment in recent_comments %}
-                    <a href="{{ url_for('diary_detail', diary_id=comment.diary_id, count_view=0) }}#comment-{{ comment.id }}">
-                        <span>{{ comment.created_at }}</span>
-                        <strong>{{ comment.diary_title or '日记已删除' }}</strong>
-                        <em>{{ comment.content }}</em>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="profile-empty">还没有评论互动。</div>
+                <!-- 旅行家专属欢迎词 -->
+                <section class="lux-greeting-editorial" aria-label="欢迎面板">
+                    <span class="lux-greeting-kicker">PERSONAL / HUB</span>
+                    <h1 class="lux-greeting-title" id="greeting-text">
+                        你好，<strong>{{ username }}</strong>
+                    </h1>
+                    <p class="subtitle">欢迎回到您的个人旅行资管中心。在此统筹您的行册轨迹、检阅珍藏、微调高级账号安全通关密钥。</p>
+                </section>
+            </div>
+
+            <!-- 三维阻尼星盘星轨罗盘仪 (High-Precision 3D Astrolabe Pointer) -->
+            <div class="lux-compass-anchor" aria-hidden="true">
+                <svg class="lux-compass-instrument" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.3" />
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.4" />
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.15" />
+                    <circle cx="100" cy="100" r="4" fill="var(--lux-gold)" />
+                    <!-- 罗盘刻度线 -->
+                    <g stroke="var(--lux-gold)" stroke-width="1" opacity="0.5">
+                        <line x1="100" y1="10" x2="100" y2="18" />
+                        <line x1="100" y1="182" x2="100" y2="190" />
+                        <line x1="10" y1="100" x2="18" y2="100" />
+                        <line x1="182" y1="100" x2="190" y2="100" />
+                        <line x1="36.36" y1="36.36" x2="43.43" y2="43.43" />
+                        <line x1="156.57" y1="156.57" x2="163.64" y2="163.64" />
+                        <line x1="36.36" y1="163.64" x2="43.43" y2="156.57" />
+                        <line x1="156.57" y1="43.43" x2="163.64" y2="36.36" />
+                    </g>
+                    <!-- 罗盘基点方位 -->
+                    <text x="100" y="32" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">N</text>
+                    <text x="100" y="178" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">S</text>
+                    <text x="175" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">E</text>
+                    <text x="25" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">W</text>
+                    <!-- 罗盘金色指针 -->
+                    <polygon points="100,20 104,100 96,100" fill="url(#pointerGold)" />
+                    <polygon points="100,180 103,100 97,100" fill="rgba(0, 0, 0, 0.15)" />
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="50%" stop-color="#b8935c" />
+                            <stop offset="100%" stop-color="#eadaa2" />
+                        </linearGradient>
+                        <linearGradient id="pointerGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="100%" stop-color="#b8935c" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- 控制台底部安全导航 -->
+            <footer class="lux-sidebar-footer" id="lux-profile-footer">
+                <a class="lux-footer-btn profile" href="{{ url_for('home') }}" id="lux-btn-home">返回大厅</a>
+                <a class="lux-footer-btn logout" href="{{ url_for('logout') }}" id="lux-btn-logout">安全退出</a>
+            </footer>
+        </aside>
+
+        <!-- RIGHT PORTAL STAGE: Flowing Asymmetric Horizon (资产与高定足迹大厅) -->
+        <main class="lux-portal-stage" id="main-content">
+            <!-- 全局 Flash 消息提示系统 -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="message-stack" aria-live="polite">
+                        {% for message in messages %}
+                        <div class="message" id="lux-flash-msg">{{ message }}</div>
+                        {% endfor %}
+                    </div>
                 {% endif %}
-            </article>
-        </section>
+            {% endwith %}
 
-        <section class="profile-content-grid">
-            <article class="profile-panel">
-                <div class="profile-section-head">
-                    <h2>我发布的日记</h2>
-                    <a href="{{ url_for('user_profile', user_id=current_user.id) }}">查看公开页</a>
-                </div>
-                {% if my_diaries %}
-                <div class="profile-card-list">
-                    {% for diary in my_diaries %}
-                    <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
-                        <strong>{{ diary.title }}</strong>
-                        <span>{{ diary.destination }} · 浏览 {{ diary.views }} · 评分 {{ diary.avg_rating }}</span>
-                        <p>{{ diary.content_preview }}</p>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="profile-empty">你还没有发布日记，去日记广场写第一篇。</div>
-                {% endif %}
-            </article>
+            <!-- 面板大堂头条 -->
+            <header class="lux-stage-header">
+                <span class="lux-stage-kicker">Traveler Console</span>
+                <h1 class="lux-stage-title">个人中心</h1>
+                <p class="subtitle">尊享化旅游管理大厅，记录足迹回音，审阅您的专属风味与日记印记。</p>
+            </header>
 
-            <article class="profile-panel">
-                <div class="profile-section-head">
-                    <h2>收藏的日记</h2>
-                    <p>详情页点星标即可加入这里。</p>
+            <!-- 水平高级数据统计星轨 (Vial Stats Rack) -->
+            <section class="profile-stats-horizon" aria-label="旅行数据星轨面板" id="lux-stats-horizon">
+                <div class="lux-stat-vial" id="stat-published-diaries" title="您公开发布的日记总数">
+                    <span class="lux-stat-value">{{ stats.diary_count }}</span>
+                    <span class="lux-stat-label">发布日记</span>
                 </div>
-                {% if favorite_diaries %}
-                <div class="profile-card-list">
-                    {% for diary in favorite_diaries %}
-                    <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id, count_view=0) }}">
-                        <strong>{{ diary.title }}</strong>
-                        <span>{{ diary.destination }} · {{ diary.author }}</span>
-                        <p>{{ diary.content_preview }}</p>
-                    </a>
-                    {% endfor %}
+                <div class="lux-stat-vial" id="stat-total-comments" title="您的全部评论互动回响次数">
+                    <span class="lux-stat-value">{{ stats.comment_count }}</span>
+                    <span class="lux-stat-label">评论互动</span>
                 </div>
-                {% else %}
-                <div class="profile-empty">暂时没有收藏日记。</div>
-                {% endif %}
-            </article>
+                <div class="lux-stat-vial" id="stat-total-favorites" title="您的星标珍藏总数（包含日记与美食）">
+                    <span class="lux-stat-value">{{ stats.favorite_count }}</span>
+                    <span class="lux-stat-label">全部珍藏</span>
+                </div>
+                <div class="lux-stat-vial" id="stat-total-views" title="您发表的日记被阅览的总次数">
+                    <span class="lux-stat-value">{{ stats.total_views }}</span>
+                    <span class="lux-stat-label">累计浏览</span>
+                </div>
+            </section>
 
-            <article class="profile-panel profile-panel--wide">
-                <div class="profile-section-head">
-                    <h2>收藏的美食</h2>
-                    <p>在美食详情页收藏后会同步到个人中心。</p>
-                </div>
-                {% if favorite_foods %}
-                <div class="profile-food-list">
-                    {% for food in favorite_foods %}
-                    <a class="profile-food-card" href="{{ url_for('food_detail', food_key=food.food_key, place_id=food.favorite_place_id, origin_node=food.favorite_origin_node) }}">
-                        <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 封面" loading="lazy" width="220" height="160">
-                        <div>
-                            <strong>{{ food.name }}</strong>
-                            <span>{{ food.cuisine or food.category }} · 评分 {{ food.rating }} · 人均￥{{ food.avg_cost }}</span>
-                            <p>{{ food.display_description }}</p>
+            <!-- 响应式高定工作面板自适应系统：深度整理为两座核心高定展厅，信息流密度大幅增加，杜绝松散 -->
+            <div class="profile-premium-grid" style="grid-template-columns: 1fr;">
+
+                <!-- 模块一：行者足迹与珍藏大厅 (Traveler Footprints & Starred Archives - Integrated Tabbed Panel) -->
+                <section class="glass-panel glass-panel--wide" id="lux-panel-traveler-archives" aria-labelledby="heading-traveler-archives">
+                    <div class="glass-panel-head" style="border-bottom: none; padding-bottom: 0; margin-bottom: 12px;">
+                        <h2 id="heading-traveler-archives">行者足迹与珍藏大厅</h2>
+                        <p>在此处查看您的个人行册日记、星标收藏的精品画卷与美食风味，以及您的近期互动发声回响。</p>
+                    </div>
+
+                    <!-- 高定分段选择标签页 (Capsule Segmented Tab Control) -->
+                    <div class="lux-tab-selector" role="tablist" aria-label="行者足迹与珍藏大厅标签页" id="lux-tab-selector-bar">
+                        <button type="button" class="tab-trigger active" data-tab="my-diaries" role="tab" aria-selected="true" id="tab-btn-my-diaries">
+                            <span class="tab-icon">📝</span> 撰写日记 ({{ stats.diary_count }})
+                        </button>
+                        <button type="button" class="tab-trigger" data-tab="starred-diaries" role="tab" aria-selected="false" id="tab-btn-starred-diaries">
+                            <span class="tab-icon">⭐</span> 珍藏日记 ({{ stats.favorite_diary_count }})
+                        </button>
+                        <button type="button" class="tab-trigger" data-tab="favorite-foods" role="tab" aria-selected="false" id="tab-btn-favorite-foods">
+                            <span class="tab-icon">🍔</span> 美食商铺 ({{ stats.favorite_food_count }})
+                        </button>
+                        <button type="button" class="tab-trigger" data-tab="chronicle" role="tab" aria-selected="false" id="tab-btn-chronicle">
+                            <span class="tab-icon">💬</span> 足迹回音 ({{ stats.comment_count }})
+                        </button>
+                    </div>
+
+                    <!-- 标签页内容区域一：我撰写的旅行日记册 -->
+                    <div class="tab-content active" id="tab-content-my-diaries" role="tabpanel" aria-labelledby="tab-btn-my-diaries">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px;">
+                            <span style="font-size: 0.8rem; color: var(--lux-slate-muted);">展示您在系统中所发布的全部私人旅行日记印记。</span>
+                            <a href="{{ url_for('user_profile', user_id=current_user.id) }}" class="lux-footer-btn profile" style="font-size: 0.68rem; letter-spacing: 0.12em; white-space: nowrap;" id="lux-btn-public-profile">公开个人主页</a>
                         </div>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="profile-empty">暂时没有收藏美食。</div>
-                {% endif %}
-            </article>
-        </section>
-    </main>
+
+                        {% if my_diaries %}
+                        <div class="profile-card-list">
+                            {% for diary in my_diaries %}
+                            <a class="glass-card card--emerald" id="lux-my-diary-{{ diary.id }}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                                <strong class="card-title">{{ diary.title }}</strong>
+                                <span class="card-meta">{{ diary.destination }} · 浏览 {{ diary.views }} · 评分 {{ diary.avg_rating }}</span>
+                                <p class="card-desc">{{ diary.content_preview }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="profile-empty">暂时还没有发布旅行足迹，前往广场开始撰写。</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 标签页内容区域二：星标归藏的旅游画卷 -->
+                    <div class="tab-content" id="tab-content-starred-diaries" role="tabpanel" aria-labelledby="tab-btn-starred-diaries">
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">打动过您心灵的旅行画卷，在日记广场点亮星标即可归藏在此。</p>
+
+                        {% if favorite_diaries %}
+                        <div class="profile-card-list">
+                            {% for diary in favorite_diaries %}
+                            <a class="glass-card card--purple" id="lux-starred-diary-{{ diary.id }}" href="{{ url_for('diary_detail', diary_id=diary.id, count_view=0) }}">
+                                <strong class="card-title">{{ diary.title }}</strong>
+                                <span class="card-meta">{{ diary.destination }} · 旅行家: {{ diary.author }}</span>
+                                <p class="card-desc">{{ diary.content_preview }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="profile-empty">这里还没有藏品，去日记广场发掘别人的旅行故事吧。</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 标签页内容区域三：舌尖上的星标收藏美食廊 -->
+                    <div class="tab-content" id="tab-content-favorite-foods" role="tabpanel" aria-labelledby="tab-btn-favorite-foods">
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">记录您在旅途中收藏过的精品美食店铺与极致舌尖风味。</p>
+
+                        {% if favorite_foods %}
+                        <div class="profile-food-grid">
+                            {% for food in favorite_foods %}
+                            <a class="profile-food-card" id="lux-favorite-food-{{ food.food_key }}" href="{{ url_for('food_detail', food_key=food.food_key, place_id=food.favorite_place_id, origin_node=food.favorite_origin_node) }}">
+                                <div class="food-img-frame">
+                                    <img src="{{ url_for('static', filename=food.cover_image) }}" alt="{{ food.name }} 封面展示" loading="lazy" width="220" height="160">
+                                </div>
+                                <div class="food-info">
+                                    <strong class="food-name">{{ food.name }}</strong>
+                                    <span class="food-tags">{{ food.cuisine or food.category }} · 评分 {{ food.rating }} · 人均 ￥{{ food.avg_cost }}</span>
+                                    <p class="food-desc">{{ food.display_description }}</p>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="profile-empty">暂时没有收藏美食，在美食探索页可以随时珍藏。</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 标签页内容区域四：足迹回音时间线 -->
+                    <div class="tab-content" id="tab-content-chronicle" role="tabpanel" aria-labelledby="tab-btn-chronicle">
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">您在旅行日记广场中与其它旅伴的精彩思想回声互动记录。</p>
+
+                        {% if recent_comments %}
+                        <div class="profile-chronicle">
+                            {% for comment in recent_comments %}
+                            <div class="chronicle-node">
+                                <a class="chronicle-card" id="lux-comment-{{ comment.id }}" href="{{ url_for('diary_detail', diary_id=comment.diary_id, count_view=0) }}#comment-{{ comment.id }}">
+                                    <span class="chronicle-time">{{ comment.created_at }}</span>
+                                    <span class="chronicle-title">在发表 of 日记《{{ comment.diary_title or '日记已删除' }}》留下了回声：</span>
+                                    <div class="chronicle-body">{{ comment.content }}</div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="profile-empty">在广袤的旅途中，您还没有写下任何互动笔墨回响。</div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- 模块二：旅行账号与高级账号设置 (Account & Credentials - Wide Panel) -->
+                <section class="glass-panel glass-panel--wide" id="lux-panel-account-credentials" aria-labelledby="heading-account-credentials">
+                    <div class="glass-panel-head">
+                        <h2 id="heading-account-credentials">高级账号与高定设置</h2>
+                        <p>定制您的行者头像化身与系统登录通关密钥凭证。</p>
+                    </div>
+
+                    <!-- 双栏高密度布局，头像与字段表单并排放置 -->
+                    <div class="account-settings-split">
+                        <!-- 1. 化身定制表单 (Avatar Form) -->
+                        <form method="post" enctype="multipart/form-data" class="profile-form" id="lux-form-avatar">
+                            <input type="hidden" name="action" value="avatar">
+                            <div class="avatar-form-container">
+                                {{ avatar_picker(
+                                    preset_avatar_options(),
+                                    selected_path=current_user.avatar_path,
+                                    preview_url=current_user_avatar_url,
+                                    title='更换行者化身'
+                                ) }}
+                            </div>
+                            <button type="submit" class="spring-button" id="lux-btn-submit-avatar">
+                                <span>更新头像化身</span>
+                                <span class="spring-btn-glow"></span>
+                            </button>
+                        </form>
+
+                        <!-- 2. 账号与密钥表单 (Credentials Form) -->
+                        <form method="post" class="profile-form" id="lux-form-credentials">
+                            <input type="hidden" name="action" value="account">
+
+                            <label for="lux-input-username">
+                                <span>行者代号（用户名）</span>
+                                <input type="text" id="lux-input-username" name="username" value="{{ username }}" required autocomplete="username">
+                            </label>
+
+                            <label for="lux-input-current-password">
+                                <span>当前校验密码</span>
+                                <input type="password" id="lux-input-current-password" name="current_password" placeholder="若涉及更改代号或新密码，在此输入进行安全验证" autocomplete="current-password">
+                            </label>
+
+                            <label for="lux-input-new-password">
+                                <span>定制新密码</span>
+                                <input type="password" id="lux-input-new-password" name="new_password" placeholder="若不修改密码请留空" autocomplete="new-password">
+                            </label>
+
+                            <label for="lux-input-confirm-password">
+                                <span>确认新密码</span>
+                                <input type="password" id="lux-input-confirm-password" name="confirm_password" placeholder="重新输入新密码以防输入有误" autocomplete="new-password">
+                            </label>
+
+                            <button type="submit" class="spring-button" id="lux-btn-submit-credentials">
+                                <span>保存账号密钥</span>
+                                <span class="spring-btn-glow"></span>
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
 </body>
 </html>

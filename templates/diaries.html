@@ -85,9 +85,18 @@
                     <div class="diary-post__cover">
                         {% if diary.cover_media %}
                             {% if diary.cover_media.kind == 'image' %}
-                            <img src="{{ diary.cover_media.url }}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="lazy">
+                            {% set cover_src = diary.cover_media.thumbnail_url or diary.cover_media.url %}
+                            {% if loop.index <= 4 %}
+                            <img src="{{ cover_src }}" style="{% if diary.cover_media.blur_base64 %}background: url('{{ diary.cover_media.blur_base64 }}') no-repeat center center; background-size: cover;{% endif %}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="{% if loop.index <= 2 %}eager{% else %}lazy{% endif %}" decoding="async" fetchpriority="{% if loop.index <= 2 %}high{% else %}low{% endif %}">
+                            {% else %}
+                            <img src="{{ diary.cover_media.blur_base64 or 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'%3E%3C/svg%3E' }}" data-diary-lazy-src="{{ cover_src }}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="lazy" decoding="async" fetchpriority="low">
+                            {% endif %}
                             {% elif diary.cover_media.kind == 'video' %}
+                            {% if loop.index <= 4 %}
                             <video muted playsinline preload="metadata" src="{{ diary.cover_media.url }}"></video>
+                            {% else %}
+                            <video muted playsinline preload="none" data-diary-lazy-video="{{ diary.cover_media.url }}"></video>
+                            {% endif %}
                             <span class="media-badge">视频</span>
                             {% else %}
                             <div class="cover-placeholder"><span>媒体附件</span><strong>{{ diary.title }}</strong></div>
@@ -108,6 +117,31 @@
                 </a>
                 {% endfor %}
             </section>
+            {% if pagination is defined and pagination.total_pages > 1 %}
+            <nav class="pagination-bar diary-pagination" aria-label="日记列表分页">
+                {% if pagination.has_prev %}
+                <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">上一页</span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for item in pagination.pages %}
+                    {% if item.is_current %}
+                    <span class="pagination-page is-current">{{ item.page }}</span>
+                    {% else %}
+                    <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if pagination.has_next %}
+                <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
+                {% else %}
+                <span class="pagination-btn is-disabled">下一页</span>
+                {% endif %}
+            </nav>
+            {% endif %}
             {% else %}
             <section class="empty-state">
                 <h2>还没有日记</h2>

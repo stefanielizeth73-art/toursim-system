@@ -26,16 +26,10 @@
             <span class="route-topbar__mark" aria-hidden="true"></span>
             个性化旅游系统 · 路线规划与场所查询
         </div>
-        <div>
-            当前用户：{{ username }}
-            {% if route_collect_mode %}
-            <a class="route-mode-switch is-collector-active" href="{{ url_for('route', place_id=place_id) }}" aria-label="退出采集模式">退出采集</a>
-            {% else %}
-            <a class="route-mode-switch" href="{{ url_for('route', place_id=place_id, collect=1) }}" aria-label="进入采集模式">采集模式</a>
-            {% endif %}
+        <div class="route-topbar-user">
+            <span class="user-badge">👤 {{ username }}</span>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
-            <a class="nav-link" href="{{ url_for('home') }}">返回首页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
+            <a class="nav-link nav-link--home" href="{{ url_for('home') }}">返回首页</a>
         </div>
     </div>
 
@@ -55,271 +49,258 @@
 
     <main class="route-workspace route-workspace-v2 explore-workspace">
         <aside class="route-console route-console-v2 explore-sidebar">
-            <section class="explore-hero">
+            <section class="explore-hero route-console-hero">
                 <span class="eyebrow">ROUTE & FACILITY</span>
                 <h1>路线规划 · 场所查询</h1>
-                <p>在同一屏内完成路径规划、周边设施查询和地图联动。地图始终占主导，侧栏负责高密度信息与操作。</p>
-                <div class="explore-stats-grid" aria-label="探索概览">
-                    <span><strong>{{ graph_stats.nodes_count }}</strong> 节点</span>
-                    <span><strong>{{ graph_stats.edges_count }}</strong> 边</span>
-                    <span><strong>{{ graph_stats.selectable_count }}</strong> 可选点</span>
-                    <span><strong>{{ facility_total }}</strong> 设施</span>
-                </div>
+                <p>选起点、终点和出行方式，地图会同步显示最合适路线。</p>
             </section>
 
-            <section class="explore-block" aria-labelledby="routePanelTitle" id="routePanel">
-                <div class="explore-block__head">
-                    <div>
-                        <span class="eyebrow">ROUTE PLANNER</span>
-                        <h2 id="routePanelTitle">路线规划</h2>
+            <div class="route-tabs">
+                <button type="button" class="route-tab-btn active" data-tab="planner">
+                    <span class="route-tab-icon">🗺️</span>路线规划
+                </button>
+                <button type="button" class="route-tab-btn" data-tab="places">
+                    <span class="route-tab-icon">📍</span>场所查询
+                </button>
+            </div>
+
+            <div class="route-tab-panel active" id="plannerTab">
+                <section class="explore-block route-card route-card--planner" aria-labelledby="routePanelTitle" id="routePanel">
+                    <div class="route-layer-toolbar route-layer-toolbar--inline" aria-label="地图图层开关">
+                        <button type="button" id="showFacilityLayer" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏场所图层">
+                            <span class="route-layer-toggle__label">场所</span>
+                            <span class="route-layer-toggle__state">关</span>
+                        </button>
+                        <button type="button" id="showRoadNetwork" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏道路图层">
+                            <span class="route-layer-toggle__label">道路</span>
+                            <span class="route-layer-toggle__state">关</span>
+                        </button>
                     </div>
-                    <p>单点、多个途经点与往返规划都在这里处理。</p>
-                </div>
 
-                <div class="graph-stats" aria-label="图结构统计">
-                    <span><strong>{{ graph_stats.nodes_count }}</strong> 节点</span>
-                    <span><strong>{{ graph_stats.edges_count }}</strong> 边</span>
-                    <span><strong>{{ graph_stats.selectable_count }}</strong> 可选点</span>
-                </div>
-
-                <div class="route-layer-toolbar route-layer-toolbar--inline" aria-label="地图图层开关">
-                    <button type="button" id="showFacilityLayer" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏场所图层">
-                        <span class="route-layer-toggle__label">场所</span>
-                        <span class="route-layer-toggle__state">关</span>
-                    </button>
-                    <button type="button" id="showRoadNetwork" class="route-layer-toggle" aria-pressed="false" aria-label="显示或隐藏道路图层">
-                        <span class="route-layer-toggle__label">道路</span>
-                        <span class="route-layer-toggle__state">关</span>
-                    </button>
-                </div>
-
-                <form method="get" class="route-planner route-planner-v2 explore-form">
-                    {{ hidden_inputs(route_form_state, skip=['start', 'end', 'targets', 'strategy', 'transport', 'route_type']) }}
-                    <label>
-                        <span>路线类型</span>
-                        <select name="route_type" id="routeType">
-                            <option value="single" {% if route_type == 'single' %}selected{% endif %}>单目标路线</option>
-                            <option value="multi" {% if route_type == 'multi' %}selected{% endif %}>多途经点路线</option>
-                            <option value="round_trip" {% if route_type == 'round_trip' %}selected{% endif %}>游览后返回起点</option>
-                        </select>
-                    </label>
-
-                    <div class="planner-grid">
+                    <form method="get" id="routePlanner" class="route-planner route-planner-v2 explore-form">
+                        {{ hidden_inputs(route_form_state, skip=['start', 'end', 'targets', 'strategy', 'transport', 'route_type']) }}
                         <label>
-                            <span>起点</span>
-                            <select name="start" id="startNode">
-                                <option value="">选择起点</option>
+                            <span>路线类型</span>
+                            <select name="route_type" id="routeType">
+                                <option value="single" {% if route_type == 'single' %}selected{% endif %}>单目标路线</option>
+                                <option value="multi" {% if route_type == 'multi' %}selected{% endif %}>多途经点路线</option>
+                                <option value="round_trip" {% if route_type == 'round_trip' %}selected{% endif %}>游览后返回起点</option>
+                            </select>
+                        </label>
+
+                        <div class="planner-grid route-endpoint-grid">
+                            <label>
+                                <span>起点</span>
+                                <select name="start" id="startNode">
+                                    <option value="">选择起点</option>
+                                    {% for node in nodes %}
+                                        <option value="{{ node.id }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+
+                            <label>
+                                <span>终点 / 必访目标</span>
+                                <select name="end" id="endNode">
+                                    <option value="">选择终点</option>
+                                    {% for node in nodes %}
+                                        <option value="{{ node.id }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="planner-grid">
+                            <label>
+                                <span>策略</span>
+                                <select name="strategy" id="strategy">
+                                    <option value="distance" {% if strategy == 'distance' %}selected{% endif %}>最短距离</option>
+                                    <option value="time" {% if strategy == 'time' %}selected{% endif %}>最短时间</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span>交通</span>
+                                <select name="transport" id="transport">
+                                    <option value="walk" {% if transport == 'walk' %}selected{% endif %}>步行</option>
+                                    <option value="bike" {% if transport == 'bike' %}selected{% endif %}>自行车</option>
+                                    <option value="mixed" {% if transport == 'mixed' %}selected{% endif %}>混合</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <p class="route-color-note" aria-label="路线颜色说明">
+                            <span><i class="route-color-dot route-color-dot--walk"></i>步行路线</span>
+                            <span><i class="route-color-dot route-color-dot--bike"></i>自行车路线</span>
+                            <em>混合交通按路段分色</em>
+                        </p>
+
+                        <div class="multi-target-panel" id="multiTargetPanel">
+                            <span>途经点</span>
+                            <input class="route-poi-search" type="search" id="routePoiSearch" list="routeTargetDatalist" placeholder="搜索地点并加入途经点">
+                            <datalist id="routeTargetDatalist">
                                 {% for node in nodes %}
-                                    <option value="{{ node.id }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                    <option value="{{ node.name }}"></option>
                                 {% endfor %}
-                            </select>
-                        </label>
+                            </datalist>
+                            <button type="button" class="target-clear" id="clearTargets">清空已选途经点</button>
+                            <div class="selected-targets" id="selectedTargets" aria-label="已选途经点"></div>
+                            <div class="target-inputs" id="targetInputs" aria-hidden="true"></div>
+                        </div>
 
-                        <label>
-                            <span>终点 / 必访目标</span>
-                            <select name="end" id="endNode">
-                                <option value="">选择终点</option>
-                                {% for node in nodes %}
-                                    <option value="{{ node.id }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </label>
-                    </div>
+                        <button type="submit" class="primary-action">计算路线</button>
+                    </form>
 
-                    <div class="planner-grid">
-                        <label>
-                            <span>策略</span>
-                            <select name="strategy" id="strategy">
-                                <option value="distance" {% if strategy == 'distance' %}selected{% endif %}>最短距离</option>
-                                <option value="time" {% if strategy == 'time' %}selected{% endif %}>最短时间</option>
-                            </select>
-                        </label>
-                        <label>
-                            <span>交通</span>
-                            <select name="transport" id="transport">
-                                <option value="walk" {% if transport == 'walk' %}selected{% endif %}>步行</option>
-                                <option value="bike" {% if transport == 'bike' %}selected{% endif %}>自行车</option>
-                                <option value="mixed" {% if transport == 'mixed' %}selected{% endif %}>混合</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <p class="route-color-note" aria-label="路线颜色说明">
-                        <span><i class="route-color-dot route-color-dot--walk"></i>步行路线</span>
-                        <span><i class="route-color-dot route-color-dot--bike"></i>自行车路线</span>
-                        <em>混合交通按路段分色</em>
-                    </p>
-
-                    <div class="multi-target-panel" id="multiTargetPanel">
-                        <span>途经点（最多 8 个）</span>
-                        <input class="route-poi-search" type="search" id="routePoiSearch" list="routeTargetDatalist" placeholder="搜索地点并加入途经点">
-                        <datalist id="routeTargetDatalist">
-                            {% for node in nodes %}
-                                <option value="{{ node.name }}"></option>
+                    <section class="route-summary route-summary-v2 {% if not result and not multi_result and (end or targets) and transport == 'bike' %}is-route-blocked{% endif %}" id="routeSummary">
+                        {% if result %}
+                            <h2>单目标规划结果</h2>
+                            <p class="route-total">{{ "%.1f"|format(result.total) }} {% if strategy == 'distance' %}米{% else %}秒{% endif %}</p>
+                            <p>{{ result.display_path_names|join(' → ') }}</p>
+                        {% elif multi_result %}
+                            <h2>{% if route_type == 'round_trip' %}往返游览结果{% else %}多途经点规划结果{% endif %}</h2>
+                            <p class="route-total">{{ "%.1f"|format(multi_result.total) }} {% if strategy == 'distance' %}米{% else %}秒{% endif %}</p>
+                            {% if multi_result.error %}
+                                <p>{{ multi_result.error }}</p>
+                            {% endif %}
+                            {% for segment in multi_result.segments %}
+                                <p>{{ loop.index }}. {{ segment.display_path_names|join(' → ') }}</p>
                             {% endfor %}
-                        </datalist>
-                        <button type="button" class="target-clear" id="clearTargets">一键清除图上所有点</button>
-                        <div class="selected-targets" id="selectedTargets" aria-label="已选途经点"></div>
-                        <div class="target-inputs" id="targetInputs" aria-hidden="true"></div>
-                    </div>
-
-                    <button type="submit" class="primary-action">计算路线</button>
-                </form>
-
-                <section class="route-summary route-summary-v2 {% if not result and not multi_result and (end or targets) and transport == 'bike' %}is-route-blocked{% endif %}" id="routeSummary">
-                    {% if result %}
-                        <h2>单目标规划结果</h2>
-                        <p class="route-total">{{ "%.1f"|format(result.total) }} {% if strategy == 'distance' %}米{% else %}秒{% endif %}</p>
-                        <p>{{ result.display_path_names|join(' → ') }}</p>
-                    {% elif multi_result %}
-                        <h2>{% if route_type == 'round_trip' %}往返游览结果{% else %}多途经点规划结果{% endif %}</h2>
-                        <p class="route-total">{{ "%.1f"|format(multi_result.total) }} {% if strategy == 'distance' %}米{% else %}秒{% endif %}</p>
-                        {% if multi_result.error %}
-                            <p>{{ multi_result.error }}</p>
+                        {% elif end or targets %}
+                            {% if transport == 'bike' %}
+                                <p class="route-unreachable-alert">自行车模式下无法到达：所选点之间存在禁骑或未连通路段，请切换步行、混合交通，或重新选择可骑行节点。</p>
+                            {% endif %}
+                            <h2>未找到路线</h2>
+                            <p>请尝试切换交通方式、减少途经点，或选择可达节点。</p>
+                        {% else %}
+                            <h2>等待规划</h2>
+                            <p>选择起点和终点，或直接点击地图上的地点开始规划。</p>
                         {% endif %}
-                        {% for segment in multi_result.segments %}
-                            <p>{{ loop.index }}. {{ segment.display_path_names|join(' → ') }}</p>
-                        {% endfor %}
-                    {% elif end or targets %}
-                        {% if transport == 'bike' %}
-                            <p class="route-unreachable-alert">自行车模式下无法到达：所选点之间存在禁骑或未连通路段，请切换步行、混合交通，或重新选择可骑行节点。</p>
-                        {% endif %}
-                        <h2>未找到路线</h2>
-                        <p>请尝试切换交通方式、减少途经点，或选择可达节点。</p>
-                    {% else %}
-                        <h2>等待规划</h2>
-                        <p>选择起点和终点，或直接点击地图上的地点开始规划。</p>
-                    {% endif %}
+                    </section>
                 </section>
+            </div>
 
-                {% if route_foods %}
-                <section class="route-food-panel" aria-label="路线关联美食">
-                    <div class="route-food-panel__head">
-                        <div>
-                            <span class="eyebrow">FOOD LINK</span>
-                            <h2>路线关联美食</h2>
+            <div class="route-tab-panel" id="placesTab">
+                <section class="explore-block route-card route-card--places" aria-labelledby="facilityPanelTitle" id="facilityResults">
+                    <form method="get" class="explore-form explore-form--stacked">
+                        {{ hidden_inputs(route_form_state, skip=['facility_start_node', 'facility_type', 'facility_keyword', 'max_distance']) }}
+                        <div class="explore-grid explore-grid--two">
+                            <label class="explore-field">
+                                <span>起点</span>
+                                <select name="facility_start_node">
+                                    <option value="">沿用当前路线起点</option>
+                                    {% for node in nodes %}
+                                        <option value="{{ node.id }}" {% if facility_start_node == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+
+                            <label class="explore-field">
+                                <span>设施类型</span>
+                                <select name="facility_type">
+                                    <option value="">全部设施</option>
+                                    {% for item in facility_types %}
+                                        <option value="{{ item }}" {% if facility_type == item %}selected{% endif %}>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
                         </div>
-                        <div class="route-food-actions">
-                            <a href="{{ url_for('foods', place_id=place_id, origin_node=start, sort_by='distance_asc') }}">完整列表</a>
-                            <a href="{{ route_food_pick_url or url_for('route', place_id=place_id, start=start, food_pick=1) }}" class="{% if route_food_pick_mode %}is-active{% endif %}">点地图选当前位置</a>
+
+                        <div class="explore-grid explore-grid--two">
+                            <label class="explore-field">
+                                <span>最大距离</span>
+                                <select name="max_distance">
+                                    <option value="" {% if not max_distance %}selected{% endif %}>不限范围</option>
+                                    <option value="300" {% if max_distance == '300' %}selected{% endif %}>300 米</option>
+                                    <option value="500" {% if max_distance == '500' %}selected{% endif %}>500 米</option>
+                                    <option value="1000" {% if max_distance == '1000' %}selected{% endif %}>1000 米</option>
+                                </select>
+                            </label>
+
+                            <label class="explore-field">
+                                <span>关键词</span>
+                                <input type="search" name="facility_keyword" value="{{ facility_keyword }}" placeholder="卫生间、超市、餐饮..." autocomplete="off">
+                            </label>
                         </div>
+
+                        <div class="explore-form-actions">
+                            <button type="submit" class="primary-action">查询设施</button>
+                            <a class="secondary-action" href="{{ url_for('route', place_id=place_id) }}">重置设施条件</a>
+                        </div>
+                    </form>
+
+                    <div class="explore-summary-row">
+                        <span class="explore-pill">共 {{ facility_total }} 处场所</span>
+                        <span class="explore-pill">起点: {{ facility_start_node or '当前路线' }}</span>
                     </div>
-                    {% if route_food_pick_mode %}
-                        <p class="route-food-hint">请在地图上点选一个可规划地点，系统会将它作为当前筛选起点。</p>
-                    {% endif %}
-                    <ol class="route-food-list">
-                        {% for food in route_foods %}
-                        <li>
-                            <div>
-                                <a href="{{ url_for('food_detail', food_key=food.food_key, place_id=place_id) }}">{{ food.name }}</a>
-                                <span>{{ food.cuisine or food.category }} · {{ food.source_label }}</span>
+
+                    <div class="explore-card-list">
+                        {% for facility in facilities %}
+                        <article class="explore-card explore-card--facility">
+                            <div class="explore-card__header">
+                                <div>
+                                    <h3>{{ facility.name }}</h3>
+                                    <p>{{ facility.type }} · 最近节点 {{ facility.nearest_node }}</p>
+                                </div>
+                                <strong>{{ facility.distance }}m</strong>
                             </div>
-                            {% if food.distance_text %}
-                                <strong>{{ food.distance_text }}</strong>
-                            {% endif %}
-                            {% if food.nearest_node %}
-                                <a class="route-food-target" href="{{ url_for('route', place_id=place_id, start=start, end=food.nearest_node, strategy=strategy, transport=transport) }}">设为终点</a>
-                            {% endif %}
-                        </li>
+                            <div class="explore-card__meta">
+                                <span>步行 {{ facility.walk_minutes }} 分钟</span>
+                                <span>{{ facility.path_names }}</span>
+                            </div>
+                            <p class="explore-card__copy">{{ facility.description }}</p>
+                            <div class="explore-card__actions">
+                                {% if facility.set_start_url %}
+                                    <a class="detail-btn" href="{{ facility.set_start_url }}">设为起点</a>
+                                    <a class="detail-btn" href="{{ facility.set_end_url }}">设为终点</a>
+                                    <a class="detail-btn" href="{{ facility.focus_url }}">仅查看此类</a>
+                                {% endif %}
+                            </div>
+                        </article>
+                        {% else %}
+                        <div class="explore-empty-state">
+                            <h3>暂时没有可达设施</h3>
+                            <p>请先在地图中选择一个起点，或放宽设施类型与距离条件。</p>
+                        </div>
                         {% endfor %}
-                    </ol>
+                    </div>
                 </section>
-                {% endif %}
-            </section>
+            </div>
 
-            <section class="explore-block" aria-labelledby="facilityPanelTitle" id="facilityResults">
-                <div class="explore-block__head">
-                    <div>
-                        <span class="eyebrow">NEARBY FACILITIES</span>
-                        <h2 id="facilityPanelTitle">周边设施</h2>
-                    </div>
-                    <p>按道路距离排序，直接把结果拉回路线规划。</p>
-                </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const tabs = document.querySelectorAll(".route-tab-btn");
+                    const panels = document.querySelectorAll(".route-tab-panel");
 
-                <form method="get" class="explore-form explore-form--stacked">
-                    {{ hidden_inputs(route_form_state, skip=['facility_start_node', 'facility_type', 'facility_keyword', 'max_distance']) }}
-                    <div class="explore-grid explore-grid--two">
-                        <label class="explore-field">
-                            <span>起点</span>
-                            <select name="facility_start_node">
-                                <option value="">沿用当前路线起点</option>
-                                {% for node in nodes %}
-                                    <option value="{{ node.id }}" {% if facility_start_node == node.id %}selected{% endif %}>{{ node.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </label>
+                    // Auto-switch to Places tab if there is active facility search/result
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const hasFacilityQuery = urlParams.has("facility_type") ||
+                                             urlParams.has("facility_keyword") ||
+                                             urlParams.has("facility_start_node") ||
+                                             urlParams.has("max_distance");
 
-                        <label class="explore-field">
-                            <span>设施类型</span>
-                            <select name="facility_type">
-                                <option value="">全部设施</option>
-                                {% for item in facility_types %}
-                                    <option value="{{ item }}" {% if facility_type == item %}selected{% endif %}>{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </label>
-                    </div>
+                    function switchTab(tabId) {
+                        tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));
+                        panels.forEach(p => p.classList.toggle("active", p.id === tabId + "Tab"));
+                        // Save tab state in sessionStorage
+                        sessionStorage.setItem("activeRouteTab", tabId);
+                    }
 
-                    <div class="explore-grid explore-grid--two">
-                        <label class="explore-field">
-                            <span>最大距离</span>
-                            <select name="max_distance">
-                                <option value="" {% if not max_distance %}selected{% endif %}>不限范围</option>
-                                <option value="300" {% if max_distance == '300' %}selected{% endif %}>300 米</option>
-                                <option value="500" {% if max_distance == '500' %}selected{% endif %}>500 米</option>
-                                <option value="1000" {% if max_distance == '1000' %}selected{% endif %}>1000 米</option>
-                            </select>
-                        </label>
+                    tabs.forEach(tab => {
+                        tab.addEventListener("click", function() {
+                            switchTab(this.dataset.tab);
+                        });
+                    });
 
-                        <label class="explore-field">
-                            <span>关键词</span>
-                            <input type="search" name="facility_keyword" value="{{ facility_keyword }}" placeholder="卫生间、超市、餐饮..." autocomplete="off">
-                        </label>
-                    </div>
-
-                    <div class="explore-form-actions">
-                        <button type="submit" class="primary-action">查询设施</button>
-                        <a class="secondary-action" href="{{ url_for('route', place_id=place_id) }}">重置设施条件</a>
-                    </div>
-                </form>
-
-                <div class="explore-summary-row">
-                    <span class="explore-pill">共 {{ facility_total }} 条</span>
-                    <span class="explore-pill">源数据 {{ facility_source_total }} 条</span>
-                    <span class="explore-pill">起点 {{ facility_start_node or '当前路线' }}</span>
-                </div>
-
-                <div class="explore-card-list">
-                    {% for facility in facilities %}
-                    <article class="explore-card explore-card--facility">
-                        <div class="explore-card__header">
-                            <div>
-                                <h3>{{ facility.name }}</h3>
-                                <p>{{ facility.type }} · 最近节点 {{ facility.nearest_node }}</p>
-                            </div>
-                            <strong>{{ facility.distance }}m</strong>
-                        </div>
-                        <div class="explore-card__meta">
-                            <span>步行 {{ facility.walk_minutes }} 分钟</span>
-                            <span>{{ facility.path_names }}</span>
-                        </div>
-                        <p class="explore-card__copy">{{ facility.description }}</p>
-                        <div class="explore-card__actions">
-                            {% if facility.set_start_url %}
-                                <a class="detail-btn" href="{{ facility.set_start_url }}">设为起点</a>
-                                <a class="detail-btn" href="{{ facility.set_end_url }}">设为终点</a>
-                                <a class="detail-btn" href="{{ facility.focus_url }}">仅查看此类</a>
-                            {% endif %}
-                        </div>
-                    </article>
-                    {% else %}
-                    <div class="explore-empty-state">
-                        <h3>暂时没有可达设施</h3>
-                        <p>请先在地图中选择一个起点，或放宽设施类型与距离条件。</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
+                    // Initialize active tab from URL or Session Storage
+                    const savedTab = sessionStorage.getItem("activeRouteTab");
+                    if (hasFacilityQuery) {
+                        switchTab("places");
+                    } else if (savedTab) {
+                        switchTab(savedTab);
+                    } else {
+                        switchTab("planner");
+                    }
+                });
+            </script>
         </aside>
 
         <section class="route-map-shell route-map-shell-v2 explore-map-shell" aria-label="翔安校区地图">

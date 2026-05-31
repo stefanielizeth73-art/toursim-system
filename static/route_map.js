@@ -345,7 +345,8 @@
                 if (path.length < 2) {
                     return;
                 }
-                const connector = edge.source === "manual_poi_connector" || edge.source === "manual_component_connector";
+                const connector = edge.source === "manual_poi_connector"
+                    || edge.source === "manual_component_connector";
                 roadOverlays.push(new AMap.Polyline({
                     path,
                     strokeColor: connector ? "#87aebd" : "#5f91a0",
@@ -378,14 +379,10 @@
 
         const routePalettes = {
             walk: {
-                outline: "#3a2210",
-                halo: "#f08a2f",
-                core: "#fff4df"
+                color: "#f08a2f"
             },
             bike: {
-                outline: "#0b2442",
-                halo: "#4f7fb8",
-                core: "#eef6ff"
+                color: "#3b82f6"
             }
         };
         let routeArrowDrawn = false;
@@ -408,14 +405,87 @@
             return data.result && Array.isArray(data.result.edges) ? data.result.edges : [];
         }
 
-        function routeModeForEdge(edge) {
+        function isSnapLinkEdge(edge) {
+            return Boolean(edge && (
+                edge.source === "manual_collector_link"
+                || edge.road_type === "snap_link"
+                || edge.kind === "road_road"
+            ));
+        }
+
+        function baseRouteModeForEdge(edge) {
+            return edge && edge.bike ? "bike" : "walk";
+        }
+
+        function adjacentRouteMode(edges, startIndex, step) {
+            for (let index = startIndex; index >= 0 && index < edges.length; index += step) {
+                const edge = edges[index];
+                if (!isSnapLinkEdge(edge)) {
+                    return baseRouteModeForEdge(edge);
+                }
+            }
+            return "";
+        }
+
+        function routeModeForEdge(edge, index, edges) {
             if (transportMode === "bike") {
                 return "bike";
             }
             if (transportMode === "mixed") {
-                return edge && edge.bike ? "bike" : "walk";
+                if (isSnapLinkEdge(edge) && Array.isArray(edges)) {
+                    const previousMode = adjacentRouteMode(edges, index - 1, -1);
+                    const nextMode = adjacentRouteMode(edges, index + 1, 1);
+                    if (previousMode === "bike" || nextMode === "bike") {
+                        return "bike";
+                    }
+                    return previousMode || nextMode || "walk";
+                }
+                return baseRouteModeForEdge(edge);
             }
             return "walk";
+        }
+
+        function lngLatEquals(a, b) {
+            if (!a || !b || a.length < 2 || b.length < 2) {
+                return false;
+            }
+            return Math.abs(Number(a[0]) - Number(b[0])) < 0.000001
+                && Math.abs(Number(a[1]) - Number(b[1])) < 0.000001;
+        }
+
+        function pathsConnect(firstPath, secondPath) {
+            return firstPath && secondPath
+                && firstPath.length
+                && secondPath.length
+                && lngLatEquals(firstPath[firstPath.length - 1], secondPath[0]);
+        }
+
+        function appendConnectedPath(targetPath, nextPath) {
+            if (!targetPath.length) {
+                nextPath.forEach(function (point) { targetPath.push(point); });
+                return;
+            }
+            nextPath.slice(pathsConnect(targetPath, nextPath) ? 1 : 0).forEach(function (point) {
+                targetPath.push(point);
+            });
+        }
+
+        function routeDisplaySegments(edges) {
+            const segments = [];
+            (edges || []).forEach(function (edge, index) {
+                const path = routeEdgePath(edge);
+                if (path.length < 2) {
+                    return;
+                }
+                const mode = routeModeForEdge(edge, index, edges);
+                const previous = segments[segments.length - 1];
+                if (previous && previous.mode === mode && pathsConnect(previous.path, path)) {
+                    appendConnectedPath(previous.path, path);
+                    return;
+                }
+                segments.push({ mode, path: path.slice() });
+            });
+            return segments;
         }
 
         function routePathDistance(path) {
@@ -503,7 +573,7 @@
             const routePalette = routePalettes[mode] || routePalettes.walk;
             routeOverlays.push(new AMap.Polyline({
                 path,
-                strokeColor: routePalette.halo,
+                strokeColor: routePalette.color,
                 strokeWeight: 7,
                 strokeOpacity: 0.96,
                 lineJoin: "round",
@@ -511,14 +581,15 @@
                 showDir: false,
                 zIndex: 90
             }));
+            addRouteArrows(path, mode);
         }
 
         if (routeGeometry.length) {
             if (transportMode === "mixed") {
                 const routeEdges = routeResultEdges();
                 if (routeEdges.length) {
-                    routeEdges.forEach(function (edge) {
-                        addRoutePolyline(routeEdgePath(edge), routeModeForEdge(edge));
+                    routeDisplaySegments(routeEdges).forEach(function (segment) {
+                        addRoutePolyline(segment.path, segment.mode);
                     });
                 } else {
                     addRoutePolyline(routeGeometry, "walk");

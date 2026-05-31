@@ -3,73 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ profile_user.username }} 的主页 - 旅游日记广场</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <title>{{ profile_user.username }} 的主页 - TourSim Travel</title>
+    <!-- Google Fonts Preconnect and Import for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- 叠加载低调奢华版主页样式表，无缝共享其变量系统、字体与侧边控制台样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+
+    <!-- 引入个人中心专属高阶奢华样式表 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+
+    <!-- 延迟加载动效脚本 -->
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
+
+    <!-- 引入专属动力学动效脚本 -->
+    <script defer src="{{ url_for('static', filename='luxury_profile_premium.js', v=asset_version('luxury_profile_premium.js')) }}"></script>
 </head>
-<body class="profile-page public-profile-page">
+<body class="home-page profile-premium-page public-profile-page">
     <a class="skip-link" href="#main-content">跳到内容</a>
 
-    <header class="profile-topbar">
-        <a class="profile-brand" href="{{ url_for('diaries') }}">旅游日记广场</a>
-        <nav class="profile-nav" aria-label="用户主页导航">
-            <a href="{{ url_for('diaries') }}">返回广场</a>
-            <a href="{{ url_for('home') }}">系统主页</a>
-            {% if is_self %}
-            <a href="{{ url_for('profile') }}">编辑个人中心</a>
-            {% endif %}
-        </nav>
-    </header>
+    <!-- 贯穿全局的金色流光叙事生长线 (Narrative Thread) -->
+    <div class="narrative-container">
+        <div class="narrative-line-glow"></div>
+        <div class="narrative-bead"></div>
+    </div>
 
-    <main id="main-content" class="profile-shell">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="message-stack" aria-live="polite">
-                    {% for message in messages %}
-                    <div class="message">{{ message }}</div>
-                    {% endfor %}
+    <!-- 全局双栏杂志式非对称控制台布局 -->
+    <div class="lux-layout-wrapper">
+
+        <!-- LEFT SIDEBAR: Sticky Editorial Console (公开行者信息台) -->
+        <aside class="lux-brand-sidebar" aria-label="公开行者信息台" id="lux-profile-sidebar">
+            <div class="lux-sidebar-top">
+                <!-- 顶部标志性徽章 -->
+                <div class="lux-header-dock">
+                    <a href="{{ url_for('home') }}" class="lux-brand" id="lux-brand-logo">
+                        <span class="lux-brand__logo" aria-hidden="true"></span>
+                        <span>TourSim</span>
+                    </a>
+                    <div class="lux-user-badge" id="lux-user-badge">
+                        {% if current_user %}
+                        <span id="lux-username">{{ username }}</span>
+                        {% endif %}
+                    </div>
                 </div>
-            {% endif %}
-        {% endwith %}
 
-        <section class="profile-hero profile-hero--public">
-            <div class="profile-identity">
-                <img class="profile-avatar-large" src="{{ profile_avatar_url }}" alt="{{ profile_user.username }} 的头像">
-                <div>
-                    <span class="profile-kicker">Traveler Profile</span>
-                    <h1>{{ profile_user.username }}</h1>
-                    <p>这里展示该用户公开发布的旅游日记和互动数据。</p>
+                <!-- 被访问旅行家公开信息欢迎区 -->
+                <section class="lux-greeting-editorial" aria-label="旅行家简介面板">
+                    <span class="lux-greeting-kicker">TRAVELER PROFILE</span>
+                    <img class="avatar-picker__preview" src="{{ profile_avatar_url }}" alt="{{ profile_user.username }} 的头像" style="width: 72px; height: 72px; border-radius: 50%; border: 1.5px solid var(--lux-gold); margin-bottom: 8px; object-fit: cover;">
+                    <h1 class="lux-greeting-title" id="greeting-text">
+                        旅行家 <strong>{{ profile_user.username }}</strong>
+                    </h1>
+                    <p class="subtitle">欢迎审阅该旅行家公开发布的行册足迹，检阅其在世界各地留下的精彩印记与回声互动。</p>
+                </section>
+            </div>
+
+            <!-- 三维阻尼星盘星轨罗盘仪 (High-Precision 3D Astrolabe Pointer) -->
+            <div class="lux-compass-anchor" aria-hidden="true">
+                <svg class="lux-compass-instrument" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity="0.3" />
+                    <circle cx="100" cy="100" r="90" fill="none" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.4" />
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.15" />
+                    <circle cx="100" cy="100" r="4" fill="var(--lux-gold)" />
+                    <!-- 罗盘刻度线 -->
+                    <g stroke="var(--lux-gold)" stroke-width="1" opacity="0.5">
+                        <line x1="100" y1="10" x2="100" y2="18" />
+                        <line x1="100" y1="182" x2="100" y2="190" />
+                        <line x1="10" y1="100" x2="18" y2="100" />
+                        <line x1="182" y1="100" x2="190" y2="100" />
+                        <line x1="36.36" y1="36.36" x2="43.43" y2="43.43" />
+                        <line x1="156.57" y1="156.57" x2="163.64" y2="163.64" />
+                        <line x1="36.36" y1="163.64" x2="43.43" y2="156.57" />
+                        <line x1="156.57" y1="43.43" x2="163.64" y2="36.36" />
+                    </g>
+                    <!-- 罗盘基点方位 -->
+                    <text x="100" y="32" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">N</text>
+                    <text x="100" y="178" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">S</text>
+                    <!-- 罗盘指针 -->
+                    <polygon points="100,20 104,100 96,100" fill="url(#pointerGold)" />
+                    <defs>
+                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="50%" stop-color="#b8935c" />
+                            <stop offset="100%" stop-color="#eadaa2" />
+                        </linearGradient>
+                        <linearGradient id="pointerGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#dfc391" />
+                            <stop offset="100%" stop-color="#b8935c" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- 控制台底部安全导航 -->
+            <footer class="lux-sidebar-footer" id="lux-profile-footer">
+                <a class="lux-footer-btn profile" href="{{ url_for('diaries') }}" id="lux-btn-diaries">返回广场</a>
+                <a class="lux-footer-btn profile" href="{{ url_for('home') }}" id="lux-btn-home">系统主页</a>
+                {% if is_self %}
+                <a class="lux-footer-btn logout" href="{{ url_for('profile') }}" id="lux-btn-profile-edit">编辑个人中心</a>
+                {% endif %}
+            </footer>
+        </aside>
+
+        <!-- RIGHT PORTAL STAGE: Flowing Asymmetric Horizon (公开足迹画廊) -->
+        <main class="lux-portal-stage" id="main-content">
+            <!-- 全局 Flash 消息提示系统 -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="message-stack" aria-live="polite">
+                        {% for message in messages %}
+                        <div class="message" id="lux-flash-msg">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- 面板头 -->
+            <header class="lux-stage-header">
+                <span class="lux-stage-kicker">Public Gallery</span>
+                <h1 class="lux-stage-title">{{ profile_user.username }} 的公开主页</h1>
+                <p class="subtitle">探索该旅行家在系统里所刻下的精美行迹，包括其创作日记与评论互动贡献。</p>
+            </header>
+
+            <!-- 水平高级数据统计星轨 (Vial Stats Rack) -->
+            <section class="profile-stats-horizon" aria-label="公开数据星轨面板" id="lux-stats-horizon">
+                <div class="lux-stat-vial" id="stat-published-diaries" title="公开发布日记数">
+                    <span class="lux-stat-value">{{ stats.diary_count }}</span>
+                    <span class="lux-stat-label">日记足迹</span>
                 </div>
-            </div>
-            <div class="profile-stat-strip" aria-label="公开数据">
-                <div><strong>{{ stats.diary_count }}</strong><span>日记</span></div>
-                <div><strong>{{ stats.comment_count }}</strong><span>评论</span></div>
-                <div><strong>{{ stats.total_views }}</strong><span>浏览</span></div>
-                <div><strong>{{ stats.avg_rating }}</strong><span>平均评分</span></div>
-            </div>
-        </section>
+                <div class="lux-stat-vial" id="stat-total-comments" title="全部评论互动数">
+                    <span class="lux-stat-value">{{ stats.comment_count }}</span>
+                    <span class="lux-stat-label">评论回响</span>
+                </div>
+                <div class="lux-stat-vial" id="stat-total-views" title="日记累计被浏览次数">
+                    <span class="lux-stat-value">{{ stats.total_views }}</span>
+                    <span class="lux-stat-label">累计浏览</span>
+                </div>
+                <div class="lux-stat-vial" id="stat-avg-rating" title="日记平均获得评分">
+                    <span class="lux-stat-value">{{ stats.avg_rating }}</span>
+                    <span class="lux-stat-label">平均评分</span>
+                </div>
+            </section>
 
-        <section class="profile-panel profile-panel--wide">
-            <div class="profile-section-head">
-                <h2>{{ profile_user.username }} 发布的日记</h2>
-                <p>按发布时间展示，点击进入详情页评论或收藏。</p>
+            <!-- 高定公开日记大厅 -->
+            <div class="profile-premium-grid" style="grid-template-columns: 1fr;">
+                <section class="glass-panel glass-panel--wide" id="lux-panel-published-diaries" aria-labelledby="heading-published-diaries">
+                    <div class="glass-panel-head">
+                        <h2 id="heading-published-diaries">公开发布的日记册</h2>
+                        <p>按流转时间线依次陈列。您可以点击卡片进入其精美的旅行日记长文进行批注或加入您的私人收藏。</p>
+                    </div>
+
+                    {% if user_diaries %}
+                    <div class="profile-card-list">
+                        {% for diary in user_diaries %}
+                        <a class="glass-card card--emerald" id="lux-public-diary-{{ diary.id }}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                            <strong class="card-title">{{ diary.title }}</strong>
+                            <span class="card-meta">{{ diary.destination }} · {{ diary.created_at }} · 浏览 {{ diary.views }}</span>
+                            <p class="card-desc">{{ diary.content_preview }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="profile-empty">这位旅行家比较低调，目前还没有发布任何公开旅游日记。</div>
+                    {% endif %}
+                </section>
             </div>
-            {% if user_diaries %}
-            <div class="profile-public-diary-grid">
-                {% for diary in user_diaries %}
-                <a class="profile-content-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
-                    <strong>{{ diary.title }}</strong>
-                    <span>{{ diary.destination }} · {{ diary.created_at }} · 浏览 {{ diary.views }}</span>
-                    <p>{{ diary.content_preview }}</p>
-                </a>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="profile-empty">这位用户还没有发布公开日记。</div>
-            {% endif %}
-        </section>
-    </main>
+        </main>
+    </div>
 </body>
 </html>

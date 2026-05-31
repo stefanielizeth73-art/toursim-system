@@ -1,99 +1,429 @@
+{% from "avatar_picker.html" import avatar_picker %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TourSim Travel - 登录系统</title>
-    <!-- Google Fonts Preconnect and Import for Premium Typography -->
+    <title>TourSim Travel - 个性化旅游路径设计</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Premium Stylesheet Loading -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
-
-    <!-- Defer loading of interactive scripts -->
-    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='snamitravel_clone.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css') }}">
+    <script defer src="{{ url_for('static', filename='vendor/hls.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='snamitravel_clone.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='avatar_picker.js') }}"></script>
 </head>
-<body class="login-page">
-    <!-- Luxury Astrolabe / Glowing canvas background particles are handled by interaction.js -->
+<body class="snami-landing">
+    <header class="snami-header" data-site-header>
+        <a href="/" class="snami-logo" aria-label="TourSim 首页">
+            <span class="snami-logo-mark"></span>
+            <span>TourSim</span>
+        </a>
 
-    <main class="login-cover" aria-labelledby="login-title">
-        <!-- LEFT PANEL: Cinematic Luxury Travel Video Narratives -->
-        <section class="login-story" aria-label="系统介绍">
-            <!-- Pexels/Mixkit High-end Resort Aerial Background Video -->
-            <video class="lux-video-bg" autoplay muted loop playsinline aria-hidden="true">
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-resort-with-swimming-pools-42172-large.mp4" type="video/mp4">
-                您的浏览器不支持 HTML5 视频播放。
+        <nav class="snami-nav-actions" aria-label="主导航">
+            <a href="tel:+30210000000" class="snami-phone">+30 210 000 0000</a>
+            <button class="snami-btn-request js-open-login" type="button">进入系统</button>
+            <button class="snami-hamburger" type="button" aria-label="打开导航菜单" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <aside class="snami-menu-overlay" aria-hidden="true">
+        <div class="snami-menu-container">
+            <p class="snami-menu-kicker">Personalized Travel Design</p>
+            <ul class="snami-menu-list">
+                <li><a href="#philosophy" class="snami-menu-link">系统理念</a></li>
+                <li><a href="#collections" class="snami-menu-link">个性推荐</a></li>
+                <li><a href="#experiences" class="snami-menu-link">路径体验</a></li>
+                <li><a href="#journal" class="snami-menu-link">旅行社区</a></li>
+                <li><a href="#" class="snami-menu-link js-open-login">登录账户</a></li>
+            </ul>
+            <div class="snami-menu-contact">
+                <span>Athens / Xiamen</span>
+                <a href="mailto:concierge@toursimtravel.com">concierge@toursimtravel.com</a>
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <section class="snami-hero" id="top">
+            <video
+                class="snami-hero-bg"
+                autoplay
+                muted
+                loop
+                playsinline
+                poster="{{ url_for('static', filename='images/snami_video_poster.jpg') }}"
+                data-hls-src="{{ url_for('static', filename='videos/snami-hero/1080p/index.m3u8') }}"
+                aria-label="希腊海岸个性化旅行背景视频"
+            >
+                <source src="{{ url_for('static', filename='videos/snami-hero/1080p/index.m3u8') }}" type="application/vnd.apple.mpegurl">
             </video>
-            <div class="lux-video-overlay" aria-hidden="true"></div>
+            <div class="snami-hero-grain" aria-hidden="true"></div>
+            <div class="snami-hero-overlay" aria-hidden="true"></div>
 
-            <div class="login-brand">
-                <span class="login-brand__mark" aria-hidden="true"></span>
-                <span>TourSim</span>
+            <div class="snami-hero-content">
+                <p class="snami-hero-kicker reveal-line">Personalized Tourism Design</p>
+                <h1 class="snami-hero-title reveal-title">
+                    Grecian Travel<br>
+                    <em>Redefined</em>
+                </h1>
+                <p class="snami-hero-copy reveal-line">
+                    以 Dijkstra 最短路径、偏好画像与社区游记为核心，为每一次出发生成更懂你的旅行路线。
+                </p>
+
+                <div class="snami-btn-capsule-container">
+                    <button class="snami-btn-capsule js-open-login" type="button">
+                        <span>Define Your</span>
+                        <strong>Journey</strong>
+                        <i aria-hidden="true">&rarr;</i>
+                    </button>
+                </div>
             </div>
 
-            <div class="login-story__content">
-                <p class="login-kicker">CURATED CAMPUS JOURNEYS</p>
-                <h1 id="login-title">为下一段旅程，生成更清晰的路线。</h1>
-                <p class="login-lede">从景点推荐、路线规划、室内导航到旅行日记，系统会把分散的信息整理成一条更好理解的出行线索。</p>
-            </div>
-
-            <div class="login-story__meta" aria-label="系统能力">
-                <span>景点推荐</span>
-                <span>Dijkstra 路线规划</span>
-                <span>游记社区</span>
+            <div class="snami-scroll-hint" aria-hidden="true">
+                <span>Scroll</span>
+                <i></i>
             </div>
         </section>
 
-        <!-- RIGHT PANEL: Elegant Frosted Glass Form Console -->
-        <section class="login-panel" aria-label="登录表单">
-            <div class="login-card">
-                <header class="card-header">
-                    <p class="login-kicker">MEMBER ACCESS</p>
-                    <h2>登录系统</h2>
-                    <p class="card-subtitle">输入账号密码，继续您的个性化旅游规划。</p>
-                </header>
+        <section class="snami-section snami-origin" id="philosophy">
+            <div class="snami-origin-media reveal-pop">
+                <img
+                    class="js-parallax-img"
+                    src="{{ url_for('static', filename='images/snamitravel/origin-coast.jpg') }}"
+                    alt="地中海海岸村落"
+                    loading="lazy"
+                >
+            </div>
+            <div class="snami-origin-copy">
+                <p class="snami-section-kicker reveal-line">Made for Intelligent Travel</p>
+                <h2 class="snami-section-title reveal-title">
+                    从兴趣出发，<br>
+                    让路线拥有审美与秩序。
+                </h2>
+                <p class="snami-lead reveal-line">
+                    TourSim 把景点、餐饮、室内导航与旅行社区连接起来，不只给出“能到达”的路线，而是把时间、距离、偏好与体验感一起纳入规划。
+                </p>
+                <p class="snami-body reveal-line">
+                    系统以个性化旅游为课程设计主题：用户可以浏览目的地、收藏灵感、发布游记，并在复杂校园或旅行场景中通过路径算法获得更清晰的出行方案。
+                </p>
+                <a class="snami-text-link js-open-login" href="#">Our philosophy <span>&rarr;</span></a>
+            </div>
+        </section>
+
+        <section class="snami-section snami-traveler">
+            <div class="snami-traveler-copy">
+                <p class="snami-section-kicker reveal-line">For Those Who Travel Differently</p>
+                <h2 class="snami-section-title reveal-title">
+                    你寻找的不是打卡点，<br>
+                    而是一条适合自己的叙事线。
+                </h2>
+            </div>
+            <div class="snami-traveler-panel reveal-pop">
+                <p>
+                    喜欢安静海岸、热闹餐厅、山林航拍，或是隐藏在地图深处的短暂停留点，系统都会把这些选择转化为可执行的路线建议。
+                </p>
+                <span>Preference / Route / Community / Indoor Map</span>
+            </div>
+        </section>
+
+        <section class="snami-feature-strip" aria-label="系统能力">
+            <article class="snami-feature-tile reveal-pop">
+                <img src="{{ url_for('static', filename='images/snamitravel/mountain-path.jpg') }}" alt="山林旅行" loading="lazy">
+                <div>
+                    <span>01</span>
+                    <h3>We Design Routes</h3>
+                    <p>Dijkstra 路径规划让复杂地点变成清晰的行走顺序。</p>
+                </div>
+            </article>
+            <article class="snami-feature-tile reveal-pop">
+                <img src="{{ url_for('static', filename='images/snamitravel/santorini-sunset.jpg') }}" alt="圣托里尼日落" loading="lazy">
+                <div>
+                    <span>02</span>
+                    <h3>We Read Preferences</h3>
+                    <p>根据浏览、收藏与兴趣标签推荐更贴近用户风格的地点。</p>
+                </div>
+            </article>
+            <article class="snami-feature-tile reveal-pop">
+                <img src="{{ url_for('static', filename='images/snamitravel/restaurant-table.jpg') }}" alt="风景餐厅" loading="lazy">
+                <div>
+                    <span>03</span>
+                    <h3>We Curate Moments</h3>
+                    <p>把餐饮、游记与景点串联成有节奏的个性化旅程。</p>
+                </div>
+            </article>
+            <article class="snami-feature-tile reveal-pop">
+                <img src="{{ url_for('static', filename='images/snamitravel/flower-closeup.jpg') }}" alt="花草特写" loading="lazy">
+                <div>
+                    <span>04</span>
+                    <h3>We Keep Details</h3>
+                    <p>头像、收藏、评论与游记沉淀每个用户独有的旅行记忆。</p>
+                </div>
+            </article>
+        </section>
+
+        <section class="snami-section snami-collection" id="collections">
+            <div class="snami-collection-head">
+                <p class="snami-section-kicker reveal-line">Curated Collection</p>
+                <h2 class="snami-section-title reveal-title">
+                    Personalized<br>
+                    Travel Modules
+                </h2>
+            </div>
+
+            <div class="snami-collection-grid">
+                <article class="snami-collection-card reveal-pop">
+                    <div class="snami-card-media">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/santorini-sunset.jpg') }}" alt="圣托里尼目的地推荐" loading="lazy">
+                    </div>
+                    <span>Destination Intelligence</span>
+                    <h3>个性化景点推荐</h3>
+                    <p>通过地点特征与用户偏好匹配，为海岛、城市、校园与周边游生成更有美感的目的地选择。</p>
+                    <a href="#" class="snami-discover js-open-login">Discover</a>
+                </article>
+
+                <article class="snami-collection-card reveal-pop">
+                    <div class="snami-card-media">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/beach-route.jpg') }}" alt="海边路线规划" loading="lazy">
+                    </div>
+                    <span>Pathfinding System</span>
+                    <h3>Dijkstra 智能路线</h3>
+                    <p>把分散节点、道路权重与多目标需求整合成可理解的最优路径，适合课程设计展示算法价值。</p>
+                    <a href="#" class="snami-discover js-open-login">Discover</a>
+                </article>
+
+                <article class="snami-collection-card reveal-pop">
+                    <div class="snami-card-media">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/restaurant-table.jpg') }}" alt="餐厅体验推荐" loading="lazy">
+                    </div>
+                    <span>Lifestyle Notes</span>
+                    <h3>美食与体验灵感</h3>
+                    <p>让餐厅、风景与社区内容共同参与路线设计，旅程不再只是坐标，而是有情绪的选择。</p>
+                    <a href="#" class="snami-discover js-open-login">Discover</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="snami-experiences" id="experiences">
+            <article class="snami-experience-panel">
+                <img src="{{ url_for('static', filename='images/snamitravel/forest-journey.jpg') }}" alt="山林航拍路线" loading="lazy">
+                <div class="snami-experience-copy reveal-pop">
+                    <p>Route Design</p>
+                    <h2>山峰森岭与长距离行程</h2>
+                    <span>系统用路径权重组织多点游览顺序，让自然景观探索更稳、更顺。</span>
+                    <a href="#" class="js-open-login">Discover</a>
+                </div>
+            </article>
+
+            <article class="snami-experience-panel snami-experience-panel--reverse">
+                <img src="{{ url_for('static', filename='images/snamitravel/mediterranean-village.jpg') }}" alt="地中海村落" loading="lazy">
+                <div class="snami-experience-copy reveal-pop">
+                    <p>Visual Journey</p>
+                    <h2>地中海边村落与艳丽海岸</h2>
+                    <span>推荐逻辑与视觉呈现保持同一种语言：明亮、克制、轻奢、有目的地感。</span>
+                    <a href="#" class="js-open-login">Discover</a>
+                </div>
+            </article>
+
+            <article class="snami-experience-panel">
+                <img src="{{ url_for('static', filename='images/snamitravel/fine-dining.jpg') }}" alt="西餐厅用餐" loading="lazy">
+                <div class="snami-experience-copy reveal-pop">
+                    <p>Community Journal</p>
+                    <h2>餐厅、日落与社区游记</h2>
+                    <span>用户发布的旅行故事会反过来丰富系统内容，让路线从“算法结果”变成“可分享的经验”。</span>
+                    <a href="#" class="js-open-login">Discover</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="snami-section snami-bespoke">
+            <div class="snami-bespoke-image reveal-pop">
+                <img src="{{ url_for('static', filename='images/snamitravel/flower-closeup.jpg') }}" alt="花草树木特写" loading="lazy">
+            </div>
+            <div class="snami-bespoke-copy">
+                <p class="snami-section-kicker reveal-line">Bespoke Travel Design</p>
+                <h2 class="snami-section-title reveal-title">Custom Multi-Days</h2>
+                <p class="snami-lead reveal-line">
+                    从用户画像、收藏地点到室内外路径，TourSim 可以把一次普通出行拆解成可管理、可解释、可复用的数据结构。
+                </p>
+                <a class="snami-text-link js-open-login" href="#">Start planning <span>&rarr;</span></a>
+            </div>
+        </section>
+
+        <section class="snami-destinations" aria-label="目的地">
+            <a href="#" class="js-open-login">Crete</a>
+            <a href="#" class="js-open-login">Santorini</a>
+            <a href="#" class="js-open-login">Mykonos</a>
+            <a href="#" class="js-open-login">Athens</a>
+            <a href="#" class="js-open-login">Campus Route</a>
+        </section>
+
+        <section class="snami-section snami-testimonials">
+            <p class="snami-section-kicker reveal-line">What They Say</p>
+            <div class="snami-testimonial-grid">
+                <blockquote class="reveal-pop">
+                    “它把课程里的数据结构变成了真的能看、能点、能规划的系统，路径算法终于不只是控制台输出。”
+                    <cite>课程设计评审视角</cite>
+                </blockquote>
+                <blockquote class="reveal-pop">
+                    “景点、收藏和游记之间形成了闭环，个性化旅游的主题表达得很完整。”
+                    <cite>项目体验用户</cite>
+                </blockquote>
+                <blockquote class="reveal-pop">
+                    “界面有旅行品牌感，但核心仍然落在推荐、导航和社区功能上。”
+                    <cite>TourSim Demo Notes</cite>
+                </blockquote>
+            </div>
+        </section>
+
+        <section class="snami-section snami-journal" id="journal">
+            <div>
+                <p class="snami-section-kicker reveal-line">Travel Journal</p>
+                <h2 class="snami-section-title reveal-title">Stories of Inspiration</h2>
+            </div>
+            <div class="snami-journal-list">
+                <a href="#" class="snami-journal-row js-open-login reveal-pop">
+                    <span>2026.05.27</span>
+                    <strong>在圣托里尼日落里规划一条慢行路线</strong>
+                    <i>&rarr;</i>
+                </a>
+                <a href="#" class="snami-journal-row js-open-login reveal-pop">
+                    <span>2026.05.15</span>
+                    <strong>从餐厅到海岸：用偏好推荐串起一天行程</strong>
+                    <i>&rarr;</i>
+                </a>
+                <a href="#" class="snami-journal-row js-open-login reveal-pop">
+                    <span>2026.04.30</span>
+                    <strong>Dijkstra 路径规划在校园旅行系统中的展示方式</strong>
+                    <i>&rarr;</i>
+                </a>
+            </div>
+        </section>
+
+        <section class="snami-marquee" aria-hidden="true">
+            <div>
+                <span>Travel designed by data. Lived by you.</span>
+                <span>Travel designed by data. Lived by you.</span>
+            </div>
+        </section>
+    </main>
+
+    <footer class="snami-footer">
+        <div class="snami-footer-grid">
+            <div>
+                <h2>TourSim</h2>
+                <p>Personalized tourism route design for campus course project and refined travel experiences.</p>
+            </div>
+            <div>
+                <h3>Features</h3>
+                <a href="#" class="js-open-login">景点推荐</a>
+                <a href="#" class="js-open-login">Dijkstra 路线规划</a>
+                <a href="#" class="js-open-login">室内导航</a>
+                <a href="#" class="js-open-login">游记社区</a>
+            </div>
+            <div>
+                <h3>Connect</h3>
+                <p>Athens, Greece / Xiamen, China</p>
+                <p>concierge@toursimtravel.com</p>
+                <div class="snami-socials">
+                    <a href="#">Fb</a>
+                    <a href="#">Ins</a>
+                    <a href="#">Yt</a>
+                </div>
+            </div>
+        </div>
+        <div class="snami-footer-bottom">
+            <span>© 2026 TourSim Travel. All rights reserved.</span>
+            <span>Course Design / Personalized Tourism</span>
+        </div>
+    </footer>
+
+    <div class="snami-modal-overlay" id="login-modal" aria-hidden="true">
+        <div class="snami-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-title">
+            <button class="snami-modal-close js-close-modal" type="button" aria-label="关闭登录窗口">&times;</button>
+            <div class="snami-modal-media">
+                <img src="{{ url_for('static', filename='images/snamitravel/mediterranean-village.jpg') }}" alt="地中海旅行登录背景">
+            </div>
+            <div class="snami-modal-content">
+                <p class="snami-modal-kicker">Member Access</p>
+                <h2 class="snami-modal-title" id="login-title">登录系统</h2>
+                <p class="snami-modal-subtitle">进入 TourSim，继续规划你的个性化旅行路线。</p>
 
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
-                            <div class="message error" role="alert">
-                                <span class="error-icon" aria-hidden="true">!</span>
+                            <div class="snami-flash-message error" role="alert">
+                                <span class="snami-flash-icon" aria-hidden="true">!</span>
                                 {{ message }}
                             </div>
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
 
-                <form method="post" class="login-form" id="login-form-submit">
-                    <!-- Username Input Group -->
-                    <div class="form-group is-pointer-active" id="input-username-group">
-                        <label for="username">用户名</label>
-                        <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
-                    </div>
-
-                    <!-- Password Input Group -->
-                    <div class="form-group is-pointer-active" id="input-password-group">
-                        <label for="password">密码</label>
-                        <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
-                    </div>
-
-                    <!-- Magnetic Spring Gold Button -->
-                    <button type="submit" class="submit-btn" id="login-submit-btn">进入系统</button>
+                <form method="post" action="{{ url_for('login') }}" class="snami-form">
+                    <label class="snami-form-group" for="username">
+                        <span>用户名</span>
+                        <input class="snami-form-input" type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
+                    </label>
+                    <label class="snami-form-group" for="password">
+                        <span>密码</span>
+                        <input class="snami-form-input" type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
+                    </label>
+                    <button class="snami-form-submit" type="submit">Enter System</button>
                 </form>
 
-                <div class="divider" id="login-divider">
-                    <span>或</span>
-                </div>
-
-                <div class="auth-links" id="login-register-redirect">
-                    <p class="auth-text">
-                        还没有账号？
-                        <a href="{{ url_for('register') }}" class="auth-link" id="login-register-link">立即注册</a>
-                    </p>
-                </div>
+                <p class="snami-form-switch">
+                    还没有账号？
+                    <a href="#" class="snami-form-switch-link js-open-register">立即注册</a>
+                </p>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+
+    <div class="snami-modal-overlay" id="register-modal" aria-hidden="true">
+        <div class="snami-modal-card snami-modal-card--wide" role="dialog" aria-modal="true" aria-labelledby="register-title">
+            <button class="snami-modal-close js-close-modal" type="button" aria-label="关闭注册窗口">&times;</button>
+            <div class="snami-modal-content">
+                <p class="snami-modal-kicker">New Member</p>
+                <h2 class="snami-modal-title" id="register-title">创建账号</h2>
+                <p class="snami-modal-subtitle">注册后可以发布游记、收藏地点，并同步你的个性化路线偏好。</p>
+
+                <form method="post" action="{{ url_for('register') }}" enctype="multipart/form-data" class="snami-form">
+                    <label class="snami-form-group" for="reg_username">
+                        <span>用户名</span>
+                        <input class="snami-form-input" type="text" id="reg_username" name="username" placeholder="设置你的用户名" autocomplete="username" required>
+                    </label>
+                    <label class="snami-form-group" for="reg_password">
+                        <span>密码</span>
+                        <input class="snami-form-input" type="password" id="reg_password" name="password" placeholder="设置登录密码" autocomplete="new-password" required>
+                    </label>
+                    <label class="snami-form-group" for="confirm_password">
+                        <span>确认密码</span>
+                        <input class="snami-form-input" type="password" id="confirm_password" name="confirm_password" placeholder="再次输入密码" autocomplete="new-password" required>
+                    </label>
+
+                    <div class="snami-form-group snami-avatar-field">
+                        <span>选择头像</span>
+                        {{ avatar_picker(
+                            preset_avatar_options(),
+                            selected_path=request.form.get('preset_avatar', ''),
+                            title='选择你的 TourSim 专属头像'
+                        ) }}
+                    </div>
+
+                    <button class="snami-form-submit" type="submit">Create Account</button>
+                </form>
+
+                <p class="snami-form-switch">
+                    已经有账号？
+                    <a href="#" class="snami-form-switch-link js-open-login">去登录</a>
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

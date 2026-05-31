@@ -1,0 +1,880 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+    --lux-bg-light: #fbfaf8;
+    --lux-bg-soft: #f4f2eb;
+
+    /* 尊贵高对比度炭烟黑，作为极其尊贵的深色点缀 */
+    --lux-ink: #1c1b18;
+    --lux-ink-soft: #2e2c27;
+
+    /* 哑光香槟金，拉丝极细点缀 */
+    --lux-gold: #bca47f;
+    --lux-gold-bright: #dfc8a5;
+    --lux-gold-light: rgba(188, 164, 127, 0.15);
+    --lux-gold-glow: rgba(188, 164, 127, 0.25);
+
+    --lux-muted: #8c8579;
+    --lux-text-light: #6e675b;
+
+    /* 极其高雅细微的单像素分割线 */
+    --lux-line: rgba(28, 27, 24, 0.07);
+    --lux-line-gold: rgba(188, 164, 127, 0.18);
+
+    --lux-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --lux-transition: all 0.7s var(--lux-ease);
+
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif;
+}
+
+/* --- 全局极简浅色骨瓷白底座 --- */
+body.profile-page {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--lux-bg-light);
+    color: var(--lux-ink);
+    font-family: var(--font-sans);
+    line-height: 1.75;
+    overflow-x: hidden;
+    letter-spacing: 0.04em;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+        radial-gradient(circle at 10% 10%, rgba(188, 164, 127, 0.04) 0%, transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(188, 164, 127, 0.03) 0%, transparent 40%);
+    background-attachment: fixed;
+}
+
+body.profile-page a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--lux-transition);
+}
+
+/* 优雅的流金浅色极光背景背景层 */
+.lux-ambient-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(188, 164, 127, 0.05) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: -1;
+    animation: driftLight 30s ease-in-out infinite alternate;
+}
+.lux-ambient-glow-2 {
+    position: fixed;
+    right: -100px;
+    top: 25%;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(28, 27, 24, 0.015) 0%, transparent 70%);
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: -1;
+    animation: driftLight 40s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes driftLight {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(80px, 60px) scale(1.15); }
+}
+
+/* 滚动条奢华定制 */
+::-webkit-scrollbar {
+    width: 5px;
+}
+::-webkit-scrollbar-track {
+    background: var(--lux-bg-light);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(28, 27, 24, 0.1);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--lux-gold);
+}
+
+/* --- 跳过链接 --- */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 20px;
+    background: var(--lux-ink);
+    color: var(--lux-bg-light);
+    padding: 10px 20px;
+    z-index: 100;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+}
+.skip-link:focus {
+    top: 20px;
+}
+
+/* --- 贯穿全局的“叙事线”（The Narrative Thread） --- */
+.narrative-container {
+    position: absolute;
+    top: 140px;
+    left: clamp(20px, 4vw, 55px);
+    width: 1px;
+    height: calc(100% - 240px);
+    background: var(--lux-line);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.narrative-line-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 0; /* 依靠 JS 随滚动与加载进行流体生长 */
+    background: linear-gradient(180deg, var(--lux-gold) 0%, rgba(188, 164, 127, 0.1) 100%);
+    box-shadow: 0 0 8px rgba(188, 164, 127, 0.4);
+    transition: height 0.15s ease-out;
+}
+
+.narrative-bead {
+    position: absolute;
+    top: 0;
+    left: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lux-ink);
+    border: 1px solid var(--lux-gold);
+    box-shadow: 0 0 6px rgba(188, 164, 127, 0.6);
+    transition: top 0.15s ease-out;
+}
+
+/* --- 极简白玉悬浮导航顶栏 --- */
+.profile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(20px, 6vw, 100px);
+    background: rgba(251, 250, 248, 0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--lux-line);
+    z-index: 90;
+    transition: var(--lux-transition);
+}
+
+.profile-brand {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--lux-ink);
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+.profile-brand::after {
+    content: "®";
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    position: absolute;
+    top: -1px;
+    right: -10px;
+    font-weight: 400;
+}
+
+.profile-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(15px, 3.2vw, 50px);
+}
+
+.profile-nav a {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--lux-muted);
+    position: relative;
+    padding: 6px 0;
+}
+
+.profile-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: var(--lux-gold);
+    transition: var(--lux-ease) 0.4s;
+    transform: translateX(-50%);
+}
+
+.profile-nav a:hover {
+    color: var(--lux-ink);
+}
+
+.profile-nav a:hover::after {
+    width: 100%;
+}
+
+/* --- 无缝长卷主外壳 --- */
+.profile-shell {
+    margin-top: 85px;
+    padding: 60px clamp(15px, 6vw, 110px) 120px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* 消息提示框 */
+.message-stack {
+    position: fixed;
+    top: 105px;
+    right: 40px;
+    z-index: 999;
+    display: grid;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.message {
+    background: rgba(251, 250, 248, 0.95);
+    border-left: 2px solid var(--lux-gold);
+    border-right: 1px solid var(--lux-line);
+    border-top: 1px solid var(--lux-line);
+    border-bottom: 1px solid var(--lux-line);
+    padding: 15px 28px;
+    color: var(--lux-ink);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    box-shadow: 0 15px 40px rgba(28, 27, 24, 0.05);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    animation: slideInMsg 0.6s var(--lux-ease) both;
+}
+
+@keyframes slideInMsg {
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* --- 白玉微光主视觉（Ivory Mirage Hero） --- */
+.profile-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 60px;
+    align-items: center;
+    padding: 50px 0 65px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--lux-line); /* 极细底边，摒弃方框盒子 */
+    position: relative;
+    animation: revealUp 1.2s var(--lux-ease) both;
+}
+
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+/* 高冷白玉头像框 */
+.profile-avatar-large {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    padding: 5px;
+    background: var(--lux-bg-light);
+    border: 1px solid var(--lux-line-gold);
+    box-shadow: 0 10px 30px rgba(188, 164, 127, 0.12);
+    transition: var(--lux-transition);
+}
+
+.profile-identity:hover .profile-avatar-large {
+    border-color: var(--lux-gold);
+    transform: scale(1.05);
+    box-shadow: 0 15px 35px rgba(188, 164, 127, 0.22);
+}
+
+.profile-kicker {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.46em;
+    text-transform: uppercase;
+    color: var(--lux-gold);
+    margin-bottom: 14px;
+}
+
+.profile-identity h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
+    font-weight: 400;
+    margin: 0 0 15px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--lux-ink);
+    line-height: 1.1;
+}
+
+.profile-identity p {
+    color: var(--lux-muted);
+    font-size: 0.85rem;
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.7;
+}
+
+/* --- 叙事画廊统计条（Stats Row - Horizontal & Borderless） --- */
+.profile-stat-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.profile-stat-strip > div {
+    border-left: 1px solid var(--lux-line); /* 极精细侧线分割 */
+    padding: 10px 0 10px 25px;
+    transition: var(--lux-transition);
+}
+
+.profile-stat-strip > div:hover {
+    border-left-color: var(--lux-gold);
+    transform: translateX(6px);
+}
+
+.profile-stat-strip strong {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 2.3rem;
+    font-weight: 400;
+    color: var(--lux-ink);
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.profile-stat-strip span {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--lux-muted);
+}
+
+/* --- 无缝展廊布局（Seamless Gallery Grid） --- */
+.profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(40px, 6vw, 100px);
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--lux-line);
+    padding-bottom: 60px;
+}
+
+.profile-panel {
+    /* 彻底去除方盒背景、边框与阴影，仅为完全融合透明的艺术区块 */
+    position: relative;
+    animation: revealUp 1.4s var(--lux-ease) both;
+}
+
+@keyframes revealUp {
+    0% { transform: translateY(35px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.profile-section-head {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.profile-section-head h2 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--lux-ink);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.profile-section-head p {
+    color: var(--lux-muted);
+    font-size: 0.8rem;
+    margin: 8px 0 0;
+}
+
+.profile-section-head a {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--lux-gold);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+}
+
+.profile-section-head a:hover {
+    border-color: var(--lux-gold);
+    color: var(--lux-ink);
+}
+
+/* --- GSAP 极简拉丝表单 (GSAP Light Form) --- */
+.profile-form {
+    display: grid;
+    gap: 30px;
+}
+
+.profile-form label {
+    display: grid;
+    gap: 6px;
+    position: relative;
+}
+
+.profile-form label span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--lux-muted);
+    transition: var(--lux-transition);
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="password"] {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--lux-line); /* 仅底边极细横线 */
+    border-radius: 0;
+    padding: 12px 0;
+    color: var(--lux-ink);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: var(--lux-transition);
+}
+
+/* 输入框聚焦时，横线左右流溢生长 */
+.profile-form label::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: var(--lux-gold);
+    transition: var(--lux-ease) 0.55s;
+    transform: translateX(-50%);
+}
+
+.profile-form label:focus-within::after {
+    width: 100%;
+}
+
+.profile-form input[type="text"]:focus,
+.profile-form input[type="password"]:focus {
+    outline: none;
+    letter-spacing: 0.1em; /* GSAP 动态字距弹性延展 */
+}
+
+/* 按钮重塑：高对比度陨石黑高冷按钮（深色点缀） */
+.profile-form button,
+.profile-avatar-form button,
+.avatar-picker-actions button {
+    cursor: pointer;
+    background: var(--lux-ink); /* 标志性的深色点缀 */
+    border: 1px solid var(--lux-ink);
+    color: var(--lux-bg-light);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border-radius: 0; /* 极致犀利的直角，比圆角更具高冷奢侈品感 */
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: var(--lux-transition);
+}
+
+.profile-form button::before,
+.profile-avatar-form button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--lux-gold);
+    z-index: -1;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.45s var(--lux-ease);
+}
+
+.profile-form button:hover,
+.profile-avatar-form button:hover {
+    color: var(--lux-ink);
+    border-color: var(--lux-gold);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(188, 164, 127, 0.18);
+}
+
+.profile-form button:hover::before,
+.profile-avatar-form button:hover::before {
+    transform: scaleY(1);
+}
+
+/* 上传本地头像高雅拉丝 */
+.avatar-upload-legacy {
+    position: relative;
+    border: 1px dashed var(--lux-line);
+    padding: 14px;
+    text-align: center;
+    transition: var(--lux-transition);
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--lux-muted);
+}
+.avatar-upload-legacy:hover {
+    border-color: var(--lux-gold);
+    background: rgba(188, 164, 127, 0.03);
+    color: var(--lux-ink);
+}
+
+.avatar-upload-legacy input[type="file"] {
+    display: none;
+}
+
+/* 预设头像选择器 */
+.avatar-picker-container {
+    background: transparent !important;
+    border: 1px solid var(--lux-line) !important;
+    padding: 12px !important;
+}
+.avatar-option-item img {
+    border: 1px solid transparent !important;
+    transition: var(--lux-transition) !important;
+}
+.avatar-option-item.selected img {
+    border-color: var(--lux-gold) !important;
+    box-shadow: 0 8px 20px rgba(188, 164, 127, 0.15) !important;
+}
+
+/* --- 迷你统计廊 (Borderless Mini Metrics) --- */
+.profile-mini-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.profile-mini-metrics > div {
+    border-bottom: 1px solid var(--lux-line); /* 极简底线 */
+    padding: 12px 0;
+    transition: var(--lux-transition);
+}
+
+.profile-mini-metrics > div:hover {
+    border-bottom-color: var(--lux-gold);
+    transform: translateY(-3px);
+}
+
+.profile-mini-metrics span {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lux-muted);
+    margin-bottom: 6px;
+}
+
+.profile-mini-metrics strong {
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    font-weight: 400;
+    color: var(--lux-ink);
+}
+
+/* --- 动态活动编年史 (Activity Chronicle) --- */
+.profile-activity-list {
+    display: grid;
+    gap: 15px;
+}
+
+.profile-activity-list a {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--lux-line);
+    transition: var(--lux-transition);
+}
+
+.profile-activity-list a span {
+    font-size: 0.66rem;
+    color: var(--lux-muted);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    align-self: center;
+}
+
+.profile-activity-list a strong {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--lux-ink);
+}
+
+.profile-activity-list a em {
+    grid-column: 2;
+    font-style: normal;
+    color: var(--lux-muted);
+    font-size: 0.8rem;
+    margin-top: 3px;
+}
+
+.profile-activity-list a:hover {
+    border-bottom-color: var(--lux-gold);
+    padding-left: 10px;
+}
+
+.profile-empty {
+    padding: 35px;
+    text-align: center;
+    color: var(--lux-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    border: 1px dashed var(--lux-line);
+}
+
+/* --- 连续式画廊下二层 (Lower Gallery Grid) --- */
+.profile-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(40px, 6vw, 100px);
+}
+
+.profile-panel--wide {
+    grid-column: 1 / span 2;
+}
+
+/* 弹性视差内容卡片 (Kinetic Parallax Card) */
+.profile-card-list {
+    display: grid;
+    gap: 30px;
+}
+
+.profile-content-card {
+    display: block;
+    padding: 0 0 25px;
+    border-bottom: 1px solid var(--lux-line); /* 极细线区分 */
+    transition: var(--lux-transition);
+}
+
+.profile-content-card strong {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--lux-ink);
+    margin-bottom: 6px;
+    transition: var(--lux-transition);
+}
+
+.profile-content-card span {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--lux-gold);
+    margin-bottom: 12px;
+}
+
+.profile-content-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--lux-muted);
+    line-height: 1.7;
+}
+
+/* hover 时的 GSAP 弹性视差感 */
+.profile-content-card:hover {
+    border-bottom-color: var(--lux-gold);
+    padding-left: 12px;
+}
+
+.profile-content-card:hover strong {
+    color: var(--lux-gold);
+    transform: scale(1.01);
+}
+
+/* --- 高端美食弹性视差卡廊 (Borderless Food Cards Gallery) --- */
+.profile-food-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+}
+
+.profile-food-card {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 25px;
+    border-bottom: 1px solid var(--lux-line);
+    padding-bottom: 25px;
+    transition: var(--lux-transition);
+}
+
+.profile-food-image-wrapper {
+    overflow: hidden;
+    position: relative;
+    height: 110px;
+}
+
+.profile-food-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.02);
+    transition: transform 1s var(--lux-ease);
+}
+
+.profile-food-card > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-food-card strong {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--lux-ink);
+    margin-bottom: 5px;
+    transition: var(--lux-transition);
+}
+
+.profile-food-card span {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lux-gold);
+    margin-bottom: 10px;
+}
+
+.profile-food-card p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--lux-muted);
+    line-height: 1.6;
+}
+
+/* 美食卡片悬浮反视差与金线生长 */
+.profile-food-card:hover {
+    border-bottom-color: var(--lux-gold);
+    padding-left: 10px;
+}
+
+/* 内部图片产生微幅反视差向外滑动放大 */
+.profile-food-card:hover img {
+    transform: scale(1.08) translateX(3px);
+    filter: saturate(1) contrast(1.05);
+}
+
+.profile-food-card:hover strong {
+    color: var(--lux-gold);
+}
+
+/* --- 公开主页特定视觉升级 --- */
+.public-profile-page .profile-hero--public {
+    border-bottom-color: var(--lux-line-gold);
+}
+
+.profile-public-diary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(30px, 4vw, 50px);
+}
+
+/* --- 响应式断点 --- */
+@media (max-width: 1024px) {
+    .profile-hero {
+        grid-template-columns: 1fr;
+        gap: 35px;
+    }
+
+    .profile-grid,
+    .profile-content-grid,
+    .profile-public-diary-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .profile-panel--wide {
+        grid-column: auto;
+    }
+
+    .profile-food-list {
+        grid-template-columns: 1fr;
+    }
+
+    .narrative-container {
+        display: none; /* 窄屏隐藏生长线，保持极致简约 */
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-shell {
+        padding: 40px 15px 80px;
+    }
+
+    .profile-identity {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-stat-strip {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .profile-topbar {
+        padding: 0 15px;
+    }
+
+    .profile-brand {
+        font-size: 1.1rem;
+    }
+
+    .profile-nav {
+        gap: 12px;
+    }
+
+    .profile-nav a {
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+    }
+
+    .profile-food-card {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-food-card img {
+        height: 140px;
+    }
+}

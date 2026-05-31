@@ -1,0 +1,1501 @@
+@font-face {
+    font-family: 'Dream Avenue';
+    src: url('/static/fonts/Dream%20Avenue.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'basis-grotesque-regular-pro';
+    src: url('/static/fonts/basis-grotesque-regular-pro.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'basis-grotesque-bold-pro';
+    src: url('/static/fonts/basis-grotesque-bold-pro.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --snami-bg: #f4f1ea;
+    --snami-bg-soft: #ebe6dc;
+    --snami-ink: #15130f;
+    --snami-muted: #756f65;
+    --snami-line: rgba(21, 19, 15, 0.16);
+    --snami-line-strong: rgba(21, 19, 15, 0.72);
+    --snami-gold: #bca47f;
+    --snami-ivory: #fffaf0;
+    --snami-white: #ffffff;
+    --snami-shadow: 0 30px 90px rgba(21, 19, 15, 0.14);
+    --snami-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --font-serif: 'Dream Avenue', 'Bodoni Moda', Georgia, serif;
+    --font-sans: 'basis-grotesque-regular-pro', 'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.snami-landing {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--snami-bg);
+    color: var(--snami-ink);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+}
+
+body.snami-lock {
+    overflow: hidden;
+}
+
+body.snami-landing a {
+    color: inherit;
+    text-decoration: none;
+}
+
+body.snami-landing img {
+    display: block;
+    max-width: 100%;
+}
+
+body.snami-landing button,
+body.snami-landing input {
+    font: inherit;
+}
+
+body.snami-landing button {
+    cursor: pointer;
+}
+
+.snami-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 28px clamp(18px, 4.6vw, 78px);
+    color: var(--snami-white);
+    transition: color 0.55s var(--snami-ease), padding 0.55s var(--snami-ease), background 0.55s var(--snami-ease), border 0.55s var(--snami-ease), backdrop-filter 0.55s var(--snami-ease);
+}
+
+.snami-header.scrolled,
+.snami-header.menu-open {
+    padding-block: 18px;
+    color: var(--snami-ink);
+    background: rgba(244, 241, 234, 0.86);
+    border-bottom: 1px solid rgba(21, 19, 15, 0.08);
+    backdrop-filter: blur(22px);
+}
+
+.snami-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-serif);
+    font-size: 1.18rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.snami-logo::after {
+    content: "®";
+    align-self: flex-start;
+    font-family: var(--font-sans);
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0;
+}
+
+.snami-logo-mark {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.snami-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 2.6vw, 34px);
+}
+
+.snami-phone {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+}
+
+.snami-btn-request {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-width: 118px;
+    padding: 11px 24px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    color: currentColor;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
+}
+
+.snami-btn-request::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--snami-ink);
+    transform: translateY(101%);
+    transition: transform 0.55s var(--snami-ease);
+    content: "";
+}
+
+.snami-btn-request:hover {
+    color: var(--snami-white);
+    transform: translateY(-2px);
+}
+
+.snami-btn-request:hover::before {
+    transform: translateY(0);
+}
+
+.snami-hamburger {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    background: transparent;
+    color: currentColor;
+}
+
+.snami-hamburger span {
+    grid-area: 1 / 1;
+    width: 27px;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.35s var(--snami-ease), opacity 0.25s ease;
+}
+
+.snami-hamburger span:nth-child(1) {
+    transform: translateY(-7px);
+}
+
+.snami-hamburger span:nth-child(3) {
+    transform: translateY(7px);
+}
+
+.snami-hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.snami-hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.snami-hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.snami-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    padding: 110px 24px 48px;
+    background: var(--snami-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.55s var(--snami-ease);
+}
+
+.snami-menu-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.snami-menu-container {
+    width: min(980px, 100%);
+    text-align: center;
+    transform: translateY(42px);
+    transition: transform 0.65s var(--snami-ease);
+}
+
+.snami-menu-overlay.active .snami-menu-container {
+    transform: translateY(0);
+}
+
+.snami-menu-kicker,
+.snami-section-kicker,
+.snami-modal-kicker {
+    margin: 0 0 18px;
+    color: var(--snami-gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+}
+
+.snami-menu-list {
+    display: grid;
+    gap: 18px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.snami-menu-link {
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 7vw, 6.2rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    transition: color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
+}
+
+.snami-menu-link:hover {
+    color: var(--snami-gold);
+    transform: translateY(-6px);
+}
+
+.snami-menu-contact {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-top: 42px;
+    color: var(--snami-muted);
+    font-size: 0.84rem;
+}
+
+.snami-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: 120px 20px 90px;
+    overflow: hidden;
+    color: var(--snami-white);
+    background: #16130f;
+}
+
+.snami-hero-bg,
+.snami-hero-overlay,
+.snami-hero-grain {
+    position: absolute;
+    inset: 0;
+}
+
+.snami-hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.05);
+    filter: saturate(1.02) contrast(1) brightness(1.04);
+    animation: heroDrift 18s var(--snami-ease) both;
+}
+
+.snami-hero-overlay {
+    background:
+        linear-gradient(180deg, rgba(14, 12, 9, 0.08), rgba(14, 12, 9, 0.06) 46%, rgba(14, 12, 9, 0.3)),
+        linear-gradient(90deg, rgba(14, 12, 9, 0.14), rgba(14, 12, 9, 0.03) 28%, rgba(14, 12, 9, 0.05) 72%, rgba(14, 12, 9, 0.16));
+}
+
+.snami-hero-grain {
+    opacity: 0.07;
+    background-image: linear-gradient(115deg, transparent 0 48%, rgba(255, 255, 255, 0.14) 50%, transparent 52% 100%);
+    background-size: 18px 18px;
+    mix-blend-mode: soft-light;
+}
+
+.snami-hero-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    width: min(1120px, 92vw);
+    text-align: center;
+}
+
+.snami-hero-kicker {
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+}
+
+.snami-hero-title,
+.snami-section-title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.snami-hero-title {
+    font-size: clamp(3.05rem, 9vw, 8.6rem);
+    line-height: 0.88;
+}
+
+.snami-hero-title em,
+.snami-section-title em {
+    font-style: italic;
+}
+
+.snami-hero-copy {
+    width: min(620px, 92vw);
+    margin: 28px auto 44px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: clamp(0.98rem, 1.4vw, 1.1rem);
+}
+
+.snami-btn-capsule-container {
+    display: inline-grid;
+    place-items: center;
+    width: 210px;
+    height: 210px;
+}
+
+.snami-btn-capsule {
+    display: grid;
+    place-items: center;
+    width: 174px;
+    height: 174px;
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    border-radius: 50%;
+    background: rgba(255, 250, 240, 0.94);
+    color: var(--snami-ink);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.18);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: background 0.45s var(--snami-ease), color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
+}
+
+.snami-btn-capsule strong {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+
+.snami-btn-capsule i {
+    display: grid;
+    place-items: center;
+    width: 31px;
+    height: 31px;
+    margin-top: 8px;
+    border: 1px solid var(--snami-line);
+    border-radius: 50%;
+    font-style: normal;
+    transition: transform 0.45s var(--snami-ease);
+}
+
+.snami-btn-capsule:hover {
+    background: var(--snami-gold);
+    color: var(--snami-white);
+}
+
+.snami-btn-capsule:hover i {
+    transform: rotate(-35deg);
+}
+
+.snami-scroll-hint {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    transform: translateX(-50%);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.snami-scroll-hint i {
+    position: relative;
+    width: 1px;
+    height: 46px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.34);
+}
+
+.snami-scroll-hint i::after {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 1px;
+    height: 18px;
+    background: var(--snami-white);
+    animation: scrollHint 2s ease-in-out infinite;
+    content: "";
+}
+
+.snami-section {
+    position: relative;
+    padding: clamp(76px, 12vw, 158px) clamp(18px, 5.5vw, 88px);
+    background: var(--snami-bg);
+}
+
+.snami-origin {
+    display: grid;
+    grid-template-columns: minmax(0, 45vw) minmax(0, 1fr);
+    gap: 0;
+    align-items: stretch;
+    min-height: 100vh;
+    margin-top: 0;
+    background: #15130f;
+    color: var(--snami-ivory);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.snami-origin::before {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(21, 19, 15, 0) 0 42%, rgba(21, 19, 15, 0.2) 46%, rgba(21, 19, 15, 0.86) 53%),
+        radial-gradient(circle at 51% 48%, rgba(188, 164, 127, 0.1), transparent 30%);
+    content: "";
+    z-index: 2;
+}
+
+.snami-origin .snami-origin-media {
+    grid-column: 1 / 2;
+    grid-row: 1;
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+    justify-self: stretch;
+    align-self: stretch;
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    clip-path: inset(0 calc(24% - (24% * var(--origin-progress, 0))) 0 0);
+    transform: translateX(calc(-24vw + (24vw * var(--origin-progress, 0))));
+    opacity: calc(0.34 + (0.66 * var(--origin-progress, 0)));
+    filter: blur(calc(3px - (3px * var(--origin-progress, 0))));
+    will-change: clip-path, filter, transform;
+}
+
+.snami-origin-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+}
+
+.js-parallax-img {
+    will-change: transform;
+}
+
+.snami-origin .snami-origin-copy {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    z-index: 3;
+    position: relative;
+    align-self: center;
+    justify-self: end;
+    width: min(56vw, 960px);
+    padding-right: clamp(26px, 4.8vw, 92px);
+    margin-top: -7vh;
+    margin-left: 0;
+    max-width: none;
+    transform: translateY(calc(20px - (20px * var(--origin-progress, 0)))) translateX(calc(22px - (22px * var(--origin-progress, 0))));
+    opacity: calc(0.28 + (0.72 * var(--origin-progress, 0)));
+    will-change: transform, opacity;
+}
+
+.snami-origin-copy .snami-section-title {
+    color: #bea380;
+    margin: 20px 0 0;
+    font-size: clamp(3.35rem, 6.45vw, 7.95rem);
+    line-height: 0.94;
+    letter-spacing: -0.025em;
+    text-shadow: 0 4px 20px rgba(21, 19, 15, 0.72);
+}
+
+.snami-origin-copy .snami-lead {
+    color: rgba(255, 250, 240, 0.9);
+    width: min(500px, 36vw);
+    margin: clamp(40px, 8vh, 96px) 0 18px auto;
+    font-size: clamp(1.06rem, 1.35vw, 1.35rem);
+    line-height: 1.48;
+}
+
+.snami-origin-copy .snami-body {
+    width: min(500px, 36vw);
+    margin-left: auto;
+    color: rgba(255, 250, 240, 0.65);
+    line-height: 1.6;
+}
+
+.snami-origin-copy .snami-text-link {
+    display: table;
+    margin: 24px 0 0 auto;
+    color: var(--snami-ivory);
+}
+
+.snami-origin-copy .snami-text-link:hover {
+    color: var(--snami-gold);
+}
+
+.snami-origin .reveal-line,
+.snami-origin .reveal-title {
+    opacity: 1;
+    transform: none;
+}
+
+.snami-bespoke-image,
+.snami-card-media,
+.snami-feature-tile,
+.snami-experience-panel {
+    overflow: hidden;
+}
+
+.snami-bespoke-copy,
+.snami-traveler-copy {
+    max-width: 680px;
+}
+
+.snami-section-title {
+    font-size: clamp(2.35rem, 5.1vw, 5rem);
+    line-height: 0.96;
+    letter-spacing: 0;
+}
+
+.snami-lead {
+    margin: 34px 0 18px;
+    color: var(--snami-ink);
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 2.2vw, 2rem);
+    line-height: 1.28;
+}
+
+.snami-body {
+    margin: 0;
+    color: var(--snami-muted);
+    font-size: 1rem;
+}
+
+.snami-text-link,
+.snami-discover,
+.snami-experience-copy a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 34px;
+    color: var(--snami-ink);
+    font-size: 0.77rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.snami-text-link span,
+.snami-discover::after,
+.snami-experience-copy a::after {
+    transition: transform 0.35s var(--snami-ease);
+}
+
+.snami-discover::after,
+.snami-experience-copy a::after {
+    content: "→";
+}
+
+.snami-text-link:hover span,
+.snami-discover:hover::after,
+.snami-experience-copy a:hover::after {
+    transform: translateX(7px);
+}
+
+.snami-traveler {
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 420px);
+    gap: clamp(42px, 7vw, 110px);
+    align-items: end;
+    background: var(--snami-bg-soft);
+}
+
+.snami-traveler-panel {
+    padding: clamp(28px, 4vw, 48px);
+    border-top: 1px solid var(--snami-line-strong);
+    border-bottom: 1px solid var(--snami-line);
+}
+
+.snami-traveler-panel p {
+    margin: 0 0 28px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.28rem, 2.4vw, 1.9rem);
+    line-height: 1.28;
+}
+
+.snami-traveler-panel span {
+    color: var(--snami-muted);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.snami-feature-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: #171511;
+    color: var(--snami-white);
+}
+
+.snami-feature-tile {
+    position: relative;
+    min-height: 430px;
+    border-right: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.snami-feature-tile img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.48;
+    filter: grayscale(0.25) contrast(0.98);
+    transition: transform 1.2s var(--snami-ease), opacity 0.6s ease;
+}
+
+.snami-feature-tile:hover img {
+    transform: scale(1.06);
+    opacity: 0.7;
+}
+
+.snami-feature-tile::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+    content: "";
+}
+
+.snami-feature-tile div {
+    position: absolute;
+    inset: auto 28px 30px;
+    z-index: 1;
+}
+
+.snami-feature-tile span {
+    color: var(--snami-gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+}
+
+.snami-feature-tile h3 {
+    margin: 14px 0 10px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.55rem, 2vw, 2.15rem);
+    font-weight: 400;
+    text-transform: uppercase;
+}
+
+.snami-feature-tile p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.92rem;
+}
+
+.snami-collection-head {
+    max-width: 880px;
+    margin-bottom: clamp(44px, 6vw, 84px);
+}
+
+.snami-collection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(30px, 4vw, 62px);
+}
+
+.snami-collection-card:nth-child(2) {
+    margin-top: 76px;
+}
+
+.snami-card-media {
+    height: clamp(380px, 40vw, 560px);
+    margin-bottom: 26px;
+}
+
+.snami-card-media img {
+    width: 100%;
+    height: 112%;
+    object-fit: cover;
+}
+
+.snami-collection-card span {
+    color: var(--snami-gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.snami-collection-card h3 {
+    margin: 12px 0;
+    font-family: var(--font-serif);
+    font-size: clamp(1.75rem, 2.2vw, 2.45rem);
+    font-weight: 400;
+}
+
+.snami-collection-card p {
+    margin: 0;
+    color: var(--snami-muted);
+}
+
+.snami-experiences {
+    background: #16130f;
+}
+
+.snami-experience-panel {
+    position: relative;
+    min-height: clamp(580px, 78vh, 760px);
+    display: grid;
+    align-items: end;
+    padding: clamp(28px, 6vw, 82px);
+    color: var(--snami-white);
+}
+
+.snami-experience-panel + .snami-experience-panel {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.snami-experience-panel img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.52;
+}
+
+.snami-experience-panel::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.18) 64%, rgba(0, 0, 0, 0.72));
+    content: "";
+}
+
+.snami-experience-panel--reverse {
+    justify-items: end;
+}
+
+.snami-experience-copy {
+    position: relative;
+    z-index: 1;
+    width: min(560px, 100%);
+}
+
+.snami-experience-copy p {
+    margin: 0 0 16px;
+    color: var(--snami-gold);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.snami-experience-copy h2 {
+    margin: 0 0 18px;
+    font-family: var(--font-serif);
+    font-size: clamp(2.6rem, 6vw, 5.7rem);
+    font-weight: 400;
+    line-height: 0.92;
+    text-transform: uppercase;
+}
+
+.snami-experience-copy span {
+    display: block;
+    max-width: 42rem;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.snami-experience-copy a {
+    color: var(--snami-white);
+}
+
+.snami-bespoke {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);
+    gap: clamp(42px, 8vw, 126px);
+    align-items: center;
+}
+
+.snami-bespoke-image img {
+    width: 100%;
+    height: clamp(380px, 52vw, 660px);
+    object-fit: cover;
+}
+
+.snami-destinations {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-top: 1px solid var(--snami-line);
+    border-bottom: 1px solid var(--snami-line);
+    background: var(--snami-bg-soft);
+}
+
+.snami-destinations a {
+    display: grid;
+    min-height: 155px;
+    place-items: center;
+    border-right: 1px solid var(--snami-line);
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 2.4vw, 2.4rem);
+    text-transform: uppercase;
+    transition: background 0.45s var(--snami-ease), color 0.45s var(--snami-ease);
+}
+
+.snami-destinations a:hover {
+    background: var(--snami-ink);
+    color: var(--snami-white);
+}
+
+.snami-testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 38px;
+    margin-top: 36px;
+}
+
+.snami-testimonial-grid blockquote {
+    margin: 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--snami-line-strong);
+    font-family: var(--font-serif);
+    font-size: clamp(1.28rem, 2vw, 1.8rem);
+    line-height: 1.3;
+}
+
+.snami-testimonial-grid cite {
+    display: block;
+    margin-top: 26px;
+    color: var(--snami-muted);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-style: normal;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.snami-journal {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);
+    gap: clamp(42px, 7vw, 108px);
+    align-items: start;
+}
+
+.snami-journal-list {
+    display: grid;
+}
+
+.snami-journal-row {
+    display: grid;
+    grid-template-columns: 118px 1fr 34px;
+    gap: 24px;
+    align-items: center;
+    min-height: 126px;
+    border-top: 1px solid var(--snami-line);
+    transition: color 0.35s ease, padding 0.35s var(--snami-ease);
+}
+
+.snami-journal-row:last-child {
+    border-bottom: 1px solid var(--snami-line);
+}
+
+.snami-journal-row span {
+    color: var(--snami-muted);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+}
+
+.snami-journal-row strong {
+    font-family: var(--font-serif);
+    font-size: clamp(1.45rem, 2.6vw, 2.4rem);
+    font-weight: 400;
+    line-height: 1.08;
+}
+
+.snami-journal-row i {
+    font-style: normal;
+    transition: transform 0.35s var(--snami-ease);
+}
+
+.snami-journal-row:hover {
+    color: var(--snami-gold);
+    padding-left: 18px;
+}
+
+.snami-journal-row:hover i {
+    transform: rotate(-35deg);
+}
+
+.snami-marquee {
+    overflow: hidden;
+    padding: 42px 0;
+    background: #16130f;
+    color: var(--snami-white);
+}
+
+.snami-marquee div {
+    display: flex;
+    width: max-content;
+    animation: marquee 22s linear infinite;
+}
+
+.snami-marquee span {
+    padding-right: 42px;
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 7vw, 7rem);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.snami-footer {
+    padding: clamp(62px, 8vw, 98px) clamp(18px, 5.5vw, 88px) 30px;
+    background: var(--snami-bg);
+}
+
+.snami-footer-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.55fr 0.8fr;
+    gap: clamp(42px, 7vw, 118px);
+    margin-bottom: 72px;
+}
+
+.snami-footer h2 {
+    margin: 0 0 18px;
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 7vw, 7rem);
+    font-weight: 400;
+    line-height: 0.86;
+    text-transform: uppercase;
+}
+
+.snami-footer h3 {
+    margin: 0 0 22px;
+    color: var(--snami-gold);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.snami-footer p,
+.snami-footer a {
+    display: block;
+    margin: 0 0 10px;
+    color: var(--snami-muted);
+}
+
+.snami-socials {
+    display: flex;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.snami-socials a {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--snami-line);
+    border-radius: 50%;
+    color: var(--snami-ink);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.snami-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--snami-line);
+    color: var(--snami-muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.snami-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+    background: rgba(14, 12, 10, 0.34);
+    opacity: 0;
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.35s var(--snami-ease);
+}
+
+.snami-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.snami-modal-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(240px, 0.78fr) minmax(320px, 1fr);
+    width: min(920px, 100%);
+    max-height: min(86vh, 860px);
+    overflow: auto;
+    background: var(--snami-bg);
+    box-shadow: var(--snami-shadow);
+    transform: translateY(30px) scale(0.96);
+    transition: transform 0.42s var(--snami-ease);
+}
+
+.snami-modal-card--wide {
+    grid-template-columns: 1fr;
+    width: min(720px, 100%);
+}
+
+.snami-modal-overlay.active .snami-modal-card {
+    transform: translateY(0) scale(1);
+}
+
+.snami-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(21, 19, 15, 0.18);
+    border-radius: 50%;
+    background: rgba(244, 241, 234, 0.82);
+    color: var(--snami-ink);
+    font-size: 1.6rem;
+}
+
+.snami-modal-media img {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    object-fit: cover;
+}
+
+.snami-modal-content {
+    padding: clamp(34px, 5vw, 66px);
+    min-width: 0;
+}
+
+.snami-modal-title {
+    margin: 0 0 12px;
+    font-family: var(--font-serif);
+    font-size: clamp(2.15rem, 5vw, 3.8rem);
+    font-weight: 400;
+    line-height: 0.98;
+    text-transform: uppercase;
+}
+
+.snami-modal-subtitle {
+    margin: 0 0 30px;
+    color: var(--snami-muted);
+    overflow-wrap: anywhere;
+}
+
+.snami-form {
+    display: grid;
+    gap: 20px;
+}
+
+.snami-form-group {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.snami-form-group > span {
+    color: var(--snami-muted);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.snami-form-input {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-bottom: 1px solid var(--snami-line);
+    border-radius: 0;
+    background: transparent;
+    color: var(--snami-ink);
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.snami-form-input:focus {
+    border-color: var(--snami-ink);
+}
+
+.snami-form-submit {
+    min-height: 54px;
+    margin-top: 10px;
+    border: 1px solid var(--snami-ink);
+    border-radius: 999px;
+    background: var(--snami-ink);
+    color: var(--snami-white);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: background 0.45s var(--snami-ease), color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
+}
+
+.snami-form-submit:hover {
+    background: transparent;
+    color: var(--snami-ink);
+    transform: translateY(-2px);
+}
+
+.snami-form-switch {
+    margin: 26px 0 0;
+    color: var(--snami-muted);
+    text-align: center;
+}
+
+.snami-form-switch-link {
+    color: var(--snami-ink);
+    font-weight: 800;
+    text-decoration: underline;
+}
+
+.snami-avatar-field {
+    padding-top: 6px;
+}
+
+.snami-avatar-field .avatar-picker,
+.snami-avatar-field .avatar-picker__top,
+.snami-avatar-field .avatar-picker__top > div,
+.snami-avatar-field .avatar-picker__panel {
+    min-width: 0;
+}
+
+.snami-avatar-field .avatar-picker__top strong,
+.snami-avatar-field .avatar-picker__top p,
+.snami-avatar-field .avatar-upload-choice {
+    overflow-wrap: anywhere;
+}
+
+.snami-flash-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border: 1px solid rgba(185, 28, 28, 0.22);
+    background: rgba(185, 28, 28, 0.08);
+    color: #9f1d1d;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.snami-flash-icon {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.7rem;
+}
+
+.reveal-line,
+.reveal-title,
+.reveal-pop {
+    opacity: 0;
+    transform: translateY(54px);
+    will-change: transform, opacity;
+}
+
+.reveal-title {
+    transform: translateY(70px);
+}
+
+.reveal-pop {
+    transform: translateY(60px) scale(0.96);
+}
+
+.is-visible {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+.snami-hero .reveal-line,
+.snami-hero .reveal-title {
+    opacity: 1;
+    transform: translateY(0);
+    animation: heroCopyIn 1.15s var(--snami-ease) both;
+}
+
+.snami-hero .reveal-title {
+    animation-delay: 0.08s;
+}
+
+.snami-hero .snami-hero-copy {
+    animation-delay: 0.16s;
+}
+
+@keyframes heroDrift {
+    from {
+        transform: scale(1.09);
+    }
+    to {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes heroCopyIn {
+    from {
+        opacity: 0;
+        transform: translateY(38px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scrollHint {
+    from {
+        transform: translateY(-20px);
+    }
+    to {
+        transform: translateY(70px);
+    }
+}
+
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal-line,
+    .reveal-title,
+    .reveal-pop {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (max-width: 1100px) {
+    .snami-feature-strip,
+    .snami-collection-grid,
+    .snami-testimonial-grid,
+    .snami-footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .snami-collection-card:nth-child(2) {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 860px) {
+    .snami-origin {
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 100vh;
+        padding: 0 18px;
+    }
+
+    .snami-origin-media,
+    .snami-origin-copy {
+        grid-column: auto !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+    }
+
+    .snami-origin-media {
+        grid-row: 1;
+        width: min(84vw, 430px) !important;
+        aspect-ratio: 0.9 / 1;
+        justify-self: center;
+        transform: translateX(calc(-86vw + (86vw * var(--origin-progress, 0)))) scale(calc(0.94 + (0.06 * var(--origin-progress, 0))));
+    }
+
+    .snami-origin-media img {
+        height: 100% !important;
+    }
+
+    .snami-origin-copy {
+        grid-row: 1;
+        align-self: center;
+        margin: -12vh 0 0;
+        transform: translateY(calc(28px - (28px * var(--origin-progress, 0))));
+    }
+
+    .snami-origin-copy .snami-section-title {
+        font-size: clamp(2.9rem, 14vw, 5rem);
+    }
+
+    .snami-traveler,
+    .snami-bespoke,
+    .snami-journal,
+    .snami-modal-card {
+        grid-template-columns: 1fr;
+    }
+
+    .snami-modal-media {
+        display: none;
+    }
+
+    .snami-destinations {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .snami-header {
+        padding: 18px 16px;
+    }
+
+    .snami-phone {
+        display: none;
+    }
+
+    .snami-btn-request {
+        min-width: auto;
+        padding: 9px 16px;
+        font-size: 0.68rem;
+    }
+
+    .snami-hero {
+        min-height: 92vh;
+    }
+
+    .snami-hero-title {
+        font-size: clamp(3rem, 15vw, 4.6rem);
+    }
+
+    .snami-btn-capsule-container {
+        width: 160px;
+        height: 160px;
+    }
+
+    .snami-btn-capsule {
+        width: 134px;
+        height: 134px;
+        font-size: 0.62rem;
+    }
+
+    .snami-section {
+        padding: 68px 16px;
+    }
+
+    .snami-modal-overlay {
+        padding: 14px;
+    }
+
+    .snami-modal-content {
+        padding: 34px 28px;
+    }
+
+    .snami-avatar-field .avatar-picker__top {
+        align-items: flex-start;
+    }
+
+    .snami-avatar-field .avatar-picker__preview {
+        width: 58px;
+        height: 58px;
+    }
+
+    .snami-avatar-field .avatar-picker__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .snami-feature-strip,
+    .snami-collection-grid,
+    .snami-testimonial-grid,
+    .snami-footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .snami-feature-tile {
+        min-height: 360px;
+    }
+
+    .snami-experience-panel {
+        min-height: 620px;
+        padding: 28px 18px;
+    }
+
+    .snami-destinations {
+        grid-template-columns: 1fr;
+    }
+
+    .snami-destinations a {
+        min-height: 112px;
+    }
+
+    .snami-journal-row {
+        grid-template-columns: 1fr 26px;
+        gap: 12px;
+        padding-block: 22px;
+    }
+
+    .snami-journal-row span {
+        grid-column: 1 / -1;
+    }
+
+    .snami-menu-contact,
+    .snami-footer-bottom {
+        flex-direction: column;
+    }
+}

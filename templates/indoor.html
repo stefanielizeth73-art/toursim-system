@@ -128,6 +128,17 @@
                             <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path" filter="url(#routeGlow{{ floor.number }})"></line>
                             {% endif %}
                         {% endfor %}
+                        <g class="indoor-node-layer">
+                            {% for node in floor.display_nodes %}
+                            <g class="indoor-node-marker is-{{ node.type }} {% if node.is_path %}is-path-node{% endif %} {% if node.is_start %}is-start{% endif %} {% if node.is_end %}is-end{% endif %}"
+                               transform="translate({{ node.x }}, {{ node.y }})">
+                                <title>{{ node.name }}</title>
+                                <circle class="indoor-node-halo" r="18"></circle>
+                                <circle class="indoor-node-dot" r="{% if node.is_start or node.is_end %}11{% else %}8{% endif %}"></circle>
+                                <text class="indoor-node-label" x="16" y="-14">{{ node.name }}</text>
+                            </g>
+                            {% endfor %}
+                        </g>
                         <g class="indoor-floor-pill {% if floor.active %}is-active{% endif %}" transform="translate(24 24)" aria-hidden="true">
                             <rect x="0" y="0" rx="22" ry="22" width="{% if floor.active %}122{% else %}82{% endif %}" height="44"></rect>
                             <text x="18" y="28">{{ floor.number }}F</text>

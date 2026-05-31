@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ diary.title }} - 旅游日记广场</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
-    <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
+    <script defer
+        src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
+
 <body class="diary-detail-page">
     <a class="skip-link" href="#main-content">跳到内容</a>
 
     {% macro like_button(comment) -%}
-    <form method="post" action="{{ url_for('diary_comment_like', diary_id=diary.id, comment_id=comment.id) }}" class="comment-like-form">
-        <button type="submit" class="comment-like-btn {% if comment.liked_by_current_user %}is-liked{% endif %}" aria-label="点赞评论">
+    <form method="post" action="{{ url_for('diary_comment_like', diary_id=diary.id, comment_id=comment.id) }}"
+        class="comment-like-form">
+        <button type="submit" class="comment-like-btn {% if comment.liked_by_current_user %}is-liked{% endif %}"
+            aria-label="点赞评论">
             <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M9.5 10.5 12.8 4.9c.3-.5.8-.9 1.4-.9.9 0 1.6.8 1.5 1.7l-.5 4.1h3.8c1.2 0 2.1 1 2 2.2l-.7 6.2a2 2 0 0 1-2 1.8H9.5m0-9.5v9.5m0-9.5H6.4c-.8 0-1.4.6-1.4 1.4v6.7c0 .8.6 1.4 1.4 1.4h3.1"/>
+                <path
+                    d="M9.5 10.5 12.8 4.9c.3-.5.8-.9 1.4-.9.9 0 1.6.8 1.5 1.7l-.5 4.1h3.8c1.2 0 2.1 1 2 2.2l-.7 6.2a2 2 0 0 1-2 1.8H9.5m0-9.5v9.5m0-9.5H6.4c-.8 0-1.4.6-1.4 1.4v6.7c0 .8.6 1.4 1.4 1.4h3.1" />
             </svg>
             <span>{{ comment.like_count }}</span>
         </button>
@@ -24,21 +31,29 @@
     {%- endmacro %}
 
     {% macro comment_body(comment, is_reply=False) -%}
-    <div class="comment-entry{% if is_reply %} is-reply is-depth-{{ comment.display_depth|default(2) }}{% else %} is-top-level{% endif %}" id="comment-{{ comment.id }}">
+    <div class="comment-entry{% if is_reply %} is-reply is-depth-{{ comment.display_depth|default(2) }}{% else %} is-top-level{% endif %}"
+        id="comment-{{ comment.id }}">
         <div class="comment-entry__main">
-            <div class="comment-entry__content js-comment-reply-trigger" role="button" tabindex="0" data-reply-target="{{ comment.id }}" data-reply-author="{{ comment.author }}" aria-label="回复 {{ comment.author }} 的评论">
+            <div class="comment-entry__content js-comment-reply-trigger" role="button" tabindex="0"
+                data-reply-target="{{ comment.id }}" data-reply-author="{{ comment.author }}"
+                aria-label="回复 {{ comment.author }} 的评论">
                 {% if comment.author_user_id %}
-                <a class="comment-avatar-link" href="{{ url_for('user_profile', user_id=comment.author_user_id) }}" aria-label="查看 {{ comment.author }} 的个人主页">
-                    <img class="comment-avatar{% if is_reply %} is-reply{% endif %}" src="{{ comment.avatar_url }}" alt="{{ comment.author }} 的头像">
+                <a class="comment-avatar-link" href="{{ url_for('user_profile', user_id=comment.author_user_id) }}"
+                    aria-label="查看 {{ comment.author }} 的个人主页">
+                    <img class="comment-avatar{% if is_reply %} is-reply{% endif %}" src="{{ comment.avatar_url }}"
+                        alt="{{ comment.author }} 的头像">
                 </a>
                 {% else %}
-                <img class="comment-avatar{% if is_reply %} is-reply{% endif %}" src="{{ comment.avatar_url }}" alt="{{ comment.author }} 的头像">
+                <img class="comment-avatar{% if is_reply %} is-reply{% endif %}" src="{{ comment.avatar_url }}"
+                    alt="{{ comment.author }} 的头像">
                 {% endif %}
                 <div class="comment-copy">
                     <div class="comment-copy__head">
                         <strong>{{ comment.author }}</strong>
                     </div>
-                    <p>{%- if is_reply and comment.display_depth >= 3 and comment.reply_to_author -%}<span class="comment-reply-target">回复@{{ comment.reply_to_author }}</span>{%- endif -%}{{ comment.content }}</p>
+                    <p>{%- if is_reply and comment.display_depth >= 3 and comment.reply_to_author -%}<span
+                            class="comment-reply-target">回复@{{ comment.reply_to_author }}</span>{%- endif -%}{{
+                        comment.content }}</p>
                     <div class="comment-copy__meta">
                         <span>{{ comment.created_at }}</span>
                         <span class="comment-reply-text">回复</span>
@@ -50,12 +65,14 @@
     </div>
     {%- endmacro %}
 
-    <div class="diary-shell diary-shell--detail" data-diary-detail-root data-diary-id="{{ diary.id }}" data-comment-posted="{{ 1 if comment_posted else 0 }}">
+    <div class="diary-shell diary-shell--detail" data-diary-detail-root data-diary-id="{{ diary.id }}"
+        data-comment-posted="{{ 1 if comment_posted else 0 }}">
         <header class="diary-topbar diary-topbar--detail-product">
             <div class="diary-detail-brand">
                 <a class="diary-detail-back js-diary-back" href="{{ url_for('diaries') }}" aria-label="返回日记广场">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M15 6 9 12l6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15 6 9 12l6 6" fill="none" stroke="currentColor" stroke-width="2.1"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
                 <div class="diary-detail-brand__copy">
@@ -68,7 +85,8 @@
                 <details class="publish-panel">
                     <summary class="publish-trigger">发布日记</summary>
                     <div class="publish-panel__body">
-                        <form method="post" action="{{ url_for('diaries') }}" enctype="multipart/form-data" class="publish-form">
+                        <form method="post" action="{{ url_for('diaries') }}" enctype="multipart/form-data"
+                            class="publish-form">
                             <div class="publish-grid">
                                 <label class="publish-field">
                                     <span>标题</span>
@@ -76,7 +94,8 @@
                                 </label>
                                 <label class="publish-field">
                                     <span>目的地</span>
-                                    <input type="text" name="destination" list="place-name-options" placeholder="选择或输入目的地" required>
+                                    <input type="text" name="destination" list="place-name-options"
+                                        placeholder="选择或输入目的地" required>
                                 </label>
                                 <label class="publish-field">
                                     <span>压缩算法</span>
@@ -101,7 +120,8 @@
                         </form>
                     </div>
                 </details>
-                <a class="diary-topbar-link diary-dev-edit-link" href="{{ url_for('diary_dev_edit', diary_id=diary.id) }}">临时编辑</a>
+                <a class="diary-topbar-link diary-dev-edit-link"
+                    href="{{ url_for('diary_dev_edit', diary_id=diary.id) }}">临时编辑</a>
                 <a class="diary-topbar-link" href="{{ url_for('profile') }}">个人中心</a>
                 <a class="diary-topbar-link" href="{{ url_for('home') }}">返回主页</a>
             </div>
@@ -109,13 +129,13 @@
 
         <main id="main-content" class="diary-detail-layout diary-detail-layout--product">
             {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="message-stack" aria-live="polite">
-                        {% for message in messages %}
-                        <div class="message">{{ message }}</div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="message-stack" aria-live="polite">
+                {% for message in messages %}
+                <div class="message">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             <section class="diary-media-column diary-media-column--product">
@@ -124,12 +144,17 @@
                     <div class="diary-gallery diary-gallery--product" data-gallery>
                         <div class="diary-gallery-stage diary-gallery-stage--product">
                             <div class="diary-gallery-stage__topline">
-                                <span class="diary-gallery-stage__count"><span data-gallery-current>1</span> / {{ diary.gallery_items|length }}</span>
+                                <span class="diary-gallery-stage__count"><span data-gallery-current>1</span> / {{
+                                    diary.gallery_items|length }}</span>
                             </div>
                             {% for item in diary.gallery_items %}
-                            <figure class="diary-gallery-item {% if loop.first %}is-active{% endif %}{% if item.kind == 'image' %} is-image{% endif %}{% if item.kind == 'video' %} is-video{% endif %}" data-gallery-item data-gallery-index="{{ loop.index0 }}"{% if item.kind == 'image' %} data-gallery-src="{{ item.url }}"{% endif %}>
+                            <figure
+                                class="diary-gallery-item {% if loop.first %}is-active{% endif %}{% if item.kind == 'image' %} is-image{% endif %}{% if item.kind == 'video' %} is-video{% endif %}"
+                                data-gallery-item data-gallery-index="{{ loop.index0 }}" {% if item.kind=='image' %}
+                                data-gallery-src="{{ item.url }}" data-gallery-thumb="{{ item.thumbnail_url or item.url }}" data-gallery-blur="{{ item.blur_base64 }}" {% endif %}>
                                 {% if item.kind == 'image' %}
-                                <img src="{{ item.url }}" alt="{{ item.original_name }}" width="{{ item.width or 1200 }}" height="{{ item.height or 900 }}" loading="lazy">
+                                <img src="{{ item.url }}" alt="{{ item.original_name }}"
+                                    width="{{ item.width or 1200 }}" height="{{ item.height or 900 }}" loading="lazy">
                                 {% elif item.kind == 'video' %}
                                 <video controls playsinline preload="metadata" src="{{ item.url }}"></video>
                                 {% else %}
@@ -138,8 +163,10 @@
                             </figure>
                             {% endfor %}
                             {% if diary.gallery_items|length > 1 %}
-                            <button type="button" class="diary-gallery-nav is-prev" data-gallery-prev aria-label="上一张"></button>
-                            <button type="button" class="diary-gallery-nav is-next" data-gallery-next aria-label="下一张"></button>
+                            <button type="button" class="diary-gallery-nav is-prev" data-gallery-prev
+                                aria-label="上一张"></button>
+                            <button type="button" class="diary-gallery-nav is-next" data-gallery-next
+                                aria-label="下一张"></button>
                             {% endif %}
                         </div>
                     </div>
@@ -158,11 +185,15 @@
                     <header class="story-header story-header--product">
                         <div class="story-author-row story-author-row--product">
                             {% if diary_author %}
-                            <a class="story-author-avatar-link" href="{{ url_for('user_profile', user_id=diary_author.id) }}" aria-label="查看 {{ diary.author }} 的个人主页">
-                                <img class="story-author-avatar" src="{{ diary_author_avatar_url }}" alt="{{ diary.author }} 的头像">
+                            <a class="story-author-avatar-link"
+                                href="{{ url_for('user_profile', user_id=diary_author.id) }}"
+                                aria-label="查看 {{ diary.author }} 的个人主页">
+                                <img class="story-author-avatar" src="{{ diary_author_avatar_url }}"
+                                    alt="{{ diary.author }} 的头像">
                             </a>
                             {% else %}
-                            <img class="story-author-avatar" src="{{ diary_author_avatar_url }}" alt="{{ diary.author }} 的头像">
+                            <img class="story-author-avatar" src="{{ diary_author_avatar_url }}"
+                                alt="{{ diary.author }} 的头像">
                             {% endif %}
                             <div class="story-author-copy">
                                 <strong>{{ diary.author }}</strong>
@@ -181,17 +212,22 @@
                                 <span>评分人数 {{ diary.rating_count }}</span>
                             </div>
                             {% if matched_place %}
-                            <a class="story-place-badge" href="{{ url_for('place_detail', place_id=matched_place.id) }}">
+                            <a class="story-place-badge"
+                                href="{{ url_for('place_detail', place_id=matched_place.id) }}">
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 21s6-5.2 6-11.1A6 6 0 1 0 6 9.9C6 15.8 12 21 12 21Z" fill="currentColor"/>
-                                    <circle cx="12" cy="10" r="2.3" fill="#fff"/>
+                                    <path d="M12 21s6-5.2 6-11.1A6 6 0 1 0 6 9.9C6 15.8 12 21 12 21Z"
+                                        fill="currentColor" />
+                                    <circle cx="12" cy="10" r="2.3" fill="#fff" />
                                 </svg>
                                 <span>{{ matched_place.name }}</span>
                             </a>
                             {% endif %}
                         </div>
-                        <form method="post" action="{{ url_for('diary_favorite', diary_id=diary.id) }}" class="diary-favorite-form">
-                            <button type="submit" class="diary-favorite-button {% if diary_favorited %}is-favorited{% endif %}" aria-label="{% if diary_favorited %}取消收藏日记{% else %}收藏日记{% endif %}">
+                        <form method="post" action="{{ url_for('diary_favorite', diary_id=diary.id) }}"
+                            class="diary-favorite-form">
+                            <button type="submit"
+                                class="diary-favorite-button {% if diary_favorited %}is-favorited{% endif %}"
+                                aria-label="{% if diary_favorited %}取消收藏日记{% else %}收藏日记{% endif %}">
                                 <span aria-hidden="true">★</span>
                                 <strong>{% if diary_favorited %}已收藏{% else %}收藏日记{% endif %}</strong>
                             </button>
@@ -209,7 +245,8 @@
                             <input type="hidden" name="action" value="rating">
                             <div class="rating-bubble-row" role="radiogroup" aria-label="旅游日记评分">
                                 {% for value in [5, 4, 3, 2, 1] %}
-                                <input class="rating-bubble-input" id="rating-{{ value }}" type="radio" name="rating" value="{{ value }}" {% if loop.first %}checked{% endif %}>
+                                <input class="rating-bubble-input" id="rating-{{ value }}" type="radio" name="rating"
+                                    value="{{ value }}" {% if loop.first %}checked{% endif %}>
                                 <label class="rating-bubble" for="rating-{{ value }}">{{ value }}</label>
                                 {% endfor %}
                             </div>
@@ -226,12 +263,14 @@
                         </div>
                     </div>
 
-                    <form method="post" class="comment-composer comment-composer--inline comment-composer--product" id="comment-composer" data-comment-draft-form>
+                    <form method="post" class="comment-composer comment-composer--inline comment-composer--product"
+                        id="comment-composer" data-comment-draft-form>
                         <input type="hidden" name="action" value="comment">
                         <input type="hidden" name="parent_id" value="">
                         <img class="comment-composer__avatar" src="{{ current_user_avatar_url }}" alt="我的头像">
                         <div class="comment-composer__body">
-                            <textarea name="content" placeholder="说点什么…" aria-label="发布一级评论" required data-comment-draft-input></textarea>
+                            <textarea name="content" placeholder="说点什么…" aria-label="发布一级评论" required
+                                data-comment-draft-input></textarea>
                             <div class="comment-composer__meta">
                                 <span class="comment-draft-hint" id="reply-hint">当前发布为一级评论</span>
                                 <button type="submit">发布评论</button>
@@ -290,25 +329,33 @@
                         </div>
                     </div>
                     <div class="compression-grid compression-grid--product">
-                        <div class="compression-chip"><span>算法</span><span>{{ diary.compression.algorithm }}</span></div>
-                        <div class="compression-chip"><span>原始长度</span><span>{{ diary.compression.original_length }}</span></div>
-                        <div class="compression-chip"><span>压缩长度</span><span>{{ diary.compression.compressed_length }}</span></div>
+                        <div class="compression-chip"><span>算法</span><span>{{ diary.compression.algorithm }}</span>
+                        </div>
+                        <div class="compression-chip"><span>原始长度</span><span>{{ diary.compression.original_length
+                                }}</span></div>
+                        <div class="compression-chip"><span>压缩长度</span><span>{{ diary.compression.compressed_length
+                                }}</span></div>
                         <div class="compression-chip"><span>压缩比</span><span>{{ diary.compression.ratio }}</span></div>
                     </div>
-                    <form method="get" action="{{ url_for('diary_detail', diary_id=diary.id) }}" class="compression-switcher">
+                    <form method="get" action="{{ url_for('diary_detail', diary_id=diary.id) }}"
+                        class="compression-switcher">
                         <label>
                             <span class="sr-only">压缩算法</span>
                             <select name="compress_algorithm">
-                                <option value="huffman" {% if compression_algorithm == 'huffman' %}selected{% endif %}>哈夫曼压缩</option>
-                                <option value="dictionary" {% if compression_algorithm == 'dictionary' %}selected{% endif %}>字典压缩</option>
+                                <option value="huffman" {% if compression_algorithm=='huffman' %}selected{% endif %}>
+                                    哈夫曼压缩</option>
+                                <option value="dictionary" {% if compression_algorithm=='dictionary' %}selected{% endif
+                                    %}>字典压缩</option>
                             </select>
                         </label>
                         <button type="submit">重新预览</button>
                     </form>
                     {% if compression_preview %}
                     <div class="compression-preview-grid">
-                        <div class="compression-chip"><span>预览算法</span><span>{{ compression_preview.package.algorithm }}</span></div>
-                        <div class="compression-chip"><span>预览压缩比</span><span>{{ compression_preview.ratio }}</span></div>
+                        <div class="compression-chip"><span>预览算法</span><span>{{ compression_preview.package.algorithm
+                                }}</span></div>
+                        <div class="compression-chip"><span>预览压缩比</span><span>{{ compression_preview.ratio }}</span>
+                        </div>
                     </div>
                     {% endif %}
                 </section>
@@ -326,9 +373,11 @@
                         <strong id="reply-sheet-title">回复评论</strong>
                         <p id="reply-sheet-target">回复给某位同学</p>
                     </div>
-                    <button type="button" class="comment-reply-sheet__close" data-reply-close aria-label="关闭回复窗口">关闭</button>
+                    <button type="button" class="comment-reply-sheet__close" data-reply-close
+                        aria-label="关闭回复窗口">关闭</button>
                 </div>
-                <textarea name="content" placeholder="写下你的回复…" aria-label="回复内容" required data-reply-draft-input></textarea>
+                <textarea name="content" placeholder="写下你的回复…" aria-label="回复内容" required
+                    data-reply-draft-input></textarea>
                 <div class="comment-reply-sheet__actions">
                     <button type="button" class="comment-reply-sheet__ghost" data-reply-close>取消</button>
                     <button type="submit">发布回复</button>
@@ -343,4 +392,5 @@
         </datalist>
     </div>
 </body>
+
 </html>

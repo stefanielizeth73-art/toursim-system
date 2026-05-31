@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from collections import defaultdict
 import base64
+import io
 import bisect
 import copy
 import hashlib
@@ -25,6 +26,10 @@ try:
 except ImportError:
     Image = None
     ImageOps = None
+
+import mimetypes
+mimetypes.add_type('video/mp4', '.mp4')
+mimetypes.add_type('video/webm', '.webm')
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
@@ -70,6 +75,11 @@ def inject_asset_version():
 def add_no_cache_headers(response):
     if request.endpoint == "static":
         response.headers["Cache-Control"] = "public, max-age=3600"
+        response.headers.pop("Pragma", None)
+        response.headers.pop("Expires", None)
+        return response
+    if request.endpoint in {"diary_media_file", "diary_media_thumbnail_file"}:
+        response.headers["Cache-Control"] = "public, max-age=604800, immutable"
         response.headers.pop("Pragma", None)
         response.headers.pop("Expires", None)
         return response
@@ -200,6 +210,9 @@ FOOD_CAMPUS_CONTEXTS = {
     }
 }
 DIARY_UPLOAD_DIR = os.path.join(APP_DIR, "data", "uploads", "diaries")
+DIARY_THUMBNAIL_DIRNAME = "_thumbs_v2"
+DIARY_THUMBNAIL_VERSION = "2"
+DIARY_THUMBNAIL_MAX_SIZE = (360, 450)
 USER_AVATAR_DIR = os.path.join(APP_DIR, "static", "uploads", "avatars")
 DIARY_ALLOWED_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 DIARY_ALLOWED_VIDEO_EXTS = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
@@ -1061,8 +1074,16 @@ def diary_media_folder(diary_id):
     return os.path.join(DIARY_UPLOAD_DIR, str(diary_id))
 
 
+def diary_media_thumbnail_folder(diary_id):
+    return os.path.join(diary_media_folder(diary_id), DIARY_THUMBNAIL_DIRNAME)
+
+
 def diary_media_public_url(diary_id, filename):
     return url_for("diary_media_file", diary_id=diary_id, filename=filename)
+
+
+def diary_media_thumbnail_public_url(diary_id, filename):
+    return url_for("diary_media_thumbnail_file", diary_id=diary_id, filename=filename, v=DIARY_THUMBNAIL_VERSION)
 
 
 def diary_media_kind(filename):
@@ -1087,6 +1108,114 @@ def probe_image_size(file_path):
             return img.size
     except Exception:
         return None, None
+
+
+def resolve_diary_media_path(diary_id, filename):
+    media_folder = os.path.abspath(diary_media_folder(diary_id))
+    safe_filename = os.path.basename(filename or "")
+    if not safe_filename:
+        return None, None
+    file_path = os.path.abspath(os.path.join(media_folder, safe_filename))
+    if os.path.dirname(file_path) != media_folder:
+        return None, None
+    return media_folder, file_path
+
+
+def diary_thumbnail_filename(source_path):
+    stat = os.stat(source_path)
+    source_name = os.path.basename(source_path)
+    digest = hashlib.sha1(f"{source_name}:{stat.st_mtime_ns}:{stat.st_size}".encode("utf-8")).hexdigest()[:16]
+    stem = os.path.splitext(secure_filename(source_name) or "media")[0]
+    return f"{stem}-{digest}.jpg"
+
+
+def ensure_diary_image_thumbnail(diary_id, filename):
+    if Image is None or ImageOps is None or diary_media_kind(filename) != "image":
+        return None
+
+    _media_folder, source_path = resolve_diary_media_path(diary_id, filename)
+    if not source_path or not os.path.exists(source_path):
+        return None
+
+    thumb_folder = diary_media_thumbnail_folder(diary_id)
+    os.makedirs(thumb_folder, exist_ok=True)
+    thumb_path = os.path.join(thumb_folder, diary_thumbnail_filename(source_path))
+    if os.path.exists(thumb_path):
+        return thumb_path
+
+    try:
+        with Image.open(source_path) as image:
+            image = ImageOps.exif_transpose(image).convert("RGB")
+            image.thumbnail(DIARY_THUMBNAIL_MAX_SIZE, Image.Resampling.LANCZOS)
+            image.save(thumb_path, "JPEG", quality=66, optimize=True, progressive=True)
+    except Exception:
+        return None
+    return thumb_path
+
+
+def generate_image_blur_base64(diary_id, filename):
+    if Image is None or ImageOps is None:
+        return ""
+    _media_folder, source_path = resolve_diary_media_path(diary_id, filename)
+    if not source_path or not os.path.exists(source_path):
+        return ""
+    try:
+        with Image.open(source_path) as img:
+            img = ImageOps.exif_transpose(img).convert("RGB")
+            img.thumbnail((16, 16))
+            buffer = io.BytesIO()
+            img.save(buffer, "JPEG", quality=20)
+            return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+    except Exception:
+        return ""
+
+
+def prewarm_all_diary_thumbnails():
+    import time
+    time.sleep(2.5)  # 延迟启动，避免阻塞 Flask 初始化
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, media_json FROM diaries")
+        rows = cursor.fetchall()
+        conn.close()
+    except Exception:
+        return
+
+    for row in rows:
+        diary_id = row["id"]
+        media_items = parse_diary_package(row["media_json"]) or []
+        updated = False
+        new_items = []
+        for item in media_items:
+            new_item = dict(item)
+            if new_item.get("kind") == "image":
+                filename = new_item.get("filename")
+                if filename:
+                    try:
+                        # 确保物理缩略图已存在
+                        ensure_diary_image_thumbnail(diary_id, filename)
+                        # 补齐极微内联占位 Base64
+                        if not new_item.get("blur_base64"):
+                            new_item["blur_base64"] = generate_image_blur_base64(diary_id, filename)
+                            updated = True
+                    except Exception:
+                        pass
+            new_items.append(new_item)
+
+        if updated:
+            try:
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute(
+                    "UPDATE diaries SET media_json = ? WHERE id = ?",
+                    (json.dumps(new_items, ensure_ascii=False), diary_id)
+                )
+                conn.commit()
+                conn.close()
+                invalidate_diary_index_cache()  # 刷新缓存
+            except Exception:
+                pass
 
 
 def diary_index_fingerprint(rows):
@@ -1151,6 +1280,19 @@ def invalidate_diary_index_cache():
     DIARY_INDEX_CACHE["source_signature"] = None
 
 
+def sync_diary_index_view_count(diary_id):
+    if DIARY_INDEX_CACHE.get("fingerprint") is None:
+        return
+    for record in DIARY_INDEX_CACHE.get("display_records") or []:
+        if record.get("id") == diary_id:
+            record["views"] = int(record.get("views", 0) or 0) + 1
+            break
+    record_map = DIARY_INDEX_CACHE.get("record_map") or {}
+    if diary_id in record_map:
+        record_map[diary_id]["views"] = int(record_map[diary_id].get("views", 0) or 0) + 1
+    DIARY_INDEX_CACHE["source_signature"] = file_signature(DB_PATH)
+
+
 def save_diary_media_files(diary_id, uploaded_files):
     saved_items = []
     media_folder = diary_media_folder(diary_id)
@@ -1181,6 +1323,10 @@ def save_diary_media_files(diary_id, uploaded_files):
         }
         if media_kind == "image":
             media_item["width"], media_item["height"] = probe_image_size(file_path)
+            # 优化：在此处立刻同步生成缩略图，避免用户首次进入时因实时切图而卡顿
+            ensure_diary_image_thumbnail(diary_id, final_name)
+            # 优化第二阶段：同步写入极微 Base64 到数据库字典中，用于 0ms 秒开占位
+            media_item["blur_base64"] = generate_image_blur_base64(diary_id, final_name)
         saved_items.append({**media_item})
 
     return saved_items
@@ -2044,8 +2190,9 @@ def normalize_collector_link(payload, nodes, edges, existing_count=0):
         "b": b_ref,
         "amap_geometry": [[round(point_a[0], 7), round(point_a[1], 7)], [round(point_b[0], 7), round(point_b[1], 7)]],
         "distance": round(polyline_distance([point_a, point_b]), 1),
-        "walk": bool(payload.get("walk", True)),
-        "bike": bool(payload.get("bike", True)),
+        # Snap links are stitching connectors, not real rideable roads.
+        "walk": True,
+        "bike": False,
         "congestion": congestion,
         "source": "manual_collector_link",
     }
@@ -3102,6 +3249,13 @@ def get_route_graph_version(place_id=None):
     return f"{signature[0]}-{signature[1]}"
 
 
+def enforce_walk_only_snap_link(edge):
+    if (edge or {}).get("source") == "manual_collector_link":
+        edge["walk"] = True
+        edge["bike"] = False
+    return edge
+
+
 def load_route_graph(place_id=None):
     effective_place_id = place_id or DEFAULT_PLACE_ID
     graph_path = get_route_graph_path(effective_place_id)
@@ -3144,6 +3298,8 @@ def load_route_graph(place_id=None):
     adjacency = {node_id: [] for node_id in node_map}
 
     for edge in graph.get("edges", []):
+        if effective_place_id == XMU_MANUAL_PLACE_ID:
+            enforce_walk_only_snap_link(edge)
         start = edge["from"]
         end = edge["to"]
         if start not in adjacency or end not in adjacency:
@@ -3216,6 +3372,22 @@ def road_display_edges_for_map(graph):
             "walk": edge.get("walk", True),
             "bike": edge.get("bike", True),
             "amap_geometry": geometry,
+        })
+    for link in load_collector_links():
+        if link.get("kind") != "road_road":
+            continue
+        geometry = link.get("amap_geometry") or []
+        if len(geometry) < 2:
+            continue
+        display_edges.append({
+            "id": link.get("id", ""),
+            "name": link.get("name", ""),
+            "kind": link.get("kind", ""),
+            "road_type": "snap_link",
+            "walk": True,
+            "bike": False,
+            "amap_geometry": geometry,
+            "source": link.get("source", "manual_collector_link"),
         })
     return display_edges
 
@@ -3698,6 +3870,8 @@ def indoor_route_steps(result, graph):
 def prepare_indoor_floors(graph, result):
     path_ids = result["path_ids"] if result else []
     path_id_set = set(path_ids)
+    start_id = path_ids[0] if path_ids else ""
+    end_id = path_ids[-1] if path_ids else ""
     edge_pairs = set()
     if result:
         for edge in result.get("edges", []):
@@ -3720,12 +3894,25 @@ def prepare_indoor_floors(graph, result):
                 "y2": to_node["y"],
                 "is_path": frozenset((edge["from"], edge["to"])) in edge_pairs,
             })
+        display_nodes = []
+        for node in floor_nodes:
+            if node.get("selectable") is False:
+                continue
+            if node.get("type") not in {"gate", "room", "elevator", "stairs", "other"}:
+                continue
+            display_nodes.append({
+                **node,
+                "is_path": node["id"] in path_id_set,
+                "is_start": node["id"] == start_id,
+                "is_end": node["id"] == end_id,
+            })
         floors.append({
             "number": floor,
             "image": graph.get("floor_assets", {}).get(floor, ""),
             "width": graph.get("floor_size", {}).get("width", INDOOR_FLOOR_WIDTH),
             "height": graph.get("floor_size", {}).get("height", INDOOR_FLOOR_HEIGHT),
             "nodes": floor_nodes,
+            "display_nodes": display_nodes,
             "edges": floor_edges,
             "path_nodes": [graph["node_map"][node_id] for node_id in path_ids if graph["node_map"][node_id]["floor"] == floor],
             "active": any(node["floor"] == floor for node in (graph["node_map"][node_id] for node_id in path_ids)),
@@ -3738,6 +3925,17 @@ def indoor_node_options(graph):
         node for node in graph["nodes"]
         if node["type"] in {"gate", "room", "elevator", "stairs", "other"}
     ]
+
+
+def indoor_default_endpoints(graph):
+    options = indoor_node_options(graph)
+    if not options:
+        return INDOOR_DEFAULT_START, INDOOR_DEFAULT_END
+    start = INDOOR_DEFAULT_START if INDOOR_DEFAULT_START in graph["node_map"] else options[0]["id"]
+    end = INDOOR_DEFAULT_END if INDOOR_DEFAULT_END in graph["node_map"] else options[-1]["id"]
+    if start == end and len(options) > 1:
+        end = options[1]["id"]
+    return start, end
 
 
 def default_indoor_collector_payload():
@@ -4644,6 +4842,8 @@ def attach_diary_stats(row):
         filename = item.get("filename")
         if filename:
             item["url"] = diary_media_public_url(diary["id"], filename)
+            if item.get("kind") == "image":
+                item["thumbnail_url"] = diary_media_thumbnail_public_url(diary["id"], filename)
             if item.get("kind") == "image" and (not item.get("width") or not item.get("height")):
                 file_path = os.path.join(diary_media_folder(diary["id"]), filename)
                 if os.path.exists(file_path):
@@ -4826,7 +5026,7 @@ def get_diary_by_id(diary_id, increase_views=False):
     row = cursor.fetchone()
     conn.close()
     if increase_views:
-        invalidate_diary_index_cache()
+        sync_diary_index_view_count(diary_id)
     return attach_diary_stats(row) if row else None
 
 
@@ -5367,8 +5567,7 @@ def indoor():
 
     graph = build_indoor_graph(building_id)
 
-    default_start = INDOOR_DEFAULT_START
-    default_end = INDOOR_DEFAULT_END
+    default_start, default_end = indoor_default_endpoints(graph)
 
     start = request.args.get("start", default_start).strip() or default_start
     end = request.args.get("end", default_end).strip() or default_end
@@ -6199,8 +6398,9 @@ def ai_assistant_config():
         "reasoning_model": os.getenv("AI_REASONING_MODEL", AI_REASONING_MODEL).strip() or AI_REASONING_MODEL,
         "api_key": api_key,
         "base_url": os.getenv("AI_BASE_URL", DEEPSEEK_BASE_URL).strip() or DEEPSEEK_BASE_URL,
-        "thinking": os.getenv("AI_THINKING", "enabled").strip().lower() or "enabled",
-        "reasoning_effort": os.getenv("AI_REASONING_EFFORT", "high").strip().lower() or "high",
+        "thinking": os.getenv("AI_THINKING", "disabled").strip().lower() or "disabled",
+        "reasoning_effort": os.getenv("AI_REASONING_EFFORT", "low").strip().lower() or "low",
+        "router_mode": os.getenv("AI_ROUTER_MODE", "fast").strip().lower() or "fast",
     }
 
 
@@ -6313,12 +6513,15 @@ def ai_build_url(endpoint, params=None, anchor=None):
             return build_url_with_query(endpoint, params or {}, anchor=anchor)
 
 
-def ai_action(kind, label, url):
-    return {
+def ai_action(kind, label, url, command=None):
+    action = {
         "kind": kind,
         "label": label,
         "url": url,
     }
+    if command:
+        action["command"] = command
+    return action
 
 
 def ai_food_card(food, place_id, origin_node=""):
@@ -6465,7 +6668,12 @@ def ai_tool_recommend_foods(arguments=None):
         "summary": "",
         "cards": cards,
         "actions": [
-            ai_action("open_foods", "打开美食推荐", ai_build_url("foods", query)),
+            ai_action(
+                "apply_food_filter",
+                "按条件筛选美食",
+                ai_build_url("foods", query),
+                {"type": "food_filter", "params": query},
+            ),
         ],
         "stats": stats,
         "intent": intent,
@@ -6511,9 +6719,66 @@ def ai_route_card(result, graph, strategy="distance"):
                 "start": (result.get("path") or [""])[0],
                 "end": (result.get("path") or [""])[-1],
                 "strategy": strategy,
+                "transport": result.get("transport") or "mixed",
             },
         ),
     }
+
+
+def ai_extract_route_endpoints(text, graph):
+    raw_text = str(text or "").strip()
+    if not raw_text:
+        return {}
+    matches = ai_find_route_node_mentions(raw_text, graph)
+    if len(matches) >= 2:
+        return {"start": matches[0]["id"], "end": matches[1]["id"]}
+    return {}
+
+
+def ai_find_route_node_mentions(text, graph):
+    raw_text = str(text or "").strip()
+    if not raw_text:
+        return []
+    nodes = sorted(graph.get("nodes", []), key=lambda item: len(str(item.get("name", ""))), reverse=True)
+    matches = []
+    normalized_text = normalize_search_text(raw_text)
+    occupied_ranges = []
+    for node in nodes:
+        node_id = str(node.get("id", ""))
+        name = str(node.get("name", "")).strip()
+        if not node_id or not name:
+            continue
+        index = raw_text.find(name)
+        if index < 0:
+            normalized_name = normalize_search_text(name)
+            index = normalized_text.find(normalized_name) if normalized_name else -1
+        if index >= 0:
+            end_index = index + len(name)
+            if any(index >= start and index < end for start, end in occupied_ranges):
+                continue
+            occupied_ranges.append((index, end_index))
+            matches.append({"id": node_id, "name": name, "index": index})
+    matches.sort(key=lambda item: item["index"])
+    return matches
+
+
+def ai_route_arguments_from_text(text, graph):
+    extracted = ai_extract_route_endpoints(text, graph)
+    if extracted.get("start") and extracted.get("end"):
+        return {
+            "start": extracted["start"],
+            "end": extracted["end"],
+            "transport": "mixed",
+            "strategy": "distance",
+        }
+    return {}
+
+
+def ai_route_node_name_from_id(graph, node_id):
+    node = (graph.get("node_map") or {}).get(node_id)
+    if node:
+        return str(node.get("name") or node_id)
+    return str(node_id or "")
 
 
 def ai_tool_plan_route(arguments=None):
@@ -6521,9 +6786,10 @@ def ai_tool_plan_route(arguments=None):
     place_id = str(args.get("place_id") or DEFAULT_PLACE_ID).strip() or DEFAULT_PLACE_ID
     graph = load_route_graph(place_id)
     strategy = str(args.get("strategy") or "distance").strip() or "distance"
-    transport = str(args.get("transport") or "walk").strip() or "walk"
-    start = ai_resolve_node_id(graph, args.get("start") or graph.get("default_start", ""))
-    end = ai_resolve_node_id(graph, args.get("end"))
+    transport = str(args.get("transport") or "mixed").strip() or "mixed"
+    extracted = ai_extract_route_endpoints(args.get("keyword") or args.get("message") or "", graph)
+    start = ai_resolve_node_id(graph, args.get("start") or extracted.get("start") or graph.get("default_start", ""))
+    end = ai_resolve_node_id(graph, args.get("end") or extracted.get("end"))
     if not start or not end:
         return {
             "type": "route_plan",
@@ -6532,16 +6798,30 @@ def ai_tool_plan_route(arguments=None):
             "actions": [ai_action("open_route", "打开路线规划", ai_url_for("route", place_id=place_id))],
         }
     result = dijkstra_shortest_path(graph, start, end, strategy=strategy, transport=transport)
+    if result and not result.get("error"):
+        result["transport"] = transport
     card = ai_route_card(result, graph, strategy=strategy)
+    route_url = ai_url_for("route", place_id=place_id, start=start, end=end, strategy=strategy, transport=transport)
     return {
         "type": "route_plan",
         "summary": "已按当前图数据计算路线。" if card else "没有找到可达路线。",
         "cards": [card] if card else [],
         "actions": [
             ai_action(
-                "open_route",
-                "查看路线",
-                ai_url_for("route", place_id=place_id, start=start, end=end, strategy=strategy, transport=transport),
+                "apply_route_plan",
+                "自动规划并高亮路线",
+                route_url,
+                {
+                    "type": "route_plan",
+                    "params": {
+                        "place_id": place_id,
+                        "start": start,
+                        "end": end,
+                        "strategy": strategy,
+                        "transport": transport,
+                        "route_type": "single",
+                    },
+                },
             )
         ],
     }
@@ -6596,7 +6876,14 @@ def ai_tool_search_diaries(arguments=None):
         "type": "diary_search",
         "summary": f"找到 {len(cards)} 篇可参考的日记。",
         "cards": cards,
-        "actions": [ai_action("open_diaries", "打开日记广场", ai_url_for("diaries", keyword=keyword))],
+        "actions": [
+            ai_action(
+                "apply_diary_search",
+                "按关键词搜索日记",
+                ai_build_url("diary_search", {"keyword": keyword, "sort_by": "hot_rating_desc"}),
+                {"type": "diary_search", "params": {"keyword": keyword, "sort_by": "hot_rating_desc"}},
+            )
+        ],
     }
 
 
@@ -7033,10 +7320,12 @@ def ai_context_memory_bundle(history=None):
                     "url": card.get("url", ""),
                 })
             for action in metadata.get("actions", []) or []:
+                command = action.get("command") if isinstance(action.get("command"), dict) else {}
                 last_actions.append({
                     "kind": action.get("kind", ""),
                     "label": action.get("label", ""),
                     "url": action.get("url", ""),
+                    "command": command,
                 })
     return {
         "recent_messages": recent_messages[-8:],
@@ -7044,6 +7333,73 @@ def ai_context_memory_bundle(history=None):
         "last_cards": last_cards[-6:],
         "last_actions": last_actions[-4:],
     }
+
+
+def ai_last_system_modules(history=None):
+    modules = []
+    for item in history or []:
+        metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+        for module in metadata.get("modules", []) or []:
+            module = str(module or "").strip()
+            if module and module not in modules:
+                modules.append(module)
+    return modules[-5:]
+
+
+def ai_last_action_command(history=None, command_type=""):
+    command_type = str(command_type or "").strip()
+    for item in reversed(history or []):
+        metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+        for action in reversed(metadata.get("actions", []) or []):
+            command = action.get("command") if isinstance(action.get("command"), dict) else {}
+            if command_type and command.get("type") != command_type:
+                continue
+            params = command.get("params") if isinstance(command.get("params"), dict) else {}
+            return {"command": command, "params": params, "action": action}
+    return {}
+
+
+def ai_recent_history_text(history=None, limit=6):
+    parts = []
+    for item in (history or [])[-limit:]:
+        content = str(item.get("content") or "").strip()
+        if content:
+            parts.append(content)
+    return "\n".join(parts)
+
+
+def ai_is_context_followup(text):
+    raw_text = str(text or "").strip()
+    followup_words = (
+        "这个", "这个路线", "该路线", "这条路线", "刚才", "上面", "前面", "继续",
+        "直接", "就这个", "就按", "按刚才", "帮我打开", "打开", "显示", "高亮",
+        "规划", "执行", "安排", "还有吗", "换一个", "再来", "别的",
+    )
+    return any(word in raw_text for word in followup_words)
+
+
+def ai_route_arguments_from_history(history=None, graph=None, current_text=""):
+    graph = graph or load_route_graph(DEFAULT_PLACE_ID)
+    current_args = ai_route_arguments_from_text(current_text, graph)
+    if current_args:
+        return current_args
+
+    action_context = ai_last_action_command(history, "route_plan")
+    params = action_context.get("params") if isinstance(action_context.get("params"), dict) else {}
+    start = ai_resolve_node_id(graph, params.get("start"))
+    end = ai_resolve_node_id(graph, params.get("end"))
+    if start and end:
+        return {
+            "start": start,
+            "end": end,
+            "transport": params.get("transport") or "mixed",
+            "strategy": params.get("strategy") or "distance",
+        }
+
+    combined_text = "\n".join(
+        item for item in [ai_recent_history_text(history), str(current_text or "").strip()] if item
+    )
+    return ai_route_arguments_from_text(combined_text, graph)
 
 
 def ai_llm_chat_text(messages, temperature=0.2):
@@ -7062,8 +7418,9 @@ def ai_llm_chat_text(messages, temperature=0.2):
             "messages": messages,
             "temperature": temperature,
             "reasoning_effort": config["reasoning_effort"],
-            "extra_body": {"thinking": {"type": config["thinking"]}},
         }
+        if config["thinking"] != "disabled":
+            kwargs["extra_body"] = {"thinking": {"type": config["thinking"]}}
         response = client.chat.completions.create(**kwargs)
         choice = response.choices[0] if getattr(response, "choices", None) else None
         message_obj = getattr(choice, "message", None) if choice else None
@@ -7139,7 +7496,7 @@ def ai_model_route_decision(message, page_context=None, history=None):
     }
 
 
-def ai_fallback_route_decision(message, page_context=None):
+def ai_fallback_route_decision(message, page_context=None, history=None):
     text = str(message or "").strip()
     context = page_context or {}
     modules = []
@@ -7160,10 +7517,29 @@ def ai_fallback_route_decision(message, page_context=None):
         modules.append("place")
     if "推荐" in text and not modules:
         modules.append("place")
+
+    place_id = str(context.get("place_id") or FOOD_DEFAULT_PLACE_ID).strip() or FOOD_DEFAULT_PLACE_ID
+    graph = load_route_graph(place_id)
+    route_args = ai_route_arguments_from_history(history, graph, text)
+    last_modules = ai_last_system_modules(history)
+    is_followup = ai_is_context_followup(text)
+    if route_args and (is_followup or any(word in text for word in route_words)):
+        if "route" not in modules:
+            modules.append("route")
+    elif is_followup and not modules:
+        for module in reversed(last_modules):
+            if module in ("food", "place", "route", "indoor", "diary"):
+                modules.append(module)
+                break
+
+    arguments = {"keyword": text}
+    if "route" in modules and route_args:
+        arguments.update(route_args)
+
     return {
         "mode": "system" if modules else "general",
         "modules": modules,
-        "arguments": {"keyword": text},
+        "arguments": arguments,
         "reason": "fallback",
         "source": "local",
     }
@@ -7214,7 +7590,12 @@ def ai_tool_recommend_places(arguments=None):
         "summary": f"我从景点库里筛出了 {len(cards)} 个可参考地点。",
         "cards": cards,
         "actions": [
-            ai_action("open_places", "打开景点列表", ai_url_for("places", keyword=keyword)),
+            ai_action(
+                "apply_place_filter",
+                "按条件筛选景点",
+                ai_build_url("places", {"keyword": keyword}),
+                {"type": "place_filter", "params": {"keyword": keyword}},
+            ),
             ai_action("open_recommend_places", "打开个性化推荐", ai_url_for("recommend_places")),
         ],
     }
@@ -7242,12 +7623,16 @@ def ai_run_rag_tools(message, page_context=None, route_decision=None):
     if "place" in modules:
         tool_results.append(ai_tool_recommend_places({"keyword": keyword, "limit": 4}))
     if "route" in modules:
+        graph = load_route_graph(place_id)
+        explicit_route_args = ai_route_arguments_from_text(" ".join([keyword, message]), graph)
         tool_results.append(ai_tool_plan_route({
             "place_id": place_id,
-            "start": args.get("start") or context.get("start", ""),
-            "end": args.get("end") or context.get("end", ""),
-            "strategy": context.get("strategy", "distance"),
-            "transport": context.get("transport", "walk"),
+            "keyword": keyword,
+            "message": message,
+            "start": args.get("start") or explicit_route_args.get("start") or context.get("start", ""),
+            "end": args.get("end") or explicit_route_args.get("end") or context.get("end", ""),
+            "strategy": args.get("strategy") or explicit_route_args.get("strategy") or context.get("strategy", "distance"),
+            "transport": args.get("transport") or explicit_route_args.get("transport") or context.get("transport") or "mixed",
         }))
     if "indoor" in modules:
         vertical_mode = str(args.get("vertical_mode") or context.get("vertical_mode", "auto")).strip() or "auto"
@@ -7299,9 +7684,12 @@ def ai_run_rag_tools(message, page_context=None, route_decision=None):
 
 def ai_local_assistant_payload(message, page_context=None, history=None):
     context = page_context or {}
-    decision = ai_model_route_decision(message, context, history)
+    config = ai_assistant_config()
+    decision = None
+    if config.get("router_mode") == "llm":
+        decision = ai_model_route_decision(message, context, history)
     if not decision:
-        decision = ai_fallback_route_decision(message, context)
+        decision = ai_fallback_route_decision(message, context, history)
     if decision.get("mode") == "general":
         return {
             "mode": "general",
@@ -7398,6 +7786,21 @@ def ai_provider_answer(message, page_context, local_payload, history=None):
     return None
 
 
+def ai_executable_route_answer(local_payload):
+    for action in local_payload.get("actions", []) or []:
+        command = action.get("command") if isinstance(action.get("command"), dict) else {}
+        if command.get("type") != "route_plan":
+            continue
+        params = command.get("params") if isinstance(command.get("params"), dict) else {}
+        place_id = params.get("place_id") or DEFAULT_PLACE_ID
+        graph = load_route_graph(place_id)
+        start = ai_route_node_name_from_id(graph, params.get("start"))
+        end = ai_route_node_name_from_id(graph, params.get("end"))
+        if start and end:
+            return f"可以，这次我已经按系统路网算的是「{start}」到「{end}」。点下面的「自动规划并高亮路线」，就会把这条路线直接交给地图显示。"
+    return ""
+
+
 def ai_store_chat_message(user_id, conversation_id, role, content, tool_calls=None):
     if not user_id:
         return
@@ -7443,14 +7846,18 @@ def assistant_chat_api():
     local_payload = ai_local_assistant_payload(message, page_context, history)
     provider = "local"
     model_error = ""
-    try:
-        model_answer = ai_provider_answer(message, page_context, local_payload, history)
-    except Exception as exc:
-        model_answer = None
-        model_error = f"{type(exc).__name__}: {exc}"
-    if model_answer:
-        local_payload["answer"] = model_answer
-        provider = config["provider"]
+    executable_route_answer = ai_executable_route_answer(local_payload)
+    if executable_route_answer:
+        local_payload["answer"] = executable_route_answer
+    else:
+        try:
+            model_answer = ai_provider_answer(message, page_context, local_payload, history)
+        except Exception as exc:
+            model_answer = None
+            model_error = f"{type(exc).__name__}: {exc}"
+        if model_answer:
+            local_payload["answer"] = model_answer
+            provider = config["provider"]
 
     ai_store_chat_message(user_id, conversation_id, "user", message)
     response_payload = {
@@ -8097,7 +8504,15 @@ def diaries():
             flash("日记发布成功")
             return redirect(url_for("diaries"))
 
-    diaries_list = load_diaries(sort_by="hot_rating_desc")
+    all_diaries = load_diaries(sort_by="hot_rating_desc")
+    page = parse_positive_int(request.args.get("page", 1))
+    diaries_list, pagination_state = paginate_items(all_diaries, page, DIARIES_PAGE_SIZE)
+    pagination = build_pagination(
+        "diaries",
+        pagination_state["page"],
+        pagination_state["total_pages"],
+        {},
+    )
     current_user = get_logged_in_user()
     return render_template(
         "diaries.html",
@@ -8105,7 +8520,8 @@ def diaries():
         current_user=current_user,
         current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
         diaries=diaries_list,
-        diaries_total=len(diaries_list),
+        diaries_total=len(all_diaries),
+        pagination=pagination,
         place_name_options=place_name_options,
         publish_default_destination="",
     )
@@ -8118,12 +8534,71 @@ def diary_search():
         return redirect(url_for("login"))
 
     query = request.args.get("q", "").strip()
+    title_query = request.args.get("title_query", "").strip()
+    keyword = request.args.get("keyword", "").strip()
+    destination = request.args.get("destination", "").strip()
+    search_mode = request.args.get("search_mode", "contains").strip().lower()
+    sort_by = request.args.get("sort_by", "hot_rating_desc").strip().lower()
+    if search_mode not in {"exact", "prefix", "contains"}:
+        search_mode = "contains"
+    if sort_by not in {"hot_rating_desc", "views_desc", "rating_desc", "created_desc", "title_asc"}:
+        sort_by = "hot_rating_desc"
+    if query and not title_query and not keyword and not destination:
+        keyword = query
+
     all_places = load_places()
     place_name_options = get_place_name_options(all_places)
-    if query:
-        diaries_list = get_diary_search_results(query)
+    has_search_filters = any([title_query, keyword, destination])
+    if has_search_filters:
+        filtered_diaries = load_diaries(
+            title_query=title_query,
+            search_mode=search_mode,
+            keyword=keyword,
+            destination=destination,
+            sort_by=sort_by,
+        )
     else:
-        diaries_list = load_diaries(sort_by="hot_rating_desc")[:16]
+        filtered_diaries = load_diaries(sort_by="hot_rating_desc")
+    page = parse_positive_int(request.args.get("page", 1))
+    diaries_list, pagination_state = paginate_items(filtered_diaries, page, DIARIES_PAGE_SIZE)
+    pagination = build_pagination(
+        "diary_search",
+        pagination_state["page"],
+        pagination_state["total_pages"],
+        {
+            "q": query,
+            "title_query": title_query,
+            "keyword": keyword,
+            "destination": destination,
+            "search_mode": search_mode,
+            "sort_by": sort_by,
+        },
+    )
+    recommendations = load_diaries(sort_by="hot_rating_desc")[:12]
+    search_mode_options = [
+        {"value": "exact", "label": "精确查询", "note": "标题完全一致"},
+        {"value": "prefix", "label": "前缀模糊", "note": "标题前缀快速匹配"},
+        {"value": "contains", "label": "标题包含", "note": "标题内包含关键词"},
+    ]
+    sort_options = [
+        {"value": "hot_rating_desc", "label": "综合推荐", "note": "热度、评分、评分人数"},
+        {"value": "views_desc", "label": "热度优先", "note": "浏览量从高到低"},
+        {"value": "rating_desc", "label": "评分优先", "note": "平均评分从高到低"},
+        {"value": "created_desc", "label": "最新发布", "note": "发布时间倒序"},
+        {"value": "title_asc", "label": "标题排序", "note": "标题字典序"},
+    ]
+    search_state = {
+        "query": query,
+        "title_query": title_query,
+        "keyword": keyword,
+        "destination": destination,
+        "search_mode": search_mode,
+        "sort_by": sort_by,
+        "has_filters": has_search_filters,
+        "result_count": len(filtered_diaries),
+        "sort_label": next((item["label"] for item in sort_options if item["value"] == sort_by), "综合推荐"),
+        "mode_label": next((item["label"] for item in search_mode_options if item["value"] == search_mode), "标题包含"),
+    }
     current_user = get_logged_in_user()
     return render_template(
         "diary_search.html",
@@ -8132,8 +8607,12 @@ def diary_search():
         current_user_avatar_url=get_user_avatar_url(current_user) if current_user else "",
         diaries=diaries_list,
         query=query,
-        recommendations=load_diaries(sort_by="hot_rating_desc")[:12],
+        recommendations=recommendations,
+        pagination=pagination,
         place_name_options=place_name_options,
+        search_state=search_state,
+        search_mode_options=search_mode_options,
+        sort_options=sort_options,
     )
 
 
@@ -8298,11 +8777,21 @@ def diary_comment_like(diary_id, comment_id):
 
 @app.route("/diary-media/<int:diary_id>/<path:filename>")
 def diary_media_file(diary_id, filename):
-    media_folder = diary_media_folder(diary_id)
-    file_path = os.path.join(media_folder, filename)
-    if not os.path.exists(file_path):
+    media_folder, file_path = resolve_diary_media_path(diary_id, filename)
+    if not file_path or not os.path.exists(file_path):
         abort(404)
-    return send_from_directory(media_folder, filename)
+    return send_from_directory(media_folder, os.path.basename(file_path))
+
+
+@app.route("/diary-media-thumb/<int:diary_id>/<path:filename>")
+def diary_media_thumbnail_file(diary_id, filename):
+    thumb_path = ensure_diary_image_thumbnail(diary_id, filename)
+    if not thumb_path:
+        media_folder, file_path = resolve_diary_media_path(diary_id, filename)
+        if not file_path or not os.path.exists(file_path):
+            abort(404)
+        return send_from_directory(media_folder, os.path.basename(file_path))
+    return send_from_directory(os.path.dirname(thumb_path), os.path.basename(thumb_path))
 
 
 @app.route("/foods")
@@ -8495,6 +8984,10 @@ def food_favorite(food_key):
 
 
 if __name__ == "__main__":
+    # 启动后台异步全量预热守护线程，自动将老旧和种子日记图片的常规缩略图与微缩占位 Base64 补齐
+    import threading
+    threading.Thread(target=prewarm_all_diary_thumbnails, daemon=True).start()
+
     host = os.getenv("FLASK_HOST", "0.0.0.0")
     port = int(os.getenv("PORT", os.getenv("FLASK_PORT", "5000")))
     debug = os.getenv("FLASK_DEBUG", "1").lower() in ("1", "true", "yes", "on")

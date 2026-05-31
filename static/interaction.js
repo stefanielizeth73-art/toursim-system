@@ -8,16 +8,21 @@
     }
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const orb = document.createElement("div");
-    orb.className = "cursor-orb";
-    orb.setAttribute("aria-hidden", "true");
-    body.appendChild(orb);
+    const isDiaryFeedPage = body.classList.contains("diary-list-page") || body.classList.contains("diary-search-page");
+    const isFoodPage = body.classList.contains("food-product-page");
+    if (!isDiaryFeedPage && !isFoodPage) {
+        const orb = document.createElement("div");
+        orb.className = "cursor-orb";
+        orb.setAttribute("aria-hidden", "true");
+        body.appendChild(orb);
+    }
 
     let cursorX = window.innerWidth / 2;
     let cursorY = window.innerHeight * 0.35;
     let activeCard = null;
     let rafId = 0;
     let hoverTarget = null;
+    let masonryRafId = 0;
 
     function paintCursor() {
         root.style.setProperty("--cursor-x", cursorX + "px");
@@ -79,6 +84,16 @@
         });
     }
 
+    function scheduleMasonryLayout() {
+        if (masonryRafId) {
+            return;
+        }
+        masonryRafId = window.requestAnimationFrame(function () {
+            masonryRafId = 0;
+            layoutMasonryFeeds();
+        });
+    }
+
     function initDiaryFeedMemory() {
         const feedRoot = document.querySelector("[data-diary-feed-page]");
         if (!feedRoot || !window.sessionStorage) {
@@ -133,6 +148,73 @@
         });
     }
 
+    function initDeferredDiaryImages() {
+        const lazyImages = Array.from(document.querySelectorAll("img[data-diary-lazy-src]"));
+        const lazyVideos = Array.from(document.querySelectorAll("video[data-diary-lazy-video]"));
+        if (!lazyImages.length && !lazyVideos.length) {
+            return;
+        }
+
+        function loadImage(image) {
+            const source = image.getAttribute("data-diary-lazy-src");
+            if (!source) {
+                return;
+            }
+            image.src = source;
+            image.removeAttribute("data-diary-lazy-src");
+            if (image.decode) {
+                image.decode().catch(function () { }).then(function () {
+                    image.classList.add("is-loaded");
+                    scheduleMasonryLayout();
+                });
+            } else {
+                image.classList.add("is-loaded");
+                scheduleMasonryLayout();
+            }
+        }
+
+        function loadVideo(video) {
+            const source = video.getAttribute("data-diary-lazy-video");
+            if (!source) {
+                return;
+            }
+            video.src = source;
+            video.removeAttribute("data-diary-lazy-video");
+            video.load();
+            scheduleMasonryLayout();
+        }
+
+        if (!("IntersectionObserver" in window)) {
+            lazyImages.forEach(loadImage);
+            document.querySelectorAll("video[data-diary-lazy-video]").forEach(loadVideo);
+            return;
+        }
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+                if (entry.target.tagName === "VIDEO") {
+                    loadVideo(entry.target);
+                } else {
+                    loadImage(entry.target);
+                }
+                observer.unobserve(entry.target);
+            });
+        }, {
+            rootMargin: "220px 0px",
+            threshold: 0.01
+        });
+
+        lazyImages.forEach(function (image) {
+            observer.observe(image);
+        });
+        lazyVideos.forEach(function (video) {
+            observer.observe(video);
+        });
+    }
+
     function initDiaryGallery() {
         const galleries = document.querySelectorAll("[data-gallery]");
         galleries.forEach(function (gallery) {
@@ -160,10 +242,41 @@
                 if (stage) {
                     const activeItem = items[activeIndex];
                     const imageUrl = activeItem && activeItem.getAttribute("data-gallery-src");
-                    stage.style.backgroundImage = imageUrl ? "url('" + imageUrl.replace(/'/g, "\\'") + "')" : "none";
-                    stage.style.backgroundRepeat = "no-repeat";
-                    stage.style.backgroundPosition = "center center";
-                    stage.style.backgroundSize = "contain";
+                    const thumbUrl = activeItem && activeItem.getAttribute("data-gallery-thumb");
+                    const blurBase64 = activeItem && activeItem.getAttribute("data-gallery-blur");
+
+                    if (imageUrl) {
+                        // 1. 瞬间先将背景设置为内联的 Base64 极微磨砂占位（物理 0ms 秒开呈现）
+                        const currentThumb = blurBase64 || thumbUrl || imageUrl;
+                        stage.style.backgroundImage = "url('" + currentThumb.replace(/'/g, "\\'") + "')";
+                        stage.style.backgroundRepeat = "no-repeat";
+                        stage.style.backgroundPosition = "center center";
+                        stage.style.backgroundSize = "contain";
+
+                        const loadingIndex = activeIndex;
+
+                        // 2. 若存在缩略图且有内联占位，在后台并发加载缩略图进行半高清过渡
+                        if (blurBase64 && thumbUrl) {
+                            const thumbImg = new Image();
+                            thumbImg.src = thumbUrl;
+                            thumbImg.onload = function() {
+                                if (activeIndex === loadingIndex) {
+                                    stage.style.backgroundImage = "url('" + thumbUrl.replace(/'/g, "\\'") + "')";
+                                }
+                            };
+                        }
+
+                        // 3. 异步在后台下载大图，下载完成后平滑替换为高清大图，完全避免大图请求/解码阻塞粒子动画主线程
+                        const img = new Image();
+                        img.src = imageUrl;
+                        img.onload = function() {
+                            if (activeIndex === loadingIndex) {
+                                stage.style.backgroundImage = "url('" + imageUrl.replace(/'/g, "\\'") + "')";
+                            }
+                        };
+                    } else {
+                        stage.style.backgroundImage = "none";
+                    }
                 }
                 dots.forEach(function (dot, index) {
                     dot.classList.toggle("is-active", index === activeIndex);
@@ -177,6 +290,22 @@
                 if (nextButton) {
                     nextButton.disabled = activeIndex === items.length - 1;
                 }
+
+                // 4. 翻页预加载相邻的下一张和上一张图片，使用浏览器缓存，使其在翻页时高清原图也能秒开
+                preloadAdjacentImages(activeIndex);
+            }
+
+            function preloadAdjacentImages(currentIndex) {
+                [currentIndex - 1, currentIndex + 1].forEach(function(index) {
+                    if (index >= 0 && index < items.length) {
+                        const item = items[index];
+                        const imageUrl = item && item.getAttribute("data-gallery-src");
+                        if (imageUrl) {
+                            const img = new Image();
+                            img.src = imageUrl;
+                        }
+                    }
+                });
             }
 
             function setActiveIndex(index) {
@@ -420,7 +549,7 @@
         });
     }
 
-    if (!reduceMotion) {
+    if (!reduceMotion && !isDiaryFeedPage && !isFoodPage) {
         window.addEventListener("pointermove", function (event) {
             cursorX = event.clientX;
             cursorY = event.clientY;
@@ -446,12 +575,12 @@
     }
 
     document.querySelectorAll(".js-masonry-feed img, .js-masonry-feed video").forEach(function (media) {
-        media.addEventListener("load", layoutMasonryFeeds, { once: true });
-        media.addEventListener("loadedmetadata", layoutMasonryFeeds, { once: true });
+        media.addEventListener("load", scheduleMasonryLayout, { once: true });
+        media.addEventListener("loadedmetadata", scheduleMasonryLayout, { once: true });
     });
 
     function initCanvasParticles() {
-        if (reduceMotion) return;
+        if (reduceMotion || isDiaryFeedPage || isFoodPage) return;
         const canvas = document.createElement("canvas");
         canvas.id = "lux-particle-canvas";
         canvas.style.position = "fixed";
@@ -585,14 +714,15 @@
 
     initDiaryFeedMemory();
     initDiaryBackLink();
+    initDeferredDiaryImages();
     initDiaryGallery();
     initCommentDrafts();
     initCanvasParticles();
 
     layoutMasonryFeeds();
-    window.addEventListener("load", layoutMasonryFeeds);
+    window.addEventListener("load", scheduleMasonryLayout);
     window.addEventListener("resize", function () {
-        window.requestAnimationFrame(layoutMasonryFeeds);
+        scheduleMasonryLayout();
     });
 
     const messages = document.querySelectorAll(".message");

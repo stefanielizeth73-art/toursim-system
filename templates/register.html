@@ -4,115 +4,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TourSim Travel - 用户注册</title>
-    <!-- Google Fonts Preconnect and Import for Premium Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>TourSim Travel - Curated Registration</title>
 
-    <!-- Premium Stylesheet Loading -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css', v=asset_version('avatar_picker.css')) }}">
+    <!-- Snamitravel Styled Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='snamitravel_clone.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css') }}">
 
-    <!-- Defer loading of interactive scripts -->
-    <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='avatar_picker.js', v=asset_version('avatar_picker.js')) }}"></script>
+    <!-- Inline page styles to perfectly center the standalone card -->
+    <style>
+        body.snami-register-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--snami-bg);
+            padding: 40px 16px;
+        }
+
+        .snami-register-container {
+            width: min(580px, 100%);
+            background-color: var(--snami-card-bg);
+            border: 1px solid rgba(26, 26, 26, 0.06);
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.06);
+            padding: 60px 48px;
+            position: relative;
+            animation: cardRise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes cardRise {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .snami-reg-home-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.6;
+            transition: var(--transition-fast);
+        }
+
+        .snami-reg-home-link:hover {
+            opacity: 1;
+            color: var(--snami-gold);
+        }
+
+        @media (max-width: 640px) {
+            .snami-register-container {
+                padding: 48px 24px;
+            }
+        }
+    </style>
+
+    <!-- Custom Interactive Logic -->
+    <script defer src="{{ url_for('static', filename='snamitravel_clone.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='avatar_picker.js') }}"></script>
 </head>
-<body class="login-page">
-    <!-- Luxury Astrolabe / Glowing canvas background particles are handled by interaction.js -->
+<body class="snami-landing snami-register-page">
 
-    <main class="login-cover" aria-labelledby="register-title">
-        <!-- LEFT PANEL: Cinematic Luxury Travel Video Narratives -->
-        <section class="login-story" aria-label="注册介绍">
-            <!-- Pexels/Mixkit High-end Resort Aerial Background Video -->
-            <video class="lux-video-bg" autoplay muted loop playsinline aria-hidden="true">
-                <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-luxury-resort-with-swimming-pools-42172-large.mp4" type="video/mp4">
-                您的浏览器不支持 HTML5 视频播放。
-            </video>
-            <div class="lux-video-overlay" aria-hidden="true"></div>
+    <div class="snami-register-container">
+        <!-- Return to Landing Page Link -->
+        <a href="/" class="snami-reg-home-link">
+            ← HOME
+        </a>
 
-            <div class="login-brand">
-                <span class="login-brand__mark" aria-hidden="true"></span>
-                <span>TourSim</span>
+        <header class="snami-modal-header" style="margin-top: 20px;">
+            <span class="snami-modal-kicker">NEW MEMBER</span>
+            <h2 class="snami-modal-title">创建账号</h2>
+            <p class="snami-modal-subtitle">注册以同步您规划的 Dijkstra 最优路线并加入游记社区。</p>
+        </header>
+
+        <!-- Flash Errors Inside Standalone Page -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="snami-flash-message error" role="alert">
+                        <span class="snami-flash-icon" aria-hidden="true">!</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('register') }}" enctype="multipart/form-data" class="snami-form">
+            <div class="snami-form-group">
+                <label class="snami-form-label" for="username">用户名</label>
+                <input class="snami-form-input" type="text" id="username" name="username" placeholder="请设置您的用户名" autocomplete="username" required>
             </div>
 
-            <div class="login-story__content">
-                <p class="login-kicker">CREATE ACCOUNT</p>
-                <h1 id="register-title">创建 TourSim 账号，保存你的旅行灵感。</h1>
-                <p class="login-lede">注册后可以发布游记、收藏景点与美食、管理头像资料，并在校园路线与室内导航中获得更完整的个性化体验。</p>
+            <div class="snami-form-group">
+                <label class="snami-form-label" for="password">密码</label>
+                <input class="snami-form-input" type="password" id="password" name="password" placeholder="请设置登录密码" autocomplete="new-password" required>
             </div>
 
-            <div class="login-story__meta" aria-label="注册能力">
-                <span>收藏同步</span>
-                <span>头像资料</span>
-                <span>日记发布</span>
+            <div class="snami-form-group">
+                <label class="snami-form-label" for="confirm_password">确认密码</label>
+                <input class="snami-form-input" type="password" id="confirm_password" name="confirm_password" placeholder="请再次输入以确认" autocomplete="new-password" required>
             </div>
-        </section>
 
-        <!-- RIGHT PANEL: Elegant Frosted Glass Form Console -->
-        <section class="login-panel" aria-label="注册表单">
-            <div class="login-card">
-                <header class="card-header">
-                    <p class="login-kicker">NEW MEMBER</p>
-                    <h2>用户注册</h2>
-                    <p class="card-subtitle">填写账号信息，创建您的 TourSim 个人空间。</p>
-                </header>
-
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="message error" role="alert">
-                                <span class="error-icon" aria-hidden="true">!</span>
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-                <form method="post" enctype="multipart/form-data" class="login-form" id="register-form-submit">
-                    <!-- Username Input Group -->
-                    <div class="form-group is-pointer-active" id="reg-username-group">
-                        <label for="username">用户名</label>
-                        <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
-                    </div>
-
-                    <!-- Password Input Group -->
-                    <div class="form-group is-pointer-active" id="reg-password-group">
-                        <label for="password">密码</label>
-                        <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="new-password" required>
-                    </div>
-
-                    <!-- Confirm Password Input Group -->
-                    <div class="form-group is-pointer-active" id="reg-confirm-password-group">
-                        <label for="confirm_password">确认密码</label>
-                        <input type="password" id="confirm_password" name="confirm_password" placeholder="请再次输入密码" autocomplete="new-password" required>
-                    </div>
-
-                    <!-- Avatar Select Input Group -->
-                    <div class="form-group avatar-form-group is-pointer-active" id="reg-avatar-group">
-                        <label for="avatar">头像（可选）</label>
-                        {{ avatar_picker(
-                            preset_avatar_options(),
-                            selected_path=request.form.get('preset_avatar', ''),
-                            title='选择你的 TourSim 头像'
-                        ) }}
-                    </div>
-
-                    <!-- Magnetic Spring Gold Button -->
-                    <button type="submit" class="submit-btn" id="register-submit-btn">立即注册</button>
-                </form>
-
-                <div class="divider" id="register-divider">
-                    <span>或</span>
-                </div>
-
-                <div class="auth-links" id="register-login-redirect">
-                    <p class="auth-text">
-                        已有账号？
-                        <a href="{{ url_for('login') }}" class="auth-link" id="register-login-link">去登录</a>
-                    </p>
-                </div>
+            <!-- Avatar selection component -->
+            <div class="snami-form-group" style="gap: 10px;">
+                <label class="snami-form-label">选择头像 (AVATAR)</label>
+                {{ avatar_picker(
+                    preset_avatar_options(),
+                    selected_path=request.form.get('preset_avatar', ''),
+                    title='选择您的 TourSim 专属头像'
+                ) }}
             </div>
-        </section>
-    </main>
+
+            <button class="snami-form-submit" type="submit" style="margin-top: 10px;">CREATE ACCOUNT</button>
+        </form>
+
+        <div class="snami-form-switch">
+            已经有账号？
+            <a href="{{ url_for('login') }}#login" class="snami-form-switch-link">去登录</a>
+        </div>
+    </div>
+
 </body>
 </html>

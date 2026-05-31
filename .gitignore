@@ -16,6 +16,7 @@ tourism.db
 *.db-journal
 .share_*
 .claude/
+docs/research/credentials.md
 test-results/
 *.log
 data/raw/
