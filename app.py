@@ -2447,12 +2447,14 @@ def load_places():
             row["cover_image_width"] = image_info.get("original_width") or image_info.get("width") or 0
             row["cover_image_height"] = image_info.get("original_height") or image_info.get("height") or 0
         else:
-            row["cover_image"] = ""
+            static_cover = place_media_relative_path(row["id"])
+            static_cover_path = os.path.join(APP_DIR, "static", *static_cover.split("/"))
+            row["cover_image"] = static_cover if os.path.exists(static_cover_path) else ""
             row["cover_image_source"] = ""
-            row["cover_image_title"] = ""
+            row["cover_image_title"] = "本地景点图片" if row["cover_image"] else ""
             row["cover_image_source_url"] = ""
-            row["cover_image_width"] = 0
-            row["cover_image_height"] = 0
+            row["cover_image_width"] = 1920 if row["cover_image"] else 0
+            row["cover_image_height"] = 1080 if row["cover_image"] else 0
 
     PLACES_CACHE["signature"] = signature
     PLACES_CACHE["records"] = places
