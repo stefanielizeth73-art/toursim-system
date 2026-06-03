@@ -8,20 +8,20 @@
         <img class="avatar-picker__preview" data-avatar-preview src="{{ url_for('static', filename=selected) }}" alt="头像预览">
         {% endif %}
         <div>
-            <span class="avatar-picker__eyebrow">Chrome Style</span>
+            <span class="avatar-picker__eyebrow">头像设置</span>
             <strong>{{ title }}</strong>
-            <p>选择一个预置卡通头像，或上传自己的图片。</p>
+            <p>选择一个预设头像，或上传自己的图片。</p>
         </div>
     </div>
 
     <div class="avatar-picker__panel">
         <div class="avatar-picker__search" aria-hidden="true">
             <span>Q</span>
-            <em>搜索头像</em>
+            <em>预设头像</em>
         </div>
         <div class="avatar-picker__section">
             <span class="avatar-picker__spark" aria-hidden="true">◇</span>
-            <span>开始浏览</span>
+            <span>选择头像</span>
         </div>
         <div class="avatar-picker__grid">
             {% for preset in presets %}

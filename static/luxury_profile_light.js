@@ -69,18 +69,6 @@ function initParallaxTilt() {
         const img = card.querySelector("img");
         if (!img) return;
 
-        card.addEventListener("mousemove", (e) => {
-            const rect = card.getBoundingClientRect();
-            const width = rect.width;
-
-            // 计算鼠标在卡片上的横向百分比位置 (-0.5 到 +0.5)
-            const mouseXPercent = (e.clientX - rect.left) / width - 0.5;
-
-            // 产生极其微幅的反方向视差平移效果，高端奢侈品动效重在细微
-            const shiftX = -mouseXPercent * 10; // 反方向平移最大5px
-            img.style.transform = `scale(1.08) translateX(${shiftX}px)`;
-        });
-
         card.addEventListener("mouseleave", () => {
             img.style.transform = `scale(1) translateX(0)`;
         });

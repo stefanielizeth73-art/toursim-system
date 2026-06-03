@@ -35,7 +35,7 @@
     <div class="lux-layout-wrapper">
 
         <!-- LEFT SIDEBAR: Sticky Editorial Console (公开行者信息台) -->
-        <aside class="lux-brand-sidebar" aria-label="公开行者信息台" id="lux-profile-sidebar">
+        <aside class="lux-brand-sidebar" aria-label="用户主页导航" id="lux-profile-sidebar">
             <div class="lux-sidebar-top">
                 <!-- 顶部标志性徽章 -->
                 <div class="lux-header-dock">
@@ -50,14 +50,13 @@
                     </div>
                 </div>
 
-                <!-- 被访问旅行家公开信息欢迎区 -->
-                <section class="lux-greeting-editorial" aria-label="旅行家简介面板">
-                    <span class="lux-greeting-kicker">TRAVELER PROFILE</span>
+                <section class="lux-greeting-editorial" aria-label="用户简介面板">
+                    <span class="lux-greeting-kicker">用户主页</span>
                     <img class="avatar-picker__preview" src="{{ profile_avatar_url }}" alt="{{ profile_user.username }} 的头像" style="width: 72px; height: 72px; border-radius: 50%; border: 1.5px solid var(--lux-gold); margin-bottom: 8px; object-fit: cover;">
                     <h1 class="lux-greeting-title" id="greeting-text">
-                        旅行家 <strong>{{ profile_user.username }}</strong>
+                        <strong>{{ profile_user.username }}</strong>
                     </h1>
-                    <p class="subtitle">欢迎审阅该旅行家公开发布的行册足迹，检阅其在世界各地留下的精彩印记与回声互动。</p>
+                    <p class="subtitle">这里展示该用户公开发布的旅行日记和互动数据。</p>
                 </section>
             </div>
 
@@ -100,10 +99,10 @@
 
             <!-- 控制台底部安全导航 -->
             <footer class="lux-sidebar-footer" id="lux-profile-footer">
-                <a class="lux-footer-btn profile" href="{{ url_for('diaries') }}" id="lux-btn-diaries">返回广场</a>
-                <a class="lux-footer-btn profile" href="{{ url_for('home') }}" id="lux-btn-home">系统主页</a>
+                <a class="lux-footer-btn profile" href="{{ url_for('diaries') }}" id="lux-btn-diaries">返回日记广场</a>
+                <a class="lux-footer-btn profile" href="{{ url_for('home') }}" id="lux-btn-home">返回首页</a>
                 {% if is_self %}
-                <a class="lux-footer-btn logout" href="{{ url_for('profile') }}" id="lux-btn-profile-edit">编辑个人中心</a>
+                <a class="lux-footer-btn logout" href="{{ url_for('profile') }}" id="lux-btn-profile-edit">编辑个人信息</a>
                 {% endif %}
             </footer>
         </aside>
@@ -123,22 +122,22 @@
 
             <!-- 面板头 -->
             <header class="lux-stage-header">
-                <span class="lux-stage-kicker">Public Gallery</span>
+                <span class="lux-stage-kicker">公开主页</span>
                 <h1 class="lux-stage-title">{{ profile_user.username }} 的公开主页</h1>
-                <p class="subtitle">探索该旅行家在系统里所刻下的精美行迹，包括其创作日记与评论互动贡献。</p>
+                <p class="subtitle">查看该用户公开发布的日记、浏览量和评论数据。</p>
             </header>
 
             <!-- 水平高级数据统计星轨 (Vial Stats Rack) -->
-            <section class="profile-stats-horizon" aria-label="公开数据星轨面板" id="lux-stats-horizon">
+            <section class="profile-stats-horizon" aria-label="公开数据面板" id="lux-stats-horizon">
                 <div class="lux-stat-vial" id="stat-published-diaries" title="公开发布日记数">
                     <span class="lux-stat-value">{{ stats.diary_count }}</span>
-                    <span class="lux-stat-label">日记足迹</span>
+                    <span class="lux-stat-label">日记</span>
                 </div>
                 <div class="lux-stat-vial" id="stat-total-comments" title="全部评论互动数">
                     <span class="lux-stat-value">{{ stats.comment_count }}</span>
-                    <span class="lux-stat-label">评论回响</span>
+                    <span class="lux-stat-label">评论</span>
                 </div>
-                <div class="lux-stat-vial" id="stat-total-views" title="日记累计被浏览次数">
+                <div class="lux-stat-vial" id="stat-total-views" title="日记累计浏览次数">
                     <span class="lux-stat-value">{{ stats.total_views }}</span>
                     <span class="lux-stat-label">累计浏览</span>
                 </div>
@@ -152,8 +151,8 @@
             <div class="profile-premium-grid" style="grid-template-columns: 1fr;">
                 <section class="glass-panel glass-panel--wide" id="lux-panel-published-diaries" aria-labelledby="heading-published-diaries">
                     <div class="glass-panel-head">
-                        <h2 id="heading-published-diaries">公开发布的日记册</h2>
-                        <p>按流转时间线依次陈列。您可以点击卡片进入其精美的旅行日记长文进行批注或加入您的私人收藏。</p>
+                        <h2 id="heading-published-diaries">公开发布的日记</h2>
+                        <p>按发布时间展示。点击卡片可以进入日记详情页查看、评论或收藏。</p>
                     </div>
 
                     {% if user_diaries %}
@@ -167,7 +166,7 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="profile-empty">这位旅行家比较低调，目前还没有发布任何公开旅游日记。</div>
+                    <div class="profile-empty">这位用户还没有发布公开旅游日记。</div>
                     {% endif %}
                 </section>
             </div>

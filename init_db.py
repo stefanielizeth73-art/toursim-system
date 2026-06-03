@@ -84,6 +84,25 @@ def init_db():
     """)
 
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diary_video_tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        diary_id INTEGER NOT NULL,
+        task_id TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        prompt TEXT NOT NULL DEFAULT '',
+        image_filename TEXT NOT NULL DEFAULT '',
+        result_url TEXT NOT NULL DEFAULT '',
+        local_video_filename TEXT NOT NULL DEFAULT '',
+        error_message TEXT NOT NULL DEFAULT '',
+        request_payload_json TEXT NOT NULL DEFAULT '{}',
+        response_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(diary_id) REFERENCES diaries(id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS user_favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -122,6 +141,8 @@ def init_db():
 
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comments_diary_created ON diary_comments(diary_id, like_count DESC, created_at ASC, id ASC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comment_likes_comment_username ON diary_comment_likes(comment_id, username)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_video_tasks_diary_created ON diary_video_tasks(diary_id, created_at DESC, id DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_video_tasks_task_id ON diary_video_tasks(task_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites_user_type_created ON user_favorites(user_id, item_type, created_at DESC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_place_images_city_type ON place_images(city, place_type)")
 

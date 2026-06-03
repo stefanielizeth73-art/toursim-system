@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>模块一：景点推荐</title>
+    <title>景点探索 - 个性化旅游系统</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
-<body class="places-product-page">
+<body class="places-product-page places-darkroom-page">
     <a class="skip-link" href="#places-results">跳到查询结果</a>
 
-    <header class="topbar places-topbar">
+    <header class="topbar places-topbar places-darkroom-topbar">
         <div>
             <span class="places-topbar__mark" aria-hidden="true"></span>
-            个性化旅游系统
+            个性化旅游系统 · 景点探索
         </div>
         <nav aria-label="模块导航">
             <span>当前用户：{{ username }}</span>
@@ -25,219 +25,264 @@
         </nav>
     </header>
 
-    <main class="places-app-shell">
-        <section class="places-product-hero" aria-labelledby="places-title">
-            <div class="places-hero-copy">
-                <span class="places-kicker">模块一 · 景点推荐</span>
-                <h1 id="places-title">找到更适合你的目的地</h1>
-                <p>输入城市、学校或关键词，系统会先完成候选查找，再结合评分、热度和兴趣偏好生成 Top-K 推荐。</p>
-            </div>
-            <div class="places-hero-stats" aria-label="推荐数据概览">
-                <span><strong>{{ total_places }}</strong>总数据</span>
-                <span><strong>{{ filtered_places_total }}</strong>候选</span>
-                <span><strong>{{ recommendation_stats.returned_count }}</strong>推荐</span>
+    <main class="places-darkroom-shell">
+        <section class="places-darkroom-hero" aria-labelledby="places-title">
+            <section class="places-darkroom-intro">
+                <span class="places-kicker">Most Memorable</span>
+                <h1 id="places-title">
+                    <span>把景点库做成一张</span>
+                    <span>“目的地接触印相”：</span>
+                    <span>像选照片，也像选旅程。</span>
+                </h1>
+            </section>
+
+            <div class="places-darkroom-hero-copy">
+                <p>延续主页的米白铂金底色，把黑金暗房留给照片展示。用户先被本地景点影像吸引，再用城市、标签、评分与热度过滤，课程要求里的查找、排序和 Top-K 推荐都保留在同一条体验里。</p>
+
+                <section class="places-darkroom-stats" aria-label="推荐数据概览">
+                    <span><strong>{{ total_places }}</strong>本地景点</span>
+                    <span><strong>{{ filtered_places_total }}</strong>候选匹配</span>
+                    <span><strong>{{ recommendation_stats.returned_count }}</strong>Top-K</span>
+                </section>
+
+                <section class="places-darkroom-algorithm" aria-label="算法说明">
+                    <span>{{ recommendation_stats.algorithm }}</span>
+                    <span>扫描 {{ recommendation_stats.scanned_count }} 条 · 候选 {{ recommendation_stats.candidate_count }} 条</span>
+                </section>
             </div>
         </section>
 
-        <section class="places-console" aria-label="景点推荐控制台">
-            <form method="get" class="places-search-panel">
-                <div class="places-search-primary">
-                    <label class="places-field places-field--wide">
-                        <span>想去哪里</span>
-                        <input
-                            type="search"
-                            name="keyword"
-                            value="{{ keyword }}"
-                            placeholder="搜索景点、学校、城市或关键词…"
-                            autocomplete="off">
-                    </label>
-
-                    <label class="places-field">
-                        <span>城市</span>
-                        <input
-                            type="search"
-                            name="city"
-                            value="{{ city }}"
-                            list="place-city-options"
-                            placeholder="输入城市名…"
-                            autocomplete="off">
-                        <datalist id="place-city-options">
-                            {% for item in cities %}
-                                <option value="{{ item }}"></option>
-                            {% endfor %}
-                        </datalist>
-                    </label>
-
-                    <label class="places-field">
-                        <span>类别</span>
-                        <select name="type">
-                            <option value="">全部类别</option>
-                            {% for item in place_types %}
-                                <option value="{{ item }}" {% if place_type == item %}selected{% endif %}>{{ item }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-
-                    <button class="places-submit" type="submit">生成推荐</button>
-                </div>
-
-                <div class="places-search-secondary">
-                    <label class="places-field">
-                        <span>列表排序</span>
-                        <select name="sort_by">
-                            <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
-                            <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
-                            <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
-                            <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
-                            <option value="popularity_asc" {% if sort_by == 'popularity_asc' %}selected{% endif %}>热度从低到高</option>
-                        </select>
-                    </label>
-
-                    <label class="places-field">
-                        <span>Top-K</span>
-                        <select name="k">
-                            {% for item in [5, 10, 15, 20] %}
-                                <option value="{{ item }}" {% if k == item %}selected{% endif %}>前 {{ item }} 个</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-
-                    <label class="places-field places-field--wide">
-                        <span>标签补充</span>
-                        <input
-                            type="search"
-                            name="tag_keyword"
-                            value="{{ tag_keyword }}"
-                            placeholder="可输入多个标签，用逗号分隔…"
-                            autocomplete="off">
-                    </label>
-
-                    <a class="places-reset-link" href="{{ url_for('places') }}">重置筛选</a>
-                </div>
-
-                <details class="places-preference-drawer" {% if selected_tags %}open{% endif %}>
+        <section class="places-darkroom-stage">
+            <section class="places-darkroom-console" aria-label="景点推荐控制台">
+                <details class="places-control-drawer" {% if keyword or city or place_type or tag_keyword or selected_tags or sort_by != 'default' or k != 10 %}open{% endif %}>
                     <summary>
-                        <span>兴趣偏好</span>
-                        <strong>{{ selected_tags|length }} 已选</strong>
+                        <span>筛选与排序控制台</span>
+                        <strong>{{ recommendation_stats.algorithm }}</strong>
+                        <em>候选 {{ recommendation_stats.candidate_count }} · Top {{ k }}</em>
                     </summary>
 
-                    {% if selected_tags %}
-                    <div class="places-selected-tags" aria-label="已选兴趣标签">
-                        {% for tag in selected_tags %}
-                            <span>{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="places-tag-grid">
-                        {% for tag in all_available_tags %}
-                            <label class="places-tag-choice">
-                                <input type="checkbox" name="preferred_tags" value="{{ tag }}"
-                                       {% if tag in selected_tags %}checked{% endif %}>
-                                <span>{{ tag }}</span>
+                    <form method="get" class="places-search-panel places-darkroom-form">
+                        <div class="places-darkroom-searchline">
+                            <label class="places-field places-field--wide">
+                                <span>搜索目的地</span>
+                                <input
+                                    type="search"
+                                    name="keyword"
+                                    value="{{ keyword }}"
+                                    placeholder="景点、学校、城市或关键词"
+                                    autocomplete="off">
                             </label>
-                        {% endfor %}
-                    </div>
+
+                            <button class="places-submit" type="submit">生成推荐</button>
+                        </div>
+
+                        <div class="places-darkroom-filters">
+                            <label class="places-field">
+                                <span>城市</span>
+                                <input
+                                    type="search"
+                                    name="city"
+                                    value="{{ city }}"
+                                    list="place-city-options"
+                                    placeholder="城市"
+                                    autocomplete="off">
+                                <datalist id="place-city-options">
+                                    {% for item in cities %}
+                                        <option value="{{ item }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </label>
+
+                            <label class="places-field">
+                                <span>类别</span>
+                                <select name="type">
+                                    <option value="">全部类别</option>
+                                    {% for item in place_types %}
+                                        <option value="{{ item }}" {% if place_type == item %}selected{% endif %}>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+
+                            <label class="places-field">
+                                <span>排序</span>
+                                <select name="sort_by">
+                                    <option value="default" {% if sort_by == 'default' %}selected{% endif %}>默认顺序</option>
+                                    <option value="rating_desc" {% if sort_by == 'rating_desc' %}selected{% endif %}>评分从高到低</option>
+                                    <option value="rating_asc" {% if sort_by == 'rating_asc' %}selected{% endif %}>评分从低到高</option>
+                                    <option value="popularity_desc" {% if sort_by == 'popularity_desc' %}selected{% endif %}>热度从高到低</option>
+                                    <option value="popularity_asc" {% if sort_by == 'popularity_asc' %}selected{% endif %}>热度从低到高</option>
+                                </select>
+                            </label>
+
+                            <label class="places-field">
+                                <span>Top-K</span>
+                                <select name="k">
+                                    {% for item in [5, 10, 15, 20] %}
+                                        <option value="{{ item }}" {% if k == item %}selected{% endif %}>前 {{ item }} 个</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+
+                            <label class="places-field places-field--wide">
+                                <span>标签补充</span>
+                                <input
+                                    type="search"
+                                    name="tag_keyword"
+                                    value="{{ tag_keyword }}"
+                                    placeholder="湖泊、校园、人文，可用逗号分隔"
+                                    autocomplete="off">
+                            </label>
+
+                            <a class="places-reset-link" href="{{ url_for('places') }}">重置</a>
+                        </div>
+
+                        <details class="places-preference-drawer places-darkroom-preferences" {% if selected_tags %}open{% endif %}>
+                            <summary>
+                                <span>兴趣偏好</span>
+                                <strong>{{ selected_tags|length }} 已选</strong>
+                            </summary>
+
+                            {% if selected_tags %}
+                            <div class="places-selected-tags" aria-label="已选兴趣标签">
+                                {% for tag in selected_tags %}
+                                    <span>{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="places-tag-grid">
+                                {% for tag in all_available_tags %}
+                                    <label class="places-tag-choice">
+                                        <input type="checkbox" name="preferred_tags" value="{{ tag }}"
+                                               {% if tag in selected_tags %}checked{% endif %}>
+                                        <span>{{ tag }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </form>
                 </details>
-            </form>
-        </section>
+            </section>
 
-        <section class="places-rank-section" aria-labelledby="places-rank-title">
-            <div class="places-section-head">
-                <div>
-                    <span class="places-kicker">Top-K Ranking</span>
-                    <h2 id="places-rank-title">个性化推荐榜</h2>
-                </div>
-                <p>{{ recommendation_stats.algorithm }} · 扫描 {{ recommendation_stats.scanned_count }} 条 · 候选 {{ recommendation_stats.candidate_count }} 条</p>
-            </div>
-
-            <div class="places-rank-list">
-                {% for place in recommended_places %}
-                <article class="places-rank-row">
-                    <div class="places-rank-index">#{{ loop.index }}</div>
-                    <div class="places-rank-main">
-                        <h3>{{ place.name }}</h3>
-                        <p>{{ place.city }} · {{ place.type }}</p>
-                    </div>
-                    <div class="places-rank-metrics" aria-label="{{ place.name }} 指标">
-                        <span>评分 <strong>{{ place.rating }}</strong></span>
-                        <span>热度 <strong>{{ place.popularity }}</strong></span>
-                    </div>
-                    <div class="places-rank-score">
-                        <strong>{{ "%.1f"|format(place.recommend_score) }}</strong>
-                        <span>推荐分</span>
-                    </div>
-                    <a class="places-detail-link" href="{{ url_for('place_detail', place_id=place.id) }}">查看详情</a>
-                </article>
-                {% else %}
-                <div class="places-empty-state">
-                    <h3>没有找到推荐结果</h3>
-                    <p>请放宽城市、类别或兴趣偏好后重新生成。</p>
-                </div>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section id="places-results" class="places-results-section" aria-labelledby="places-results-title">
-            <div class="places-section-head">
-                <div>
-                    <span class="places-kicker">Search Results</span>
-                    <h2 id="places-results-title">查询结果</h2>
-                </div>
-                <p>当前页 {{ places|length }} 条 · 共 {{ filtered_places_total }} 条匹配结果</p>
-            </div>
-
-            <div class="places-result-list" role="list">
-                {% for place in places %}
-                <article class="places-result-item" role="listitem">
+            <section class="places-darkroom-rank" aria-labelledby="places-rank-title">
+                <div class="places-darkroom-section-head">
                     <div>
-                        <h3>{{ place.name }}</h3>
-                        <p>{{ place.city }} · {{ place.type }}</p>
+                        <span class="places-kicker">Top-K Contact Sheet</span>
+                        <h2 id="places-rank-title"><span>Destination<br>Contact Sheet</span><em>推荐接触印相</em></h2>
                     </div>
-                    <div class="places-result-tags">
-                        {% for tag in place.tags_list[:3] %}
-                            <span>{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="places-result-metrics">
-                        <span>评分 <strong>{{ place.rating }}</strong></span>
-                        <span>热度 <strong>{{ place.popularity }}</strong></span>
-                    </div>
-                    <a class="places-detail-link" href="{{ url_for('place_detail', place_id=place.id) }}">详情</a>
-                </article>
-                {% else %}
-                <div class="places-empty-state">
-                    <h3>没有匹配结果</h3>
-                    <p>换一个关键词，或清空部分筛选条件试试。</p>
+                    <p>优先呈现前 {{ k }} 个推荐目的地，照片边注保留评分、热度与推荐分，便于答辩时解释排序依据。</p>
                 </div>
-                {% endfor %}
-            </div>
 
-            {% if pagination.total_pages > 1 %}
-            <nav class="pagination-bar places-pagination" aria-label="景点列表分页">
-                {% if pagination.has_prev %}
-                <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
-                {% else %}
-                <span class="pagination-btn is-disabled">上一页</span>
-                {% endif %}
-
-                <div class="pagination-pages">
-                    {% for item in pagination.pages %}
-                    {% if item.is_current %}
-                    <span class="pagination-page is-current">{{ item.page }}</span>
+                <div class="places-contact-sheet places-contact-sheet--ranked" role="list">
+                    {% for place in recommended_places %}
+                    <article class="places-contact-card places-contact-card--rank-{{ loop.index if loop.index <= 6 else 'default' }}" role="listitem">
+                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id) }}" aria-label="查看 {{ place.name }} 详情">
+                            <figure class="places-contact-photo">
+                                {% if place.cover_image %}
+                                <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 图片" loading="{{ 'eager' if loop.index <= 4 else 'lazy' }}">
+                                {% else %}
+                                <div class="places-contact-placeholder">{{ place.name[:2] }}</div>
+                                {% endif %}
+                            </figure>
+                            <div class="places-contact-caption">
+                                <div>
+                                    <span class="places-contact-rank">#{{ loop.index }}</span>
+                                    <h3>{{ place.name }}</h3>
+                                    <p>{{ place.city }} · {{ place.type }}</p>
+                                </div>
+                                <div class="places-contact-metrics">
+                                    <span>评分 {{ place.rating }}</span>
+                                    <span>热度 {{ place.popularity }}</span>
+                                    <span>推荐分 {{ "%.1f"|format(place.recommend_score) }}</span>
+                                </div>
+                                <div class="places-contact-tags">
+                                    {% for tag in place.tags_list[:3] %}
+                                    <span>{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </a>
+                    </article>
                     {% else %}
-                    <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
-                    {% endif %}
+                    <div class="places-empty-state places-darkroom-empty">
+                        <h3>没有找到推荐结果</h3>
+                        <p>请放宽城市、类别或兴趣偏好后重新生成。</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section id="places-results" class="places-darkroom-results" aria-labelledby="places-results-title">
+                <div class="places-darkroom-section-head">
+                    <div>
+                        <span class="places-kicker">Search Archive</span>
+                        <h2 id="places-results-title">查询影像库</h2>
+                    </div>
+                    <p>当前页 {{ places|length }} 条 · 共 {{ filtered_places_total }} 条匹配结果</p>
+                </div>
+
+                <div class="places-contact-sheet places-contact-sheet--archive" role="list">
+                    {% for place in places %}
+                    <article class="places-contact-card places-contact-card--small" role="listitem">
+                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id) }}" aria-label="查看 {{ place.name }} 详情">
+                            <figure class="places-contact-photo">
+                                {% if place.cover_image %}
+                                <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 图片" loading="lazy">
+                                {% else %}
+                                <div class="places-contact-placeholder">{{ place.name[:2] }}</div>
+                                {% endif %}
+                            </figure>
+                            <div class="places-contact-caption">
+                                <div>
+                                    <h3>{{ place.name }}</h3>
+                                    <p>{{ place.city }} · {{ place.type }}</p>
+                                </div>
+                                <div class="places-contact-metrics">
+                                    <span>评分 {{ place.rating }}</span>
+                                    <span>热度 {{ place.popularity }}</span>
+                                </div>
+                                <div class="places-contact-tags">
+                                    {% for tag in place.tags_list[:3] %}
+                                    <span>{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                    {% else %}
+                    <div class="places-empty-state places-darkroom-empty">
+                        <h3>没有匹配结果</h3>
+                        <p>换一个关键词，或清空部分筛选条件试试。</p>
+                    </div>
                     {% endfor %}
                 </div>
 
-                {% if pagination.has_next %}
-                <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
-                {% else %}
-                <span class="pagination-btn is-disabled">下一页</span>
+                {% if pagination.total_pages > 1 %}
+                <nav class="pagination-bar places-pagination places-darkroom-pagination" aria-label="景点列表分页">
+                    {% if pagination.has_prev %}
+                    <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
+                    {% else %}
+                    <span class="pagination-btn is-disabled">上一页</span>
+                    {% endif %}
+
+                    <div class="pagination-pages">
+                        {% for item in pagination.pages %}
+                        {% if item.is_current %}
+                        <span class="pagination-page is-current">{{ item.page }}</span>
+                        {% else %}
+                        <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if pagination.has_next %}
+                    <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
+                    {% else %}
+                    <span class="pagination-btn is-disabled">下一页</span>
+                    {% endif %}
+                </nav>
                 {% endif %}
-            </nav>
-            {% endif %}
+            </section>
         </section>
     </main>
 </body>

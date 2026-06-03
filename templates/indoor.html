@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ building_name }} - 室内导航</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='indoor.css', v=asset_version('indoor.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
@@ -12,50 +13,59 @@
 <body class="indoor-page">
     <a class="skip-link" href="#indoorMap">跳到室内平面图</a>
 
-    <header class="indoor-topbar">
-        <div>
-            <span class="indoor-topbar__mark" aria-hidden="true"></span>
-            个性化旅游系统 · 室内导航
-        </div>
-        <nav aria-label="室内导航操作">
-            <a class="indoor-home-pill indoor-mode-pill" href="{{ url_for('indoor_collector') }}">采集模式</a>
-            <a class="indoor-home-pill" href="{{ url_for('home') }}">返回主页</a>
-        </nav>
-    </header>
-
     <main class="indoor-shell">
         <aside class="indoor-console">
-            <section class="indoor-hero">
-                <span class="eyebrow">INDOOR ROUTE</span>
-                <h1>{{ building_name }}</h1>
-                <p>当前楼内结构以 1F-4F 真实平面底图为底，路线只叠加荧光路径，关键点由室内采集页手工录入。</p>
-            </section>
+            <div class="indoor-console__dock">
+                <div class="indoor-console__brand">
+                    <span class="indoor-logo-mark" aria-hidden="true">
+                        <i></i>
+                    </span>
+                    <span>
+                        <small>TourSim Indoor</small>
+                        <strong>室内导航</strong>
+                    </span>
+                </div>
+                <a class="indoor-home-pill" href="{{ url_for('home') }}">返回主页</a>
+            </div>
 
-            <section class="indoor-panel">
+            <section class="indoor-panel indoor-panel--controls">
                 <div class="indoor-panel__head">
                     <h2>导航设置</h2>
-                    <p>选择起点、目标房间和换层方式。</p>
+                    <p>点击地图关键点，或用下方字段精确选择。</p>
                 </div>
-                <form method="get" class="indoor-form">
-                    <label>
-                        <span>楼宇名称</span>
-                        <input type="text" name="building_name" value="{{ building_name }}" placeholder="例如：主教学楼">
-                    </label>
-                    <label>
+                <div class="indoor-pick-status" aria-live="polite">
+                    <span class="indoor-pick-status__dot" aria-hidden="true"></span>
+                    <div>
+                        <strong data-indoor-pick-title>正在设置起点</strong>
+                        <span data-indoor-pick-hint>点击地图上的采集点，直接设为起点。</span>
+                    </div>
+                </div>
+                <div class="indoor-pick-mode" aria-label="地图点选模式">
+                    <button type="button" class="is-active" data-indoor-pick-mode="start">点选起点</button>
+                    <button type="button" data-indoor-pick-mode="end">点选终点</button>
+                </div>
+                <form method="get" class="indoor-form" id="indoorRouteForm">
+                    <label class="indoor-search-field">
                         <span>起点</span>
-                        <select name="start">
+                        <input type="search" value="{{ start_node.name if start_node else '' }}" placeholder="搜索起点关键点" autocomplete="off" data-indoor-node-search="start">
+                        <select name="start" data-indoor-node-select="start" hidden>
+                            <option value="" {% if not start %}selected{% endif %}>未选择</option>
                             {% for node in node_options %}
-                            <option value="{{ node.id }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
+                            <option value="{{ node.id }}" data-floor="{{ node.floor }}" data-type="{{ node.type }}" {% if start == node.id %}selected{% endif %}>{{ node.name }}</option>
                             {% endfor %}
                         </select>
+                        <div class="indoor-search-menu" data-indoor-search-menu="start" role="listbox" aria-label="起点搜索结果"></div>
                     </label>
-                    <label>
+                    <label class="indoor-search-field">
                         <span>终点</span>
-                        <select name="end">
+                        <input type="search" value="{{ end_node.name if end_node else '' }}" placeholder="搜索终点关键点" autocomplete="off" data-indoor-node-search="end">
+                        <select name="end" data-indoor-node-select="end" hidden>
+                            <option value="" {% if not end %}selected{% endif %}>未选择</option>
                             {% for node in node_options %}
-                            <option value="{{ node.id }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
+                            <option value="{{ node.id }}" data-floor="{{ node.floor }}" data-type="{{ node.type }}" {% if end == node.id %}selected{% endif %}>{{ node.name }}</option>
                             {% endfor %}
                         </select>
+                        <div class="indoor-search-menu" data-indoor-search-menu="end" role="listbox" aria-label="终点搜索结果"></div>
                     </label>
                     <label>
                         <span>换层方式</span>
@@ -66,15 +76,19 @@
                         </select>
                     </label>
                     <input type="hidden" name="building_id" value="{{ building_id }}">
-                    <button type="submit">重新规划</button>
+                    <input type="hidden" name="building_name" value="{{ building_name }}">
+                    <div class="indoor-form-actions">
+                        <button type="submit">重新规划</button>
+                        <button type="button" class="indoor-clear-action" data-indoor-clear>清空选择</button>
+                    </div>
                 </form>
             </section>
 
-            <section class="indoor-panel">
+            <section class="indoor-panel indoor-panel--steps">
                 <div class="indoor-panel__head">
                     <h2>路线说明</h2>
                     {% if route_result %}
-                    <p>总距离 {{ "%.1f"|format(route_result.total) }} 米，算法：室内邻接表 + Dijkstra。</p>
+                    <p>总距离 {{ "%.1f"|format(route_result.total) }} 米，已过滤道路采样点。</p>
                     {% else %}
                     <p>当前约束下未找到室内路线。</p>
                     {% endif %}
@@ -95,10 +109,11 @@
         </aside>
 
         <section class="indoor-map-wrap" id="indoorMap" aria-label="{{ floors|length }}层楼室内平面图">
-                <div class="indoor-map-head">
+            <div class="indoor-map-head">
                 <div>
                     <span class="eyebrow">FLOOR PLANS</span>
-                    <h2>1F-4F 楼层底图导航</h2>
+                    <h2>{{ building_name }} · 1F-4F 楼层底图导航</h2>
+                    <p>采集点与路径叠加在真实楼层底图上，滚动查看各楼层。</p>
                 </div>
                 <div class="indoor-legend" aria-label="图例">
                     <span><i class="is-route"></i>荧光路线</span>
@@ -110,28 +125,26 @@
                 {% for floor in floors %}
                 <article class="indoor-floor indoor-floor--image {% if floor.active %}is-active{% endif %}">
                     <svg class="indoor-floor-plan indoor-floor-plan--image" viewBox="0 0 {{ floor.width }} {{ floor.height }}" role="img" aria-label="{{ floor.number }}层室内平面图">
-                        <defs>
-                            <filter id="routeGlow{{ floor.number }}" x="-30%" y="-30%" width="160%" height="160%">
-                                <feGaussianBlur stdDeviation="6" result="blur"></feGaussianBlur>
-                                <feMerge>
-                                    <feMergeNode in="blur"></feMergeNode>
-                                    <feMergeNode in="SourceGraphic"></feMergeNode>
-                                </feMerge>
-                            </filter>
-                        </defs>
                         {% if floor.image %}
                         <image href="{{ url_for('static', filename=floor.image, v=asset_version(floor.image)) }}" x="0" y="0" width="{{ floor.width }}" height="{{ floor.height }}" preserveAspectRatio="xMidYMid meet"></image>
                         {% endif %}
                         <rect x="0" y="0" width="{{ floor.width }}" height="{{ floor.height }}" class="indoor-map-tint"></rect>
                         {% for edge in floor.edges %}
                             {% if edge.mode == 'walk' and edge.is_path %}
-                            <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path" filter="url(#routeGlow{{ floor.number }})"></line>
+                            <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path is-path-glow"></line>
+                            <line x1="{{ edge.x1 }}" y1="{{ edge.y1 }}" x2="{{ edge.x2 }}" y2="{{ edge.y2 }}" class="indoor-edge is-path is-path-core"></line>
                             {% endif %}
                         {% endfor %}
                         <g class="indoor-node-layer">
                             {% for node in floor.display_nodes %}
                             <g class="indoor-node-marker is-{{ node.type }} {% if node.is_path %}is-path-node{% endif %} {% if node.is_start %}is-start{% endif %} {% if node.is_end %}is-end{% endif %}"
-                               transform="translate({{ node.x }}, {{ node.y }})">
+                               transform="translate({{ node.x }}, {{ node.y }})"
+                               tabindex="0"
+                               role="button"
+                               aria-label="选择 {{ node.name }}"
+                               data-node-id="{{ node.id }}"
+                               data-node-name="{{ node.name }}"
+                               data-node-floor="{{ node.floor }}">
                                 <title>{{ node.name }}</title>
                                 <circle class="indoor-node-halo" r="18"></circle>
                                 <circle class="indoor-node-dot" r="{% if node.is_start or node.is_end %}11{% else %}8{% endif %}"></circle>

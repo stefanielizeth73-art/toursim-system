@@ -82,22 +82,43 @@ body.snami-landing button {
     top: 0;
     left: 0;
     z-index: 80;
+    --header-progress: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 28px clamp(18px, 4.6vw, 78px);
     color: var(--snami-white);
-    transition: color 0.55s var(--snami-ease), padding 0.55s var(--snami-ease), background 0.55s var(--snami-ease), border 0.55s var(--snami-ease), backdrop-filter 0.55s var(--snami-ease);
+    background: transparent !important;
+    border-bottom: 0;
+    text-shadow: 0 1px 18px rgba(0, 0, 0, 0.34);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: color 0.55s var(--snami-ease), padding 0.55s var(--snami-ease);
+}
+
+.snami-header::before {
+    position: fixed;
+    top: 0;
+    left: clamp(18px, 4.6vw, 78px);
+    right: clamp(18px, 4.6vw, 78px);
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255, 250, 240, 0.68), transparent);
+    opacity: calc(0.12 + (0.42 * var(--header-progress, 0)));
+    transform: scaleX(calc(0.18 + (0.82 * var(--header-progress, 0))));
+    transform-origin: center;
+    content: "";
 }
 
 .snami-header.scrolled,
 .snami-header.menu-open {
-    padding-block: 18px;
-    color: var(--snami-ink);
-    background: rgba(244, 241, 234, 0.86);
-    border-bottom: 1px solid rgba(21, 19, 15, 0.08);
-    backdrop-filter: blur(22px);
+    padding-block: 28px;
+    color: var(--snami-white);
+    background: transparent !important;
+    border-bottom: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .snami-logo {
@@ -109,6 +130,8 @@ body.snami-landing button {
     font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
+    transform: translateY(calc(-4px * var(--header-progress, 0)));
+    transition: transform 0.55s var(--snami-ease), letter-spacing 0.55s var(--snami-ease);
 }
 
 .snami-logo::after {
@@ -131,6 +154,8 @@ body.snami-landing button {
     display: flex;
     align-items: center;
     gap: clamp(14px, 2.6vw, 34px);
+    transform: translateY(calc(-5px * var(--header-progress, 0)));
+    transition: transform 0.55s var(--snami-ease), gap 0.55s var(--snami-ease);
 }
 
 .snami-phone {
@@ -201,6 +226,14 @@ body.snami-landing button {
     transform: translateY(7px);
 }
 
+.snami-header.scrolled .snami-hamburger:not(.active) span:nth-child(1) {
+    transform: translateY(-8px);
+}
+
+.snami-header.scrolled .snami-hamburger:not(.active) span:nth-child(3) {
+    transform: translateY(8px);
+}
+
 .snami-hamburger.active span:nth-child(1) {
     transform: rotate(45deg);
 }
@@ -219,8 +252,13 @@ body.snami-landing button {
     z-index: 70;
     display: grid;
     place-items: center;
-    padding: 110px 24px 48px;
-    background: var(--snami-bg);
+    padding: 118px clamp(20px, 5vw, 92px) 48px;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(188, 164, 127, 0.16), transparent 28%),
+        radial-gradient(circle at 80% 74%, rgba(255, 255, 255, 0.07), transparent 24%),
+        linear-gradient(135deg, rgba(18, 18, 15, 0.97), rgba(29, 26, 21, 0.95));
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.55s var(--snami-ease);
@@ -232,14 +270,39 @@ body.snami-landing button {
 }
 
 .snami-menu-container {
-    width: min(980px, 100%);
-    text-align: center;
-    transform: translateY(42px);
+    display: grid;
+    grid-template-columns: minmax(240px, 0.36fr) minmax(420px, 0.64fr);
+    grid-template-areas:
+        "kicker nav"
+        "contact nav";
+    gap: clamp(30px, 5.6vw, 86px);
+    align-items: center;
+    width: min(1240px, 100%);
+    max-height: calc(100vh - 172px);
+    padding: clamp(32px, 4.2vw, 58px);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255, 250, 240, 0.075), rgba(255, 250, 240, 0.025));
+    box-shadow: 0 38px 120px rgba(0, 0, 0, 0.38);
+    text-align: left;
+    transform: translateY(34px) scale(0.985);
     transition: transform 0.65s var(--snami-ease);
 }
 
+.snami-menu-container::before {
+    grid-area: kicker;
+    align-self: end;
+    width: min(280px, 100%);
+    color: rgba(255, 250, 240, 0.78);
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 2.15vw, 2.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    content: "按兴趣、路线与记忆进入旅行系统。";
+}
+
 .snami-menu-overlay.active .snami-menu-container {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
 .snami-menu-kicker,
@@ -253,35 +316,73 @@ body.snami-landing button {
     text-transform: uppercase;
 }
 
+.snami-menu-kicker {
+    grid-area: kicker;
+    align-self: start;
+    width: min(280px, 100%);
+}
+
 .snami-menu-list {
+    grid-area: nav;
     display: grid;
-    gap: 18px;
+    gap: clamp(10px, 1.1vw, 16px);
     padding: 0;
     margin: 0;
     list-style: none;
 }
 
+.snami-menu-num {
+    display: inline-grid;
+    place-items: center;
+    min-width: clamp(42px, 4vw, 58px);
+    height: clamp(34px, 3.4vw, 46px);
+    margin-right: clamp(14px, 2vw, 26px);
+    border: 1px solid rgba(188, 164, 127, 0.34);
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: clamp(0.78rem, 1.15vw, 1rem);
+    font-weight: 800;
+    color: var(--snami-gold);
+    letter-spacing: 0.1em;
+    vertical-align: middle;
+    transition: color 0.45s var(--snami-ease), border-color 0.45s var(--snami-ease);
+}
+
 .snami-menu-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 7vw, 6.2rem);
-    line-height: 0.92;
-    text-transform: uppercase;
-    transition: color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
+    color: rgba(255, 250, 240, 0.84) !important;
+    font-size: clamp(2.05rem, 4vw, 4.65rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    white-space: nowrap;
+    transition: color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease), letter-spacing 0.45s var(--snami-ease);
 }
 
 .snami-menu-link:hover {
-    color: var(--snami-gold);
-    transform: translateY(-6px);
+    color: var(--snami-gold) !important;
+    transform: translateX(10px);
+    letter-spacing: -0.015em;
+}
+
+.snami-menu-link:hover .snami-menu-num {
+    color: var(--snami-white);
+    border-color: rgba(255, 255, 255, 0.34);
 }
 
 .snami-menu-contact {
+    grid-area: contact;
     display: flex;
-    justify-content: center;
-    gap: 22px;
-    margin-top: 42px;
-    color: var(--snami-muted);
-    font-size: 0.84rem;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 12px;
+    min-height: 160px;
+    padding: 28px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 250, 240, 0.66);
+    font-size: 0.86rem;
 }
 
 .snami-hero {
@@ -306,19 +407,21 @@ body.snami-landing button {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
     transform: scale(1.05);
-    filter: saturate(1.02) contrast(1) brightness(1.04);
+    filter: saturate(1.28) contrast(1.04) brightness(1.14);
     animation: heroDrift 18s var(--snami-ease) both;
 }
 
 .snami-hero-overlay {
     background:
-        linear-gradient(180deg, rgba(14, 12, 9, 0.08), rgba(14, 12, 9, 0.06) 46%, rgba(14, 12, 9, 0.3)),
-        linear-gradient(90deg, rgba(14, 12, 9, 0.14), rgba(14, 12, 9, 0.03) 28%, rgba(14, 12, 9, 0.05) 72%, rgba(14, 12, 9, 0.16));
+        radial-gradient(circle at 50% 44%, rgba(14, 12, 9, 0.035), rgba(14, 12, 9, 0.19) 82%),
+        linear-gradient(180deg, rgba(14, 12, 9, 0.018), rgba(14, 12, 9, 0.025) 52%, rgba(14, 12, 9, 0.11)),
+        linear-gradient(90deg, rgba(14, 12, 9, 0.045), rgba(14, 12, 9, 0.006) 34%, rgba(14, 12, 9, 0.02) 72%, rgba(14, 12, 9, 0.06));
 }
 
 .snami-hero-grain {
-    opacity: 0.07;
+    opacity: 0.018;
     background-image: linear-gradient(115deg, transparent 0 48%, rgba(255, 255, 255, 0.14) 50%, transparent 52% 100%);
     background-size: 18px 18px;
     mix-blend-mode: soft-light;
@@ -353,6 +456,7 @@ body.snami-landing button {
 .snami-hero-title {
     font-size: clamp(3.05rem, 9vw, 8.6rem);
     line-height: 0.88;
+    text-shadow: 0 12px 46px rgba(28, 20, 12, 0.34);
 }
 
 .snami-hero-title em,
@@ -365,58 +469,50 @@ body.snami-landing button {
     margin: 28px auto 44px;
     color: rgba(255, 255, 255, 0.86);
     font-size: clamp(0.98rem, 1.4vw, 1.1rem);
+    text-shadow: 0 6px 24px rgba(28, 20, 12, 0.34);
 }
 
 .snami-btn-capsule-container {
     display: inline-grid;
     place-items: center;
-    width: 210px;
-    height: 210px;
+    width: 120px;
+    height: 120px;
 }
 
 .snami-btn-capsule {
-    display: grid;
-    place-items: center;
-    width: 174px;
-    height: 174px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 98px;
+    height: 98px;
     border: 1px solid rgba(255, 255, 255, 0.62);
     border-radius: 50%;
     background: rgba(255, 250, 240, 0.94);
     color: var(--snami-ink);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    transition: background 0.45s var(--snami-ease), color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease), box-shadow 0.45s var(--snami-ease);
+}
+
+.snami-btn-capsule span {
+    font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    transition: background 0.45s var(--snami-ease), color 0.45s var(--snami-ease), transform 0.45s var(--snami-ease);
-}
-
-.snami-btn-capsule strong {
-    font-family: var(--font-serif);
-    font-size: 1.2rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-}
-
-.snami-btn-capsule i {
-    display: grid;
-    place-items: center;
-    width: 31px;
-    height: 31px;
-    margin-top: 8px;
-    border: 1px solid var(--snami-line);
-    border-radius: 50%;
-    font-style: normal;
-    transition: transform 0.45s var(--snami-ease);
+    letter-spacing: 0.22em;
+    color: rgba(22, 19, 15, 0.76);
+    text-transform: none;
+    transition: color 0.45s var(--snami-ease);
 }
 
 .snami-btn-capsule:hover {
     background: var(--snami-gold);
     color: var(--snami-white);
+    box-shadow: 0 16px 42px rgba(188, 164, 127, 0.32);
 }
 
-.snami-btn-capsule:hover i {
-    transform: rotate(-35deg);
+.snami-btn-capsule:hover span {
+    color: rgba(255, 255, 255, 0.82);
 }
 
 .snami-scroll-hint {
@@ -466,7 +562,7 @@ body.snami-landing button {
     align-items: stretch;
     min-height: 100vh;
     margin-top: 0;
-    background: #15130f;
+    background: #120e09;
     color: var(--snami-ivory);
     padding: 0;
     position: relative;
@@ -478,8 +574,7 @@ body.snami-landing button {
     inset: 0;
     pointer-events: none;
     background:
-        linear-gradient(90deg, rgba(21, 19, 15, 0) 0 42%, rgba(21, 19, 15, 0.2) 46%, rgba(21, 19, 15, 0.86) 53%),
-        radial-gradient(circle at 51% 48%, rgba(188, 164, 127, 0.1), transparent 30%);
+        linear-gradient(90deg, rgba(18, 14, 9, 0) 0 42%, rgba(18, 14, 9, 0.34) 46%, rgba(18, 14, 9, 0.94) 53%, #120e09 100%);
     content: "";
     z-index: 2;
 }
@@ -568,6 +663,7 @@ body.snami-landing button {
 .snami-origin .reveal-line,
 .snami-origin .reveal-title {
     opacity: 1;
+    filter: none;
     transform: none;
 }
 
@@ -666,7 +762,7 @@ body.snami-landing button {
 .snami-feature-strip {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    background: #171511;
+    background: #17120d;
     color: var(--snami-white);
 }
 
@@ -674,6 +770,9 @@ body.snami-landing button {
     position: relative;
     min-height: 430px;
     border-right: 1px solid rgba(255, 255, 255, 0.16);
+    transform-style: preserve-3d;
+    transition: transform 0.7s var(--snami-ease), filter 0.7s var(--snami-ease);
+    will-change: transform;
 }
 
 .snami-feature-tile img {
@@ -682,27 +781,45 @@ body.snami-landing button {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.48;
-    filter: grayscale(0.25) contrast(0.98);
-    transition: transform 1.2s var(--snami-ease), opacity 0.6s ease;
+    opacity: 0.76;
+    filter: saturate(0.68) contrast(0.94) brightness(0.94);
+    transition: transform 1.2s var(--snami-ease), opacity 0.6s ease, filter 0.7s var(--snami-ease);
 }
 
 .snami-feature-tile:hover img {
-    transform: scale(1.06);
-    opacity: 0.7;
+    transform: scale(1.065);
+    opacity: 0.9;
+    filter: saturate(0.76) contrast(0.98) brightness(0.98);
+}
+
+.snami-feature-tile::before {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(255, 250, 240, 0.18), transparent 34%);
+    opacity: 0;
+    transition: opacity 0.45s var(--snami-ease);
+    content: "";
+}
+
+.snami-feature-tile:hover::before {
+    opacity: 1;
 }
 
 .snami-feature-tile::after {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+    background:
+        linear-gradient(180deg, rgba(18, 14, 9, 0.08), rgba(18, 14, 9, 0.2) 42%, rgba(18, 14, 9, 0.58)),
+        linear-gradient(90deg, rgba(18, 14, 9, 0.16), transparent 58%);
     content: "";
 }
 
 .snami-feature-tile div {
     position: absolute;
     inset: auto 28px 30px;
-    z-index: 1;
+    z-index: 2;
 }
 
 .snami-feature-tile span {
@@ -737,6 +854,17 @@ body.snami-landing button {
     gap: clamp(30px, 4vw, 62px);
 }
 
+.snami-collection-card {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), filter 0.65s var(--snami-ease);
+    will-change: transform;
+}
+
+.snami-collection-card:hover {
+    transform: translateY(-12px);
+}
+
 .snami-collection-card:nth-child(2) {
     margin-top: 76px;
 }
@@ -744,12 +872,59 @@ body.snami-landing button {
 .snami-card-media {
     height: clamp(380px, 40vw, 560px);
     margin-bottom: 26px;
+    overflow: hidden;
+    border-radius: 8px;
+    position: relative;
+}
+
+.snami-card-media::before {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(255, 250, 240, 0.22), transparent 35%);
+    opacity: 0;
+    transition: opacity 0.45s var(--snami-ease);
+    content: "";
+}
+
+.snami-collection-card:hover .snami-card-media::before {
+    opacity: 1;
 }
 
 .snami-card-media img {
     width: 100%;
     height: 112%;
     object-fit: cover;
+    filter: saturate(0.74) contrast(0.94) brightness(0.96);
+    transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.snami-collection-card:hover .snami-card-media img {
+    transform: scale(1.08) translateY(calc(var(--parallax-y, 0px) - 6px)) !important;
+}
+
+.snami-card-media::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    pointer-events: none;
+    transition: none;
+}
+
+.snami-collection-card:hover .snami-card-media::after {
+    left: 150%;
+    transition: left 0.95s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .snami-collection-card span {
@@ -773,36 +948,88 @@ body.snami-landing button {
 }
 
 .snami-experiences {
-    background: #16130f;
+    display: grid;
+    gap: clamp(18px, 2.2vw, 34px);
+    padding: clamp(18px, 2.4vw, 44px);
+    background: #120e09;
 }
 
 .snami-experience-panel {
     position: relative;
-    min-height: clamp(580px, 78vh, 760px);
     display: grid;
     align-items: end;
-    padding: clamp(28px, 6vw, 82px);
+    width: min(100%, 1380px);
+    min-height: clamp(420px, 54vh, 620px);
+    padding: clamp(30px, 5vw, 72px);
+    border: 1px solid rgba(255, 250, 240, 0.08);
+    border-radius: clamp(20px, 2.2vw, 34px);
     color: var(--snami-white);
+    isolation: isolate;
+    overflow: hidden;
+    box-shadow: 0 32px 96px rgba(0, 0, 0, 0.28);
 }
 
-.snami-experience-panel + .snami-experience-panel {
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+.snami-experience-panel:nth-child(1) {
+    justify-self: center;
+}
+
+.snami-experience-panel:nth-child(2) {
+    justify-self: end;
+    width: min(82vw, 1160px);
+    min-height: clamp(380px, 48vh, 560px);
+}
+
+.snami-experience-panel:nth-child(3) {
+    justify-self: start;
+    width: min(76vw, 1060px);
+    min-height: clamp(380px, 48vh, 560px);
 }
 
 .snami-experience-panel img {
     position: absolute;
     inset: 0;
+    z-index: -3;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.52;
+    opacity: 0.72;
+    filter: saturate(0.68) contrast(0.94) brightness(0.9);
+    transform: scale(1.04);
+    transition: transform 1.4s var(--snami-ease), opacity 0.8s var(--snami-ease), filter 0.8s var(--snami-ease);
 }
 
+.snami-experience-panel::before,
 .snami-experience-panel::after {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.18) 64%, rgba(0, 0, 0, 0.72));
     content: "";
+    pointer-events: none;
+}
+
+.snami-experience-panel::before {
+    z-index: -2;
+    background:
+        radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 52%), rgba(255, 250, 240, 0.16), transparent 30%),
+        linear-gradient(115deg, rgba(18, 14, 9, 0.76), rgba(18, 14, 9, 0.18) 54%, rgba(18, 14, 9, 0.7));
+    opacity: 0.92;
+    transition: opacity 0.65s var(--snami-ease);
+}
+
+.snami-experience-panel::after {
+    z-index: -1;
+    background:
+        linear-gradient(180deg, rgba(18, 14, 9, 0.16), transparent 30%, rgba(18, 14, 9, 0.38)),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.38), transparent 52%, rgba(0, 0, 0, 0.34));
+}
+
+.snami-experience-panel:hover img {
+    opacity: 0.84;
+    filter: saturate(0.76) contrast(0.98) brightness(0.95);
+    transform: scale(1.085);
+}
+
+.snami-experience-panel:hover::before {
+    opacity: 0.76;
 }
 
 .snami-experience-panel--reverse {
@@ -812,7 +1039,7 @@ body.snami-landing button {
 .snami-experience-copy {
     position: relative;
     z-index: 1;
-    width: min(560px, 100%);
+    width: min(500px, 100%);
 }
 
 .snami-experience-copy p {
@@ -1247,7 +1474,8 @@ body.snami-landing button {
 .reveal-pop {
     opacity: 0;
     transform: translateY(54px);
-    will-change: transform, opacity;
+    filter: blur(6px);
+    will-change: transform, opacity, filter;
 }
 
 .reveal-title {
@@ -1260,12 +1488,14 @@ body.snami-landing button {
 
 .is-visible {
     opacity: 1 !important;
+    filter: none !important;
     transform: translateY(0) scale(1) !important;
 }
 
 .snami-hero .reveal-line,
 .snami-hero .reveal-title {
     opacity: 1;
+    filter: none;
     transform: translateY(0);
     animation: heroCopyIn 1.15s var(--snami-ease) both;
 }
@@ -1330,6 +1560,7 @@ body.snami-landing button {
     .reveal-title,
     .reveal-pop {
         opacity: 1;
+        filter: none;
         transform: none;
     }
 }
@@ -1348,6 +1579,34 @@ body.snami-landing button {
 }
 
 @media (max-width: 860px) {
+    .snami-menu-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "kicker"
+            "nav"
+            "contact";
+        max-height: calc(100vh - 118px);
+        overflow-y: auto;
+        padding: 28px 20px;
+    }
+
+    .snami-menu-container::before {
+        align-self: start;
+        margin-top: -6px;
+        font-size: clamp(1.15rem, 7vw, 1.9rem);
+    }
+
+    .snami-menu-link {
+        white-space: normal;
+    }
+
+    .snami-menu-contact {
+        min-height: auto;
+        padding: 18px 0 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 0;
+    }
+
     .snami-origin {
         display: grid;
         grid-template-columns: 1fr;
@@ -1399,6 +1658,18 @@ body.snami-landing button {
     .snami-destinations {
         grid-template-columns: 1fr 1fr;
     }
+
+    .snami-experience-panel,
+    .snami-experience-panel:nth-child(1),
+    .snami-experience-panel:nth-child(2),
+    .snami-experience-panel:nth-child(3) {
+        justify-self: stretch;
+        width: 100%;
+    }
+
+    .snami-experience-panel--reverse {
+        justify-items: start;
+    }
 }
 
 @media (max-width: 640px) {
@@ -1425,14 +1696,13 @@ body.snami-landing button {
     }
 
     .snami-btn-capsule-container {
-        width: 160px;
-        height: 160px;
+        width: 100px;
+        height: 100px;
     }
 
     .snami-btn-capsule {
-        width: 134px;
-        height: 134px;
-        font-size: 0.62rem;
+        width: 84px;
+        height: 84px;
     }
 
     .snami-section {
@@ -1472,8 +1742,9 @@ body.snami-landing button {
     }
 
     .snami-experience-panel {
-        min-height: 620px;
+        min-height: 420px;
         padding: 28px 18px;
+        border-radius: 20px;
     }
 
     .snami-destinations {
@@ -1499,3 +1770,27 @@ body.snami-landing button {
         flex-direction: column;
     }
 }
+
+/* 梯级渐进延迟加载 (Staggered Fade-in-up) */
+@keyframes snamiFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stagger-item {
+    opacity: 0;
+}
+
+.stagger-item.animated {
+    animation: snamiFadeInUp 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.stagger-delay-1 { animation-delay: 0.08s; }
+.stagger-delay-2 { animation-delay: 0.20s; }
+.stagger-delay-3 { animation-delay: 0.32s; }

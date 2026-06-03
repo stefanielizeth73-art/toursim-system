@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>旅游日记广场</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link class="js-diary-light-css" rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_diary_light.css', v=asset_version('luxury_diary_light.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="diary-hub-page diary-list-page">
+    <div class="diary-ambient-glow"></div>
+    <div class="diary-ambient-glow-2"></div>
     <a class="skip-link" href="#main-content">跳到内容</a>
 
     <div class="diary-shell" data-diary-feed-page>
@@ -21,10 +24,7 @@
             </div>
 
             <div class="diary-topbar-actions">
-                <form class="diary-search-form" action="{{ url_for('diary_search') }}" method="get">
-                    <input type="search" name="q" placeholder="搜索日记、作者、目的地" value="{{ request.args.get('q', '') if request else '' }}">
-                    <button type="submit" aria-label="搜索日记">搜索</button>
-                </form>
+                <a class="diary-search-form diary-search-shortcut" href="{{ url_for('diary_search') }}" aria-label="搜索日记">搜索</a>
 
                 <details class="publish-panel">
                     <summary class="publish-trigger">发布日记</summary>

@@ -112,37 +112,11 @@ function init3DAstrolabe() {
     const compass = document.querySelector(".lux-compass-instrument");
     if (!compass) return;
 
-    let targetRotX = 0;
-    let targetRotY = 0;
-    let curRotX = 0;
-    let curRotY = 0;
-
-    // 监听鼠标指针视口移动，获取相对旋转偏移
-    window.addEventListener("pointermove", (e) => {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        // 计算中心归一化坐标 (-0.5 到 +0.5)
-        const normX = (e.clientX / width) - 0.5;
-        const normY = (e.clientY / height) - 0.5;
-
-        // 设置旋转星盘的最大 3D 偏转角为 25 度
-        targetRotX = -normY * 25;
-        targetRotY = normX * 25;
-    }, { passive: true });
-
-    // 采用 Lerp 阻尼插值函数平滑模拟罗盘自转与三维偏置
     function renderAstrolabe() {
-        curRotX += (targetRotX - curRotX) * 0.08;
-        curRotY += (targetRotY - curRotY) * 0.08;
-
-        // 星盘以慢速恒定角速度自转飘移，与三维姿态叠加
         const baseDrift = (Date.now() / 200) % 360;
 
         compass.style.transform = `
             perspective(600px)
-            rotateX(${curRotX}deg)
-            rotateY(${curRotY}deg)
             rotateZ(${baseDrift}deg)
         `;
 
@@ -160,18 +134,6 @@ function initFoodParallax() {
     foodCards.forEach(card => {
         const img = card.querySelector("img");
         if (!img) return;
-
-        card.addEventListener("mousemove", (e) => {
-            const rect = card.getBoundingClientRect();
-            const width = rect.width;
-
-            // 计算鼠标横向滑移相对比例
-            const normX = (e.clientX - rect.left) / width - 0.5;
-
-            // 产生极其微幅的反方向位移 (最大偏置 -6px 到 +6px)
-            const shiftX = -normX * 12;
-            img.style.transform = `scale(1.08) translateX(${shiftX}px)`;
-        });
 
         card.addEventListener("mouseleave", () => {
             img.style.transform = `scale(1) translateX(0)`;

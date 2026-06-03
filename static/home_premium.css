@@ -561,32 +561,6 @@ body.home-page * {
     transform: translateX(3px);
 }
 
-/* Interactive Cursor radial glow highlight inside card */
-.portal-blade.is-pointer-active::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    right: 0; bottom: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: radial-gradient(
-        circle 180px at var(--card-x) var(--card-y),
-        var(--accent),
-        transparent 70%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 2;
-}
-
-.portal-blade:hover::after {
-    opacity: 0.7;
-}
-
 /* ==========================================================================
    ENTRANCE FADE IN
    ========================================================================== */
@@ -1117,32 +1091,6 @@ body.login-page * {
     color: #ffffff;
     font-size: 0.7rem;
     font-weight: 900;
-}
-
-/* Interactive Cursor Glow follow coordinate tracker in inputs */
-.form-group.is-pointer-active::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    right: 0; bottom: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: radial-gradient(
-        circle 120px at var(--card-x) var(--card-y),
-        var(--lux-gold),
-        transparent 70%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 2;
-}
-
-.form-group:hover::after {
-    opacity: 0.5;
 }
 
 /* ==========================================================================

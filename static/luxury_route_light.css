@@ -1,0 +1,784 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* ==========================================================================
+   LUXURY ROUTE DESIGN SYSTEM (极简线条奢侈风 & 强烈国风碰撞色)
+   ========================================================================== */
+:root {
+    --route-bg-light: #fafaf9;      /* 纯净温润的骨瓷白 */
+    --route-bg-soft: #f4f2ee;       /* 浅米砂土色 */
+    --route-ink: #1c2421;           /* 炭烟曜黑色 */
+    --route-muted: #8c8882;         /* 砂灰色 */
+
+    /* 核心金主色 */
+    --route-gold: #bca47f;          /* 优雅香槟拉丝金 */
+    --route-gold-glow: rgba(188, 164, 127, 0.2);
+    --route-line: rgba(188, 164, 127, 0.12);
+    --route-line-light: rgba(255, 255, 255, 0.7);
+
+    /* 强烈国风碰撞色 */
+    --route-accent-blue: #225566;   /* 路线规划：深邃中国黛蓝 */
+    --route-accent-blue-glow: rgba(34, 85, 102, 0.18);
+    --route-accent-blue-light: rgba(34, 85, 102, 0.05);
+
+    --route-accent-red: #c24f46;    /* 场所查询：高奢珊瑚朱红 */
+    --route-accent-red-glow: rgba(194, 79, 70, 0.18);
+    --route-accent-red-light: rgba(194, 79, 70, 0.05);
+
+    --route-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --route-transition: all 0.5s var(--route-ease);
+
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif;
+}
+
+/* ==========================================================================
+   GLOBAL STRUCTURE & LAYOUT (骨瓷白画册桌面)
+   ========================================================================== */
+body.route-map-page {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--route-bg-light) !important;
+    color: var(--route-ink) !important;
+    font-family: var(--font-sans) !important;
+    letter-spacing: 0.04em;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 隐藏地图之外的老旧动态粒子 */
+body.route-map-page #lux-particle-canvas {
+    display: none !important;
+}
+
+/* 极其干净的主体框架 */
+.route-workspace-v2 {
+    display: grid !important;
+    grid-template-columns: 460px 1fr !important;
+    height: calc(100vh - 80px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    background: var(--route-bg-light) !important;
+}
+
+/* ==========================================================================
+   TOPBAR NAVIGATION DOCK (骨瓷拉丝顶栏)
+   ========================================================================== */
+.route-topbar {
+    position: relative !important;
+    height: 80px !important;
+    z-index: 100;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 clamp(20px, 4vw, 40px) !important;
+    background: rgba(250, 250, 249, 0.85) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border-bottom: 1px solid var(--route-line) !important;
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01) !important;
+}
+
+.route-topbar div:first-child {
+    font-family: var(--font-serif) !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+    color: var(--route-ink) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.route-topbar__mark {
+    width: 6px !important;
+    height: 18px !important;
+    background: var(--route-gold) !important;
+    border-radius: 99px !important;
+}
+
+.route-topbar-user {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+.route-topbar-user .user-badge {
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1em !important;
+    color: var(--route-muted) !important;
+    background: var(--route-bg-soft) !important;
+    padding: 6px 12px !important;
+    border-radius: 99px !important;
+    border: 1px solid rgba(0, 0, 0, 0.03) !important;
+}
+
+.route-topbar-user .nav-link {
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.15em !important;
+    text-transform: uppercase !important;
+    color: var(--route-muted) !important;
+    padding: 8px 16px !important;
+    border-radius: 99px !important;
+    transition: var(--route-transition) !important;
+}
+
+.route-topbar-user .nav-link:hover {
+    color: var(--route-gold) !important;
+    background: rgba(188, 164, 127, 0.05) !important;
+}
+
+.route-topbar-user .nav-link--home {
+    background: rgba(188, 164, 127, 0.06) !important;
+    border: 1px solid var(--route-line) !important;
+    color: var(--route-gold) !important;
+}
+
+.route-topbar-user .nav-link--home:hover {
+    background: var(--route-gold) !important;
+    color: white !important;
+}
+
+/* ==========================================================================
+   ROUTE CONSOLE SIDEBAR (磨砂阻尼侧边控制台)
+   ========================================================================== */
+.route-console-v2 {
+    background: rgba(251, 250, 249, 0.75) !important;
+    backdrop-filter: blur(40px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(140%) !important;
+    border-right: 1px solid var(--route-line) !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    padding: 32px 28px !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.005) !important;
+}
+
+/* 英雄介绍区 */
+.route-console-hero {
+    margin-bottom: 8px !important;
+}
+
+.route-console-hero .eyebrow {
+    font-family: var(--font-sans) !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.35em !important;
+    color: var(--route-accent-red) !important; /* 珊瑚红小写踢脚 */
+    text-transform: uppercase !important;
+    display: block !important;
+    margin-bottom: 6px !important;
+}
+
+.route-console-hero h1 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    font-size: 1.68rem !important;
+    color: var(--route-ink) !important;
+    margin: 0 0 8px 0 !important;
+    letter-spacing: 0.02em !important;
+}
+
+.route-console-hero p {
+    font-size: 0.78rem !important;
+    line-height: 1.6 !important;
+    color: var(--route-muted) !important;
+    margin: 0 !important;
+}
+
+/* ==========================================================================
+   MINIMAL LINE TAB DOCK (极简冷线双色选项卡)
+   ========================================================================== */
+.route-tabs {
+    display: flex !important;
+    width: 100% !important;
+    border-bottom: 1.5px solid var(--route-line) !important;
+    gap: 0 !important;
+    margin-bottom: 8px !important;
+}
+
+.route-tab-btn {
+    flex: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 12px 4px !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: var(--route-muted) !important;
+    cursor: pointer !important;
+    transition: var(--route-transition) !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+/* 未激活悬停 */
+.route-tab-btn:hover {
+    color: var(--route-ink) !important;
+}
+
+/* 底部极简滑动线装饰 */
+.route-tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1.5px;
+    left: 50%;
+    width: 0;
+    height: 2.5px;
+    transition: var(--route-transition);
+    transform: translateX(-50%);
+}
+
+/* 路线规划激活态 (中国黛蓝) */
+.route-tab-btn[data-tab="planner"].active {
+    color: var(--route-accent-blue) !important;
+}
+.route-tab-btn[data-tab="planner"].active::after {
+    width: 75% !important;
+    background: var(--route-accent-blue) !important;
+}
+
+/* 场所查询激活态 (珊瑚朱红) */
+.route-tab-btn[data-tab="places"].active {
+    color: var(--route-accent-red) !important;
+}
+.route-tab-btn[data-tab="places"].active::after {
+    width: 75% !important;
+    background: var(--route-accent-red) !important;
+}
+
+.route-tab-panel {
+    display: none !important;
+}
+
+.route-tab-panel.active {
+    display: block !important;
+    animation: fadeInRoutePanel 0.4s var(--route-ease) both !important;
+}
+
+@keyframes fadeInRoutePanel {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   HIGH-END LAYER TOOLBAR (图层开关)
+   ========================================================================== */
+.route-layer-toolbar--inline {
+    display: flex !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+    justify-content: flex-end !important;
+}
+
+.route-layer-toggle {
+    cursor: pointer !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid var(--route-line) !important;
+    border-radius: 99px !important;
+    padding: 6px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    color: var(--route-muted) !important;
+    transition: var(--route-transition) !important;
+}
+
+.route-layer-toggle:hover {
+    border-color: var(--route-gold) !important;
+    color: var(--route-ink) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.route-layer-toggle[aria-pressed="true"] {
+    background: var(--route-gold) !important;
+    border-color: var(--route-gold) !important;
+    color: white !important;
+    box-shadow: 0 4px 10px var(--route-gold-glow) !important;
+}
+
+.route-layer-toggle__state {
+    opacity: 0.7 !important;
+    font-size: 0.65rem !important;
+}
+
+/* ==========================================================================
+   MINIMAL LINE FORM CONTROLS (极简线条表单控制)
+   ========================================================================== */
+.explore-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+}
+
+.explore-form label,
+.explore-field {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: var(--route-muted) !important;
+    position: relative !important;
+}
+
+/* 全透明底单横线拉丝输入框与下拉框 */
+.explore-form select,
+.explore-form input[type="search"],
+.explore-form input[type="text"] {
+    width: 100% !important;
+    min-height: 40px !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1.5px solid var(--route-line) !important;
+    border-radius: 0 !important;
+    color: var(--route-ink) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    padding: 8px 0 !important;
+    box-sizing: border-box !important;
+    transition: var(--route-transition) !important;
+}
+
+.explore-form select:focus,
+.explore-form input[type="search"]:focus,
+.explore-form input[type="text"]:focus {
+    outline: none !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* 路线规划页面下的聚焦：拉出黛蓝底线 */
+#plannerTab .explore-form label::after,
+#plannerTab .explore-form .explore-field::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1.5px;
+    background: var(--route-accent-blue);
+    transition: var(--route-ease) 0.5s;
+    transform: translateX(-50%);
+}
+
+#plannerTab .explore-form label:focus-within::after,
+#plannerTab .explore-form .explore-field:focus-within::after {
+    width: 100% !important;
+}
+
+#plannerTab .explore-form select:focus,
+#plannerTab .explore-form input:focus {
+    border-bottom-color: transparent !important;
+}
+
+/* 场所查询页面下的聚焦：拉出朱红底线 */
+#placesTab .explore-form label::after,
+#placesTab .explore-form .explore-field::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1.5px;
+    background: var(--route-accent-red);
+    transition: var(--route-ease) 0.5s;
+    transform: translateX(-50%);
+}
+
+#placesTab .explore-form label:focus-within::after,
+#placesTab .explore-form .explore-field:focus-within::after {
+    width: 100% !important;
+}
+
+#placesTab .explore-form select:focus,
+#placesTab .explore-form input:focus {
+    border-bottom-color: transparent !important;
+}
+
+/* 表单分栏栅格 */
+.planner-grid,
+.explore-grid--two {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+}
+
+/* ==========================================================================
+   PRIMARY MASK ACTION BUTTONS (奢侈遮罩提交按钮)
+   ========================================================================== */
+.primary-action {
+    position: relative !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: 1.5px solid var(--route-gold) !important;
+    color: var(--route-gold) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase !important;
+    padding: 14px 28px !important;
+    min-height: 48px !important;
+    border-radius: 0 !important; /* 绝对直角高冷路线 */
+    overflow: hidden !important;
+    z-index: 1 !important;
+    transition: var(--route-transition) !important;
+}
+
+/* 统一滑动遮罩 */
+.primary-action::before {
+    content: '';
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    transition: var(--route-transition);
+}
+
+.primary-action:hover {
+    color: white !important;
+    border-color: transparent !important;
+}
+
+.primary-action:hover::before {
+    bottom: 0 !important;
+}
+
+/* 路线规划主动作按钮：黛蓝遮罩 */
+#plannerTab .primary-action::before {
+    background: var(--route-accent-blue) !important;
+}
+#plannerTab .primary-action:hover {
+    box-shadow: 0 8px 24px var(--route-accent-blue-glow) !important;
+}
+
+/* 场所查询主动作按钮：朱红遮罩 */
+#placesTab .primary-action::before {
+    background: var(--route-accent-red) !important;
+}
+#placesTab .primary-action:hover {
+    box-shadow: 0 8px 24px var(--route-accent-red-glow) !important;
+}
+
+/* ==========================================================================
+   ROUTE MULTI-TARGET DOCK (途经点面板美化)
+   ========================================================================== */
+.multi-target-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-top: 6px !important;
+}
+
+.multi-target-panel > span {
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.12em !important;
+    color: var(--route-muted) !important;
+    text-transform: uppercase !important;
+}
+
+/* 清除按钮 */
+.target-clear {
+    align-self: flex-end !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--route-accent-red) !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    padding: 2px 6px !important;
+    transition: var(--route-transition) !important;
+}
+
+.target-clear:hover {
+    opacity: 0.7 !important;
+}
+
+/* 已选途经点珍珠卡片 */
+.selected-targets {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 4px 0 !important;
+}
+
+.selected-targets .target-chip {
+    background: var(--route-bg-soft) !important;
+    border: 1px solid var(--route-line) !important;
+    border-radius: 99px !important;
+    padding: 6px 14px !important;
+    font-size: 0.72rem !important;
+    font-weight: 500 !important;
+    color: var(--route-ink) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.01) !important;
+    transition: var(--route-transition) !important;
+}
+
+.selected-targets .target-chip:hover {
+    border-color: var(--route-gold) !important;
+    transform: translateY(-1px) !important;
+}
+
+.selected-targets .target-chip .remove-target {
+    color: var(--route-accent-red) !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    margin-left: 2px !important;
+}
+
+/* ==========================================================================
+   ROUTE SUMMARY RESULT (画册手账风结果面板)
+   ========================================================================== */
+.route-summary {
+    margin-top: 24px !important;
+    border-top: 1.5px dashed var(--route-line) !important;
+    padding-top: 24px !important;
+    animation: fadeInRoutePanel 0.6s var(--route-ease) both !important;
+}
+
+.route-summary h2 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    font-size: 1.15rem !important;
+    color: var(--route-muted) !important;
+    margin: 0 0 10px 0 !important;
+}
+
+/* 巨幅手账数字大字 */
+.route-summary .route-total {
+    font-family: var(--font-serif) !important;
+    font-size: 3.2rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    margin: 0 0 16px 0 !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* 双色碰撞大字 */
+#plannerTab .route-summary .route-total {
+    color: var(--route-accent-blue) !important;
+    text-shadow: 0 4px 15px var(--route-accent-blue-glow) !important;
+}
+
+#placesTab .route-summary-row {
+    margin-bottom: 18px !important;
+    display: flex !important;
+    gap: 8px !important;
+}
+
+/* 路线显示路径段 */
+.route-summary p:not(.route-total) {
+    font-size: 0.85rem !important;
+    line-height: 1.7 !important;
+    color: var(--route-ink) !important;
+    margin: 6px 0 !important;
+    word-break: break-all !important;
+}
+
+/* 无法骑行警示 */
+.route-unreachable-alert {
+    background: var(--route-accent-red-light) !important;
+    border: 1px dashed var(--route-accent-red) !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    color: var(--route-accent-red) !important;
+    font-size: 0.78rem !important;
+    line-height: 1.5 !important;
+}
+
+/* 路线颜色指示 */
+.route-color-note {
+    display: flex !important;
+    gap: 14px !important;
+    font-size: 0.68rem !important;
+    color: var(--route-muted) !important;
+    margin: 8px 0 !important;
+    flex-wrap: wrap !important;
+}
+
+.route-color-dot {
+    display: inline-block !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    margin-right: 6px !important;
+}
+
+.route-color-dot--walk {
+    background: #3b82f6 !important; /* 沿用系统主线，不碰道路逻辑颜色 */
+}
+
+.route-color-dot--bike {
+    background: #10b981 !important;
+}
+
+/* ==========================================================================
+   FACILITY SEARCH DOCK & CARDS (设施无边框奢侈线条卡片)
+   ========================================================================== */
+.explore-summary-row {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 18px 0 !important;
+}
+
+.explore-pill {
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    color: var(--route-accent-red) !important;
+    background: var(--route-accent-red-light) !important;
+    padding: 4px 12px !important;
+    border-radius: 99px !important;
+    border: 1px solid rgba(194, 79, 70, 0.08) !important;
+}
+
+.explore-card-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin-top: 14px !important;
+}
+
+/* 无边框拉丝分割线卡片 */
+.explore-card--facility {
+    border: none !important;
+    border-top: 1px dashed var(--route-line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 20px 0 !important;
+    transition: var(--route-transition) !important;
+}
+
+.explore-card--facility:hover {
+    padding-left: 8px !important;
+}
+
+.explore-card__header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+}
+
+.explore-card__header h3 {
+    font-family: var(--font-sans) !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: var(--route-ink) !important;
+    margin: 0 0 4px 0 !important;
+}
+
+.explore-card__header p {
+    font-size: 0.72rem !important;
+    color: var(--route-muted) !important;
+    margin: 0 !important;
+}
+
+/* 强碰撞红色距离显示 */
+.explore-card__header strong {
+    font-family: var(--font-serif) !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+    color: var(--route-accent-red) !important;
+}
+
+.explore-card__meta {
+    display: flex !important;
+    gap: 12px !important;
+    font-size: 0.7rem !important;
+    color: var(--route-muted) !important;
+    margin: 10px 0 !important;
+}
+
+.explore-card__copy {
+    font-size: 0.78rem !important;
+    line-height: 1.5 !important;
+    color: var(--route-ink-soft) !important;
+    margin: 8px 0 !important;
+}
+
+/* 精致的小动作胶囊按钮 */
+.explore-card__actions {
+    display: flex !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+}
+
+.explore-card__actions .detail-btn {
+    cursor: pointer !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    color: var(--route-muted) !important;
+    border: 1px solid var(--route-line) !important;
+    border-radius: 99px !important;
+    padding: 4px 12px !important;
+    background: transparent !important;
+    transition: var(--route-transition) !important;
+}
+
+.explore-card__actions .detail-btn:hover {
+    color: var(--route-accent-red) !important;
+    border-color: var(--route-accent-red) !important;
+    background: var(--route-accent-red-light) !important;
+    transform: translateY(-1px) !important;
+}
+
+.explore-empty-state {
+    text-align: center !important;
+    padding: 40px 20px !important;
+}
+
+.explore-empty-state h3 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    font-size: 1.15rem !important;
+    color: var(--route-muted) !important;
+    margin-bottom: 8px !important;
+}
+
+.explore-empty-state p {
+    font-size: 0.78rem !important;
+    color: var(--route-muted) !important;
+    margin: 0 !important;
+}
+
+/* ==========================================================================
+   MAP WRAPPER & SHELL (完美兼容地图不改动任何逻辑)
+   ========================================================================== */
+.explore-map-shell {
+    height: 100% !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+.map-stage {
+    height: 100% !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+.route-map {
+    width: 100% !important;
+    height: 100% !important;
+}

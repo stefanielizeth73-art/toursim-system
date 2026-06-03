@@ -1,68 +1,15 @@
 (function () {
-    const root = document.documentElement;
     const body = document.body;
-    const interactiveSelector = ".menu-card, .action-card, .detail-card, .route-result, .node-card, .diary-card, .diary-form, .rating-form, .tag-box, .multi-target-box, .diary-post, .diary-search-form, .story-meta-chip, .compression-chip, .rating-bubble, .diary-gallery-stage, .comment-reply-sheet__panel";
 
     if (!body) {
         return;
     }
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isDiaryFeedPage = body.classList.contains("diary-list-page") || body.classList.contains("diary-search-page");
+    const isDiaryPage = body.classList.contains("diary-list-page") || body.classList.contains("diary-search-page") || body.classList.contains("diary-detail-page") || body.classList.contains("diary-hub-page") || body.classList.contains("route-map-page");
     const isFoodPage = body.classList.contains("food-product-page");
-    if (!isDiaryFeedPage && !isFoodPage) {
-        const orb = document.createElement("div");
-        orb.className = "cursor-orb";
-        orb.setAttribute("aria-hidden", "true");
-        body.appendChild(orb);
-    }
+    const isIndoorPage = body.classList.contains("indoor-page");
 
-    let cursorX = window.innerWidth / 2;
-    let cursorY = window.innerHeight * 0.35;
-    let activeCard = null;
-    let rafId = 0;
-    let hoverTarget = null;
     let masonryRafId = 0;
-
-    function paintCursor() {
-        root.style.setProperty("--cursor-x", cursorX + "px");
-        root.style.setProperty("--cursor-y", cursorY + "px");
-    }
-
-    function scheduleCursorPaint() {
-        if (!rafId) {
-            rafId = window.requestAnimationFrame(function () {
-                paintCursor();
-                updateHoverState(hoverTarget);
-                rafId = 0;
-            });
-        }
-    }
-
-    function clearCardGlow(card) {
-        if (!card) {
-            return;
-        }
-        card.style.removeProperty("--card-x");
-        card.style.removeProperty("--card-y");
-    }
-
-    function updateHoverState(target) {
-        const nextCard = target && target.closest ? target.closest(interactiveSelector) : null;
-
-        if (nextCard !== activeCard) {
-            clearCardGlow(activeCard);
-            activeCard = nextCard;
-        }
-
-        body.classList.toggle("is-hovering-ui", Boolean(nextCard));
-
-        if (nextCard) {
-            const rect = nextCard.getBoundingClientRect();
-            nextCard.style.setProperty("--card-x", (cursorX - rect.left) + "px");
-            nextCard.style.setProperty("--card-y", (cursorY - rect.top) + "px");
-        }
-    }
 
     function layoutMasonryFeeds() {
         const feeds = document.querySelectorAll(".js-masonry-feed");
@@ -534,14 +481,6 @@
             });
         });
 
-        document.querySelectorAll(".comment-entry__content, .comment-composer, .comment-thread").forEach(function (node) {
-            node.addEventListener("pointerenter", function () {
-                body.classList.remove("is-hovering-ui");
-                clearCardGlow(activeCard);
-                activeCard = null;
-            });
-        });
-
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape" && replySheet.classList.contains("is-open")) {
                 closeReplySheet();
@@ -549,29 +488,161 @@
         });
     }
 
-    if (!reduceMotion && !isDiaryFeedPage && !isFoodPage) {
-        window.addEventListener("pointermove", function (event) {
-            cursorX = event.clientX;
-            cursorY = event.clientY;
-            hoverTarget = event.target;
-            body.classList.add("is-pointer-active");
-            scheduleCursorPaint();
-        }, { passive: true });
+    function initDiaryVideoGeneration() {
+        const panel = document.querySelector("[data-diary-video-panel]");
+        if (!panel) {
+            return;
+        }
 
-        window.addEventListener("pointerleave", function () {
-            body.classList.remove("is-pointer-active");
-            body.classList.remove("is-hovering-ui");
-            clearCardGlow(activeCard);
-            activeCard = null;
-        }, { passive: true });
+        const button = panel.querySelector("[data-video-generate]");
+        const promptInput = panel.querySelector("[data-video-prompt]");
+        const statusNode = panel.querySelector("[data-video-status]");
+        const preview = panel.querySelector("[data-video-preview]");
+        const player = panel.querySelector("[data-video-player]");
+        const downloadLink = panel.querySelector("[data-video-download]");
+        const hasImage = panel.getAttribute("data-has-image") === "1";
+        const apiReady = panel.getAttribute("data-api-ready") === "1";
+        const startUrl = panel.getAttribute("data-start-url") || "";
+        const templateUrl = panel.getAttribute("data-task-url-template") || "";
+        let pollTimer = 0;
+        let pollCount = 0;
+        let hasGeneratedVideo = Boolean(player && player.getAttribute("src"));
 
-        window.addEventListener("scroll", function () {
-            if (activeCard) {
-                clearCardGlow(activeCard);
-                activeCard = null;
+        function setStatus(message, tone) {
+            if (!statusNode) {
+                return;
             }
-            body.classList.remove("is-hovering-ui");
-        }, { passive: true });
+            statusNode.textContent = message;
+            statusNode.classList.toggle("is-error", tone === "error");
+            statusNode.classList.toggle("is-success", tone === "success");
+        }
+
+        function setBusy(isBusy) {
+            if (!button) {
+                return;
+            }
+            button.disabled = isBusy || !hasImage;
+            button.textContent = isBusy ? "生成中" : (hasImage ? (hasGeneratedVideo ? "重新生成" : "生成视频") : "需要图片");
+        }
+
+        function taskStatusUrl(taskId) {
+            return templateUrl.replace(/\/0(?=($|[?#]))/, "/" + taskId);
+        }
+
+        function showVideo(url) {
+            if (!url || !player || !preview) {
+                return;
+            }
+            player.src = url;
+            preview.hidden = false;
+            if (downloadLink) {
+                downloadLink.href = url + (url.indexOf("?") === -1 ? "?download=1" : "&download=1");
+            }
+            hasGeneratedVideo = true;
+            setStatus("视频已生成并保存，可展开预览或下载。", "success");
+        }
+
+        function renderTask(task) {
+            if (!task) {
+                return;
+            }
+            if (task.local_video_url) {
+                showVideo(task.local_video_url);
+                setBusy(false);
+                return;
+            }
+            if (task.status === "SUCCEEDED") {
+                setStatus("视频已生成，正在保存到本地。");
+                return;
+            }
+            if (task.status === "FAILED" || task.status === "CANCELED" || task.status === "UNKNOWN") {
+                setStatus(task.error_message || "生成任务未完成，请稍后重试。", "error");
+                setBusy(false);
+                return;
+            }
+            setStatus(task.status === "RUNNING" ? "生成中，正在小步轮询进度。" : "任务已提交，正在排队。");
+        }
+
+        async function pollTask(taskId) {
+            if (!taskId) {
+                return;
+            }
+            window.clearTimeout(pollTimer);
+            try {
+                pollCount += 1;
+                const response = await fetch(taskStatusUrl(taskId), { headers: { "Accept": "application/json" } });
+                const payload = await response.json();
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.error || "查询生成进度失败");
+                }
+                renderTask(payload.task);
+                const status = payload.task && payload.task.status;
+                if (status === "PENDING" || status === "RUNNING") {
+                    if (statusNode) {
+                        statusNode.textContent += " 第 " + pollCount + " 次检查。";
+                    }
+                    pollTimer = window.setTimeout(function () {
+                        pollTask(taskId);
+                    }, 5000);
+                } else {
+                    setBusy(false);
+                }
+            } catch (error) {
+                setStatus(error.message || "查询生成进度失败", "error");
+                setBusy(false);
+            }
+        }
+
+        async function startGeneration() {
+            if (!hasImage) {
+                setStatus("这篇日记还没有图片，先补一张图再生成。", "error");
+                return;
+            }
+            if (!apiReady) {
+                setStatus("需要先配置 DASHSCOPE_API_KEY。", "error");
+                return;
+            }
+            setBusy(true);
+            pollCount = 0;
+            setStatus("正在提交图文生视频任务。");
+            try {
+                const response = await fetch(startUrl, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        prompt: promptInput ? promptInput.value.trim() : ""
+                    })
+                });
+                const payload = await response.json();
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.error || "创建生成任务失败");
+                }
+                renderTask(payload.task);
+                pollTask(payload.task.id);
+            } catch (error) {
+                setStatus(error.message || "创建生成任务失败", "error");
+                setBusy(false);
+            }
+        }
+
+        if (button) {
+            button.addEventListener("click", startGeneration);
+        }
+
+        try {
+            const rawTask = panel.getAttribute("data-initial-task");
+            const initialTask = rawTask ? JSON.parse(rawTask) : null;
+            renderTask(initialTask);
+            if (apiReady && initialTask && (initialTask.status === "PENDING" || initialTask.status === "RUNNING")) {
+                setBusy(true);
+                pollTask(initialTask.id);
+            }
+        } catch (error) {
+            return;
+        }
     }
 
     document.querySelectorAll(".js-masonry-feed img, .js-masonry-feed video").forEach(function (media) {
@@ -579,137 +650,408 @@
         media.addEventListener("loadedmetadata", scheduleMasonryLayout, { once: true });
     });
 
-    function initCanvasParticles() {
-        if (reduceMotion || isDiaryFeedPage || isFoodPage) return;
-        const canvas = document.createElement("canvas");
-        canvas.id = "lux-particle-canvas";
-        canvas.style.position = "fixed";
-        canvas.style.top = "0";
-        canvas.style.left = "0";
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.zIndex = "-2";
-        canvas.style.pointerEvents = "none";
-        body.appendChild(canvas);
+    function initIndoorRoutePicker() {
+        if (!isIndoorPage || body.classList.contains("indoor-collector-page")) {
+            return;
+        }
 
-        const ctx = canvas.getContext("2d");
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        const form = document.getElementById("indoorRouteForm");
+        if (!form) {
+            return;
+        }
 
-        const particles = [];
-        const maxParticles = width < 768 ? 35 : 90;
-        const connectionDist = 180;
+        const startSelect = form.querySelector('select[name="start"]');
+        const endSelect = form.querySelector('select[name="end"]');
+        const searchInputs = Array.from(document.querySelectorAll("[data-indoor-node-search]"));
+        const searchMenus = Array.from(document.querySelectorAll("[data-indoor-search-menu]"));
+        const pickButtons = Array.from(document.querySelectorAll("[data-indoor-pick-mode]"));
+        const pickTitle = document.querySelector("[data-indoor-pick-title]");
+        const pickHint = document.querySelector("[data-indoor-pick-hint]");
+        const submitButton = form.querySelector('button[type="submit"]');
+        const clearButton = document.querySelector("[data-indoor-clear]");
+        let pickMode = "start";
 
-        const mouse = {
-            x: null,
-            y: null,
-            active: false
-        };
+        const nodeOptions = Array.from((startSelect || endSelect || { options: [] }).options)
+            .filter(function (option) {
+                return option.value;
+            })
+            .map(function (option) {
+                return {
+                    id: option.value,
+                    name: option.textContent.trim(),
+                    floor: option.getAttribute("data-floor") || "",
+                    type: option.getAttribute("data-type") || "other"
+                };
+            });
 
-        class Particle {
-            constructor() {
-                this.reset();
-                this.y = Math.random() * height;
-                this.x = Math.random() * width;
+        function nodeById(nodeId) {
+            return nodeOptions.find(function (node) {
+                return node.id === nodeId;
+            }) || null;
+        }
+
+        function setPickMode(mode) {
+            pickMode = mode === "end" ? "end" : "start";
+            body.setAttribute("data-indoor-pick-mode", pickMode);
+            pickButtons.forEach(function (button) {
+                button.classList.toggle("is-active", button.getAttribute("data-indoor-pick-mode") === pickMode);
+            });
+            if (pickTitle) {
+                pickTitle.textContent = pickMode === "end" ? "正在设置终点" : "正在设置起点";
+            }
+            if (pickHint) {
+                pickHint.textContent = pickMode === "end"
+                    ? "点击地图上的采集点，直接设为目标位置。"
+                    : "点击地图上的采集点，直接设为出发位置。";
+            }
+        }
+
+        function selectForMode(mode) {
+            return mode === "end" ? endSelect : startSelect;
+        }
+
+        function inputForMode(mode) {
+            return document.querySelector(`[data-indoor-node-search="${mode}"]`);
+        }
+
+        function menuForMode(mode) {
+            return document.querySelector(`[data-indoor-search-menu="${mode}"]`);
+        }
+
+        function setNodeValue(mode, nodeId) {
+            const select = selectForMode(mode);
+            const input = inputForMode(mode);
+            const node = nodeById(nodeId);
+            if (!select || !node) {
+                return false;
+            }
+            select.value = node.id;
+            if (input) {
+                input.value = node.name;
+            }
+            return true;
+        }
+
+        function hideSearchMenus() {
+            searchMenus.forEach(function (menu) {
+                menu.classList.remove("is-open");
+                menu.innerHTML = "";
+            });
+        }
+
+        function filteredNodes(query) {
+            const normalized = String(query || "").trim().toLowerCase();
+            const source = normalized
+                ? nodeOptions.filter(function (node) {
+                    return node.name.toLowerCase().indexOf(normalized) !== -1 || node.id.toLowerCase().indexOf(normalized) !== -1;
+                })
+                : nodeOptions;
+            return source.slice(0, 8);
+        }
+
+        function nodeTypeLabel(type) {
+            switch (type) {
+                case "elevator":
+                    return "\u7535\u68af";
+                case "stairs":
+                    return "\u6b65\u68af";
+                case "gate":
+                    return "\u5165\u53e3";
+                case "room":
+                    return "\u623f\u95f4";
+                default:
+                    return "\u5176\u4ed6";
+            }
+        }
+
+        function renderSearchMenu(mode, query) {
+            const menu = menuForMode(mode);
+            if (!menu) {
+                return;
+            }
+            menu.innerHTML = "";
+            filteredNodes(query).forEach(function (node) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.setAttribute("role", "option");
+                button.setAttribute("data-node-id", node.id);
+                const name = document.createElement("strong");
+                name.textContent = node.name;
+                const meta = document.createElement("span");
+                meta.textContent = `${node.floor}F \u00b7 ${nodeTypeLabel(node.type)}`;
+                button.appendChild(name);
+                button.appendChild(meta);
+                button.addEventListener("mousedown", function (event) {
+                    event.preventDefault();
+                });
+                button.addEventListener("click", function () {
+                    setNodeValue(mode, node.id);
+                    hideSearchMenus();
+                });
+                menu.appendChild(button);
+            });
+            if (!menu.children.length) {
+                const empty = document.createElement("div");
+                empty.className = "indoor-search-menu__empty";
+                empty.textContent = "没有匹配的关键点";
+                menu.appendChild(empty);
+            }
+            menu.classList.add("is-open");
+        }
+
+        function resolveInputToNode(mode) {
+            const input = inputForMode(mode);
+            const select = selectForMode(mode);
+            if (!input || !select || select.value) {
+                return;
+            }
+            const query = input.value.trim();
+            if (!query) {
+                return;
+            }
+            const exact = nodeOptions.find(function (node) {
+                return node.name === query;
+            });
+            const fallback = exact || filteredNodes(query)[0];
+            if (fallback) {
+                setNodeValue(mode, fallback.id);
+            }
+        }
+
+        function submitRoute() {
+            if (typeof form.requestSubmit === "function") {
+                form.requestSubmit();
+            } else {
+                form.submit();
+            }
+        }
+
+        pickButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                setPickMode(button.getAttribute("data-indoor-pick-mode"));
+            });
+        });
+
+        searchInputs.forEach(function (input) {
+            const mode = input.getAttribute("data-indoor-node-search") === "end" ? "end" : "start";
+            input.addEventListener("focus", function () {
+                renderSearchMenu(mode, input.value);
+            });
+            input.addEventListener("input", function () {
+                const select = selectForMode(mode);
+                if (select) {
+                    select.value = "";
+                }
+                renderSearchMenu(mode, input.value);
+            });
+            input.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    hideSearchMenus();
+                    input.blur();
+                }
+            });
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".indoor-search-field")) {
+                hideSearchMenus();
+            }
+        });
+
+        form.addEventListener("submit", function () {
+            resolveInputToNode("start");
+            resolveInputToNode("end");
+            if (submitButton) {
+                submitButton.classList.add("is-submitting");
+                submitButton.textContent = "正在规划";
+            }
+        });
+
+        if (clearButton) {
+            clearButton.addEventListener("click", function () {
+                const params = new URLSearchParams(window.location.search);
+                params.delete("start");
+                params.delete("end");
+                params.set("clear", "1");
+                if (startSelect) startSelect.value = "";
+                if (endSelect) endSelect.value = "";
+                searchInputs.forEach(function (input) {
+                    input.value = "";
+                });
+                window.location.href = window.location.pathname + "?" + params.toString();
+            });
+        }
+
+        document.querySelectorAll(".indoor-node-marker[data-node-id]").forEach(function (marker) {
+            function chooseNode() {
+                const nodeId = marker.getAttribute("data-node-id");
+                if (!nodeId || !setNodeValue(pickMode, nodeId)) {
+                    return;
+                }
+                submitRoute();
             }
 
-            reset() {
-                this.x = Math.random() * width;
-                this.y = -10;
-                this.radius = Math.random() * 1.5 + 1.2;
-                this.baseVx = (Math.random() - 0.5) * 0.3;
-                this.baseVy = Math.random() * 0.4 + 0.15; // slow drift down
-                this.vx = this.baseVx;
-                this.vy = this.baseVy;
-                // Pastel translucent colors matching the light HSL theme
-                const colors = [
-                    "rgba(99, 102, 241, 0.28)",  // Indigo
-                    "rgba(6, 182, 212, 0.28)",   // Cyan
-                    "rgba(16, 185, 129, 0.25)",  // Emerald
-                    "rgba(244, 63, 94, 0.25)",   // Rose
-                    "rgba(139, 92, 246, 0.28)"   // Violet
-                ];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
+            marker.addEventListener("click", chooseNode);
+            marker.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    chooseNode();
+                }
+            });
+        });
+
+        setPickMode(pickMode);
+    }
+
+    function initCompactDatalists() {
+        const inputs = Array.from(document.querySelectorAll("input[list]"));
+        if (!inputs.length) {
+            return;
+        }
+
+        let activeInput = null;
+        let activePanel = null;
+
+        function getOptionValues(input) {
+            const listId = input.getAttribute("data-native-list");
+            const list = listId ? document.getElementById(listId) : null;
+            if (!list) {
+                return [];
+            }
+            return Array.from(list.options)
+                .map(function (option) {
+                    return (option.value || option.textContent || "").trim();
+                })
+                .filter(Boolean);
+        }
+
+        function placePanel(input, panel) {
+            const rect = input.getBoundingClientRect();
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            const width = Math.min(Math.max(rect.width, 220), Math.min(380, viewportWidth - 24));
+            const left = Math.min(Math.max(rect.left, 12), viewportWidth - width - 12);
+            panel.style.setProperty("--compact-datalist-width", width + "px");
+            panel.style.left = left + "px";
+            panel.style.top = (rect.bottom + 6) + "px";
+        }
+
+        function hidePanel() {
+            if (activePanel) {
+                activePanel.hidden = true;
+            }
+            activeInput = null;
+            activePanel = null;
+        }
+
+        inputs.forEach(function (input) {
+            const listId = input.getAttribute("list");
+            if (!listId) {
+                return;
             }
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
+            input.setAttribute("data-native-list", listId);
+            input.removeAttribute("list");
+            input.setAttribute("autocomplete", "off");
 
-                if (mouse.active && mouse.x !== null && mouse.y !== null) {
-                    const dx = mouse.x - this.x;
-                    const dy = mouse.y - this.y;
-                    const dist = Math.hypot(dx, dy);
+            const panel = document.createElement("div");
+            panel.className = "compact-datalist";
+            panel.hidden = true;
+            panel.setAttribute("role", "listbox");
+            document.body.appendChild(panel);
 
-                    if (dist < connectionDist) {
-                        const force = (connectionDist - dist) / connectionDist;
-                        // Magnetic tracking spring effect
-                        this.vx += (dx / dist) * force * 0.14;
-                        this.vy += (dy / dist) * force * 0.14;
+            function chooseValue(value) {
+                input.value = value;
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+                hidePanel();
+                input.focus();
+            }
 
-                        // Connecting line
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.strokeStyle = `rgba(99, 102, 241, ${force * 0.14})`;
-                        ctx.lineWidth = 0.65;
-                        ctx.stroke();
+            function renderOptions() {
+                const query = input.value.trim().toLowerCase();
+                const matches = getOptionValues(input).filter(function (value) {
+                    return !query || value.toLowerCase().indexOf(query) !== -1;
+                }).slice(0, 8);
+
+                panel.innerHTML = "";
+                if (!matches.length) {
+                    panel.hidden = true;
+                    return;
+                }
+
+                matches.forEach(function (value, index) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.setAttribute("role", "option");
+                    button.textContent = value;
+                    if (index === 0) {
+                        button.classList.add("is-active");
+                    }
+                    button.addEventListener("click", function () {
+                        chooseValue(value);
+                    });
+                    panel.appendChild(button);
+                });
+
+                activeInput = input;
+                activePanel = panel;
+                placePanel(input, panel);
+                panel.hidden = false;
+            }
+
+            input.addEventListener("focus", renderOptions);
+            input.addEventListener("input", renderOptions);
+            input.addEventListener("click", renderOptions);
+            input.addEventListener("keydown", function (event) {
+                const firstOption = panel.querySelector("button");
+                if (event.key === "Escape") {
+                    hidePanel();
+                } else if (event.key === "ArrowDown" && firstOption && !panel.hidden) {
+                    event.preventDefault();
+                    firstOption.focus();
+                }
+            });
+
+            panel.addEventListener("keydown", function (event) {
+                const buttons = Array.from(panel.querySelectorAll("button"));
+                const currentIndex = buttons.indexOf(document.activeElement);
+                if (event.key === "Escape") {
+                    hidePanel();
+                    input.focus();
+                } else if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    buttons[Math.min(currentIndex + 1, buttons.length - 1)]?.focus();
+                } else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    if (currentIndex <= 0) {
+                        input.focus();
+                    } else {
+                        buttons[currentIndex - 1]?.focus();
                     }
                 }
+            });
 
-                // Damping
-                this.vx *= 0.93;
-                this.vy *= 0.93;
+            panel.addEventListener("mousedown", function (event) {
+                event.preventDefault();
+            });
+        });
 
-                // Drift retention
-                this.vx += this.baseVx * 0.07;
-                this.vy += this.baseVy * 0.07;
-
-                // Border wraps/recreation
-                if (this.y > height + 10 || this.x < -10 || this.x > width + 10) {
-                    this.reset();
-                }
+        document.addEventListener("pointerdown", function (event) {
+            if (!activeInput || !activePanel) {
+                return;
             }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
+            if (event.target === activeInput || activePanel.contains(event.target)) {
+                return;
             }
-        }
+            hidePanel();
+        });
 
-        for (let i = 0; i < maxParticles; i++) {
-            particles.push(new Particle());
-        }
-
-        window.addEventListener("pointermove", function (e) {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            mouse.active = true;
-        }, { passive: true });
-
-        window.addEventListener("pointerleave", function () {
-            mouse.active = false;
-        }, { passive: true });
-
-        window.addEventListener("resize", function () {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }, { passive: true });
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
+        window.addEventListener("scroll", function () {
+            if (activeInput && activePanel && !activePanel.hidden) {
+                placePanel(activeInput, activePanel);
             }
-
-            requestAnimationFrame(animate);
-        }
-
-        animate();
+        }, true);
+        window.addEventListener("resize", hidePanel);
     }
 
     initDiaryFeedMemory();
@@ -717,7 +1059,9 @@
     initDeferredDiaryImages();
     initDiaryGallery();
     initCommentDrafts();
-    initCanvasParticles();
+    initDiaryVideoGeneration();
+    initIndoorRoutePicker();
+    initCompactDatalists();
 
     layoutMasonryFeeds();
     window.addEventListener("load", scheduleMasonryLayout);
