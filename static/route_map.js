@@ -222,10 +222,11 @@
 
         const mapStyleOptions = {
             color: "amap://styles/normal",
-            gray: "amap://styles/whitesmoke"
+            satellite: "amap://styles/normal"
         };
         const savedMapStyle = window.localStorage && window.localStorage.getItem("xmu_route_map_style");
         let currentMapStyle = mapStyleOptions[savedMapStyle] ? savedMapStyle : "color";
+        let satelliteLayers = [];
         const campusLimit = campusBounds();
         const expandedCampusLimit = expandedCampusBounds(0.08);
         const map = new AMap.Map(mapEl, {
@@ -234,7 +235,7 @@
             zoom: 17,
             zooms: [16, 19],
             resizeEnable: true,
-            mapStyle: mapStyleOptions[currentMapStyle],
+            mapStyle: mapStyleOptions.color,
             features: ["bg", "road", "building", "point"],
             showIndoorMap: false,
             pitchEnable: false,
@@ -251,12 +252,41 @@
             map.setBounds(campusLimit);
         }
 
+        function ensureSatelliteLayers() {
+            if (!satelliteLayers.length && window.AMap && AMap.TileLayer && AMap.TileLayer.Satellite) {
+                satelliteLayers.push(new AMap.TileLayer.Satellite());
+                if (AMap.TileLayer.RoadNet) {
+                    satelliteLayers.push(new AMap.TileLayer.RoadNet());
+                }
+            }
+            return satelliteLayers;
+        }
+
+        function applyBasemapStyle(styleName) {
+            const nextStyle = styleName === "satellite" ? "satellite" : "color";
+            if (nextStyle === "satellite") {
+                map.setMapStyle(mapStyleOptions.color);
+                ensureSatelliteLayers().forEach(function (layer) {
+                    map.add(layer);
+                });
+                return;
+            }
+            satelliteLayers.forEach(function (layer) {
+                map.remove(layer);
+            });
+            map.setMapStyle(mapStyleOptions.color);
+        }
+
         function setupBasemapSwitcher() {
             const switcher = document.createElement("div");
             switcher.className = "route-basemap-switcher";
+            const baseMapLabels = {
+                color: "\u5f69\u8272",
+                satellite: "\u536b\u661f"
+            };
             switcher.innerHTML = (
-                "<button type=\"button\" data-map-style=\"color\">彩色</button>" +
-                "<button type=\"button\" data-map-style=\"gray\">浅灰</button>"
+                `<button type="button" data-map-style="color">${baseMapLabels.color}</button>` +
+                `<button type="button" data-map-style="satellite">${baseMapLabels.satellite}</button>`
             );
             function syncButtons() {
                 switcher.querySelectorAll("[data-map-style]").forEach(function (button) {
@@ -272,8 +302,11 @@
                 if (!mapStyleOptions[nextStyle]) {
                     return;
                 }
+                if (nextStyle === currentMapStyle) {
+                    return;
+                }
                 currentMapStyle = nextStyle;
-                map.setMapStyle(mapStyleOptions[currentMapStyle]);
+                applyBasemapStyle(currentMapStyle);
                 if (window.localStorage) {
                     window.localStorage.setItem("xmu_route_map_style", currentMapStyle);
                 }
@@ -283,6 +316,7 @@
             mapEl.parentElement.appendChild(switcher);
         }
 
+        applyBasemapStyle(currentMapStyle);
         setupBasemapSwitcher();
 
         const roadOverlays = [];
@@ -379,10 +413,10 @@
 
         const routePalettes = {
             walk: {
-                color: "#f08a2f"
+                color: "#df8324"
             },
             bike: {
-                color: "#3b82f6"
+                color: "#267fc1"
             }
         };
         let routeArrowDrawn = false;
@@ -574,7 +608,7 @@
             routeOverlays.push(new AMap.Polyline({
                 path,
                 strokeColor: routePalette.color,
-                strokeWeight: 7,
+                strokeWeight: 6.8,
                 strokeOpacity: 0.96,
                 lineJoin: "round",
                 lineCap: "round",

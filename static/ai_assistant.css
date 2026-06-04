@@ -506,3 +506,47 @@ body:not(.route-v2) .ai-assistant__form button:focus-visible {
     background: rgba(255, 255, 255, 0.78);
     outline: none;
 }
+
+/* Global AI entry: quiet line-only circle, aligned with the home page vocabulary. */
+body .ai-assistant-launcher,
+body:not(.route-v2) .ai-assistant-launcher {
+    width: 52px;
+    height: 52px;
+    border: 1px solid rgba(31, 32, 38, 0.34);
+    background: transparent !important;
+    color: var(--ai-ink);
+    box-shadow: none;
+    letter-spacing: 0.08em;
+}
+
+body .ai-assistant-launcher::before,
+body .ai-assistant-launcher::after,
+body:not(.route-v2) .ai-assistant-launcher::before,
+body:not(.route-v2) .ai-assistant-launcher::after {
+    display: none;
+}
+
+body .ai-assistant-launcher:hover,
+body .ai-assistant-launcher:focus-visible,
+body:not(.route-v2) .ai-assistant-launcher:hover,
+body:not(.route-v2) .ai-assistant-launcher:focus-visible {
+    border-color: rgba(197, 168, 128, 0.72);
+    background: transparent !important;
+    color: var(--ai-ink);
+    outline: none;
+    box-shadow: 0 0 0 6px rgba(197, 168, 128, 0.08);
+}
+
+body .ai-assistant__new:hover,
+body .ai-assistant__close:hover,
+body .ai-assistant__action:hover,
+body .ai-assistant__chip:hover,
+body .ai-assistant__chips-toggle:hover,
+body .ai-assistant__new:focus-visible,
+body .ai-assistant__close:focus-visible,
+body .ai-assistant__action:focus-visible,
+body .ai-assistant__chip:focus-visible,
+body .ai-assistant__chips-toggle:focus-visible {
+    color: var(--ai-ink) !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
+}

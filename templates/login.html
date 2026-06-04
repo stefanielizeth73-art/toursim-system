@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TourSim Travel - 个性化旅游路径设计</title>
+    <title>TourSim - 周游神州智能路线规划</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='snamitravel_clone.css') }}">
@@ -21,7 +21,7 @@
         </a>
 
         <nav class="snami-nav-actions" aria-label="主导航">
-            <a href="tel:+30210000000" class="snami-phone">+30 210 000 0000</a>
+            <a href="tel:2024211326" class="snami-phone">2024211326</a>
             <button class="snami-btn-request js-open-login" type="button">进入系统</button>
             <button class="snami-hamburger" type="button" aria-label="打开导航菜单" aria-expanded="false">
                 <span></span>
@@ -35,11 +35,11 @@
         <div class="snami-menu-container">
             <p class="snami-menu-kicker">Personalized Travel Design</p>
             <ul class="snami-menu-list">
-                <li><a href="#philosophy" class="snami-menu-link">系统理念</a></li>
-                <li><a href="#collections" class="snami-menu-link">个性推荐</a></li>
-                <li><a href="#experiences" class="snami-menu-link">路径体验</a></li>
-                <li><a href="#journal" class="snami-menu-link">旅行社区</a></li>
-                <li><a href="#" class="snami-menu-link js-open-login">登录账户</a></li>
+                <li><a href="#philosophy" class="snami-menu-link"><span class="snami-menu-num">01</span>系统理念</a></li>
+                <li><a href="#collections" class="snami-menu-link"><span class="snami-menu-num">02</span>个性推荐</a></li>
+                <li><a href="#experiences" class="snami-menu-link"><span class="snami-menu-num">03</span>路径体验</a></li>
+                <li><a href="#journal" class="snami-menu-link"><span class="snami-menu-num">04</span>旅行社区</a></li>
+                <li><a href="#" class="snami-menu-link js-open-login"><span class="snami-menu-num">05</span>登录账户</a></li>
             </ul>
             <div class="snami-menu-contact">
                 <span>Athens / Xiamen</span>
@@ -58,7 +58,7 @@
                 playsinline
                 poster="{{ url_for('static', filename='images/snami_video_poster.jpg') }}"
                 data-hls-src="{{ url_for('static', filename='videos/snami-hero/1080p/index.m3u8') }}"
-                aria-label="希腊海岸个性化旅行背景视频"
+                aria-label="个性化旅行背景视频"
             >
                 <source src="{{ url_for('static', filename='videos/snami-hero/1080p/index.m3u8') }}" type="application/vnd.apple.mpegurl">
             </video>
@@ -66,9 +66,9 @@
             <div class="snami-hero-overlay" aria-hidden="true"></div>
 
             <div class="snami-hero-content">
-                <p class="snami-hero-kicker reveal-line">Personalized Tourism Design</p>
+                <p class="snami-hero-kicker reveal-line">Personalized Travel Route Design</p>
                 <h1 class="snami-hero-title reveal-title">
-                    Grecian Travel<br>
+                    China Travel<br>
                     <em>Redefined</em>
                 </h1>
                 <p class="snami-hero-copy reveal-line">
@@ -77,9 +77,7 @@
 
                 <div class="snami-btn-capsule-container">
                     <button class="snami-btn-capsule js-open-login" type="button">
-                        <span>Define Your</span>
-                        <strong>Journey</strong>
-                        <i aria-hidden="true">&rarr;</i>
+                        <span>open</span>
                     </button>
                 </div>
             </div>
@@ -100,18 +98,18 @@
                 >
             </div>
             <div class="snami-origin-copy">
-                <p class="snami-section-kicker reveal-line">Made for Intelligent Travel</p>
+                <p class="snami-section-kicker reveal-line">Intelligent Travel Design</p>
                 <h2 class="snami-section-title reveal-title">
-                    从兴趣出发，<br>
-                    让路线拥有审美与秩序。
+                    阅尽河山，<br>
+                    让每一步都有算法的温度。
                 </h2>
                 <p class="snami-lead reveal-line">
-                    TourSim 把景点、餐饮、室内导航与旅行社区连接起来，不只给出“能到达”的路线，而是把时间、距离、偏好与体验感一起纳入规划。
+                    TourSim 将华夏美景、地道风味、室内地标与游记社区无缝串联，不只计算最短距离，而是以 Dijkstra 算法为骨架，把用户的兴趣偏好与时光体验化作最优的行走路径。
                 </p>
                 <p class="snami-body reveal-line">
-                    系统以个性化旅游为课程设计主题：用户可以浏览目的地、收藏灵感、发布游记，并在复杂校园或旅行场景中通过路径算法获得更清晰的出行方案。
+                    系统以“周游中国”为课程设计宏大背景，用户可自由探寻华夏各省的精选路线，发布深度旅行随笔，甚至在大空间复杂校园或复杂建筑内，以多源寻路算法获取丝滑精准的导航指引。
                 </p>
-                <a class="snami-text-link js-open-login" href="#">Our philosophy <span>&rarr;</span></a>
+                <a class="snami-text-link js-open-login" href="#">探索算法理念 <span>&rarr;</span></a>
             </div>
         </section>
 
@@ -119,90 +117,90 @@
             <div class="snami-traveler-copy">
                 <p class="snami-section-kicker reveal-line">For Those Who Travel Differently</p>
                 <h2 class="snami-section-title reveal-title">
-                    你寻找的不是打卡点，<br>
-                    而是一条适合自己的叙事线。
+                    山水万程，<br>
+                    寻回属于你自己的步履叙事。
                 </h2>
             </div>
             <div class="snami-traveler-panel reveal-pop">
                 <p>
-                    喜欢安静海岸、热闹餐厅、山林航拍，或是隐藏在地图深处的短暂停留点，系统都会把这些选择转化为可执行的路线建议。
+                    无论是小桥流水的江南古镇，还是苍茫辽阔的川藏天路，系统通过兴趣画像标签，智能避开人潮，为您定制兼具人文底蕴与效率的最佳路线。
                 </p>
-                <span>Preference / Route / Community / Indoor Map</span>
+                <span>偏好画像 / Dijkstra 最优路径 / 游记社区 / 复杂室内导航</span>
             </div>
         </section>
 
-        <section class="snami-feature-strip" aria-label="系统能力">
+        <section class="snami-feature-strip" id="capabilities" aria-label="系统能力">
             <article class="snami-feature-tile reveal-pop">
-                <img src="{{ url_for('static', filename='images/snamitravel/mountain-path.jpg') }}" alt="山林旅行" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/feature-clean-mountain.jpg') }}" alt="清爽山湖路径" loading="lazy">
                 <div>
                     <span>01</span>
-                    <h3>We Design Routes</h3>
-                    <p>Dijkstra 路径规划让复杂地点变成清晰的行走顺序。</p>
+                    <h3>探索智能路径</h3>
+                    <p>Dijkstra 算法精密解构，为每一个中国目的地计算最优行走体验。</p>
                 </div>
             </article>
             <article class="snami-feature-tile reveal-pop">
-                <img src="{{ url_for('static', filename='images/snamitravel/santorini-sunset.jpg') }}" alt="圣托里尼日落" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/feature-clean-coast.jpg') }}" alt="清爽海岸目的地" loading="lazy">
                 <div>
                     <span>02</span>
-                    <h3>We Read Preferences</h3>
-                    <p>根据浏览、收藏与兴趣标签推荐更贴近用户风格的地点。</p>
+                    <h3>读懂您的偏好</h3>
+                    <p>根据您的每一次点击和收藏，推荐符合您气质的名胜与宝藏角落。</p>
                 </div>
             </article>
             <article class="snami-feature-tile reveal-pop">
-                <img src="{{ url_for('static', filename='images/snamitravel/restaurant-table.jpg') }}" alt="风景餐厅" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/feature-clean-dining.jpg') }}" alt="静雅旅行生活场景" loading="lazy">
                 <div>
                     <span>03</span>
-                    <h3>We Curate Moments</h3>
-                    <p>把餐饮、游记与景点串联成有节奏的个性化旅程。</p>
+                    <h3>融汇人间烟火</h3>
+                    <p>将大好河山与周边地道美食无缝衔接，让旅途不仅饱览风光，更饱尝风味。</p>
                 </div>
             </article>
             <article class="snami-feature-tile reveal-pop">
-                <img src="{{ url_for('static', filename='images/snamitravel/flower-closeup.jpg') }}" alt="花草特写" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/feature-clean-flora.jpg') }}" alt="清爽植物细节" loading="lazy">
                 <div>
                     <span>04</span>
-                    <h3>We Keep Details</h3>
-                    <p>头像、收藏、评论与游记沉淀每个用户独有的旅行记忆。</p>
+                    <h3>留驻珍贵足迹</h3>
+                    <p>游记随笔、照片沉淀与行程收藏，凝聚成您独一无二的华夏漫游志。</p>
                 </div>
             </article>
         </section>
 
         <section class="snami-section snami-collection" id="collections">
             <div class="snami-collection-head">
-                <p class="snami-section-kicker reveal-line">Curated Collection</p>
+                <p class="snami-section-kicker reveal-line">Curated Modules</p>
                 <h2 class="snami-section-title reveal-title">
-                    Personalized<br>
-                    Travel Modules
+                    周游神州<br>
+                    智能体验模块
                 </h2>
             </div>
 
             <div class="snami-collection-grid">
                 <article class="snami-collection-card reveal-pop">
                     <div class="snami-card-media">
-                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/santorini-sunset.jpg') }}" alt="圣托里尼目的地推荐" loading="lazy">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/feature-mountain-lake.jpg') }}" alt="自然风光目的地推荐" loading="lazy">
                     </div>
                     <span>Destination Intelligence</span>
                     <h3>个性化景点推荐</h3>
-                    <p>通过地点特征与用户偏好匹配，为海岛、城市、校园与周边游生成更有美感的目的地选择。</p>
+                    <p>通过兴趣标签与多维偏好匹配，为壮美山岳、诗意古镇与活力校园生成极具审美的出行选项。</p>
                     <a href="#" class="snami-discover js-open-login">Discover</a>
                 </article>
 
                 <article class="snami-collection-card reveal-pop">
                     <div class="snami-card-media">
-                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/beach-route.jpg') }}" alt="海边路线规划" loading="lazy">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/feature-winding-road.jpg') }}" alt="自然路线规划" loading="lazy">
                     </div>
                     <span>Pathfinding System</span>
                     <h3>Dijkstra 智能路线</h3>
-                    <p>把分散节点、道路权重与多目标需求整合成可理解的最优路径，适合课程设计展示算法价值。</p>
+                    <p>将离散地理节点与动态权重整合成一键生成的科学最优路径，完美体现高级数据结构与算法的现实价值。</p>
                     <a href="#" class="snami-discover js-open-login">Discover</a>
                 </article>
 
                 <article class="snami-collection-card reveal-pop">
                     <div class="snami-card-media">
-                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/restaurant-table.jpg') }}" alt="餐厅体验推荐" loading="lazy">
+                        <img class="js-parallax-img" src="{{ url_for('static', filename='images/snamitravel/feature-seaside-dining.jpg') }}" alt="风景美食推荐" loading="lazy">
                     </div>
                     <span>Lifestyle Notes</span>
-                    <h3>美食与体验灵感</h3>
-                    <p>让餐厅、风景与社区内容共同参与路线设计，旅程不再只是坐标，而是有情绪的选择。</p>
+                    <h3>人间烟火与体验灵感</h3>
+                    <p>让地道民间风味、日落观景点与社区真实反馈协同参与路径计算，使旅途不仅仅是空间移动。</p>
                     <a href="#" class="snami-discover js-open-login">Discover</a>
                 </article>
             </div>
@@ -210,31 +208,31 @@
 
         <section class="snami-experiences" id="experiences">
             <article class="snami-experience-panel">
-                <img src="{{ url_for('static', filename='images/snamitravel/forest-journey.jpg') }}" alt="山林航拍路线" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/chapter-alpine-valley.jpg') }}" alt="低调山脉长线旅行" loading="lazy">
                 <div class="snami-experience-copy reveal-pop">
                     <p>Route Design</p>
-                    <h2>山峰森岭与长距离行程</h2>
-                    <span>系统用路径权重组织多点游览顺序，让自然景观探索更稳、更顺。</span>
+                    <h2>巍峨山岳与长距离智能行程</h2>
+                    <span>精准解算多目标点漫游顺序，令西北大漠与苍茫群山的长途自驾探索尽在掌控。</span>
                     <a href="#" class="js-open-login">Discover</a>
                 </div>
             </article>
 
             <article class="snami-experience-panel snami-experience-panel--reverse">
-                <img src="{{ url_for('static', filename='images/snamitravel/mediterranean-village.jpg') }}" alt="地中海村落" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/chapter-canal-town.jpg') }}" alt="安静水岸城市漫游" loading="lazy">
                 <div class="snami-experience-copy reveal-pop">
                     <p>Visual Journey</p>
-                    <h2>地中海边村落与艳丽海岸</h2>
-                    <span>推荐逻辑与视觉呈现保持同一种语言：明亮、克制、轻奢、有目的地感。</span>
+                    <h2>烟雨江南与水墨古镇漫步</h2>
+                    <span>将水墨温润与现代算法完美契合，让推荐逻辑在静谧的中式风光中流淌出高级的诗意。</span>
                     <a href="#" class="js-open-login">Discover</a>
                 </div>
             </article>
 
             <article class="snami-experience-panel">
-                <img src="{{ url_for('static', filename='images/snamitravel/fine-dining.jpg') }}" alt="西餐厅用餐" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/chapter-elegant-table.jpg') }}" alt="低调优雅的餐桌与社区体验" loading="lazy">
                 <div class="snami-experience-copy reveal-pop">
                     <p>Community Journal</p>
-                    <h2>餐厅、日落与社区游记</h2>
-                    <span>用户发布的旅行故事会反过来丰富系统内容，让路线从“算法结果”变成“可分享的经验”。</span>
+                    <h2>人间风味与社区真实游记</h2>
+                    <span>每一个行者的真实感悟与镜头，都在反哺系统的内容矩阵，让冰冷的数字路径拥有灵魂。</span>
                     <a href="#" class="js-open-login">Discover</a>
                 </div>
             </article>
@@ -242,24 +240,24 @@
 
         <section class="snami-section snami-bespoke">
             <div class="snami-bespoke-image reveal-pop">
-                <img src="{{ url_for('static', filename='images/snamitravel/flower-closeup.jpg') }}" alt="花草树木特写" loading="lazy">
+                <img src="{{ url_for('static', filename='images/snamitravel/flower-closeup.jpg') }}" alt="自然风物特写" loading="lazy">
             </div>
             <div class="snami-bespoke-copy">
                 <p class="snami-section-kicker reveal-line">Bespoke Travel Design</p>
-                <h2 class="snami-section-title reveal-title">Custom Multi-Days</h2>
+                <h2 class="snami-section-title reveal-title">定制华夏多日游</h2>
                 <p class="snami-lead reveal-line">
-                    从用户画像、收藏地点到室内外路径，TourSim 可以把一次普通出行拆解成可管理、可解释、可复用的数据结构。
+                    从用户精准画像、意向收藏景点到室内微路径解算，系统能够将庞杂的全国路线数据，瞬间沉淀为可管理、可动态演进的高效数据结构。
                 </p>
-                <a class="snami-text-link js-open-login" href="#">Start planning <span>&rarr;</span></a>
+                <a class="snami-text-link js-open-login" href="#">开启智能行程 <span>&rarr;</span></a>
             </div>
         </section>
 
         <section class="snami-destinations" aria-label="目的地">
-            <a href="#" class="js-open-login">Crete</a>
-            <a href="#" class="js-open-login">Santorini</a>
-            <a href="#" class="js-open-login">Mykonos</a>
-            <a href="#" class="js-open-login">Athens</a>
-            <a href="#" class="js-open-login">Campus Route</a>
+            <a href="#" class="js-open-login">桂林漓江</a>
+            <a href="#" class="js-open-login">乌镇西栅</a>
+            <a href="#" class="js-open-login">北京故宫</a>
+            <a href="#" class="js-open-login">川藏天路</a>
+            <a href="#" class="js-open-login">精选校园游</a>
         </section>
 
         <section class="snami-section snami-testimonials">
@@ -288,12 +286,12 @@
             <div class="snami-journal-list">
                 <a href="#" class="snami-journal-row js-open-login reveal-pop">
                     <span>2026.05.27</span>
-                    <strong>在圣托里尼日落里规划一条慢行路线</strong>
+                    <strong>在烟雨乌镇的石板街规划一条慢行路线</strong>
                     <i>&rarr;</i>
                 </a>
                 <a href="#" class="snami-journal-row js-open-login reveal-pop">
                     <span>2026.05.15</span>
-                    <strong>从餐厅到海岸：用偏好推荐串起一天行程</strong>
+                    <strong>从风味小馆到风景名胜：用智能推荐串起成都一日行程</strong>
                     <i>&rarr;</i>
                 </a>
                 <a href="#" class="snami-journal-row js-open-login reveal-pop">
@@ -316,7 +314,7 @@
         <div class="snami-footer-grid">
             <div>
                 <h2>TourSim</h2>
-                <p>Personalized tourism route design for campus course project and refined travel experiences.</p>
+                <p>周游神州智能路径规划系统 —— 结合 Dijkstra 最短路径、多维偏好画像与真实行者社区的个性化课程设计展示。</p>
             </div>
             <div>
                 <h3>Features</h3>

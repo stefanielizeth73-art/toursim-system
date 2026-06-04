@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory, abort
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory, abort, has_request_context
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from collections import defaultdict
@@ -17,9 +17,11 @@ import os
 import re
 import shutil
 import time
+import urllib.error
+import urllib.request
 import uuid
 from datetime import datetime
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 from markupsafe import Markup, escape
 try:
     from PIL import Image, ImageOps
@@ -78,7 +80,7 @@ def add_no_cache_headers(response):
         response.headers.pop("Pragma", None)
         response.headers.pop("Expires", None)
         return response
-    if request.endpoint in {"diary_media_file", "diary_media_thumbnail_file"}:
+    if request.endpoint in {"diary_media_file", "diary_media_thumbnail_file", "diary_generated_video_file"}:
         response.headers["Cache-Control"] = "public, max-age=604800, immutable"
         response.headers.pop("Pragma", None)
         response.headers.pop("Expires", None)
@@ -210,9 +212,14 @@ FOOD_CAMPUS_CONTEXTS = {
     }
 }
 DIARY_UPLOAD_DIR = os.path.join(APP_DIR, "data", "uploads", "diaries")
-DIARY_THUMBNAIL_DIRNAME = "_thumbs_v2"
-DIARY_THUMBNAIL_VERSION = "2"
-DIARY_THUMBNAIL_MAX_SIZE = (360, 450)
+DIARY_GENERATED_VIDEO_DIR = os.path.join(APP_DIR, "data", "uploads", "diary-generated-videos")
+DIARY_THUMBNAIL_DIRNAME = "_thumbs_v3"
+DIARY_THUMBNAIL_VERSION = "3"
+DIARY_THUMBNAIL_MAX_SIZE = (960, 1200)
+DIARY_THUMBNAIL_JPEG_QUALITY = 88
+DIARY_VIDEO_MODEL = os.getenv("DASHSCOPE_VIDEO_MODEL", "wan2.7-i2v-2026-04-25")
+DIARY_VIDEO_DEFAULT_DURATION = int(os.getenv("DIARY_VIDEO_DEFAULT_DURATION", "5") or 5)
+DIARY_VIDEO_DEFAULT_RESOLUTION = os.getenv("DIARY_VIDEO_DEFAULT_RESOLUTION", "720P")
 USER_AVATAR_DIR = os.path.join(APP_DIR, "static", "uploads", "avatars")
 DIARY_ALLOWED_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
 DIARY_ALLOWED_VIDEO_EXTS = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
@@ -313,6 +320,29 @@ def ensure_place_images_table(cursor):
     )
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_place_images_city_type ON place_images(city, place_type)")
+
+
+def ensure_diary_video_tasks_table(cursor):
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diary_video_tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        diary_id INTEGER NOT NULL,
+        task_id TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        prompt TEXT NOT NULL DEFAULT '',
+        image_filename TEXT NOT NULL DEFAULT '',
+        result_url TEXT NOT NULL DEFAULT '',
+        local_video_filename TEXT NOT NULL DEFAULT '',
+        error_message TEXT NOT NULL DEFAULT '',
+        request_payload_json TEXT NOT NULL DEFAULT '{}',
+        response_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY(diary_id) REFERENCES diaries(id) ON DELETE CASCADE
+    )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_video_tasks_diary_created ON diary_video_tasks(diary_id, created_at DESC, id DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_video_tasks_task_id ON diary_video_tasks(task_id)")
 
 
 def load_place_image_map():
@@ -655,6 +685,18 @@ def initialize_database():
     """)
 
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS diary_ratings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        diary_id INTEGER NOT NULL,
+        username TEXT NOT NULL,
+        rating INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        UNIQUE(diary_id, username),
+        FOREIGN KEY(diary_id) REFERENCES diaries(id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS user_favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -695,6 +737,7 @@ def initialize_database():
     """)
 
     ensure_place_images_table(cursor)
+    ensure_diary_video_tasks_table(cursor)
     ensure_sqlite_column(cursor, "users", "avatar_path", "TEXT NOT NULL DEFAULT ''")
     ensure_sqlite_column(cursor, "diaries", "media_json", "TEXT NOT NULL DEFAULT '[]'")
     ensure_sqlite_column(cursor, "diaries", "compressed_content", "TEXT NOT NULL DEFAULT ''")
@@ -706,6 +749,7 @@ def initialize_database():
 
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comments_diary_created ON diary_comments(diary_id, like_count DESC, created_at ASC, id ASC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_comment_likes_comment_username ON diary_comment_likes(comment_id, username)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_diary_ratings_diary_username ON diary_ratings(diary_id, username)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites_user_type_created ON user_favorites(user_id, item_type, created_at DESC)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_ai_chat_messages_user_conversation_created ON ai_chat_messages(user_id, conversation_id, created_at DESC, id DESC)")
 
@@ -819,6 +863,7 @@ def update_user_account(user_id, new_username="", current_password="", new_passw
             cursor.execute("UPDATE diaries SET author = ? WHERE author = ?", (new_username, old_username))
             cursor.execute("UPDATE diary_comments SET author = ? WHERE author = ?", (new_username, old_username))
             cursor.execute("UPDATE diary_comment_likes SET username = ? WHERE username = ?", (new_username, old_username))
+            cursor.execute("UPDATE diary_ratings SET username = ? WHERE username = ?", (new_username, old_username))
         conn.commit()
     except sqlite3.IntegrityError:
         conn.rollback()
@@ -1086,6 +1131,16 @@ def diary_media_thumbnail_public_url(diary_id, filename):
     return url_for("diary_media_thumbnail_file", diary_id=diary_id, filename=filename, v=DIARY_THUMBNAIL_VERSION)
 
 
+def diary_generated_video_folder(diary_id):
+    return os.path.join(DIARY_GENERATED_VIDEO_DIR, str(diary_id))
+
+
+def diary_generated_video_public_url(diary_id, filename):
+    if not has_request_context():
+        return f"/diary-generated-video/{diary_id}/{quote(os.path.basename(filename or ''))}"
+    return url_for("diary_generated_video_file", diary_id=diary_id, filename=filename)
+
+
 def diary_media_kind(filename):
     ext = os.path.splitext(filename)[1].lower()
     if ext in DIARY_ALLOWED_IMAGE_EXTS:
@@ -1121,6 +1176,17 @@ def resolve_diary_media_path(diary_id, filename):
     return media_folder, file_path
 
 
+def resolve_diary_generated_video_path(diary_id, filename):
+    video_folder = os.path.abspath(diary_generated_video_folder(diary_id))
+    safe_filename = os.path.basename(filename or "")
+    if not safe_filename:
+        return None, None
+    file_path = os.path.abspath(os.path.join(video_folder, safe_filename))
+    if os.path.dirname(file_path) != video_folder:
+        return None, None
+    return video_folder, file_path
+
+
 def diary_thumbnail_filename(source_path):
     stat = os.stat(source_path)
     source_name = os.path.basename(source_path)
@@ -1147,7 +1213,7 @@ def ensure_diary_image_thumbnail(diary_id, filename):
         with Image.open(source_path) as image:
             image = ImageOps.exif_transpose(image).convert("RGB")
             image.thumbnail(DIARY_THUMBNAIL_MAX_SIZE, Image.Resampling.LANCZOS)
-            image.save(thumb_path, "JPEG", quality=66, optimize=True, progressive=True)
+            image.save(thumb_path, "JPEG", quality=DIARY_THUMBNAIL_JPEG_QUALITY, optimize=True, progressive=True)
     except Exception:
         return None
     return thumb_path
@@ -1168,6 +1234,312 @@ def generate_image_blur_base64(diary_id, filename):
             return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
     except Exception:
         return ""
+
+
+def get_dashscope_api_key():
+    return (
+        os.getenv("DASHSCOPE_API_KEY")
+        or os.getenv("BAILIAN_API_KEY")
+        or os.getenv("ALIBABA_CLOUD_BAILIAN_API_KEY")
+        or ""
+    ).strip()
+
+
+def dashscope_base_url():
+    return os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/api/v1").rstrip("/")
+
+
+def normalize_diary_video_duration(value):
+    try:
+        duration = int(value)
+    except (TypeError, ValueError):
+        duration = DIARY_VIDEO_DEFAULT_DURATION
+    return max(2, min(15, duration))
+
+
+def normalize_diary_video_resolution(value):
+    resolution = str(value or DIARY_VIDEO_DEFAULT_RESOLUTION).upper().strip()
+    return resolution if resolution in {"720P", "1080P"} else DIARY_VIDEO_DEFAULT_RESOLUTION
+
+
+def normalize_diary_video_status(value):
+    status = str(value or "PENDING").upper().strip()
+    return status if status in {"PENDING", "RUNNING", "SUCCEEDED", "FAILED", "CANCELED", "UNKNOWN"} else "PENDING"
+
+
+def select_diary_video_image(diary, requested_filename=""):
+    media_items = diary.get("media_items") or stored_diary_media_items(diary)
+    image_items = [item for item in media_items if item.get("kind") == "image" and item.get("filename")]
+    if not image_items:
+        raise ValueError("至少一张图片才能生成视频")
+
+    requested_basename = os.path.basename(requested_filename or "")
+    if requested_basename:
+        for item in image_items:
+            if item.get("filename") == requested_basename:
+                return item
+        raise ValueError("选择的图片不存在")
+    return image_items[0]
+
+
+def diary_image_data_url(diary_id, filename):
+    _media_folder, image_path = resolve_diary_media_path(diary_id, filename)
+    if not image_path or not os.path.exists(image_path):
+        raise ValueError("图片文件不存在，无法生成视频")
+    if diary_media_kind(filename) != "image":
+        raise ValueError("请选择图片作为视频首帧")
+
+    if Image is not None and ImageOps is not None:
+        try:
+            with Image.open(image_path) as image:
+                image = ImageOps.exif_transpose(image)
+                if image.width < 240 or image.height < 240:
+                    raise ValueError("图片宽高至少需要 240px")
+                image = image.convert("RGB")
+                image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+                buffer = io.BytesIO()
+                image.save(buffer, "JPEG", quality=88, optimize=True, progressive=True)
+            return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
+        except ValueError:
+            raise
+        except Exception as exc:
+            raise ValueError("图片无法读取，请更换图片后重试") from exc
+
+    mime_type = mimetypes.guess_type(filename)[0] or "image/jpeg"
+    with open(image_path, "rb") as image_file:
+        encoded = base64.b64encode(image_file.read()).decode("utf-8")
+    return f"data:{mime_type};base64,{encoded}"
+
+
+def build_diary_video_prompt(diary):
+    title = str(diary.get("title") or "").strip()
+    destination = str(diary.get("destination") or "").strip()
+    content = re.sub(r"\s+", " ", str(diary.get("content") or "")).strip()
+    content = content[:360]
+    prompt = (
+        f"根据这篇旅行日记生成一段安静、真实、有校园漫步感的短视频。"
+        f"地点：{destination}。标题：{title}。日记内容：{content}。"
+        "镜头从首帧自然延展，缓慢推进，保留真实光线和空间层次，不要夸张特效，不要出现文字水印。"
+    )
+    return prompt[:900]
+
+
+def build_bailian_video_payload(diary, image_data_url_value, prompt, duration, resolution):
+    return {
+        "model": DIARY_VIDEO_MODEL,
+        "input": {
+            "prompt": (prompt or build_diary_video_prompt(diary))[:5000],
+            "media": [
+                {
+                    "type": "first_frame",
+                    "url": image_data_url_value,
+                }
+            ],
+        },
+        "parameters": {
+            "resolution": resolution,
+            "duration": duration,
+            "prompt_extend": True,
+            "watermark": False,
+        },
+    }
+
+
+def dashscope_json_request(method, path, payload=None, timeout=45):
+    api_key = get_dashscope_api_key()
+    if not api_key:
+        raise RuntimeError("未配置 DASHSCOPE_API_KEY")
+
+    url = dashscope_base_url() + "/" + path.lstrip("/")
+    data = None
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Accept": "application/json",
+    }
+    if payload is not None:
+        data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+        headers["X-DashScope-Async"] = "enable"
+
+    req = urllib.request.Request(url, data=data, headers=headers, method=method.upper())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        error_raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            error_payload = json.loads(error_raw)
+            message = error_payload.get("message") or error_payload.get("code") or error_raw
+        except json.JSONDecodeError:
+            message = error_raw or str(exc)
+        raise RuntimeError(f"百炼 API 请求失败：{message}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"百炼 API 无法连接：{exc.reason}") from exc
+
+    try:
+        return json.loads(raw or "{}")
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("百炼 API 返回了无法解析的数据") from exc
+
+
+def submit_bailian_image_to_video_task(request_payload):
+    response_payload = dashscope_json_request(
+        "POST",
+        "/services/aigc/video-generation/video-synthesis",
+        payload=request_payload,
+        timeout=60,
+    )
+    output = response_payload.get("output") or {}
+    task_id = output.get("task_id") or response_payload.get("task_id") or ""
+    if not task_id:
+        message = response_payload.get("message") or output.get("message") or "未返回 task_id"
+        raise RuntimeError(f"百炼任务创建失败：{message}")
+    return {
+        "task_id": task_id,
+        "status": normalize_diary_video_status(output.get("task_status")),
+        "raw_response": response_payload,
+    }
+
+
+def poll_bailian_video_task(task_id):
+    response_payload = dashscope_json_request("GET", f"/tasks/{task_id}", timeout=30)
+    output = response_payload.get("output") or {}
+    status = normalize_diary_video_status(output.get("task_status"))
+    return {
+        "task_id": output.get("task_id") or task_id,
+        "status": status,
+        "video_url": output.get("video_url") or response_payload.get("video_url") or "",
+        "error_message": output.get("message") or response_payload.get("message") or "",
+        "raw_response": response_payload,
+    }
+
+
+def download_diary_generated_video(diary_id, task_id, video_url):
+    if not video_url:
+        raise RuntimeError("百炼任务未返回视频地址")
+
+    video_folder = diary_generated_video_folder(diary_id)
+    os.makedirs(video_folder, exist_ok=True)
+    safe_task = re.sub(r"[^A-Za-z0-9_-]+", "-", task_id or str(uuid.uuid4())).strip("-")[:80]
+    if not safe_task:
+        safe_task = hashlib.sha1(video_url.encode("utf-8")).hexdigest()[:16]
+    filename = f"{safe_task}.mp4"
+    file_path = os.path.join(video_folder, filename)
+
+    req = urllib.request.Request(video_url, headers={"User-Agent": "TourSim/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as response, open(file_path, "wb") as output_file:
+            shutil.copyfileobj(response, output_file)
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"下载生成视频失败：{exc.reason}") from exc
+
+    if not os.path.exists(file_path) or os.path.getsize(file_path) <= 0:
+        raise RuntimeError("生成视频下载为空")
+    return filename
+
+
+def serialize_diary_video_task(row):
+    if row is None:
+        return None
+    task = dict(row)
+    task["status"] = normalize_diary_video_status(task.get("status"))
+    task["local_video_url"] = ""
+    if task.get("local_video_filename"):
+        task["local_video_url"] = diary_generated_video_public_url(task["diary_id"], task["local_video_filename"])
+    return task
+
+
+def create_diary_video_task(diary_id, task_id, prompt, image_filename, request_payload, raw_response, status="PENDING"):
+    ensure_diaries_table()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    ensure_diary_video_tasks_table(cursor)
+    cursor.execute(
+        """
+        INSERT INTO diary_video_tasks
+        (diary_id, task_id, status, prompt, image_filename, request_payload_json, response_json, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            diary_id,
+            task_id,
+            normalize_diary_video_status(status),
+            prompt or "",
+            image_filename or "",
+            json.dumps(request_payload or {}, ensure_ascii=False),
+            json.dumps(raw_response or {}, ensure_ascii=False),
+            now,
+            now,
+        ),
+    )
+    row_id = cursor.lastrowid
+    conn.commit()
+    cursor.execute("SELECT * FROM diary_video_tasks WHERE id = ?", (row_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return serialize_diary_video_task(row)
+
+
+def get_diary_video_task(task_id, diary_id=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    ensure_diary_video_tasks_table(cursor)
+    if diary_id is None:
+        cursor.execute("SELECT * FROM diary_video_tasks WHERE id = ?", (task_id,))
+    else:
+        cursor.execute("SELECT * FROM diary_video_tasks WHERE id = ? AND diary_id = ?", (task_id, diary_id))
+    row = cursor.fetchone()
+    conn.close()
+    return serialize_diary_video_task(row)
+
+
+def get_latest_diary_video_task(diary_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    ensure_diary_video_tasks_table(cursor)
+    cursor.execute(
+        "SELECT * FROM diary_video_tasks WHERE diary_id = ? ORDER BY created_at DESC, id DESC LIMIT 1",
+        (diary_id,),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    return serialize_diary_video_task(row)
+
+
+def update_diary_video_task(task_db_id, **fields):
+    allowed_fields = {
+        "status",
+        "result_url",
+        "local_video_filename",
+        "error_message",
+        "response_json",
+    }
+    updates = []
+    values = []
+    for key, value in fields.items():
+        if key not in allowed_fields:
+            continue
+        updates.append(f"{key} = ?")
+        if key == "response_json":
+            values.append(json.dumps(value or {}, ensure_ascii=False))
+        elif key == "status":
+            values.append(normalize_diary_video_status(value))
+        else:
+            values.append(value or "")
+    updates.append("updated_at = ?")
+    values.append(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    values.append(task_db_id)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    ensure_diary_video_tasks_table(cursor)
+    cursor.execute(f"UPDATE diary_video_tasks SET {', '.join(updates)} WHERE id = ?", values)
+    conn.commit()
+    cursor.execute("SELECT * FROM diary_video_tasks WHERE id = ?", (task_db_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return serialize_diary_video_task(row)
 
 
 def prewarm_all_diary_thumbnails():
@@ -3834,6 +4206,64 @@ def indoor_shortest_path(graph, start, end, vertical_mode="auto"):
 def indoor_route_steps(result, graph):
     if not result:
         return []
+    key_types = {"gate", "room", "elevator", "stairs", "other"}
+
+    def is_road_like(node):
+        node_id = str(node.get("id") or "")
+        node_name = str(node.get("name") or "")
+        node_type = str(node.get("type") or "")
+        return (
+            node_type == "hall"
+            or node_id.startswith("road_")
+            or "_road_" in node_id
+            or "\u9053\u8def" in node_name
+            or "\u5ba4\u5185\u9053\u8def" in node_name
+            or "road" in node_name.lower()
+        )
+
+    def is_key_node(node):
+        node_type = str(node.get("type") or "")
+        if node.get("selectable") is False:
+            return False
+        if is_road_like(node):
+            return False
+        return node_type in key_types
+
+    def step_node_label(node, mode):
+        name = str(node.get("name") or "").strip()
+        if mode in {"elevator", "stairs"}:
+            return f"{node.get('floor')}F {name}"
+        return name
+
+    def vertical_step_text(nodes):
+        key_nodes = [node for node in nodes if is_key_node(node)]
+        if not key_nodes:
+            return ""
+        first_name = str(key_nodes[0].get("name") or "").strip()
+        floors = []
+        for node in key_nodes:
+            floor_label = f"{node.get('floor')}F"
+            if floor_label not in floors:
+                floors.append(floor_label)
+        if len(floors) <= 1:
+            return first_name
+        return f"{first_name}：{' → '.join(floors)}"
+
+    def compact_step_text(nodes, mode):
+        if mode in {"elevator", "stairs"}:
+            return vertical_step_text(nodes)
+        key_nodes = []
+        for node in (nodes[0], nodes[-1]) if nodes else ():
+            if is_key_node(node) and all(existing["id"] != node["id"] for existing in key_nodes):
+                key_nodes.append(node)
+
+        labels = []
+        for node in key_nodes:
+            label = step_node_label(node, mode)
+            if label and label not in labels:
+                labels.append(label)
+        return " → ".join(labels)
+
     steps = []
     current_nodes = []
     current_mode = "walk"
@@ -3845,27 +4275,30 @@ def indoor_route_steps(result, graph):
         edge = result["edges"][index - 1]
         edge_mode = edge.get("mode", "walk")
         if edge_mode != current_mode and current_nodes:
+            text = compact_step_text(current_nodes, current_mode)
             steps.append({
                 "mode": current_mode,
                 "floor": current_nodes[0]["floor"],
-                "text": " → ".join(item["name"] for item in current_nodes),
+                "text": text,
             })
             current_nodes = [current_nodes[-1]]
         current_mode = edge_mode
         current_nodes.append(node)
     if current_nodes:
+        text = compact_step_text(current_nodes, current_mode)
         steps.append({
             "mode": current_mode,
             "floor": current_nodes[0]["floor"],
-            "text": " → ".join(item["name"] for item in current_nodes),
+            "text": text,
         })
+    steps = [step for step in steps if step["text"]]
     for step in steps:
         if step["mode"] == "elevator":
             step["label"] = "乘坐电梯"
         elif step["mode"] == "stairs":
             step["label"] = "步梯换层"
         else:
-            step["label"] = f"{step['floor']}层步行"
+            step["label"] = f"{step['floor']}F 步行"
     return steps
 
 
@@ -5047,6 +5480,36 @@ def get_diary_compression_preview(diary_id, algorithm=None):
     }
 
 
+def update_diary_compression_algorithm(diary_id, algorithm):
+    diary = get_diary_by_id(diary_id, increase_views=False)
+    if diary is None:
+        return None
+    compression_package, original_length, compressed_length = compress_diary_text(diary["content"], algorithm)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE diaries
+        SET compressed_content = ?,
+            compression_algorithm = ?,
+            compression_original_length = ?,
+            compression_compressed_length = ?
+        WHERE id = ?
+        """,
+        (
+            json.dumps(compression_package, ensure_ascii=False),
+            compression_package["algorithm"],
+            original_length,
+            compressed_length,
+            diary_id,
+        ),
+    )
+    conn.commit()
+    conn.close()
+    invalidate_diary_index_cache()
+    return get_diary_by_id(diary_id, increase_views=False)
+
+
 def rate_diary(diary_id, rating):
     ensure_diaries_table()
     rating = max(1, min(5, int(rating)))
@@ -5063,6 +5526,56 @@ def rate_diary(diary_id, rating):
     conn.commit()
     conn.close()
     invalidate_diary_index_cache()
+
+
+def get_diary_user_rating(diary_id, username):
+    ensure_diaries_table()
+    username = (username or "").strip()
+    if not username:
+        return None
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT rating FROM diary_ratings WHERE diary_id = ? AND username = ?",
+        (diary_id, username),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    return int(row["rating"]) if row else None
+
+
+def rate_diary_once(diary_id, username, rating):
+    ensure_diaries_table()
+    username = (username or "").strip()
+    if not username:
+        return False
+    rating = max(1, min(5, int(rating)))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO diary_ratings (diary_id, username, rating, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (diary_id, username, rating, datetime.now().strftime("%Y-%m-%d %H:%M")),
+        )
+        cursor.execute(
+            """
+            UPDATE diaries
+            SET rating_total = rating_total + ?, rating_count = rating_count + 1
+            WHERE id = ?
+            """,
+            (rating, diary_id),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        conn.close()
+        return False
+    conn.close()
+    invalidate_diary_index_cache()
+    return True
 
 
 def create_diary_comment(diary_id, author, content, parent_id=None):
@@ -5570,19 +6083,25 @@ def indoor():
     graph = build_indoor_graph(building_id)
 
     default_start, default_end = indoor_default_endpoints(graph)
+    clear_selection = request.args.get("clear", "").strip() == "1"
 
-    start = request.args.get("start", default_start).strip() or default_start
-    end = request.args.get("end", default_end).strip() or default_end
+    if clear_selection:
+        start = ""
+        end = ""
+    else:
+        start = request.args.get("start", default_start).strip() or default_start
+        end = request.args.get("end", default_end).strip() or default_end
     vertical_mode = request.args.get("vertical_mode", "auto").strip().lower()
 
-    if start not in graph["node_map"]:
+    if start and start not in graph["node_map"]:
         start = default_start
-    if end not in graph["node_map"]:
+    if end and end not in graph["node_map"]:
         end = default_end
     if vertical_mode not in INDOOR_VERTICAL_MODES:
         vertical_mode = "auto"
 
-    route_result = indoor_shortest_path(graph, start, end, vertical_mode=vertical_mode)
+    route_result = indoor_shortest_path(graph, start, end, vertical_mode=vertical_mode) if start and end else None
+    node_options = indoor_node_options(graph)
     return render_template(
         "indoor.html",
         username=session["username"],
@@ -5590,8 +6109,10 @@ def indoor():
         building_name=building_name,
         start=start,
         end=end,
+        start_node=graph["node_map"].get(start),
+        end_node=graph["node_map"].get(end),
         vertical_mode=vertical_mode,
-        node_options=indoor_node_options(graph),
+        node_options=node_options,
         floors=prepare_indoor_floors(graph, route_result),
         route_result=route_result,
         route_steps=indoor_route_steps(route_result, graph),
@@ -8638,10 +9159,19 @@ def diary_detail(diary_id):
                 return redirect(url_for("diary_detail", diary_id=diary_id, comment_posted=1, _anchor=f"comment-{comment_id}"))
             return redirect(url_for("diary_detail", diary_id=diary_id))
 
+        if action == "compression":
+            compression_algorithm = request.form.get("compress_algorithm", "huffman").strip().lower()
+            updated_diary = update_diary_compression_algorithm(diary_id, compression_algorithm)
+            if updated_diary is None:
+                flash("未找到该旅游日记")
+                return redirect(url_for("diaries"))
+            flash("压缩算法已更新，正文内容不变")
+            return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0))
+
         rating = request.form.get("rating", "5")
-        rate_diary(diary_id, rating)
-        flash("评分成功")
-        return redirect(url_for("diary_detail", diary_id=diary_id))
+        rating_saved = rate_diary_once(diary_id, session["username"], rating)
+        flash("\u8bc4\u5206\u6210\u529f" if rating_saved else "\u4f60\u5df2\u7ecf\u7ed9\u8fd9\u7bc7\u65e5\u8bb0\u8bc4\u5206\u8fc7\u4e86")
+        return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0))
 
     increase_views = request.method == "GET" and request.args.get("count_view", "1") != "0"
     diary = get_diary_by_id(diary_id, increase_views=increase_views)
@@ -8678,6 +9208,7 @@ def diary_detail(diary_id):
         diary_author=diary_author,
         diary_author_avatar_url=get_user_avatar_url(diary.get("author", "")),
         diary_favorited=is_item_favorited(current_user["id"], "diary", diary_id) if current_user else False,
+        diary_user_rating=get_diary_user_rating(diary_id, current_user["username"]) if current_user else None,
         place_name_options=get_place_name_options(all_places),
         matched_place=matched_place,
         related_places=related_places,
@@ -8689,7 +9220,97 @@ def diary_detail(diary_id):
         visible_comment_threads=DIARY_VISIBLE_COMMENT_THREADS,
         visible_comment_replies=DIARY_VISIBLE_REPLIES,
         comment_posted=request.args.get("comment_posted", "").strip() == "1",
+        diary_video_task=get_latest_diary_video_task(diary_id),
+        diary_video_default_prompt=build_diary_video_prompt(diary),
+        diary_video_enabled=bool(get_dashscope_api_key()),
     )
+
+
+@app.route("/api/diary/<int:diary_id>/video-generation", methods=["POST"])
+def diary_video_generation_start(diary_id):
+    if not is_logged_in():
+        return jsonify({"ok": False, "error": "请先登录"}), 401
+
+    diary = get_diary_by_id(diary_id, increase_views=False)
+    if diary is None:
+        return jsonify({"ok": False, "error": "未找到这篇日记"}), 404
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        image_item = select_diary_video_image(diary, payload.get("image_filename", ""))
+        image_data_url_value = diary_image_data_url(diary_id, image_item.get("filename", ""))
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+    if not get_dashscope_api_key():
+        return jsonify({"ok": False, "error": "未配置 DASHSCOPE_API_KEY"}), 503
+
+    prompt = str(payload.get("prompt") or "").strip() or build_diary_video_prompt(diary)
+    duration = normalize_diary_video_duration(payload.get("duration"))
+    resolution = normalize_diary_video_resolution(payload.get("resolution"))
+    request_payload = build_bailian_video_payload(diary, image_data_url_value, prompt, duration, resolution)
+
+    try:
+        task_response = submit_bailian_image_to_video_task(request_payload)
+    except RuntimeError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 502
+
+    task = create_diary_video_task(
+        diary_id=diary_id,
+        task_id=task_response["task_id"],
+        status=task_response.get("status", "PENDING"),
+        prompt=prompt,
+        image_filename=image_item.get("filename", ""),
+        request_payload=request_payload,
+        raw_response=task_response.get("raw_response") or {},
+    )
+    return jsonify({"ok": True, "task": task}), 202
+
+
+@app.route("/api/diary/<int:diary_id>/video-generation/latest")
+def diary_video_generation_latest(diary_id):
+    if not is_logged_in():
+        return jsonify({"ok": False, "error": "请先登录"}), 401
+    if get_diary_by_id(diary_id, increase_views=False) is None:
+        return jsonify({"ok": False, "error": "未找到这篇日记"}), 404
+    return jsonify({"ok": True, "task": get_latest_diary_video_task(diary_id)})
+
+
+@app.route("/api/diary/<int:diary_id>/video-generation/<int:task_db_id>")
+def diary_video_generation_status(diary_id, task_db_id):
+    if not is_logged_in():
+        return jsonify({"ok": False, "error": "请先登录"}), 401
+
+    task = get_diary_video_task(task_db_id, diary_id=diary_id)
+    if task is None:
+        return jsonify({"ok": False, "error": "未找到生成任务"}), 404
+
+    terminal_statuses = {"SUCCEEDED", "FAILED", "CANCELED", "UNKNOWN"}
+    if task["status"] == "SUCCEEDED" and task.get("local_video_filename"):
+        return jsonify({"ok": True, "task": task})
+    if task["status"] in terminal_statuses and task["status"] != "SUCCEEDED":
+        return jsonify({"ok": True, "task": task})
+
+    try:
+        poll_result = poll_bailian_video_task(task["task_id"])
+        status = normalize_diary_video_status(poll_result.get("status"))
+        local_video_filename = task.get("local_video_filename", "")
+        if status == "SUCCEEDED" and poll_result.get("video_url") and not local_video_filename:
+            local_video_filename = download_diary_generated_video(diary_id, task["task_id"], poll_result["video_url"])
+
+        task = update_diary_video_task(
+            task_db_id,
+            status=status,
+            result_url=poll_result.get("video_url", ""),
+            local_video_filename=local_video_filename,
+            error_message=poll_result.get("error_message", ""),
+            response_json=poll_result.get("raw_response") or {},
+        )
+    except RuntimeError as exc:
+        task = update_diary_video_task(task_db_id, status="FAILED", error_message=str(exc))
+        return jsonify({"ok": False, "error": str(exc), "task": task}), 502
+
+    return jsonify({"ok": True, "task": task})
 
 
 @app.route("/diary/<int:diary_id>/dev-edit", methods=["GET", "POST"])
@@ -8783,6 +9404,19 @@ def diary_media_file(diary_id, filename):
     if not file_path or not os.path.exists(file_path):
         abort(404)
     return send_from_directory(media_folder, os.path.basename(file_path))
+
+
+@app.route("/diary-generated-video/<int:diary_id>/<path:filename>")
+def diary_generated_video_file(diary_id, filename):
+    video_folder, file_path = resolve_diary_generated_video_path(diary_id, filename)
+    if not file_path or not os.path.exists(file_path):
+        abort(404)
+    return send_from_directory(
+        video_folder,
+        os.path.basename(file_path),
+        mimetype="video/mp4",
+        as_attachment=request.args.get("download", "").strip() == "1",
+    )
 
 
 @app.route("/diary-media-thumb/<int:diary_id>/<path:filename>")

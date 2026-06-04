@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const magneticWraps = document.querySelectorAll('.snami-btn-capsule-container');
     const revealItems = document.querySelectorAll('.reveal-line, .reveal-title, .reveal-pop');
     const parallaxImages = document.querySelectorAll('.js-parallax-img');
+    const interactiveSurfaces = document.querySelectorAll('.snami-feature-tile, .snami-collection-card, .snami-experience-panel');
 
     const initializeHeroVideo = () => {
         if (!heroVideo) return;
@@ -44,7 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setHeaderState = () => {
         if (!header) return;
+        const progress = Math.min(1, window.scrollY / Math.max(1, window.innerHeight * 0.72));
         header.classList.toggle('scrolled', window.scrollY > 24);
+        header.style.setProperty('--header-progress', progress.toFixed(3));
     };
 
     setHeaderState();
@@ -149,6 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(registerModal);
     }
 
+    if (window.location.hash === '#menu') {
+        toggleMenu();
+    }
+
     magneticWraps.forEach((wrap) => {
         const button = wrap.querySelector('.snami-btn-capsule');
         if (!button) return;
@@ -241,19 +248,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupGentleScrollDamping();
 
+    interactiveSurfaces.forEach((surface) => {
+        surface.addEventListener('pointermove', (event) => {
+            const rect = surface.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+            const tiltX = ((50 - y) / 50) * 2.4;
+            const tiltY = ((x - 50) / 50) * 2.8;
+
+            surface.style.setProperty('--pointer-x', `${x.toFixed(2)}%`);
+            surface.style.setProperty('--pointer-y', `${y.toFixed(2)}%`);
+            surface.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+            surface.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+        });
+
+        surface.addEventListener('pointerleave', () => {
+            surface.style.setProperty('--pointer-x', '50%');
+            surface.style.setProperty('--pointer-y', '50%');
+            surface.style.setProperty('--tilt-x', '0deg');
+            surface.style.setProperty('--tilt-y', '0deg');
+        });
+    });
+
     const revealElement = (element, viewportHeight) => {
         if (element.closest('.snami-hero') || element.closest('.snami-origin')) return;
 
         const rect = element.getBoundingClientRect();
-        const rawProgress = (viewportHeight * 0.9 - rect.top) / (viewportHeight * 0.48);
-        const progress = easeOutQuart(rawProgress);
+        const enterProgress = easeOutQuart((viewportHeight * 0.9 - rect.top) / (viewportHeight * 0.48));
+        const topEdgeProgress = easeOutQuart(rect.bottom / (viewportHeight * 0.42));
+        const progress = Math.min(enterProgress, topEdgeProgress);
         const isPop = element.classList.contains('reveal-pop');
         const isTitle = element.classList.contains('reveal-title');
-        const distance = isTitle ? 70 : isPop ? 60 : 54;
-        const scale = isPop ? 0.96 + (0.04 * progress) : 1;
+        const distance = isTitle ? 88 : isPop ? 84 : 66;
+        const scale = isPop ? 0.92 + (0.08 * progress) : 1;
+        const blur = (1 - progress) * (isPop ? 8 : 5);
 
         element.style.opacity = String(progress);
-        element.style.transform = `translateY(${distance * (1 - progress)}px) scale(${scale})`;
+        element.style.filter = `blur(${blur.toFixed(2)}px)`;
+        const topDrift = topEdgeProgress < 0.98 ? -distance * (1 - topEdgeProgress) * 0.55 : 0;
+        const bottomDrift = distance * (1 - enterProgress);
+        element.style.transform = `translateY(${(bottomDrift + topDrift).toFixed(2)}px) scale(${scale}) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))`;
     };
 
     const updateAnimations = () => {

@@ -116,7 +116,7 @@
 
             <!-- Asymmetric Golden Ratio Ribbon Portal -->
             <nav class="lux-portal-horizon" aria-label="核心功能入口">
-                <a class="portal-blade places is-pointer-active" href="{{ url_for('places') }}" id="portal-places">
+                <a class="portal-blade places" href="{{ url_for('places') }}" id="portal-places">
                     <span class="portal-blade__index" aria-hidden="true">I</span>
                     <div class="portal-blade__body">
                         <h3>景点探索</h3>
@@ -127,7 +127,7 @@
                     </div>
                 </a>
 
-                <a class="portal-blade route is-pointer-active" href="{{ url_for('route') }}" id="portal-route">
+                <a class="portal-blade route" href="{{ url_for('route') }}" id="portal-route">
                     <span class="portal-blade__index" aria-hidden="true">II</span>
                     <div class="portal-blade__body">
                         <h3>路线规划与场所查询</h3>
@@ -138,7 +138,7 @@
                     </div>
                 </a>
 
-                <a class="portal-blade indoor is-pointer-active" href="{{ url_for('indoor') }}" id="portal-indoor">
+                <a class="portal-blade indoor" href="{{ url_for('indoor') }}" id="portal-indoor">
                     <span class="portal-blade__index" aria-hidden="true">III</span>
                     <div class="portal-blade__body">
                         <h3>室内导航</h3>
@@ -149,7 +149,7 @@
                     </div>
                 </a>
 
-                <a class="portal-blade diaries is-pointer-active" href="{{ url_for('diaries') }}" id="portal-diaries">
+                <a class="portal-blade diaries" href="{{ url_for('diaries') }}" id="portal-diaries">
                     <span class="portal-blade__index" aria-hidden="true">IV</span>
                     <div class="portal-blade__body">
                         <h3>旅游日记</h3>
@@ -160,7 +160,7 @@
                     </div>
                 </a>
 
-                <a class="portal-blade foods is-pointer-active" href="{{ url_for('foods') }}" id="portal-foods">
+                <a class="portal-blade foods" href="{{ url_for('foods') }}" id="portal-foods">
                     <span class="portal-blade__index" aria-hidden="true">V</span>
                     <div class="portal-blade__body">
                         <h3>美食推荐</h3>
@@ -171,7 +171,7 @@
                     </div>
                 </a>
 
-                <a class="portal-blade profile is-pointer-active" href="{{ url_for('profile') }}" id="portal-profile">
+                <a class="portal-blade profile" href="{{ url_for('profile') }}" id="portal-profile">
                     <span class="portal-blade__index" aria-hidden="true">VI</span>
                     <div class="portal-blade__body">
                         <h3>个人中心</h3>
@@ -218,24 +218,10 @@
                 greetingEmojiContainer.innerHTML = kickerEmoji;
             }
 
-            // High-precision mouse interactive rotation for the luxury compass instrument
-            let currentRotation = 0;
-            let targetRotation = 0;
-
-            window.addEventListener("pointermove", function (e) {
-                // Rotate the compass slightly based on mouse movement coordinate ratio
-                const ratioX = e.clientX / window.innerWidth - 0.5;
-                const ratioY = e.clientY / window.innerHeight - 0.5;
-                targetRotation = (ratioX * 45) + (ratioY * 45);
-            }, { passive: true });
-
-            // Smooth linear interpolation (lerp) damping animation loop
             function updateCompassRotation() {
                 if (compass) {
-                    currentRotation += (targetRotation - currentRotation) * 0.08;
-                    // Keep the slow base drift going, superposed with the mouse influence
                     const drift = (Date.now() / 150) % 360;
-                    compass.style.transform = `rotate(${currentRotation + drift}deg)`;
+                    compass.style.transform = `rotate(${drift}deg)`;
                 }
                 requestAnimationFrame(updateCompassRotation);
             }

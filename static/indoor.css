@@ -1,0 +1,295 @@
+/* Final indoor navigation design layer.
+   Keep this file loaded after style.css so the indoor page has one clear visual source. */
+
+body.indoor-page:not(.indoor-collector-page) {
+    --indoor-final-ink: #17212f;
+    --indoor-final-muted: #657286;
+    --indoor-final-line: rgba(23, 33, 47, 0.1);
+    --indoor-final-blue: #4f78e8;
+    --indoor-final-blue-soft: rgba(105, 151, 255, 0.28);
+    --indoor-final-cyan: #1c9bb5;
+    --indoor-final-coral: #c96352;
+    --indoor-final-gold: #c7aa72;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-shell {
+    width: min(1600px, calc(100vw - 32px)) !important;
+    grid-template-columns: minmax(386px, 430px) minmax(0, 1fr) !important;
+    gap: 14px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-console,
+body.indoor-page:not(.indoor-collector-page) .indoor-map-wrap {
+    border-color: rgba(255, 255, 255, 0.86) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(248, 251, 253, 0.56)),
+        rgba(255, 255, 255, 0.5) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-console {
+    gap: 10px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-console__dock {
+    min-height: 58px !important;
+    border-radius: 24px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel {
+    border-radius: 20px !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.48)),
+        rgba(255, 255, 255, 0.54) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel:hover {
+    transform: none !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel__head {
+    display: grid !important;
+    gap: 4px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel__head h2 {
+    color: var(--indoor-final-ink) !important;
+    font-size: 1.18rem !important;
+    line-height: 1.08 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel__head p {
+    color: var(--indoor-final-muted) !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-pick-status {
+    min-height: 52px !important;
+    margin: 10px 0 8px !important;
+    border-radius: 16px !important;
+    background: rgba(79, 120, 232, 0.06) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-pick-mode {
+    margin-bottom: 10px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-pick-mode button,
+body.indoor-page:not(.indoor-collector-page) .indoor-form input,
+body.indoor-page:not(.indoor-collector-page) .indoor-form select {
+    min-height: 40px !important;
+    border-radius: 14px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-form {
+    gap: 8px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-form-actions {
+    gap: 8px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-form button[type="submit"],
+body.indoor-page:not(.indoor-collector-page) .indoor-clear-action {
+    min-height: 44px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-panel--steps {
+    min-height: 190px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-step-list {
+    gap: 8px !important;
+    margin-top: 9px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-step-list li {
+    min-height: auto !important;
+    padding: 10px 12px 10px 16px !important;
+    border-radius: 15px !important;
+    background: rgba(255, 255, 255, 0.62) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-step-list li::before {
+    top: 11px !important;
+    bottom: 11px !important;
+    left: 8px !important;
+    width: 3px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-step-list strong {
+    font-size: 0.84rem !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-step-list span {
+    color: var(--indoor-final-muted) !important;
+    font-size: 0.76rem !important;
+    line-height: 1.5 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-wrap {
+    padding: 13px !important;
+    border-radius: 26px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-head {
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 8px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-head .eyebrow {
+    margin-bottom: 5px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-head h2 {
+    max-width: 820px !important;
+    color: var(--indoor-final-ink) !important;
+    font-size: clamp(1.48rem, 2.5vw, 2.22rem) !important;
+    line-height: 1.02 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-head p {
+    margin-top: 4px !important;
+    font-size: 0.78rem !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-legend span {
+    min-height: 28px !important;
+    padding: 0 10px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-floor-stack {
+    gap: 12px !important;
+    padding-right: 7px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-floor-plan {
+    border-radius: 20px !important;
+    background: #fbfdff !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-map-tint {
+    fill: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path {
+    vector-effect: non-scaling-stroke;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path-glow {
+    stroke: #a9c9ff !important;
+    stroke-width: 22 !important;
+    opacity: 0.5 !important;
+    filter: drop-shadow(0 0 7px rgba(78, 124, 232, 0.46)) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path-core {
+    stroke: #4f78e8 !important;
+    stroke-width: 9 !important;
+    opacity: 0.92 !important;
+    filter: none !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker .indoor-node-halo {
+    fill: rgba(79, 120, 232, 0.1) !important;
+    stroke: rgba(79, 120, 232, 0.18) !important;
+    stroke-width: 1 !important;
+    opacity: 0 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker .indoor-node-dot {
+    fill: rgba(83, 111, 214, 0.72) !important;
+    stroke: rgba(255, 255, 255, 0.88) !important;
+    stroke-width: 2.2 !important;
+    vector-effect: non-scaling-stroke;
+    transform: scale(0.72);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator .indoor-node-dot {
+    fill: var(--indoor-final-cyan) !important;
+    stroke: rgba(255, 255, 255, 0.92) !important;
+    stroke-width: 3 !important;
+    transform: scale(0.86);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs .indoor-node-dot {
+    fill: #6674e6 !important;
+    stroke: rgba(255, 255, 255, 0.92) !important;
+    stroke-width: 3 !important;
+    transform: scale(0.86);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-path-node:not(.is-start):not(.is-end) .indoor-node-dot {
+    fill: #5a80ec !important;
+    stroke: var(--indoor-final-blue) !important;
+    stroke-width: 2.6 !important;
+    transform: scale(0.9);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-start .indoor-node-dot {
+    fill: var(--indoor-final-blue) !important;
+    stroke: var(--indoor-final-blue) !important;
+    stroke-width: 5 !important;
+    transform: scale(1);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-end .indoor-node-dot {
+    fill: var(--indoor-final-coral) !important;
+    stroke: var(--indoor-final-coral) !important;
+    stroke-width: 5 !important;
+    transform: scale(1);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker text.indoor-node-label {
+    opacity: 0 !important;
+    fill: var(--indoor-final-ink) !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    paint-order: stroke !important;
+    stroke: rgba(255, 255, 255, 0.98) !important;
+    stroke-width: 5px !important;
+    pointer-events: none;
+    transform: translate(2px, -2px);
+    transform-box: fill-box;
+    transition: opacity 150ms ease, transform 150ms ease, font-size 150ms ease !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs text.indoor-node-label {
+    opacity: 0.82 !important;
+    font-size: 12px !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-path-node text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-start text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-end text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible text.indoor-node-label {
+    opacity: 1 !important;
+    font-size: 14px !important;
+    transform: translate(3px, -5px);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover .indoor-node-halo,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible .indoor-node-halo,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-start .indoor-node-halo,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-end .indoor-node-halo {
+    opacity: 1 !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover .indoor-node-dot,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible .indoor-node-dot {
+    transform: scale(1.08);
+}
+
+@media (max-width: 1120px) {
+    body.indoor-page:not(.indoor-collector-page) .indoor-shell {
+        width: calc(100vw - 22px) !important;
+        grid-template-columns: 1fr !important;
+    }
+}

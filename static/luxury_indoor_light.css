@@ -1,0 +1,658 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* ==========================================================================
+   LUXURY DESIGN SYSTEM VARIABLES
+   ========================================================================== */
+:root {
+    --lux-bg-light: #fbfaf8;      /* 极简浅色骨瓷白底座 */
+    --lux-bg-soft: #f4f2eb;       /* 浅砂米色 */
+    --lux-ink: #1c1b18;           /* 尊贵高对比度炭烟黑 */
+    --lux-ink-soft: #2e2c27;
+    --lux-gold: #bca47f;          /* 哑光香槟金 */
+    --lux-gold-bright: #dfc8a5;   /* 拉丝亮香槟金 */
+    --lux-gold-light: rgba(188, 164, 127, 0.12);
+    --lux-gold-glow: rgba(188, 164, 127, 0.25);
+    --lux-muted: #8c8579;         /* 砂灰色 */
+    --lux-text-light: #6e675b;
+
+    /* 极其高雅细微的单像素分割线 */
+    --lux-line: rgba(28, 27, 24, 0.06);
+    --lux-line-gold: rgba(188, 164, 127, 0.18);
+
+    --lux-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --lux-transition: all 0.6s var(--lux-ease);
+
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif;
+}
+
+/* ==========================================================================
+   PAGE BASIS & LAYOUT OVERWRITES
+   ========================================================================== */
+body.indoor-page {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--lux-bg-light) !important;
+    background-image:
+        radial-gradient(circle at 5% 5%, rgba(188, 164, 127, 0.04) 0%, transparent 35vw),
+        radial-gradient(circle at 95% 85%, rgba(188, 164, 127, 0.03) 0%, transparent 40vw) !important;
+    background-attachment: fixed;
+    color: var(--lux-ink) !important;
+    font-family: var(--font-sans) !important;
+    letter-spacing: 0.04em;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+body.indoor-page a {
+    color: inherit;
+    text-decoration: none;
+    transition: var(--lux-transition);
+}
+
+/* 优雅漂浮的流金浅色极光背景层 */
+.lux-ambient-glow {
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(188, 164, 127, 0.04) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: -1;
+    animation: driftLight 25s ease-in-out infinite alternate;
+}
+
+.lux-ambient-glow-2 {
+    position: fixed;
+    right: -100px;
+    bottom: -100px;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(188, 164, 127, 0.03) 0%, transparent 75%);
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: -1;
+    animation: driftLight 35s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes driftLight {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(60px, 40px) scale(1.1); }
+}
+
+/* 滚动条高奢定制 */
+.indoor-floor-stack::-webkit-scrollbar,
+.indoor-step-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.indoor-floor-stack::-webkit-scrollbar-track,
+.indoor-step-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.indoor-floor-stack::-webkit-scrollbar-thumb,
+.indoor-step-list::-webkit-scrollbar-thumb {
+    background: var(--lux-line-gold);
+    border-radius: 0;
+    transition: var(--lux-transition);
+}
+
+.indoor-floor-stack::-webkit-scrollbar-thumb:hover,
+.indoor-step-list::-webkit-scrollbar-thumb:hover {
+    background: var(--lux-gold);
+}
+
+/* ==========================================================================
+   TOPBAR NAVIGATION DOCK (白玉微光顶栏)
+   ========================================================================== */
+.indoor-topbar {
+    position: sticky;
+    top: 0;
+    height: 80px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(20px, 4vw, 60px) !important;
+    background: rgba(251, 250, 248, 0.82) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid var(--lux-line) !important;
+    box-sizing: border-box;
+}
+
+.indoor-topbar > div:first-child {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--lux-ink);
+    text-transform: uppercase;
+}
+
+.indoor-topbar__mark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50% !important;
+    background: var(--lux-gold) !important;
+    box-shadow: 0 0 10px var(--lux-gold) !important;
+}
+
+.indoor-topbar nav {
+    gap: clamp(10px, 2vw, 30px) !important;
+}
+
+/* 顶栏高雅拉丝按钮 */
+.indoor-home-pill {
+    min-height: 38px !important;
+    border: 1px solid var(--lux-line-gold) !important;
+    border-radius: 0 !important; /* 经典犀利直角 */
+    padding: 8px 20px !important;
+    color: var(--lux-text-light) !important;
+    background: transparent !important;
+    font-family: var(--font-sans);
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    box-shadow: none !important;
+    transition: var(--lux-transition) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.indoor-home-pill:hover,
+.indoor-home-pill:focus-visible {
+    border-color: var(--lux-gold) !important;
+    color: var(--lux-ink) !important;
+    transform: translateY(-1px);
+    background: rgba(188, 164, 127, 0.05) !important;
+}
+
+/* 采集模式按钮 (高阶金边突出) */
+.indoor-mode-pill {
+    border: 1px solid var(--lux-gold) !important;
+    color: var(--lux-ink) !important;
+    background: rgba(188, 164, 127, 0.08) !important;
+    box-shadow: 0 4px 15px rgba(188, 164, 127, 0.1) !important;
+}
+
+.indoor-mode-pill:hover,
+.indoor-mode-pill:focus-visible {
+    background: var(--lux-gold) !important;
+    color: var(--lux-bg-light) !important;
+    border-color: var(--lux-gold) !important;
+}
+
+/* ==========================================================================
+   LAYOUT CONSOLE & DETAILS (无缝分栏外壳与玻璃控制板)
+   ========================================================================== */
+.indoor-shell {
+    width: min(1480px, calc(100% - 40px)) !important;
+    margin: 20px auto 40px !important;
+    height: calc(100vh - 120px) !important;
+    padding: 0 !important;
+    gap: 24px !important;
+}
+
+.indoor-console {
+    gap: 16px !important;
+}
+
+/* 摒弃繁杂阴影，采用精致微光玻璃板 */
+.indoor-hero,
+.indoor-panel,
+.indoor-map-wrap {
+    border: 1px solid var(--lux-line) !important;
+    border-radius: 0px !important; /* 极致犀利直角美学 */
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    box-shadow: 0 10px 30px rgba(28, 27, 24, 0.02) !important;
+    transition: var(--lux-transition);
+}
+
+.indoor-hero:hover,
+.indoor-panel:hover {
+    border-color: var(--lux-line-gold) !important;
+    box-shadow: 0 15px 40px rgba(188, 164, 127, 0.04) !important;
+}
+
+/* 高端编辑感字体排版 */
+.eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    color: var(--lux-gold) !important;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.indoor-hero h1 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    color: var(--lux-ink) !important;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px !important;
+}
+
+.indoor-hero p,
+.indoor-panel__head p {
+    color: var(--lux-muted) !important;
+    font-size: 0.78rem !important;
+    line-height: 1.7 !important;
+}
+
+.indoor-panel__head h2 {
+    font-family: var(--font-serif) !important;
+    font-weight: 400 !important;
+    color: var(--lux-ink) !important;
+    letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   MINIMAL LUXURY FORM & SHARP BUTTON (极细线条拉丝表单)
+   ========================================================================== */
+.indoor-form {
+    margin-top: 15px !important;
+    gap: 16px !important;
+}
+
+.indoor-form label {
+    display: grid !important;
+    gap: 4px !important;
+    position: relative !important;
+    color: var(--lux-muted) !important;
+    font-size: 0.68rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase;
+}
+
+.indoor-form input[type="text"],
+.indoor-form select {
+    min-height: 38px !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--lux-line) !important; /* 仅单像素底边分割线 */
+    border-radius: 0 !important;
+    padding: 10px 0 !important;
+    color: var(--lux-ink) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.05em;
+    transition: var(--lux-transition) !important;
+}
+
+/* 获取焦点时，横线左右流溢生长 */
+.indoor-form label::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: var(--lux-gold);
+    transition: var(--lux-ease) 0.55s;
+    transform: translateX(-50%);
+}
+
+.indoor-form label:focus-within::after {
+    width: 100%;
+}
+
+.indoor-form input[type="text"]:focus,
+.indoor-form select:focus {
+    outline: none !important;
+    border-bottom-color: transparent !important;
+    letter-spacing: 0.08em !important;
+}
+
+/* 高冷直角黑曜石按钮 (陨石深色点缀) */
+.indoor-form button[type="submit"] {
+    cursor: pointer;
+    background: var(--lux-ink) !important;
+    border: 1px solid var(--lux-ink) !important;
+    color: var(--lux-bg-light) !important;
+    font-family: var(--font-sans);
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.24em !important;
+    text-transform: uppercase;
+    padding: 13px 24px !important;
+    border-radius: 0 !important; /* 犀利直角 */
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: var(--lux-transition) !important;
+    margin-top: 10px !important;
+    min-height: 42px !important;
+}
+
+.indoor-form button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--lux-gold);
+    z-index: -1;
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.45s var(--lux-ease);
+}
+
+.indoor-form button[type="submit"]:hover {
+    color: var(--lux-ink) !important;
+    border-color: var(--lux-gold) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(188, 164, 127, 0.18) !important;
+}
+
+.indoor-form button[type="submit"]:hover::before {
+    transform: scaleY(1);
+}
+
+/* ==========================================================================
+   ROUTE STEPS LIST (路线说明卡廊)
+   ========================================================================== */
+.indoor-step-list {
+    margin-top: 15px !important;
+    gap: 0 !important;
+}
+
+.indoor-step-list li {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--lux-line) !important;
+    border-radius: 0 !important;
+    padding: 14px 0 !important;
+    transition: var(--lux-transition) !important;
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.indoor-step-list li:hover {
+    padding-left: 8px !important;
+    border-bottom-color: var(--lux-gold) !important;
+}
+
+.indoor-step-list strong {
+    font-family: var(--font-sans) !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em;
+    color: var(--lux-ink) !important;
+    transition: var(--lux-transition);
+}
+
+/* 根据行进行动效颜色微调 */
+.indoor-step-list li:hover strong {
+    color: var(--lux-gold) !important;
+}
+
+.indoor-step-list li.is-walk strong {
+    color: var(--lux-gold) !important;
+}
+
+.indoor-step-list li.is-elevator strong {
+    color: var(--lux-ink-soft) !important;
+}
+
+.indoor-step-list li.is-stairs strong {
+    color: var(--lux-muted) !important;
+}
+
+.indoor-step-list span {
+    font-size: 0.78rem !important;
+    color: var(--lux-text-light) !important;
+    line-height: 1.6 !important;
+}
+
+.indoor-empty {
+    font-size: 0.78rem !important;
+    color: var(--lux-muted) !important;
+    padding: 24px 0 !important;
+    text-align: center;
+    border: 1px dashed var(--lux-line);
+    margin-top: 10px;
+}
+
+/* ==========================================================================
+   MAP WORKSPACE & LEGEND (地图展示区域与图例)
+   ========================================================================== */
+.indoor-map-wrap {
+    padding: 20px !important;
+}
+
+.indoor-map-head h2 {
+    font-family: var(--font-serif) !important;
+    font-size: clamp(1.4rem, 2.8vw, 2.2rem) !important;
+    font-weight: 400 !important;
+    color: var(--lux-ink) !important;
+    letter-spacing: 0.01em;
+}
+
+.indoor-legend {
+    gap: 12px !important;
+}
+
+.indoor-legend span {
+    background: transparent !important;
+    border: 1px solid var(--lux-line) !important;
+    border-radius: 0 !important; /* 犀利直角 */
+    color: var(--lux-text-light) !important;
+    font-family: var(--font-sans);
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 12px !important;
+    box-shadow: none !important;
+}
+
+.indoor-legend i.is-route {
+    background: var(--lux-gold) !important;
+    box-shadow: 0 0 10px var(--lux-gold-glow) !important;
+}
+
+.indoor-legend i.is-core {
+    background: var(--lux-ink) !important;
+    border: 1px solid var(--lux-gold) !important;
+    box-shadow: 0 0 6px var(--lux-gold-glow) !important;
+}
+
+.indoor-floor-plan {
+    border: 1px solid var(--lux-line) !important;
+    border-radius: 0 !important;
+    background: rgba(251, 250, 248, 0.7) !important;
+}
+
+/* ==========================================================================
+   SVG MAP ELEMENTS & REWRITTEN HIGH-END GLOW/MOTION (SVG 光效动效重写)
+   ========================================================================== */
+
+/* 1. 路线流光动效 (SVG Dasharray Route Flow) */
+.indoor-edge {
+    stroke: var(--lux-line-gold) !important;
+    stroke-width: 5 !important;
+}
+
+.indoor-edge.is-path {
+    stroke: var(--lux-gold) !important;
+    stroke-width: 5.5 !important;
+    stroke-linecap: round;
+    /* 采用高奢拉丝的虚线段流光，避免粗蓝色 AI Slop 路径 */
+    stroke-dasharray: 12 12;
+    animation: routeFlowAnim 25s linear infinite !important;
+    filter: drop-shadow(0 0 3px rgba(188, 164, 127, 0.7)) drop-shadow(0 4px 10px rgba(188, 164, 127, 0.2)) !important;
+    opacity: 0.95 !important;
+}
+
+@keyframes routeFlowAnim {
+    from {
+        stroke-dashoffset: 400;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* 2. 节点圆点与呼吸动效圈 (High-End Pulsing Halos) */
+.indoor-node-layer {
+    pointer-events: none;
+}
+
+.indoor-node-marker {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* 普通节点微缩砂灰点，规避杂乱噪声 */
+.indoor-node-marker .indoor-node-dot {
+    fill: var(--lux-muted) !important;
+    stroke: var(--lux-bg-light) !important;
+    stroke-width: 2.2 !important;
+    opacity: 0.4;
+    transition: var(--lux-transition) !important;
+    transform-origin: center;
+}
+
+.indoor-node-marker .indoor-node-halo {
+    fill: none !important;
+    stroke: none !important;
+    opacity: 0;
+    transition: var(--lux-transition);
+}
+
+/* 悬停普通节点微幅变大 */
+.indoor-node-marker:hover .indoor-node-dot {
+    fill: var(--lux-gold) !important;
+    opacity: 1 !important;
+    transform: scale(1.4);
+}
+
+/* 起点 (Start Node): 香槟金主核 + 荡漾金晕呼吸圈 */
+.indoor-node-marker.is-start .indoor-node-dot {
+    fill: var(--lux-gold) !important;
+    stroke: #ffffff !important;
+    stroke-width: 3.5 !important;
+    opacity: 1 !important;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(188, 164, 127, 0.7)) !important;
+}
+
+.indoor-node-marker.is-start .indoor-node-halo {
+    fill: var(--lux-gold-light) !important;
+    stroke: var(--lux-gold) !important;
+    stroke-width: 0.6 !important;
+    opacity: 0.85 !important;
+    animation: startRipple 3s cubic-bezier(0.16, 1, 0.3, 1) infinite !important;
+    transform-origin: center;
+}
+
+@keyframes startRipple {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+/* 终点 (End Node): 极其尊贵的高对比度黑曜石核 + 荡漾金晕呼吸圈 */
+.indoor-node-marker.is-end .indoor-node-dot {
+    fill: var(--lux-ink) !important;
+    stroke: var(--lux-gold) !important;
+    stroke-width: 3.5 !important;
+    opacity: 1 !important;
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 6px var(--lux-gold-glow)) !important;
+}
+
+.indoor-node-marker.is-end .indoor-node-halo {
+    fill: rgba(28, 27, 24, 0.03) !important;
+    stroke: var(--lux-gold) !important;
+    stroke-width: 0.6 !important;
+    opacity: 0.85 !important;
+    animation: endRipple 3s cubic-bezier(0.16, 1, 0.3, 1) infinite !important;
+    transform-origin: center;
+}
+
+@keyframes endRipple {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* 规划路径上的其他关键节点 */
+.indoor-node-marker.is-path-node:not(.is-start):not(.is-end) .indoor-node-dot {
+    fill: var(--lux-gold-bright) !important;
+    stroke: #ffffff !important;
+    stroke-width: 2.2 !important;
+    opacity: 1 !important;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 4px rgba(188, 164, 127, 0.5)) !important;
+}
+
+/* 3. 节点标签排印设计 (Typography for SVG Labels) */
+.indoor-node-marker text.indoor-node-label {
+    font-family: var(--font-sans) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    fill: var(--lux-ink) !important;
+    paint-order: stroke !important;
+    stroke: var(--lux-bg-light) !important;
+    stroke-width: 4px !important;
+    opacity: 0.72 !important;
+    transition: var(--lux-transition) !important;
+}
+
+.indoor-node-marker:hover text.indoor-node-label,
+.indoor-node-marker.is-start text.indoor-node-label,
+.indoor-node-marker.is-end text.indoor-node-label,
+.indoor-node-marker.is-path-node text.indoor-node-label {
+    opacity: 1 !important;
+    font-weight: 600 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 4. 楼层选择徽章 ( Floor Pill in SVG) */
+.indoor-floor-pill rect {
+    fill: rgba(251, 250, 248, 0.88) !important;
+    stroke: var(--lux-line-gold) !important;
+    stroke-width: 1.2 !important;
+    filter: drop-shadow(0 6px 15px rgba(28, 27, 24, 0.03)) !important;
+}
+
+.indoor-floor-pill text {
+    fill: var(--lux-ink) !important;
+    font-family: var(--font-sans) !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0;
+}
+
+.indoor-floor-pill circle {
+    fill: var(--lux-gold) !important;
+    filter: drop-shadow(0 0 6px rgba(188, 164, 127, 0.4)) !important;
+}
+
+.indoor-floor-pill.is-active rect {
+    fill: var(--lux-bg-soft) !important;
+    stroke: var(--lux-gold) !important;
+    stroke-width: 1.5 !important;
+}

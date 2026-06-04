@@ -290,12 +290,10 @@
                         });
                     });
 
-                    // Initialize active tab from URL or Session Storage
-                    const savedTab = sessionStorage.getItem("activeRouteTab");
+                    // Route submissions must always return to the planner unless the URL
+                    // is explicitly carrying a facility-search query.
                     if (hasFacilityQuery) {
                         switchTab("places");
-                    } else if (savedTab) {
-                        switchTab(savedTab);
                     } else {
                         switchTab("planner");
                     }

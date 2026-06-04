@@ -39,9 +39,6 @@
     --radius-md: 16px;
     --radius-sm: 12px;
 
-    /* Cursor Glow Positions (Tracked by JS) */
-    --cursor-x: 50vw;
-    --cursor-y: 35vh;
 }
 
 /* ==========================================================================
@@ -427,20 +424,6 @@ body.home-page {
         radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.07), transparent 32rem),
         radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.05), transparent 34rem),
         #f4f7fc;
-}
-
-/* Ambient Cursor Orb follow movement */
-.cursor-orb {
-    position: fixed;
-    width: 450px;
-    height: 450px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.06), transparent 70%);
-    top: calc(var(--cursor-y) - 225px);
-    left: calc(var(--cursor-x) - 225px);
-    z-index: -1;
-    pointer-events: none;
-    transition: transform 0.1s ease-out;
 }
 
 /* Header bar with glassmorphism design */

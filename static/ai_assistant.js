@@ -346,7 +346,7 @@
             return;
         }
         if (command.type === "diary_search") {
-            const form = document.querySelector(".diary-search-controlbar") || document.querySelector(".diary-search-form");
+            const form = document.querySelector("form.diary-search-controlbar") || document.querySelector("form.diary-search-form");
             if (currentPage() === "diaries" && form) {
                 setField(form, "q", params.keyword || params.q || "");
                 setField(form, "keyword", params.keyword || params.q || "");
