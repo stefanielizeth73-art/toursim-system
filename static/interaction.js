@@ -1054,6 +1054,56 @@
         window.addEventListener("resize", hidePanel);
     }
 
+    function initPlacesPointerAffordances() {
+        const page = document.body;
+        if (!page || (!page.classList.contains("places-darkroom-page") && !page.classList.contains("place-dossier-page"))) {
+            return;
+        }
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            return;
+        }
+
+        const targets = Array.from(document.querySelectorAll([
+            ".places-contact-card",
+            ".place-dossier-photo-panel",
+            ".place-dossier-copy",
+            ".places-control-drawer",
+            ".place-dossier-actions a"
+        ].join(",")));
+
+        targets.forEach(function (target) {
+            let frame = 0;
+            let nextX = 50;
+            let nextY = 50;
+
+            function writeVars() {
+                frame = 0;
+                target.style.setProperty("--mx", nextX + "%");
+                target.style.setProperty("--my", nextY + "%");
+            }
+
+            target.addEventListener("pointermove", function (event) {
+                if (event.pointerType === "touch") {
+                    return;
+                }
+                const rect = target.getBoundingClientRect();
+                if (!rect.width || !rect.height) {
+                    return;
+                }
+                nextX = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)).toFixed(2);
+                nextY = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)).toFixed(2);
+                if (!frame) {
+                    frame = window.requestAnimationFrame(writeVars);
+                }
+            });
+
+            target.addEventListener("pointerleave", function () {
+                target.style.removeProperty("--mx");
+                target.style.removeProperty("--my");
+            });
+        });
+    }
+
     initDiaryFeedMemory();
     initDiaryBackLink();
     initDeferredDiaryImages();
@@ -1062,6 +1112,7 @@
     initDiaryVideoGeneration();
     initIndoorRoutePicker();
     initCompactDatalists();
+    initPlacesPointerAffordances();
 
     layoutMasonryFeeds();
     window.addEventListener("load", scheduleMasonryLayout);

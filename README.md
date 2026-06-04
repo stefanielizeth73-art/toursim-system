@@ -93,8 +93,37 @@ route page defaults to this manual graph, and Dijkstra runs on the local
 More details are in:
 
 - `docs/project_structure.md`
-- `docs/module_sequence.md`
-- `docs/data_and_graph_pipeline.md`
+- `docs/technical_design.md`
+- `docs/acceptance_checklist.md`
+
+## Project layout
+
+```text
+app.py                 Flask app entrypoint, DB wiring, remaining route/collector pages, and blueprint registration
+init_db.py             SQLite schema initialization
+toursim/               Extracted modules for AI assistant orchestration, blueprints, user/favorites, place/collector repositories, diary repository/media/video/routes, route graph loading/algorithms, food repository/ranking, search, avatars, compression, and file utilities
+templates/             Jinja pages
+static/                CSS, JavaScript, images, videos, and demo media
+data/                  Curated CSV data, route graphs, collector data, diary media
+scripts/               Optional data maintenance and sharing utilities
+docs/                  Structure, deployment, technical design, acceptance, and handoff notes
+tests/                 Pytest regression tests
+```
+
+`data/raw/` and `data/generated/` are optional crawler/intermediate outputs and
+are not required for a clean handoff. They can be recreated by the data scripts
+when needed.
+
+`scripts/data/` contains optional Python data maintenance scripts for fetching
+or expanding place data and reseeding demo diaries. They are not needed at
+runtime, but are kept because the docs reference them for data regeneration.
+
+## Verification
+
+```powershell
+python -m py_compile app.py init_db.py
+python -m pytest -q
+```
 
 ## Share temporarily from your own computer
 

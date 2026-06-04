@@ -79,6 +79,7 @@
 
                     <form method="get" id="routePlanner" class="route-planner route-planner-v2 explore-form">
                         {{ hidden_inputs(route_form_state, skip=['start', 'end', 'targets', 'strategy', 'transport', 'route_type']) }}
+                        <input type="hidden" name="active_panel" value="planner">
                         <label>
                             <span>路线类型</span>
                             <select name="route_type" id="routeType">
@@ -182,6 +183,7 @@
                 <section class="explore-block route-card route-card--places" aria-labelledby="facilityPanelTitle" id="facilityResults">
                     <form method="get" class="explore-form explore-form--stacked">
                         {{ hidden_inputs(route_form_state, skip=['facility_start_node', 'facility_type', 'facility_keyword', 'max_distance']) }}
+                        <input type="hidden" name="active_panel" value="places">
                         <div class="explore-grid explore-grid--two">
                             <label class="explore-field">
                                 <span>起点</span>
@@ -272,10 +274,14 @@
 
                     // Auto-switch to Places tab if there is active facility search/result
                     const urlParams = new URLSearchParams(window.location.search);
-                    const hasFacilityQuery = urlParams.has("facility_type") ||
-                                             urlParams.has("facility_keyword") ||
-                                             urlParams.has("facility_start_node") ||
-                                             urlParams.has("max_distance");
+                    const activePanel = urlParams.get("active_panel");
+                    const hasFacilityQuery = activePanel === "places" ||
+                        (!activePanel && (
+                            Boolean(urlParams.get("facility_type")) ||
+                            Boolean(urlParams.get("facility_keyword")) ||
+                            Boolean(urlParams.get("facility_start_node")) ||
+                            Boolean(urlParams.get("max_distance"))
+                        ));
 
                     function switchTab(tabId) {
                         tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === tabId));

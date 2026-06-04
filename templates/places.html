@@ -13,41 +13,42 @@
     <a class="skip-link" href="#places-results">跳到查询结果</a>
 
     <header class="topbar places-topbar places-darkroom-topbar">
-        <div>
-            <span class="places-topbar__mark" aria-hidden="true"></span>
-            个性化旅游系统 · 景点探索
+        <div class="places-topbar__brand">
+            <span class="places-topbar__mark" aria-hidden="true">T</span>
+            <span class="places-topbar__brand-copy">
+                <strong>TourSim</strong>
+                <small>景点探索</small>
+            </span>
         </div>
         <nav aria-label="模块导航">
-            <span>当前用户：{{ username }}</span>
+            <span class="places-topbar__user">{{ username }}</span>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
         </nav>
     </header>
 
     <main class="places-darkroom-shell">
         <section class="places-darkroom-hero" aria-labelledby="places-title">
             <section class="places-darkroom-intro">
-                <span class="places-kicker">Most Memorable</span>
+                <span class="places-kicker">Pick a Place</span>
                 <h1 id="places-title">
-                    <span>把景点库做成一张</span>
-                    <span>“目的地接触印相”：</span>
-                    <span>像选照片，也像选旅程。</span>
+                    <span>先看照片，</span>
+                    <span>再挑一个想去的地方。</span>
                 </h1>
             </section>
 
             <div class="places-darkroom-hero-copy">
-                <p>延续主页的米白铂金底色，把黑金暗房留给照片展示。用户先被本地景点影像吸引，再用城市、标签、评分与热度过滤，课程要求里的查找、排序和 Top-K 推荐都保留在同一条体验里。</p>
+                <p>有时候目的地不是搜出来的，是一眼看中的。先逛逛照片，再用城市、类型和兴趣偏好慢慢缩小范围。</p>
 
                 <section class="places-darkroom-stats" aria-label="推荐数据概览">
-                    <span><strong>{{ total_places }}</strong>本地景点</span>
-                    <span><strong>{{ filtered_places_total }}</strong>候选匹配</span>
-                    <span><strong>{{ recommendation_stats.returned_count }}</strong>Top-K</span>
+                    <span><strong>{{ total_places }}</strong>可探索地点</span>
+                    <span><strong>{{ filtered_places_total }}</strong>符合条件</span>
+                    <span><strong>{{ recommendation_stats.returned_count }}</strong>为你推荐</span>
                 </section>
 
                 <section class="places-darkroom-algorithm" aria-label="算法说明">
-                    <span>{{ recommendation_stats.algorithm }}</span>
-                    <span>扫描 {{ recommendation_stats.scanned_count }} 条 · 候选 {{ recommendation_stats.candidate_count }} 条</span>
+                    <span>正在为你筛选</span>
+                    <span>看过 {{ recommendation_stats.scanned_count }} 个地点 · 找到 {{ recommendation_stats.candidate_count }} 个合适选项</span>
                 </section>
             </div>
         </section>
@@ -56,9 +57,9 @@
             <section class="places-darkroom-console" aria-label="景点推荐控制台">
                 <details class="places-control-drawer" {% if keyword or city or place_type or tag_keyword or selected_tags or sort_by != 'default' or k != 10 %}open{% endif %}>
                     <summary>
-                        <span>筛选与排序控制台</span>
+                        <span>换个找法</span>
                         <strong>{{ recommendation_stats.algorithm }}</strong>
-                        <em>候选 {{ recommendation_stats.candidate_count }} · Top {{ k }}</em>
+                        <em>{{ recommendation_stats.candidate_count }} 个候选 · 选 {{ k }} 个</em>
                     </summary>
 
                     <form method="get" class="places-search-panel places-darkroom-form">
@@ -69,11 +70,11 @@
                                     type="search"
                                     name="keyword"
                                     value="{{ keyword }}"
-                                    placeholder="景点、学校、城市或关键词"
+                                    placeholder="试试“校园”“湖景”或一个城市"
                                     autocomplete="off">
                             </label>
 
-                            <button class="places-submit" type="submit">生成推荐</button>
+                            <button class="places-submit" type="submit">帮我找找</button>
                         </div>
 
                         <div class="places-darkroom-filters">
@@ -124,7 +125,7 @@
                             </label>
 
                             <label class="places-field places-field--wide">
-                                <span>标签补充</span>
+                                <span>还想看什么</span>
                                 <input
                                     type="search"
                                     name="tag_keyword"
@@ -133,12 +134,11 @@
                                     autocomplete="off">
                             </label>
 
-                            <a class="places-reset-link" href="{{ url_for('places') }}">重置</a>
                         </div>
 
                         <details class="places-preference-drawer places-darkroom-preferences" {% if selected_tags %}open{% endif %}>
                             <summary>
-                                <span>兴趣偏好</span>
+                                <span>我喜欢</span>
                                 <strong>{{ selected_tags|length }} 已选</strong>
                             </summary>
 
@@ -160,6 +160,10 @@
                                 {% endfor %}
                             </div>
                         </details>
+
+                        <div class="places-filter-actions" aria-label="筛选辅助操作">
+                            <a class="places-reset-link" href="{{ url_for('places') }}">清空条件</a>
+                        </div>
                     </form>
                 </details>
             </section>
@@ -167,15 +171,15 @@
             <section class="places-darkroom-rank" aria-labelledby="places-rank-title">
                 <div class="places-darkroom-section-head">
                     <div>
-                        <span class="places-kicker">Top-K Contact Sheet</span>
-                        <h2 id="places-rank-title"><span>Destination<br>Contact Sheet</span><em>推荐接触印相</em></h2>
+                        <span class="places-kicker">Curated for You</span>
+                        <h2 id="places-rank-title"><span>First-Look Favorites</span><em>{{ k }} places that feel worth pausing for</em></h2>
                     </div>
-                    <p>优先呈现前 {{ k }} 个推荐目的地，照片边注保留评分、热度与推荐分，便于答辩时解释排序依据。</p>
+                    <p>照片喜欢就点进去，评分和热度留给你慢慢比较。</p>
                 </div>
 
-                <div class="places-contact-sheet places-contact-sheet--ranked" role="list">
+                <div class="places-contact-sheet places-contact-sheet--ranked{% if recommended_places|length >= 10 %} places-contact-sheet--has-ten{% endif %}" role="list">
                     {% for place in recommended_places %}
-                    <article class="places-contact-card places-contact-card--rank-{{ loop.index if loop.index <= 6 else 'default' }}" role="listitem">
+                    <article class="places-contact-card places-contact-card--rank-{{ loop.index if loop.index <= 10 else 'default' }}" role="listitem">
                         <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id) }}" aria-label="查看 {{ place.name }} 详情">
                             <figure class="places-contact-photo">
                                 {% if place.cover_image %}
@@ -205,8 +209,8 @@
                     </article>
                     {% else %}
                     <div class="places-empty-state places-darkroom-empty">
-                        <h3>没有找到推荐结果</h3>
-                        <p>请放宽城市、类别或兴趣偏好后重新生成。</p>
+                        <h3>这次没找到合适的地方</h3>
+                        <p>少选几个条件，再试一次吧。</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -215,10 +219,10 @@
             <section id="places-results" class="places-darkroom-results" aria-labelledby="places-results-title">
                 <div class="places-darkroom-section-head">
                     <div>
-                        <span class="places-kicker">Search Archive</span>
-                        <h2 id="places-results-title">查询影像库</h2>
+                        <span class="places-kicker">Keep Wandering</span>
+                        <h2 id="places-results-title">More Places</h2>
                     </div>
-                    <p>当前页 {{ places|length }} 条 · 共 {{ filtered_places_total }} 条匹配结果</p>
+                    <p>还有 {{ filtered_places_total }} 个匹配结果，慢慢挑也没关系。</p>
                 </div>
 
                 <div class="places-contact-sheet places-contact-sheet--archive" role="list">
@@ -251,8 +255,8 @@
                     </article>
                     {% else %}
                     <div class="places-empty-state places-darkroom-empty">
-                        <h3>没有匹配结果</h3>
-                        <p>换一个关键词，或清空部分筛选条件试试。</p>
+                        <h3>这里暂时空空的</h3>
+                        <p>换个关键词，或少选几个条件试试。</p>
                     </div>
                     {% endfor %}
                 </div>

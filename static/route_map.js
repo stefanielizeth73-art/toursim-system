@@ -964,11 +964,9 @@
                 setRouteEndpoint(kind, button.getAttribute("data-endpoint-result"));
                 control.input.value = "";
                 control.root.classList.remove("is-open");
-                submitPlanner();
             });
             control.chip.querySelector("button").addEventListener("click", function () {
                 setRouteEndpoint(kind, "");
-                submitPlanner();
             });
         }
 
@@ -1009,7 +1007,6 @@
             }
             if ((isStart || isEnd) && selectedWaypointCount() === 0) {
                 clearAllRoutePoints();
-                submitPlanner();
                 return;
             }
             if (isStart && startSelect) {
@@ -1020,7 +1017,6 @@
                 setTargetValue(nodeId, false);
             }
             refreshSelectedTargets();
-            submitPlanner();
         }
 
         function handleRouteMapRightClick(event) {
@@ -1097,7 +1093,6 @@
                         setRouteEndpoint(action === "start" ? "start" : "end", node.id);
                     }
                     infoWindow.close();
-                    submitPlanner();
                 });
             });
             return root;
@@ -4340,7 +4335,6 @@
                 }
                 setRouteMode(routeTypeSelect && routeTypeSelect.value === "round_trip" ? "round_trip" : "multi");
                 setTargetValue(button.getAttribute("data-remove-target"), false);
-                submitPlanner();
             });
         }
 
@@ -4350,7 +4344,6 @@
                     return;
                 }
                 clearAllRoutePoints();
-                submitPlanner();
             });
         }
 
@@ -4380,9 +4373,7 @@
                 return;
             }
             ensureWaypointRouteMode();
-            if (setTargetValue(match.id, true)) {
-                submitPlanner();
-            }
+            setTargetValue(match.id, true);
             poiSearch.value = "";
         }
 
@@ -4425,17 +4416,6 @@
         if (routeTypeSelect) {
             routeTypeSelect.addEventListener("change", syncMode);
             syncMode();
-        }
-
-        if (form) {
-            form.addEventListener("change", function (event) {
-                if (event.target.matches("select")) {
-                    window.clearTimeout(form._routeSubmitTimer);
-                    form._routeSubmitTimer = window.setTimeout(function () {
-                        form.requestSubmit();
-                    }, 280);
-                }
-            });
         }
 
         window.addEventListener("resize", function () {

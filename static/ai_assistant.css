@@ -537,6 +537,14 @@ body:not(.route-v2) .ai-assistant-launcher:focus-visible {
     box-shadow: 0 0 0 6px rgba(197, 168, 128, 0.08);
 }
 
+body.places-darkroom-page .ai-assistant-launcher {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: transparent !important;
+    box-shadow: none;
+}
+
 body .ai-assistant__new:hover,
 body .ai-assistant__close:hover,
 body .ai-assistant__action:hover,

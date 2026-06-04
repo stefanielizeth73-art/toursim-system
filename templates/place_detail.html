@@ -10,17 +10,19 @@
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="place-detail-page place-dossier-page">
-    <header class="topbar place-dossier-topbar">
-        <div>
-            <span class="places-topbar__mark" aria-hidden="true"></span>
-            个性化旅游系统 · 景点档案
+    <header class="topbar places-topbar places-darkroom-topbar place-dossier-topbar">
+        <div class="places-topbar__brand">
+            <span class="places-topbar__mark" aria-hidden="true">T</span>
+            <span class="places-topbar__brand-copy">
+                <strong>TourSim</strong>
+                <small>景点档案</small>
+            </span>
         </div>
         <nav aria-label="页面导航">
-            <span>当前用户：{{ username }}</span>
+            <span class="places-topbar__user">{{ username }}</span>
             <a class="nav-link" href="{{ url_for('places') }}">返回探索</a>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
-            <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
         </nav>
     </header>
 

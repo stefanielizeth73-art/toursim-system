@@ -106,24 +106,147 @@ function initNarrativeThread() {
 }
 
 /**
- * 4. 三维磁吸阻尼星盘 (High-Precision 3D Astrolabe / Compass Pointer)
+ * 4. 经典奢华罗盘方位跟踪与 3D 动力学交互 (Classic Luxury Compass Interaction)
  */
 function init3DAstrolabe() {
+    const compassAnchor = document.querySelector(".lux-compass-anchor");
     const compass = document.querySelector(".lux-compass-instrument");
-    if (!compass) return;
+    const compassPointer = document.querySelector(".compass-pointer");
+    const compassDial = document.querySelector(".compass-dial");
 
-    function renderAstrolabe() {
-        const baseDrift = (Date.now() / 200) % 360;
+    if (!compassAnchor) return;
 
-        compass.style.transform = `
-            perspective(600px)
-            rotateZ(${baseDrift}deg)
-        `;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let targetAngle = 0;
+    let currentAngle = 0;
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let currentTiltX = 0;
+    let currentTiltY = 0;
+    let isInteracting = false;
+    let isSpinning = false;
+    let spinStart = 0;
+    let lastMoveTime = Date.now();
 
-        requestAnimationFrame(renderAstrolabe);
+    const quotes = [
+        "🧭 寻找您的专属旅行灵感中...",
+        "🧭 探索未知，见所未见。",
+        "🧭 行者无疆，始于足下。",
+        "🧭 开启您的尊贵定制航线～",
+        "🧭 读万卷书，行万里路。",
+        "🧭 愿每次出发，都有温暖相伴。",
+        "🧭 听从内心的罗盘，即刻启程！"
+    ];
+
+    // 动态创建气泡
+    let bubble = document.createElement("div");
+    bubble.className = "eye-bubble";
+    compassAnchor.appendChild(bubble);
+
+    document.addEventListener("mousemove", (event) => {
+        if (!compass || reduceMotion) return;
+        isInteracting = true;
+        lastMoveTime = Date.now();
+
+        const rect = compass.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dx = event.clientX - centerX;
+        const dy = event.clientY - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 15) {
+            const angleRad = Math.atan2(dy, dx);
+            // 默认指向上方是-90度，所以指针需要旋转 angleRad * 180/PI + 90 度
+            targetAngle = angleRad * (180 / Math.PI) + 90;
+
+            // 计算3D倾斜视角：绕X/Y轴微倾斜
+            const maxDist = 300;
+            const factorX = Math.min(Math.abs(dy) / maxDist, 1) * Math.sign(dy);
+            const factorY = Math.min(Math.abs(dx) / maxDist, 1) * Math.sign(dx);
+            targetTiltX = -factorX * 15;
+            targetTiltY = factorY * 15;
+        }
+    });
+
+    document.addEventListener("mouseleave", () => {
+        isInteracting = false;
+        targetTiltX = 0;
+        targetTiltY = 0;
+    });
+
+    // 点击罗盘触发 3D 特技空转
+    compassAnchor.addEventListener("click", () => {
+        if (isSpinning) return;
+
+        isSpinning = true;
+        spinStart = performance.now();
+
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        bubble.innerText = randomQuote;
+        bubble.classList.add("show");
+
+        setTimeout(() => {
+            bubble.classList.remove("show");
+        }, 1800);
+    });
+
+    function updateCompass(now) {
+        if (!reduceMotion) {
+            const lerpFactor = 0.06;
+
+            if (isSpinning) {
+                const progress = Math.min((now - spinStart) / 1200, 1);
+                if (progress >= 1) {
+                    isSpinning = false;
+                } else {
+                    // 快速旋转两圈 (720度) 并伴随缓出
+                    const easeOutQuad = 1 - (1 - progress) * (1 - progress);
+                    currentAngle = targetAngle + easeOutQuad * 720;
+                    currentTiltX = Math.sin(progress * Math.PI * 2) * 5;
+                    currentTiltY = Math.cos(progress * Math.PI * 2) * 5;
+                }
+            } else {
+                // 顺滑 Lerp 跟随 (并处理 360 度边界突变)
+                let diff = targetAngle - currentAngle;
+                const diffRad = (diff * Math.PI) / 180;
+                const wrappedDiff = Math.atan2(Math.sin(diffRad), Math.cos(diffRad)) * 180 / Math.PI;
+                currentAngle += wrappedDiff * lerpFactor;
+
+                currentTiltX += (targetTiltX - currentTiltX) * lerpFactor;
+                currentTiltY += (targetTiltY - currentTiltY) * lerpFactor;
+
+                // 鼠标空闲时的微小呼吸自摆动动画
+                const timeSinceLastMove = Date.now() - lastMoveTime;
+                const isIdle = timeSinceLastMove > 2500 || !isInteracting;
+                if (isIdle) {
+                    const idleTime = now / 1200;
+                    targetAngle = Math.sin(idleTime) * 15;
+                    targetTiltX = Math.sin(idleTime * 0.8) * 3;
+                    targetTiltY = Math.cos(idleTime * 0.8) * 3;
+                }
+            }
+
+            // 应用指针旋转
+            if (compassPointer) {
+                compassPointer.setAttribute("transform", `rotate(${currentAngle}, 100, 100)`);
+            }
+
+            // 表盘反向视差偏转
+            if (compassDial) {
+                const dialAngle = -currentAngle * 0.15;
+                compassDial.setAttribute("transform", `rotate(${dialAngle}, 100, 100)`);
+            }
+
+            // 应用3D倾斜
+            if (compass) {
+                compass.style.transform = `perspective(500px) rotateX(${currentTiltX}deg) rotateY(${currentTiltY}deg)`;
+            }
+        }
+        requestAnimationFrame(updateCompass);
     }
 
-    renderAstrolabe();
+    requestAnimationFrame(updateCompass);
 }
 
 /**
@@ -161,7 +284,7 @@ function initTabSystem() {
             trigger.classList.add("active");
             trigger.setAttribute("aria-selected", "true");
 
-            // 切换内容区域的显示
+            // 切换内容区域 of 显示
             contents.forEach(content => {
                 content.classList.remove("active");
             });

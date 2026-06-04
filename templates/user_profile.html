@@ -67,22 +67,30 @@
                     <circle cx="100" cy="100" r="90" fill="none" stroke="url(#goldGrad)" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.4" />
                     <circle cx="100" cy="100" r="80" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.15" />
                     <circle cx="100" cy="100" r="4" fill="var(--lux-gold)" />
-                    <!-- 罗盘刻度线 -->
-                    <g stroke="var(--lux-gold)" stroke-width="1" opacity="0.5">
-                        <line x1="100" y1="10" x2="100" y2="18" />
-                        <line x1="100" y1="182" x2="100" y2="190" />
-                        <line x1="10" y1="100" x2="18" y2="100" />
-                        <line x1="182" y1="100" x2="190" y2="100" />
-                        <line x1="36.36" y1="36.36" x2="43.43" y2="43.43" />
-                        <line x1="156.57" y1="156.57" x2="163.64" y2="163.64" />
-                        <line x1="36.36" y1="163.64" x2="43.43" y2="156.57" />
-                        <line x1="156.57" y1="43.43" x2="163.64" y2="36.36" />
+                    <!-- Rotating Dial (Ticks & Directions) -->
+                    <g class="compass-dial" transform="rotate(0, 100, 100)">
+                        <!-- 罗盘刻度线 -->
+                        <g stroke="var(--lux-gold)" stroke-width="1" opacity="0.5">
+                            <line x1="100" y1="10" x2="100" y2="18" />
+                            <line x1="100" y1="182" x2="100" y2="190" />
+                            <line x1="10" y1="100" x2="18" y2="100" />
+                            <line x1="182" y1="100" x2="190" y2="100" />
+                            <line x1="36.36" y1="36.36" x2="43.43" y2="43.43" />
+                            <line x1="156.57" y1="156.57" x2="163.64" y2="163.64" />
+                            <line x1="36.36" y1="163.64" x2="43.43" y2="156.57" />
+                            <line x1="156.57" y1="43.43" x2="163.64" y2="36.36" />
+                        </g>
+                        <!-- 罗盘基点方位 -->
+                        <text x="100" y="32" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">N</text>
+                        <text x="100" y="178" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">S</text>
+                        <text x="175" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">E</text>
+                        <text x="25" y="104" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">W</text>
                     </g>
-                    <!-- 罗盘基点方位 -->
-                    <text x="100" y="32" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">N</text>
-                    <text x="100" y="178" font-family="var(--font-display-serif)" font-size="10" font-weight="900" fill="var(--lux-gold)" text-anchor="middle" letter-spacing="0">S</text>
-                    <!-- 罗盘指针 -->
-                    <polygon points="100,20 104,100 96,100" fill="url(#pointerGold)" />
+                    <!-- Rotating Pointer (Needle) -->
+                    <g class="compass-pointer" transform="rotate(0, 100, 100)">
+                        <polygon points="100,20 104,100 96,100" fill="url(#pointerGold)" />
+                        <polygon points="100,180 103,100 97,100" fill="rgba(0, 0, 0, 0.15)" />
+                    </g>
                     <defs>
                         <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#dfc391" />

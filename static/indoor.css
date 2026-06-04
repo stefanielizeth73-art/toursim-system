@@ -180,16 +180,13 @@ body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path {
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path-glow {
-    stroke: #a9c9ff !important;
-    stroke-width: 22 !important;
-    opacity: 0.5 !important;
-    filter: drop-shadow(0 0 7px rgba(78, 124, 232, 0.46)) !important;
+    display: none !important;
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-edge.is-path-core {
-    stroke: #4f78e8 !important;
-    stroke-width: 9 !important;
-    opacity: 0.92 !important;
+    stroke: #3f73c5 !important;
+    stroke-width: 8 !important;
+    opacity: 1 !important;
     filter: none !important;
 }
 
@@ -201,48 +198,66 @@ body.indoor-page:not(.indoor-collector-page) .indoor-node-marker .indoor-node-ha
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker .indoor-node-dot {
-    fill: rgba(83, 111, 214, 0.72) !important;
-    stroke: rgba(255, 255, 255, 0.88) !important;
-    stroke-width: 2.2 !important;
+    fill: #6378dc !important;
+    stroke: rgba(255, 255, 255, 0.72) !important;
+    stroke-width: 1.4 !important;
     vector-effect: non-scaling-stroke;
-    transform: scale(0.72);
+    transform: scale(0.66);
     transform-box: fill-box;
     transform-origin: center;
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator .indoor-node-dot {
-    fill: var(--indoor-final-cyan) !important;
-    stroke: rgba(255, 255, 255, 0.92) !important;
-    stroke-width: 3 !important;
-    transform: scale(0.86);
+    fill: #2aa56f !important;
+    stroke: rgba(255, 255, 255, 0.82) !important;
+    stroke-width: 1.6 !important;
+    transform: scale(0.92);
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs .indoor-node-dot {
-    fill: #6674e6 !important;
-    stroke: rgba(255, 255, 255, 0.92) !important;
-    stroke-width: 3 !important;
-    transform: scale(0.86);
+    fill: #2aa56f !important;
+    stroke: rgba(255, 255, 255, 0.82) !important;
+    stroke-width: 1.6 !important;
+    transform: scale(0.92);
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-path-node:not(.is-start):not(.is-end) .indoor-node-dot {
-    fill: #5a80ec !important;
-    stroke: var(--indoor-final-blue) !important;
-    stroke-width: 2.6 !important;
-    transform: scale(0.9);
+    fill: #5f76df !important;
+    stroke: rgba(255, 255, 255, 0.78) !important;
+    stroke-width: 1.5 !important;
+    transform: scale(0.72);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator.is-path-node .indoor-node-dot,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs.is-path-node .indoor-node-dot {
+    fill: #2aa56f !important;
+    stroke: rgba(255, 255, 255, 0.82) !important;
+    stroke-width: 1.6 !important;
+    transform: scale(0.92);
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-start .indoor-node-dot {
     fill: var(--indoor-final-blue) !important;
-    stroke: var(--indoor-final-blue) !important;
-    stroke-width: 5 !important;
-    transform: scale(1);
+    stroke: rgba(255, 255, 255, 0.9) !important;
+    stroke-width: 1.8 !important;
+    transform: scale(1.04);
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-end .indoor-node-dot {
     fill: var(--indoor-final-coral) !important;
-    stroke: var(--indoor-final-coral) !important;
-    stroke-width: 5 !important;
-    transform: scale(1);
+    stroke: rgba(255, 255, 255, 0.9) !important;
+    stroke-width: 1.8 !important;
+    transform: scale(1.04);
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator.is-start .indoor-node-dot,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator.is-end .indoor-node-dot,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs.is-start .indoor-node-dot,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs.is-end .indoor-node-dot {
+    fill: #2aa56f !important;
+    stroke: rgba(255, 255, 255, 0.92) !important;
+    stroke-width: 2 !important;
+    transform: scale(1.04);
 }
 
 body.indoor-page:not(.indoor-collector-page) .indoor-node-marker text.indoor-node-label {
