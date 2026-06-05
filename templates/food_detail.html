@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ food.name }} - 美食详情</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link class="lux-int-ref" rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
@@ -16,9 +17,10 @@
             <strong>美食详情</strong>
         </div>
         <div class="food-topbar__actions">
-            <span class="food-topbar__user">当前用户：{{ username }}</span>
+            <span class="food-topbar__user">Hi，{{ username }}</span>
             <form method="post" action="{{ url_for('food_favorite', food_key=food.food_key) }}" class="food-favorite-form">
                 <input type="hidden" name="place_id" value="{{ place_id }}">
+                <input type="hidden" name="place_name" value="{{ place_name }}">
                 <input type="hidden" name="origin_node" value="{{ origin_node }}">
                 <input type="hidden" name="keyword" value="{{ keyword }}">
                 <input type="hidden" name="category" value="{{ category }}">
@@ -30,7 +32,7 @@
                 </button>
             </form>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
-            <a class="nav-link" href="{{ url_for('foods', place_id=place_id, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=page) }}">返回美食列表</a>
+            <a class="nav-link" href="{{ url_for('foods', place_id=place_id, place_name=place_name, origin_node=origin_node, keyword=keyword, category=category, sort_by=sort_by, page=page) }}">返回美食列表</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
         </div>
     </div>
@@ -93,11 +95,11 @@
                     <h2>导航到这里</h2>
                     <p>
                         {% if origin_node and food.nearest_node %}
-                            已接入当前位置，可直接调用路线规划模块。
+                            已有当前位置，可以直接规划过去。
                         {% elif food.nearest_node %}
-                            先在地图上选择当前位置，再返回这里查看道路距离。
+                            先在地图上选当前位置，再回来看看怎么走。
                         {% else %}
-                            该店暂未接入路线锚点，当前仅展示美食信息。
+                            这家店暂时没有路线锚点，先看看菜单和推荐理由。
                         {% endif %}
                     </p>
                     <div class="food-detail-actions">
@@ -105,7 +107,7 @@
                             <a class="food-secondary-action" href="{{ route_food_pick_url }}">选择当前位置</a>
                         {% endif %}
                         {% if origin_node and food.nearest_node %}
-                            <a class="food-primary-action" href="{{ url_for('route', place_id=place_id, start=origin_node, end=food.nearest_node, strategy='distance', transport='mixed', keyword=keyword, category=category, sort_by=sort_by, page=page) }}">导航到这里</a>
+                            <a class="food-primary-action" href="{{ url_for('route', place_id=place_id, start=origin_node, end=food.nearest_node, strategy='distance', transport='mixed', keyword=keyword, category=category, sort_by=sort_by, page=page, return_to='food_detail', return_food_key=food.food_key, return_place_id=place_id) }}">导航到这里</a>
                         {% endif %}
                     </div>
                 </section>
@@ -114,8 +116,8 @@
                     <span class="eyebrow">EXPLORE</span>
                     <h2>探索更多</h2>
                     <div class="food-link-list">
-                        <a href="{{ url_for('foods', place_id=place_id, origin_node=origin_node, keyword=keyword, category=food.category, sort_by='recommend_score_desc', page=1) }}">查看同类菜系</a>
-                        <a href="{{ url_for('facilities') }}">查看周围设施</a>
+                        <a href="{{ url_for('foods', place_id=place_id, origin_node=origin_node, keyword=keyword, category=food.category, sort_by='recommend_score_desc', page=1) }}">看看同类菜系</a>
+                        <a href="{{ route_food_facilities_url }}">查看周围设施</a>
                     </div>
                 </section>
 

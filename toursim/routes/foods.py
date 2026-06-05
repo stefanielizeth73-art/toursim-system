@@ -44,7 +44,8 @@ def create_foods_blueprint(services):
             place_id = food_default_place_id
         keyword = request.args.get("keyword", "").strip()
         category = request.args.get("category", "").strip()
-        place_name = ""
+        source_place_name = request.args.get("place_name", "").strip()
+        food_page_title = f"{source_place_name}美食推荐" if source_place_name else "翔安校区美食推荐"
         sort_by = request.args.get("sort_by", "default").strip()
         requested_origin_node = request.args.get("origin_node", "").strip()
 
@@ -60,7 +61,7 @@ def create_foods_blueprint(services):
             campus_foods,
             keyword=keyword,
             category=category,
-            place_name=place_name,
+            place_name="",
             sort_by=sort_by,
             limit=None,
             graph=graph,
@@ -76,6 +77,7 @@ def create_foods_blueprint(services):
                 "place_id": place_id,
                 "keyword": keyword,
                 "category": category,
+                "place_name": source_place_name,
                 "sort_by": sort_by,
                 "origin_node": origin_node,
             },
@@ -97,7 +99,8 @@ def create_foods_blueprint(services):
             foods=paged_foods,
             keyword=keyword,
             category=category,
-            place_name=place_name,
+            place_name=source_place_name,
+            food_page_title=food_page_title,
             sort_by=sort_by,
             categories=categories,
             place_id=place_id,
@@ -128,6 +131,7 @@ def create_foods_blueprint(services):
         requested_origin_node = request.args.get("origin_node", "").strip()
         keyword = request.args.get("keyword", "").strip()
         category = request.args.get("category", "").strip()
+        place_name = request.args.get("place_name", "").strip()
         sort_by = request.args.get("sort_by", "").strip()
         page = services.parse_positive_int(request.args.get("page", 1))
         food_context = food_campus_contexts[place_id]
@@ -146,6 +150,7 @@ def create_foods_blueprint(services):
             food=food,
             food_favorited=services.is_item_favorited(current_user["id"], "food", food_key) if current_user else False,
             place_id=place_id,
+            place_name=place_name,
             origin_node=origin_node,
             keyword=keyword,
             category=category,
@@ -163,6 +168,18 @@ def create_foods_blueprint(services):
                     "return_food_key": food_key,
                     "return_place_id": place_id,
                 },
+            ),
+            route_food_facilities_url=services.build_url_with_query(
+                "route",
+                {
+                    "place_id": place_id,
+                    "active_panel": "places",
+                    "facility_start_node": f"food:{food_key}",
+                    "facility_start_food": food_key,
+                    "strategy": "distance",
+                    "transport": "mixed",
+                },
+                anchor="facilityResults",
             ),
             food_context={
                 **food_context,
@@ -186,6 +203,7 @@ def create_foods_blueprint(services):
         origin_node = request.form.get("origin_node", request.args.get("origin_node", "")).strip()
         keyword = request.form.get("keyword", request.args.get("keyword", "")).strip()
         category = request.form.get("category", request.args.get("category", "")).strip()
+        place_name = request.form.get("place_name", request.args.get("place_name", "")).strip()
         sort_by = request.form.get("sort_by", request.args.get("sort_by", "")).strip()
         page = services.parse_positive_int(request.form.get("page", request.args.get("page", 1)))
         food = services.get_food_by_key(food_key, place_id=place_id, origin_node=origin_node)
@@ -200,6 +218,7 @@ def create_foods_blueprint(services):
             subtitle=f"{food.get('cuisine') or food.get('category', '')} · 评分 {food.get('rating', 0)}",
             meta={
                 "place_id": place_id,
+                "place_name": place_name,
                 "origin_node": origin_node,
                 "keyword": keyword,
                 "category": category,
@@ -216,6 +235,7 @@ def create_foods_blueprint(services):
             "food_detail",
             food_key=food_key,
             place_id=place_id,
+            place_name=place_name,
             origin_node=origin_node,
             keyword=keyword,
             category=category,

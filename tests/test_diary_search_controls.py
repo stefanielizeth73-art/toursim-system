@@ -78,7 +78,7 @@ class DiarySearchControlsTests(unittest.TestCase):
         self.assertIn("data-diary-lazy-src", html)
         self.assertIn("data:image/svg+xml", html)
 
-    def test_diary_feed_paginates_cards_to_reduce_initial_render_cost(self):
+    def test_diary_feed_uses_infinite_loader_to_reduce_initial_render_cost(self):
         for index in range(15):
             toursim_app.create_diary(f"paged diary {index}", "campus", "body", "alice")
 
@@ -95,7 +95,38 @@ class DiarySearchControlsTests(unittest.TestCase):
             second_html.count("js-diary-entry"),
             min(toursim_app.DIARIES_PAGE_SIZE, max(total_diaries - toursim_app.DIARIES_PAGE_SIZE, 0)),
         )
-        self.assertIn("diary-pagination", first_html)
+        self.assertIn("diaryInfiniteLoader", first_html)
+        self.assertIn('data-next-url="/diaries?page=2"', first_html)
+        self.assertNotIn("diary-pagination", first_html)
+
+    def test_diary_feed_ajax_returns_next_batch_metadata(self):
+        for index in range(toursim_app.DIARIES_PAGE_SIZE * 2 + 1):
+            toursim_app.create_diary(f"ajax diary {index}", "campus", "body", "alice")
+
+        total_diaries = len(toursim_app.load_diaries(sort_by="hot_rating_desc"))
+        response = self.client.get("/diaries?ajax=1&page=2")
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(
+            payload["html"].count('class="diary-post js-diary-entry'),
+            min(toursim_app.DIARIES_PAGE_SIZE, max(total_diaries - toursim_app.DIARIES_PAGE_SIZE, 0)),
+        )
+        self.assertEqual(payload["has_next"], total_diaries > toursim_app.DIARIES_PAGE_SIZE * 2)
+        self.assertEqual(payload["next_url"], "/diaries?page=3")
+
+    def test_diary_feed_ajax_requires_json_login_state(self):
+        with self.client.session_transaction() as session:
+            session.pop("username", None)
+
+        response = self.client.get("/diaries?ajax=1&page=2")
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(payload["ok"])
+        self.assertEqual(payload["error"], "auth_required")
+        self.assertIn("application/json", response.content_type)
 
     def test_search_page_applies_title_content_destination_and_sorting(self):
         toursim_app.create_diary("湖边慢游", "西湖", "沿着湖边看荷花", "alice")

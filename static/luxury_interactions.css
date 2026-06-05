@@ -1,0 +1,892 @@
+/**
+ * Luxury Interactive Kinetics & Colorful Hover Accents Stylesheet
+ *
+ * Themes matching each page:
+ * - Places Exploration ➡️ Emerald Green (#059669)
+ * - Route Planner ➡️ Amber Gold (#d97706)
+ * - Indoor Navigation ➡️ Tech Cyan (#0891b2)
+ * - Travel Diaries ➡️ Royal Purple (#7c3aed)
+ * - Food Recommendation ➡️ Crimson Rose (#db2777)
+ * - User Profile ➡️ Sapphire Blue (#2563eb)
+ */
+
+:root {
+    --color-emerald: #059669;
+    --color-amber: #d97706;
+    --color-cyan: #0891b2;
+    --color-purple: #7c3aed;
+    --color-rose: #db2777;
+    --color-sapphire: #2563eb;
+    --lux-gold: #c5a880;
+}
+
+/* ==========================================================================
+   1. PLACES EXPLORATION (景点探索 - 翠绿主题)
+   ========================================================================== */
+body.places-darkroom-page .places-contact-card {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+    border: 1px solid rgba(26, 28, 34, 0.08) !important;
+}
+
+body.places-darkroom-page .places-contact-card:hover {
+    transform: translateY(-8px) scale(1.005);
+    border-color: rgba(197, 168, 128, 0.4) !important;
+    box-shadow:
+        0 20px 40px rgba(197, 168, 128, 0.12),
+        0 8px 16px rgba(0, 0, 0, 0.02) !important;
+}
+
+body.places-darkroom-page .places-contact-photo img {
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.33, 1), filter 0.8s ease;
+}
+
+body.places-darkroom-page .places-contact-card:hover .places-contact-photo img {
+    transform: scale(1.05);
+    filter: saturate(1.15) contrast(1.02);
+}
+
+body.places-darkroom-page .places-contact-card:hover h3 {
+    color: var(--lux-gold) !important;
+    transition: color 0.3s ease;
+}
+
+/* 景点探索控制台表单交互及数据看板动效 */
+body.places-darkroom-page .places-darkroom-stats span {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.3s ease;
+}
+body.places-darkroom-page .places-darkroom-stats span:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+body.places-darkroom-page .places-darkroom-algorithm span {
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+body.places-darkroom-page .places-darkroom-algorithm span:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.places-darkroom-page .places-control-drawer > summary {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+body.places-darkroom-page .places-control-drawer > summary:hover {
+    border-color: rgba(5, 150, 105, 0.3) !important;
+    background: rgba(5, 150, 105, 0.02) !important;
+}
+
+body.places-darkroom-page .places-field input,
+body.places-darkroom-page .places-field select {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+body.places-darkroom-page .places-field input:hover,
+body.places-darkroom-page .places-field select:hover {
+    border-color: rgba(5, 150, 105, 0.3) !important;
+}
+body.places-darkroom-page .places-field input:focus,
+body.places-darkroom-page .places-field select:focus {
+    border-color: var(--color-emerald) !important;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+    outline: none;
+}
+
+body.places-darkroom-page .places-submit {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+body.places-darkroom-page .places-submit:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(17, 20, 26, 0.15) !important;
+}
+
+body.places-darkroom-page .places-reset-link {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+body.places-darkroom-page .places-reset-link:hover {
+    transform: translateX(2px);
+    opacity: 0.8;
+}
+
+body.places-darkroom-page .places-tag-choice {
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.25s ease, border-color 0.25s ease;
+}
+body.places-darkroom-page .places-tag-choice:hover {
+    transform: scale(1.05);
+}
+
+/* ==========================================================================
+   2. PLACE DOSSIER DETAIL (景点详情 - 特征色发光)
+   ========================================================================== */
+body.place-dossier-page .place-dossier-photo img {
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.33, 1), filter 0.8s ease;
+}
+
+body.place-dossier-page .place-dossier-photo:hover img {
+    transform: scale(1.03);
+    filter: saturate(1.05) contrast(1.02);
+}
+
+body.place-dossier-page .place-dossier-actions a {
+    background: #17130f !important;
+    color: #ffffff !important;
+    border-color: #17130f !important;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease !important;
+}
+
+body.place-dossier-page .place-dossier-actions a:hover,
+body.place-dossier-page .place-dossier-actions a:focus-visible {
+    transform: translateY(-4px) scale(1.02);
+    color: #ffffff !important;
+}
+
+/* Route Planner Link */
+body.place-dossier-page .place-dossier-actions a:nth-of-type(1):hover,
+body.place-dossier-page .place-dossier-actions a:nth-of-type(1):focus-visible {
+    background: var(--color-amber) !important;
+    border-color: var(--color-amber) !important;
+    box-shadow: 0 8px 20px rgba(217, 119, 6, 0.32) !important;
+}
+
+/* Food Recommendation Link */
+body.place-dossier-page .place-dossier-actions a:nth-of-type(2):hover,
+body.place-dossier-page .place-dossier-actions a:nth-of-type(2):focus-visible {
+    background: var(--color-rose) !important;
+    border-color: var(--color-rose) !important;
+    box-shadow: 0 8px 20px rgba(219, 39, 119, 0.32) !important;
+}
+
+/* Diaries Link */
+body.place-dossier-page .place-dossier-actions a:nth-of-type(3):hover,
+body.place-dossier-page .place-dossier-actions a:nth-of-type(3):focus-visible {
+    background: var(--color-purple) !important;
+    border-color: var(--color-purple) !important;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.32) !important;
+}
+
+/* Nearby Facilities Link */
+body.place-dossier-page .place-dossier-actions a:nth-of-type(4):hover,
+body.place-dossier-page .place-dossier-actions a:nth-of-type(4):focus-visible {
+    background: var(--color-emerald) !important;
+    border-color: var(--color-emerald) !important;
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.32) !important;
+}
+
+/* 景点详情页数据看板、证明及看点标签等微交互动效 */
+body.place-dossier-page .place-dossier-topbar .nav-link {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease !important;
+}
+body.place-dossier-page .place-dossier-topbar .nav-link:hover {
+    transform: translateY(-1px) scale(1.03);
+}
+
+body.place-dossier-page .place-dossier-photo {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.33, 1);
+}
+body.place-dossier-page .place-dossier-photo:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.place-dossier-page .place-dossier-proof span {
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+body.place-dossier-page .place-dossier-proof span:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.place-dossier-page .place-dossier-scoreboard span {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.3s ease;
+}
+body.place-dossier-page .place-dossier-scoreboard span:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+}
+
+body.place-dossier-page .place-dossier-tags span {
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.25s ease, border-color 0.25s ease;
+}
+body.place-dossier-page .place-dossier-tags span:hover {
+    transform: scale(1.06);
+    border-color: rgba(197, 168, 128, 0.4) !important;
+}
+
+body.place-dossier-page .diary-grid .diary-card {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+}
+body.place-dossier-page .diary-grid .diary-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(124, 58, 237, 0.25) !important;
+    box-shadow: 0 16px 32px rgba(124, 58, 237, 0.05) !important;
+}
+
+/* ==========================================================================
+   3. ROUTE PLANNER (路线规划 - 琥珀金主题)
+   ========================================================================== */
+body.route-map-page .route-tab-btn {
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.33, 1);
+    position: relative;
+}
+
+body.route-map-page .route-tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--color-amber);
+    transition: all 0.4s ease;
+    transform: translateX(-50%);
+}
+
+body.route-map-page .route-tab-btn.active::after {
+    width: 60%;
+}
+
+body.route-map-page .route-tab-btn:hover {
+    color: var(--color-amber) !important;
+    transform: translateY(-2px);
+}
+
+body.route-map-page .explore-card--facility {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+body.route-map-page .explore-card--facility:hover {
+    transform: translateY(-6px);
+    border-color: rgba(217, 119, 6, 0.3) !important;
+    box-shadow:
+        0 16px 30px rgba(217, 119, 6, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.02) !important;
+}
+
+body.route-map-page .explore-card--facility:hover h3 {
+    color: var(--color-amber) !important;
+    transition: color 0.3s ease;
+}
+
+body.route-map-page .explore-card__actions .detail-btn {
+    transition: all 0.3s ease;
+}
+
+body.route-map-page .explore-card__actions .detail-btn:hover {
+    background: var(--color-amber) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+}
+
+/* ==========================================================================
+   4. INDOOR NAVIGATION (室内导航 - 青色主题)
+   ========================================================================== */
+body.indoor-page .indoor-pick-mode button {
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.33, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+body.indoor-page .indoor-pick-mode button:hover {
+    color: var(--color-cyan) !important;
+    border-color: rgba(8, 145, 178, 0.3) !important;
+    background: rgba(8, 145, 178, 0.04) !important;
+}
+
+body.indoor-page .indoor-pick-mode button.is-active {
+    background: var(--color-cyan) !important;
+    color: white !important;
+    border-color: var(--color-cyan) !important;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.25);
+}
+
+body.indoor-page .indoor-step-list li {
+    transition: all 0.3s ease;
+    border-left: 2px solid transparent;
+}
+
+body.indoor-page .indoor-step-list li:hover {
+    border-left-color: var(--color-cyan);
+    background: rgba(8, 145, 178, 0.02);
+    padding-left: 8px;
+}
+
+body.indoor-page .indoor-floor {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.33, 1);
+}
+
+body.indoor-page .indoor-floor:hover {
+    transform: scale(1.003);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.indoor-page .indoor-node-marker {
+    cursor: pointer;
+    outline: none;
+}
+
+body.indoor-page .indoor-node-marker .indoor-node-dot {
+    transition: r 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), fill 0.3s ease;
+}
+
+body.indoor-page .indoor-node-marker:hover .indoor-node-dot {
+    r: 10px;
+    fill: var(--color-cyan) !important;
+}
+
+body.indoor-page .indoor-node-marker:hover .indoor-node-label-card rect {
+    fill: #11141a !important;
+    stroke: var(--color-cyan) !important;
+    stroke-width: 1px;
+}
+
+body.indoor-page .indoor-node-marker:hover .indoor-node-label {
+    fill: #ffffff !important;
+}
+
+/* ==========================================================================
+   5. TRAVEL DIARIES (旅游日记 - 紫色主题)
+   ========================================================================== */
+.diary-card, .glass-card.card--emerald, .glass-card.card--purple {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+}
+
+.diary-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(124, 58, 237, 0.3) !important;
+    box-shadow:
+        0 18px 36px rgba(124, 58, 237, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.02) !important;
+}
+
+.diary-card:hover h3 {
+    color: var(--color-purple) !important;
+    transition: color 0.3s ease;
+}
+
+.comment-node, .chronicle-node {
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.33, 1);
+}
+
+.comment-node:hover, .chronicle-node:hover {
+    transform: translateX(6px);
+}
+
+/* ==========================================================================
+   6. FOOD RECOMMENDATION (美食推荐 - 玫瑰粉主题)
+   ========================================================================== */
+body.food-product-page .food-card {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+}
+
+body.food-product-page .food-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(219, 39, 119, 0.3) !important;
+    box-shadow:
+        0 20px 40px rgba(219, 39, 119, 0.08),
+        0 6px 14px rgba(0, 0, 0, 0.02) !important;
+}
+
+body.food-product-page .food-card:hover h3 {
+    color: var(--color-rose) !important;
+    transition: color 0.3s ease;
+}
+
+body.food-product-page .food-dish {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.food-product-page .food-dish:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 16px rgba(219, 39, 119, 0.12);
+}
+
+body.food-product-page .food-cuisine-pill {
+    transition: all 0.3s ease;
+}
+
+body.food-product-page .food-card:hover .food-cuisine-pill {
+    background: var(--color-rose) !important;
+    color: white !important;
+}
+
+/* ==========================================================================
+   6.1 FOOD DETAIL KINETICS (美食详情 - 交互动效，不改字号与布局)
+   ========================================================================== */
+body.food-detail-open-page .food-detail-panorama img {
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.33, 1), filter 0.8s ease;
+}
+body.food-detail-open-page .food-detail-panorama:hover img {
+    transform: scale(1.02);
+    filter: saturate(1.03) contrast(1.01);
+}
+
+body.food-detail-open-page .food-detail-menu-item {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1) !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body.food-detail-open-page .food-detail-menu-item:hover {
+    transform: translateY(-6px) !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body.food-detail-open-page .food-detail-menu-item img {
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.5s cubic-bezier(0.25, 1, 0.33, 1) !important;
+}
+body.food-detail-open-page .food-detail-menu-item:hover img {
+    transform: scale(1.025);
+    box-shadow: 0 16px 36px rgba(219, 39, 119, 0.16) !important;
+}
+body.food-detail-open-page .food-detail-menu-item h3 {
+    transition: color 0.3s ease !important;
+}
+body.food-detail-open-page .food-detail-menu-item:hover h3 {
+    color: var(--color-rose) !important;
+}
+
+body.food-detail-open-page .food-detail-rail-card {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+    border: 1px solid rgba(219, 39, 119, 0.06) !important;
+}
+body.food-detail-open-page .food-detail-rail-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(219, 39, 119, 0.2) !important;
+    box-shadow: 0 14px 30px rgba(219, 39, 119, 0.05) !important;
+}
+
+body.food-detail-open-page .food-favorite-action {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+body.food-detail-open-page .food-favorite-action:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(219, 39, 119, 0.15) !important;
+}
+body.food-detail-open-page .food-favorite-action span {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5) !important;
+}
+body.food-detail-open-page .food-favorite-action:hover span {
+    transform: rotate(15deg) scale(1.2);
+}
+
+body.food-detail-open-page .food-primary-action,
+body.food-detail-open-page .food-secondary-action {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, filter 0.3s ease !important;
+}
+body.food-detail-open-page .food-primary-action:hover,
+body.food-detail-open-page .food-secondary-action:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(219, 39, 119, 0.2) !important;
+}
+
+body.food-detail-open-page .food-link-list a {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+body.food-detail-open-page .food-link-list a:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-rose) !important;
+    color: white !important;
+    border-color: var(--color-rose) !important;
+    box-shadow: 0 4px 12px rgba(219, 39, 119, 0.2) !important;
+}
+
+/* ==========================================================================
+   7. USER PROFILE (个人中心与公开主页 - 蓝调主题)
+   ========================================================================== */
+.tab-trigger {
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.33, 1);
+    position: relative;
+}
+
+.tab-trigger::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--color-sapphire);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.tab-trigger.active::after {
+    width: 50%;
+}
+
+.tab-trigger:hover {
+    color: var(--color-sapphire) !important;
+    transform: translateY(-1px);
+}
+
+.profile-premium-page .glass-card {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+}
+
+.profile-premium-page .glass-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    box-shadow:
+        0 16px 32px rgba(37, 99, 235, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.02) !important;
+}
+
+.profile-premium-page .profile-food-card {
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+}
+
+.profile-premium-page .profile-food-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    box-shadow:
+        0 16px 32px rgba(37, 99, 235, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* ==========================================================================
+   8. DIARY DETAIL KINETICS (日记详情页 - 仅交互动效，不改字号与布局)
+   ========================================================================== */
+
+/* 页面柔和淡入 */
+body.diary-detail-page {
+    animation: diaryDetailFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes diaryDetailFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 返回按钮 */
+body.diary-detail-page .diary-detail-back {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+body.diary-detail-page .diary-detail-back:hover {
+    transform: translateX(-4px) scale(1.05);
+    opacity: 0.95;
+}
+
+/* 收藏按钮 */
+body.diary-detail-page .diary-favorite-button {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+body.diary-detail-page .diary-favorite-button:hover {
+    transform: translateY(-2px) scale(1.02);
+}
+body.diary-detail-page .diary-favorite-button span {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5) !important;
+}
+body.diary-detail-page .diary-favorite-button:hover span {
+    transform: rotate(15deg) scale(1.2);
+}
+
+/* 评分泡泡 */
+body.diary-detail-page .rating-bubble {
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+body.diary-detail-page .rating-bubble:hover {
+    transform: scale(1.12);
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2) !important;
+}
+
+/* 提交及操作按钮 */
+body.diary-detail-page .rating-submit,
+body.diary-detail-page .diary-video-button,
+body.diary-detail-page .comment-composer button[type="submit"],
+body.diary-detail-page .comment-reply-sheet__actions button[type="submit"] {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, filter 0.3s ease !important;
+}
+body.diary-detail-page .rating-submit:hover:not(:disabled),
+body.diary-detail-page .diary-video-button:hover:not(:disabled),
+body.diary-detail-page .comment-composer button[type="submit"]:hover,
+body.diary-detail-page .comment-reply-sheet__actions button[type="submit"]:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(124, 58, 237, 0.25) !important;
+}
+
+/* 点赞按钮 */
+body.diary-detail-page .comment-like-btn {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.5), color 0.3s ease, background-color 0.3s ease !important;
+}
+body.diary-detail-page .comment-like-btn:hover {
+    transform: scale(1.1);
+}
+body.diary-detail-page .comment-like-btn svg {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.5) !important;
+}
+body.diary-detail-page .comment-like-btn:hover svg {
+    transform: scale(1.15) translateY(-1px);
+}
+
+/* 评论条目滑动及反馈 */
+body.diary-detail-page .comment-entry__content {
+    transition: background-color 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+body.diary-detail-page .comment-entry__content:hover {
+    transform: translateX(4px);
+    background-color: rgba(124, 58, 237, 0.03) !important;
+}
+
+/* 输入框微发光 */
+body.diary-detail-page .comment-composer textarea,
+body.diary-detail-page .comment-reply-sheet textarea {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+body.diary-detail-page .comment-composer textarea:focus,
+body.diary-detail-page .comment-reply-sheet textarea:focus {
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+
+/* 相册翻页按钮 */
+body.diary-detail-page .diary-gallery-nav {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, opacity 0.3s ease !important;
+}
+body.diary-detail-page .diary-gallery-nav:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+body.diary-detail-page .diary-gallery-nav.is-prev:hover {
+    transform: translateY(-50%) scale(1.1) translateX(-2px);
+}
+body.diary-detail-page .diary-gallery-nav.is-next:hover {
+    transform: translateY(-50%) scale(1.1) translateX(2px);
+}
+
+/* 画廊大图缩放 */
+body.diary-detail-page .diary-gallery-item img {
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.33, 1) !important;
+}
+body.diary-detail-page .diary-gallery-item:hover img {
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   ROUTE DETAIL HEADER SIZE UP (路线探索控制栏拓宽、UI及Logo变大)
+   ========================================================================== */
+body.route-map-page.route-v2.explore-page .route-topbar {
+    min-height: 74px !important;
+    height: 74px !important;
+    border-radius: 20px !important;
+}
+
+/* 品牌及Logo变大 */
+body.route-map-page.route-v2.explore-page .route-topbar__brand {
+    gap: 10px !important;
+}
+body.route-map-page.route-v2.explore-page .route-topbar__mark {
+    width: 40px !important;
+    height: 40px !important;
+    flex: 0 0 40px !important;
+    font-size: 1.7rem !important;
+}
+body.route-map-page.route-v2.explore-page .route-topbar__brand-copy {
+    gap: 1px !important;
+}
+body.route-map-page.route-v2.explore-page .route-topbar__brand-copy strong {
+    font-size: 1.22rem !important;
+}
+body.route-map-page.route-v2.explore-page .route-topbar__brand-copy small {
+    font-size: 0.85rem !important;
+}
+
+/* 右侧用户徽章与链接按钮变大 */
+body.route-map-page.route-v2.explore-page .route-topbar-user {
+    gap: 9px !important;
+}
+body.route-map-page.route-v2.explore-page .route-topbar .user-badge,
+body.route-map-page.route-v2.explore-page .route-topbar .nav-link {
+    min-height: 40px !important;
+    padding: 0 16px !important;
+    font-size: 0.88rem !important;
+}
+
+/* 路线规划地图工作区高度相应减小，保持刚好填满屏幕而不超出 */
+body.route-map-page.route-v2.explore-page .route-workspace-v2 {
+    height: calc(100vh - 96px) !important;
+}
+
+/* ==========================================================================
+   4.1 INDOOR NAVIGATION LOGO & INTERACTION POLISH
+   ========================================================================== */
+
+/* 1. 室内导航 Logo 样式更新 (保持 54x54px，去框并仅保留 Logo) */
+body.indoor-page:not(.indoor-collector-page) .indoor-logo-mark {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 2.2rem !important;
+    line-height: 1 !important;
+    display: inline-grid !important;
+    place-items: center !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-logo-mark::before,
+body.indoor-page:not(.indoor-collector-page) .indoor-logo-mark::after,
+body.indoor-page:not(.indoor-collector-page) .indoor-logo-mark i {
+    display: none !important;
+    content: none !important;
+}
+
+/* 2. "返回主页" 悬停时颜色冲突修复 */
+body.indoor-page:not(.indoor-collector-page) .indoor-console__dock .indoor-home-pill:hover,
+body.indoor-page:not(.indoor-collector-page) .indoor-console__dock .indoor-home-pill:focus-visible {
+    background-color: var(--color-cyan) !important;
+    color: #ffffff !important;
+    border-color: var(--color-cyan) !important;
+}
+
+/* 3. 悬停/选择当前节点时文字颜色变白修复 */
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover text.indoor-node-label,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible text.indoor-node-label {
+    fill: #ffffff !important;
+}
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover .indoor-node-label-card rect,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible .indoor-node-label-card rect {
+    fill: #11141a !important;
+    stroke: var(--color-cyan) !important;
+    stroke-width: 1px !important;
+}
+
+/* 收藏按钮移到标签行后的尺寸和对齐优化 */
+body.place-dossier-page .place-dossier-tags .place-favorite-action {
+    min-height: 42px !important;
+    padding: 0 20px !important;
+}
+
+/* 4. 室内导航地图标签显示优化：默认隐藏以减少视觉噪音，悬停/路线节点时优雅放大 */
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker .indoor-node-label-card {
+    opacity: 0 !important;
+    transform: scale(0.85) !important;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-path-node .indoor-node-label-card,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-start .indoor-node-label-card,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-end .indoor-node-label-card,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-elevator .indoor-node-label-card,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker.is-stairs .indoor-node-label-card {
+    opacity: 1 !important;
+    transform: scale(1.05) !important;
+}
+
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:hover .indoor-node-label-card,
+body.indoor-page:not(.indoor-collector-page) .indoor-node-marker:focus-visible .indoor-node-label-card {
+    opacity: 1 !important;
+    transform: scale(1.25) !important;
+    z-index: 100 !important;
+}
+
+/* ==========================================================================
+   ROUTE MAP MARKERS & LABELS MINIMALIST DESIGN (极简线条风与香槟金/琥珀金配色)
+   ========================================================================== */
+
+/* 1. 路线规划点 (Route Point Marker) 容器透明 */
+body.route-map-page.route-v2.explore-page .route-point-map-marker {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 极简路线点小圆圈 */
+body.route-map-page.route-v2.explore-page .route-point-map-dot {
+    width: 14px !important;
+    height: 14px !important;
+    border: 2px solid var(--color-amber) !important; /* 琥珀金边 */
+    background: #ffffff !important; /* 纯白内芯 */
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25) !important;
+}
+
+/* 不同类别的路线点小圆点边缘微调 */
+body.route-map-page.route-v2.explore-page .route-point-map-marker.is-gate .route-point-map-dot {
+    border-color: #d97706 !important;
+}
+body.route-map-page.route-v2.explore-page .route-point-map-marker.is-selected .route-point-map-dot {
+    border-color: var(--color-amber) !important;
+    transform: translate(-50%, -50%) scale(1.15) !important;
+    border-width: 3px !important;
+}
+
+/* 路线规划点文字气泡标签 */
+body.route-map-page.route-v2.explore-page .route-point-map-label {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(197, 168, 128, 0.35) !important; /* 极细拉丝金边 */
+    color: #1f2026 !important; /* 优雅深灰字 */
+    font-family: var(--font-display-sans) !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important; /* 经典直角微圆弧 */
+    box-shadow: 0 4px 12px rgba(197, 168, 128, 0.08) !important;
+    padding: 4px 8px !important;
+}
+
+/* 2. 场所查询点 (Facility Marker) 容器透明 */
+body.route-map-page.route-v2.explore-page .facility-map-marker {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 极简场所点小圆圈 */
+body.route-map-page.route-v2.explore-page .facility-map-dot {
+    width: 10px !important;
+    height: 10px !important;
+    border: 2px solid var(--lux-gold) !important; /* 奢华香槟金边 */
+    background: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(197, 168, 128, 0.2) !important;
+}
+
+/* 场所点双行文字气泡标签 */
+body.route-map-page.route-v2.explore-page .facility-map-label {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1px solid rgba(197, 168, 128, 0.35) !important;
+    color: #1f2026 !important;
+    font-family: var(--font-display-sans) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(197, 168, 128, 0.08) !important;
+    padding: 5px 9px !important;
+}
+body.route-map-page.route-v2.explore-page .facility-map-label strong {
+    color: #1f2026 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+body.route-map-page.route-v2.explore-page .facility-map-label small {
+    color: #7f838e !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    margin-top: 1px !important;
+}
+
+/* 3. 规划状态徽章微调 (例如 "始", "终", 途经点数字) */
+body.route-map-page.route-v2.explore-page .route-target-number {
+    border-radius: 50% !important;
+    background: var(--color-amber) !important;
+    color: #ffffff !important;
+    font-family: var(--font-display-sans) !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    border: 1.5px solid #ffffff !important;
+    box-shadow: 0 3px 8px rgba(217, 119, 6, 0.35) !important;
+}
+body.route-map-page.route-v2.explore-page .route-target-number.is-start {
+    background: #d97706 !important; /* 起点用琥珀金 */
+}
+body.route-map-page.route-v2.explore-page .route-target-number.is-end {
+    background: #1f2026 !important; /* 终点用黑色常驻，高对比度且稳重 */
+    box-shadow: 0 3px 8px rgba(31, 32, 38, 0.3) !important;
+}
+body.route-map-page.route-v2.explore-page .route-target-number.is-waypoint {
+    background: #d97706 !important;
+}
+body.route-map-page.route-v2.explore-page .route-target-number span {
+    font-size: 0.8rem !important;
+    font-weight: 900 !important;
+}

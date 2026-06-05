@@ -127,15 +127,16 @@ function init3DAstrolabe() {
     let isSpinning = false;
     let spinStart = 0;
     let lastMoveTime = Date.now();
+    let bubbleTimeoutId = null;
 
     const quotes = [
-        "🧭 寻找您的专属旅行灵感中...",
-        "🧭 探索未知，见所未见。",
-        "🧭 行者无疆，始于足下。",
-        "🧭 开启您的尊贵定制航线～",
-        "🧭 读万卷书，行万里路。",
-        "🧭 愿每次出发，都有温暖相伴。",
-        "🧭 听从内心的罗盘，即刻启程！"
+        "🧭 正在寻找今天的小灵感... (〃'▽'〃)",
+        "🧭 往没去过的地方看一眼！(*^▽^*)",
+        "🧭 先迈一步，路线就会长出来～ (๑•̀ㅂ•́)و✧",
+        "🧭 小路线准备中，马上出发！(｀・ω・´)",
+        "🧭 地图翻一翻，惊喜也许就在旁边。╰(*°▽°*)╯",
+        "🧭 今天也会有温暖的路标。(oﾟ▽ﾟ)o",
+        "🧭 跟着心里的罗盘走走看！(｡♥‿♥｡)"
     ];
 
     // 动态创建气泡
@@ -186,9 +187,14 @@ function init3DAstrolabe() {
         bubble.innerText = randomQuote;
         bubble.classList.add("show");
 
-        setTimeout(() => {
+        if (bubbleTimeoutId) {
+            clearTimeout(bubbleTimeoutId);
+        }
+
+        bubbleTimeoutId = setTimeout(() => {
             bubble.classList.remove("show");
-        }, 1800);
+            bubbleTimeoutId = null;
+        }, 3000);
     });
 
     function updateCompass(now) {
@@ -294,7 +300,7 @@ function initTabSystem() {
                 activeContent.classList.add("active");
 
                 // 重置并触发内容卡片的 Stagger 延迟淡入动画
-                const cards = activeContent.querySelectorAll(".glass-card, .profile-food-card, .chronicle-node");
+                const cards = activeContent.querySelectorAll(".glass-card, .profile-food-card, .profile-place-card, .chronicle-node");
                 cards.forEach((card, i) => {
                     card.style.animation = "none";
                     void card.offsetHeight; // 强制浏览器重绘以重新触发关键帧动画
@@ -304,6 +310,47 @@ function initTabSystem() {
             }
         });
     });
+
+    // 绑定顶部 Vial 数据统计卡片的点击切换 Tab 功能
+    const vialMyDiaries = document.getElementById("stat-published-diaries");
+    const vialComments = document.getElementById("stat-total-comments");
+    const vialFavorites = document.getElementById("stat-total-favorites");
+    const vialViews = document.getElementById("stat-total-views");
+
+    if (vialMyDiaries) {
+        vialMyDiaries.addEventListener("click", () => {
+            const trigger = document.getElementById("tab-btn-my-diaries");
+            if (trigger) trigger.click();
+        });
+    }
+    if (vialComments) {
+        vialComments.addEventListener("click", () => {
+            const trigger = document.getElementById("tab-btn-chronicle");
+            if (trigger) trigger.click();
+        });
+    }
+    if (vialFavorites) {
+        vialFavorites.addEventListener("click", () => {
+            const trigger = document.getElementById("tab-btn-favorite-places") || document.getElementById("tab-btn-starred-diaries");
+            if (trigger) trigger.click();
+        });
+    }
+    if (vialViews) {
+        vialViews.addEventListener("click", () => {
+            const trigger = document.getElementById("tab-btn-my-diaries");
+            if (trigger) trigger.click();
+        });
+    }
+
+    // 解析 URL 参数以自动激活指定 tab
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTab = urlParams.get("tab");
+    if (targetTab) {
+        const targetTrigger = document.querySelector(`.tab-trigger[data-tab="${targetTab}"]`);
+        if (targetTrigger) {
+            targetTrigger.click();
+        }
+    }
 }
 
 /**

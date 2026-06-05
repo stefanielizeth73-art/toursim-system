@@ -12,6 +12,8 @@ class PlacesRouteServices:
     get_place_filter_options: object
     get_related_diaries_for_place: object
     get_top_k_recommendations: object
+    get_logged_in_user: object
+    is_item_favorited: object
     is_logged_in: object
     load_diaries: object
     load_places: object
@@ -20,6 +22,7 @@ class PlacesRouteServices:
     places_page_size: object
     save_place_image_record: object
     save_uploaded_place_cover: object
+    toggle_user_favorite: object
 
 
 def create_places_blueprint(services):
@@ -120,13 +123,54 @@ def create_places_blueprint(services):
             services.load_diaries(sort_by="hot_rating_desc"),
             limit=6,
         )
+        current_user = services.get_logged_in_user()
+        tag_collections = [
+            {
+                "tag": tag,
+                "search_url": url_for("places", preferred_tags=tag),
+            }
+            for tag in place.get("tags_list", [])
+        ]
 
         return render_template(
             "place_detail.html",
             username=session["username"],
             place=place,
             related_diaries=related_diaries,
+            place_favorited=services.is_item_favorited(current_user["id"], "place", place_id) if current_user else False,
+            tag_collections=tag_collections,
         )
+
+    @bp.route("/place/<int:place_id>/favorite", methods=["POST"])
+    def place_favorite(place_id):
+        if not services.is_logged_in():
+            flash("请先登录")
+            return redirect(url_for("login"))
+
+        current_user = services.get_logged_in_user()
+        place = services.get_place_by_id(place_id)
+        if current_user is None or place is None:
+            flash("没有找到这个地点")
+            return redirect(url_for("places"))
+
+        favorited = services.toggle_user_favorite(
+            current_user["id"],
+            "place",
+            place_id,
+            title=place.get("name", ""),
+            subtitle=f"{place.get('city', '')} · {place.get('type', '')} · 评分 {place.get('rating', 0)}",
+            meta={
+                "city": place.get("city", ""),
+                "type": place.get("type", ""),
+                "rating": place.get("rating", 0),
+                "popularity": place.get("popularity", 0),
+                "tags": place.get("tags", ""),
+                "tags_list": place.get("tags_list", []),
+                "cover_image": place.get("cover_image", ""),
+            },
+        )
+        flash("已收藏这个地点" if favorited else "已取消收藏")
+        return redirect(url_for("place_detail", place_id=place_id))
 
     @bp.route("/place/<int:place_id>/image/upload", methods=["POST"])
     def upload_place_image(place_id):

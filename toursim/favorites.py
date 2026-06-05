@@ -11,6 +11,7 @@ class FavoriteServices:
     get_db_connection: object
     get_diary_by_id: object
     get_food_by_key: object
+    get_place_by_id: object
     load_diaries: object
 
 
@@ -38,6 +39,10 @@ def get_diary_by_id(*args, **kwargs):
 
 def get_food_by_key(*args, **kwargs):
     return _require_services().get_food_by_key(*args, **kwargs)
+
+
+def get_place_by_id(*args, **kwargs):
+    return _require_services().get_place_by_id(*args, **kwargs)
 
 
 def load_diaries(*args, **kwargs):
@@ -151,6 +156,36 @@ def load_favorite_foods(user_id, limit=None):
         foods.append(food)
     return foods
 
+def load_favorite_places(user_id, limit=None):
+    favorites = load_user_favorites(user_id, "place", limit=limit)
+    places = []
+    for favorite in favorites:
+        try:
+            place_id = int(favorite["item_key"])
+        except (TypeError, ValueError):
+            continue
+
+        meta = favorite.get("meta", {})
+        place = get_place_by_id(place_id)
+        if place is None:
+            place = {
+                "id": place_id,
+                "name": favorite.get("title") or "已收藏景点",
+                "city": meta.get("city", ""),
+                "type": meta.get("type", ""),
+                "rating": meta.get("rating", 0),
+                "popularity": meta.get("popularity", 0),
+                "tags": meta.get("tags", ""),
+                "tags_list": meta.get("tags_list", []),
+                "description": favorite.get("subtitle") or "这个地点的数据暂时没有加载。",
+                "cover_image": meta.get("cover_image", ""),
+                "missing": True,
+            }
+        place = dict(place)
+        place["favorite_created_at"] = favorite["created_at"]
+        places.append(place)
+    return places
+
 def load_user_diaries(username, limit=None):
     user_diaries = [diary for diary in load_diaries(sort_by="created_desc") if diary.get("author") == username]
     return user_diaries[:limit] if limit else user_diaries
@@ -168,6 +203,8 @@ def get_user_activity_stats(user):
     favorite_diary_count = cursor.fetchone()[0]
     cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ? AND item_type = 'food'", (user["id"],))
     favorite_food_count = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM user_favorites WHERE user_id = ? AND item_type = 'place'", (user["id"],))
+    favorite_place_count = cursor.fetchone()[0]
     conn.close()
     total_views = sum(int(diary.get("views", 0)) for diary in own_diaries)
     rated_diaries = [diary for diary in own_diaries if diary.get("avg_rating", 0)]
@@ -178,6 +215,7 @@ def get_user_activity_stats(user):
         "favorite_count": favorite_count,
         "favorite_diary_count": favorite_diary_count,
         "favorite_food_count": favorite_food_count,
+        "favorite_place_count": favorite_place_count,
         "total_views": total_views,
         "avg_rating": avg_rating,
     }

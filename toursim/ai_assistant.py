@@ -210,11 +210,11 @@ def ai_human_food_summary(result, original_text="", intent=None):
             opener = "可以，我先按校园里比较稳的选择帮你筛了一轮。"
         names = [card.get("title", "") for card in cards[:3] if card.get("title")]
         if names:
-            return f"{opener} 我查了系统里的美食数据，先看这几个：{'、'.join(names)}。想少走路的话，可以点卡片进详情或直接打开美食推荐。"
-        return f"{opener} 我查了系统里的美食数据，下面这些可以先看。"
+            return f"{opener} 我翻了美食列表，先看这几个：{'、'.join(names)}。想少走路的话，可以点卡片进详情或直接打开美食推荐。"
+        return f"{opener} 我翻了美食列表，下面这些可以先看。"
     if notes:
         return "我按你的偏好查了一轮，但条件太窄没有直接命中。我建议先放宽到食堂和餐厅范围，再按距离或评分挑。"
-    return "我查了一轮系统数据，暂时没有直接命中的结果。你可以告诉我预算、当前位置，或者想吃食堂/咖啡/超市，我再帮你缩小范围。"
+    return "我查了一轮，暂时没有直接命中的结果。你可以告诉我预算、当前位置，或者想吃食堂/咖啡/超市，我再帮你缩小范围。"
 
 def ai_normalize_limit(value, default=5, max_limit=8):
     try:
@@ -569,12 +569,12 @@ def ai_detect_system_module(text):
 def ai_generic_local_answer(text):
     raw_text = str(text or "").strip()
     if any(word in raw_text for word in ("你好", "嗨", "hello", "Hello", "hi", "Hi")):
-        return "你好呀，我在。你可以把我当成通用聊天助手来用，想闲聊、问问题、整理想法都可以；如果你说到校园美食、路线规划、室内导航、游记攻略这些关键词，我再去联动系统里的数据。"
+        return "你好呀，我在。想闲聊、问问题、整理想法都可以；如果你聊到校园美食、路线规划、室内导航或游记攻略，我再顺手翻 TourSim 里的资料。"
     if "清淡" in raw_text:
         return "听起来你现在想要清淡一点的选择。我可以先像普通助手一样帮你想口味和搭配；如果你想让我查 TourSim 里的校园美食数据，可以直接说“帮我查校园美食推荐，想吃清淡点”。"
     if any(word in raw_text for word in ("饿", "吃", "饭")):
-        return "饿了先别硬扛。你可以告诉我想吃清淡、热乎、便宜还是近一点；如果要我调用系统推荐，就加上“校园美食”或“食堂”这类关键词。"
-    return "我在，可以直接聊。普通问题我按通用助手来回答；只有你明确提到校园美食、路线规划、室内导航、游记攻略等关键词时，我才会去调用 TourSim 的系统模块。"
+        return "饿了先别硬扛。你可以告诉我想吃清淡、热乎、便宜还是近一点；要查 TourSim 里的推荐，直接说“校园美食”或“食堂”就行。"
+    return "我在，可以直接聊。普通问题我直接回答；如果你聊到校园美食、路线规划、室内导航或游记攻略，我会去翻 TourSim 里的资料。"
 
 def ai_json_from_text(text):
     raw_text = str(text or "").strip()
@@ -1088,7 +1088,7 @@ def ai_build_model_prompt(message, page_context, local_payload, history=None):
         "actions": local_payload.get("actions", [])[:4],
     }
     base["instruction"] = (
-        "你是 TourSim 里的通用 AI 助手。你已经根据用户语义判断需要结合系统数据，"
+        "你是 TourSim 里的通用 AI 助手。你已经根据用户语义判断需要结合本地数据，"
         "并拿到了 RAG 检索结果 local_tool_context。"
         "回答前参考 memory.recent_messages、memory.last_cards 和 memory.last_actions，理解用户是否在追问上一轮结果。"
         "先像人一样回应用户当前需求，再把检索到的地点、美食、路线、室内导航或游记自然融入建议。"
@@ -1143,7 +1143,7 @@ def ai_executable_route_answer(local_payload):
         start = ai_route_node_name_from_id(graph, params.get("start"))
         end = ai_route_node_name_from_id(graph, params.get("end"))
         if start and end:
-            return f"可以，这次我已经按系统路网算的是「{start}」到「{end}」。点下面的「自动规划并高亮路线」，就会把这条路线直接交给地图显示。"
+            return f"可以，这次已经按路网算好「{start}」到「{end}」。点下面的「自动规划并高亮路线」，地图就会把这条路线亮出来。"
     return ""
 
 def ai_store_chat_message(user_id, conversation_id, role, content, tool_calls=None):

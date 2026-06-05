@@ -226,56 +226,8 @@ def update_diary_media(diary_id, media_items):
     conn.close()
     invalidate_diary_index_cache()
 
-def update_diary_dev_fields(diary_id, title, destination, content, media_items, compression_algorithm="huffman"):
-    ensure_diaries_table()
-    compression_package, original_length, compressed_length = compress_diary_text(content, compression_algorithm)
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        UPDATE diaries
-        SET title = ?,
-            destination = ?,
-            content = ?,
-            media_json = ?,
-            compressed_content = ?,
-            compression_algorithm = ?,
-            compression_original_length = ?,
-            compression_compressed_length = ?
-        WHERE id = ?
-        """,
-        (
-            title,
-            destination,
-            content,
-            json.dumps(media_items or [], ensure_ascii=False),
-            json.dumps(compression_package, ensure_ascii=False),
-            compression_package["algorithm"],
-            original_length,
-            compressed_length,
-            diary_id,
-        )
-    )
-    conn.commit()
-    conn.close()
-    invalidate_diary_index_cache()
-
 def stored_diary_media_items(diary):
     return parse_diary_package(diary.get("media_json")) or []
-
-def remove_diary_media_files(diary_id, filenames):
-    media_folder = os.path.abspath(diary_media_folder(diary_id))
-    for filename in filenames:
-        safe_filename = os.path.basename(filename or "")
-        if not safe_filename:
-            continue
-        file_path = os.path.abspath(os.path.join(media_folder, safe_filename))
-        if os.path.dirname(file_path) != media_folder:
-            continue
-        try:
-            os.remove(file_path)
-        except FileNotFoundError:
-            pass
 
 def get_diary_by_id(diary_id, increase_views=False):
     ensure_diaries_table()

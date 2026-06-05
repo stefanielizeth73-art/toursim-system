@@ -1,0 +1,43 @@
+{% for diary in feed_diaries %}
+<a class="diary-post js-diary-entry {% if not diary.cover_media %}is-text-only{% endif %}" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+    <div class="diary-post__cover">
+        {% if diary.cover_media %}
+            {% if diary.cover_media.kind == 'image' %}
+            {% set cover_src = diary.cover_media.thumbnail_url or diary.cover_media.url %}
+            {% if loop.index <= eager_limit %}
+            <img src="{{ cover_src }}" style="{% if diary.cover_media.blur_base64 %}background: url('{{ diary.cover_media.blur_base64 }}') no-repeat center center; background-size: cover;{% endif %}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="{% if loop.index <= 2 %}eager{% else %}lazy{% endif %}" decoding="async" fetchpriority="{% if loop.index <= 2 %}high{% else %}low{% endif %}">
+            {% else %}
+            <img src="{{ diary.cover_media.blur_base64 or 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 4 5\'%3E%3C/svg%3E' }}" data-diary-lazy-src="{{ cover_src }}" alt="{{ diary.cover_media.original_name }}" width="{{ diary.cover_media.width or 1200 }}" height="{{ diary.cover_media.height or 900 }}" loading="lazy" decoding="async" fetchpriority="low">
+            {% endif %}
+            {% elif diary.cover_media.kind == 'video' %}
+            {% if loop.index <= eager_limit %}
+            <video muted playsinline preload="metadata" src="{{ diary.cover_media.url }}"></video>
+            {% else %}
+            <video muted playsinline preload="none" data-diary-lazy-video="{{ diary.cover_media.url }}"></video>
+            {% endif %}
+            <span class="media-badge">视频</span>
+            {% else %}
+            <div class="cover-placeholder"><span>媒体附件</span><strong>{{ diary.title }}</strong></div>
+            {% endif %}
+        {% else %}
+        <div class="cover-text-card">
+            <strong class="cover-text-card__summary">{{ diary.cover_summary }}</strong>
+        </div>
+        {% endif %}
+    </div>
+    <div class="diary-post__body">
+        <h3>{{ diary.title }}</h3>
+        {% if show_diary_metrics %}
+        <div class="diary-post__metrics">
+            <span>浏览 {{ diary.views }}</span>
+            <span>评分 {{ diary.avg_rating }}</span>
+            <span>{{ diary.destination }}</span>
+        </div>
+        {% endif %}
+        <div class="diary-post__footer">
+            <div class="diary-post__author"><span class="diary-post__author-name">{{ diary.author }}</span></div>
+            <div class="diary-post__rating">★ {{ diary.avg_rating }}</div>
+        </div>
+    </div>
+</a>
+{% endfor %}

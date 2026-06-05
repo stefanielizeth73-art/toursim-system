@@ -79,6 +79,7 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </a>
+                <span class="diary-brand-mark" aria-hidden="true">📝</span>
                 <div class="diary-detail-brand__copy">
                     <div class="diary-detail-brand__eyebrow">Campus Travel Journal</div>
                     <h1>日记详情</h1>
@@ -124,8 +125,6 @@
                         </form>
                     </div>
                 </details>
-                <a class="diary-topbar-link diary-dev-edit-link"
-                    href="{{ url_for('diary_dev_edit', diary_id=diary.id) }}">临时编辑</a>
                 <a class="diary-topbar-link" href="{{ url_for('profile') }}">个人中心</a>
                 <a class="diary-topbar-link" href="{{ url_for('home') }}">返回主页</a>
             </div>

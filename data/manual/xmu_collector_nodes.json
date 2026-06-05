@@ -2017,22 +2017,6 @@
       ]
     },
     {
-      "amap_lat": 24.609936,
-      "amap_lng": 118.318058,
-      "category": "食堂",
-      "id": "route_point_昕昕饭店_136",
-      "kind": "canteen",
-      "lat": 24.609936,
-      "lon": 118.318058,
-      "name": "昕昕饭店",
-      "role": "route_point",
-      "selectable": true,
-      "source": "manual_collector_node",
-      "tags": [
-        "食堂"
-      ]
-    },
-    {
       "amap_lat": 24.609241,
       "amap_lng": 118.315998,
       "category": "服务点",

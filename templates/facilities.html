@@ -11,9 +11,9 @@
 </head>
 <body>
     <div class="topbar">
-        <div>个性化旅游系统 - 场所查询</div>
+        <div>TourSim - 场所查询</div>
         <div>
-            当前用户：{{ username }}
+            Hi，{{ username }}
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
             <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="container large-container">
-        <h2>附近场所查询</h2>
+        <h2>看看附近有什么</h2>
         <p class="subtitle">从选定路线点出发，使用自建道路图上的 Dijkstra 距离排序，不使用直线距离。</p>
 
         <form method="get" class="filter-form facilities-filter-form">
@@ -55,9 +55,9 @@
 
         <div class="result-info">
             {% if start_node %}
-                共找到 {{ facilities|length }} 条结果，已按道路最短距离升序排列。
+                找到 {{ facilities|length }} 条结果，已按道路最短距离升序排列。
             {% else %}
-                请选择一个起点后再查询场所。
+                先选一个起点，再看看附近有哪些场所。
             {% endif %}
         </div>
 
@@ -90,7 +90,7 @@
                 <tr>
                     <td colspan="8">
                         {% if start_node %}
-                            暂无可达场所。请先在 /route?collect=1 中采集路线点、道路、吸附连接和场所。
+                            暂时没有可达场所。可以换个起点，或先补充路线点、道路和场所数据。
                         {% else %}
                             请选择一个起点后再查看附近场所。
                         {% endif %}

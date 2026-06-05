@@ -308,6 +308,7 @@
     overflow: hidden;
     transition: all 0.4s var(--bezier-smooth);
     min-height: 110px;
+    cursor: pointer;
 }
 
 .profile-stats-horizon .lux-stat-vial::before {
@@ -881,6 +882,146 @@
    FOOTPRINT ECHOES TIMELINE CHRONICLE (足迹回音编年史时间线)
    ========================================================================== */
 
+.profile-place-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.profile-place-toolbar p {
+    max-width: 42ch;
+    margin: 0;
+    color: var(--lux-slate-muted);
+    font-size: 0.82rem;
+}
+
+.profile-place-search {
+    min-width: min(320px, 100%);
+    display: grid;
+    gap: 6px;
+}
+
+.profile-place-search span {
+    color: var(--lux-slate-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.profile-place-search input {
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(31, 34, 42, 0.1);
+    border-radius: 999px;
+    color: var(--lux-charcoal);
+    background: rgba(255, 255, 255, 0.72);
+    font: inherit;
+    font-size: 0.86rem;
+    outline: none;
+    transition: border-color 180ms ease, background 180ms ease;
+}
+
+.profile-place-search input:focus {
+    border-color: rgba(184, 147, 92, 0.55);
+    background: #fffaf2;
+}
+
+.profile-place-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.profile-place-card {
+    min-height: 176px;
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid rgba(31, 34, 42, 0.08);
+    border-radius: 16px;
+    color: var(--lux-charcoal);
+    background: rgba(255, 255, 255, 0.58);
+    text-decoration: none;
+    box-shadow: 0 16px 42px rgba(31, 34, 42, 0.06);
+    transition: transform 220ms cubic-bezier(.2,.8,.2,1), border-color 180ms ease, background 180ms ease;
+}
+
+.profile-place-card:hover,
+.profile-place-card:focus-visible {
+    border-color: rgba(184, 147, 92, 0.35);
+    background: #fffaf2;
+    outline: none;
+    transform: translateY(-3px);
+}
+
+.profile-place-card__image {
+    position: relative;
+    min-height: 176px;
+    background: linear-gradient(135deg, #14171f, #2a2e38);
+}
+
+.profile-place-card__image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 260ms ease;
+}
+
+.profile-place-card:hover .profile-place-card__image img,
+.profile-place-card:focus-visible .profile-place-card__image img {
+    transform: scale(1.035);
+}
+
+.profile-place-card__image span {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #f8efe1;
+    font-size: 1.8rem;
+    font-weight: 900;
+}
+
+.profile-place-card__body {
+    min-width: 0;
+    display: grid;
+    align-content: center;
+    gap: 7px;
+    padding: 16px;
+}
+
+.profile-place-card__body strong {
+    color: var(--lux-charcoal);
+    font-size: 1.08rem;
+    line-height: 1.2;
+}
+
+.profile-place-card__body span,
+.profile-place-card__body em {
+    color: var(--lux-slate-muted);
+    font-size: 0.78rem;
+    font-style: normal;
+}
+
+.profile-place-card__body p {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: rgba(31, 34, 42, 0.68);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.profile-place-empty[hidden],
+.profile-place-card[hidden] {
+    display: none;
+}
+
 .profile-chronicle {
     position: relative;
     padding-left: 28px;
@@ -989,15 +1130,32 @@
         grid-template-columns: 1fr;
     }
 
+    .profile-place-grid {
+        grid-template-columns: 1fr;
+    }
+
     .profile-food-card {
         flex-direction: column;
         gap: 12px;
+    }
+
+    .profile-place-card {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-place-toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .profile-food-card .food-img-frame {
         flex: 1 0 auto;
         height: 180px;
         width: 100%;
+    }
+
+    .profile-place-card__image {
+        min-height: 210px;
     }
 
     .profile-stats-horizon {

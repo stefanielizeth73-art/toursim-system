@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
 
     <!-- 引入个人中心专属高阶奢华样式表 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+    <link class="lux-int-ref" rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
 
     <!-- 延迟加载动效脚本 -->
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
@@ -56,7 +57,7 @@
                     <h1 class="lux-greeting-title" id="greeting-text">
                         <strong>{{ profile_user.username }}</strong>
                     </h1>
-                    <p class="subtitle">这里展示该用户公开发布的旅行日记和互动数据。</p>
+                    <p class="subtitle">这里能看到这位用户公开发布的日记和互动记录。</p>
                 </section>
             </div>
 
@@ -132,7 +133,7 @@
             <header class="lux-stage-header">
                 <span class="lux-stage-kicker">公开主页</span>
                 <h1 class="lux-stage-title">{{ profile_user.username }} 的公开主页</h1>
-                <p class="subtitle">查看该用户公开发布的日记、浏览量和评论数据。</p>
+                <p class="subtitle">看看这位用户写过哪些日记，以及大家的互动。</p>
             </header>
 
             <!-- 水平高级数据统计星轨 (Vial Stats Rack) -->
@@ -160,7 +161,7 @@
                 <section class="glass-panel glass-panel--wide" id="lux-panel-published-diaries" aria-labelledby="heading-published-diaries">
                     <div class="glass-panel-head">
                         <h2 id="heading-published-diaries">公开发布的日记</h2>
-                        <p>按发布时间展示。点击卡片可以进入日记详情页查看、评论或收藏。</p>
+                        <p>按发布时间展示，点开就能阅读、评论或收藏。</p>
                     </div>
 
                     {% if user_diaries %}
@@ -174,7 +175,7 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="profile-empty">这位用户还没有发布公开旅游日记。</div>
+                    <div class="profile-empty">这位用户还没有发布公开日记。</div>
                     {% endif %}
                 </section>
             </div>

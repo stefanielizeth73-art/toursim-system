@@ -105,6 +105,9 @@
         const nodes = graph.nodes || [];
         const edges = graph.edges || [];
         const facilities = data.facilities || [];
+        const pinnedFacility = data.pinnedFacility || null;
+        const facilityQuery = data.facilityQuery || {};
+        const queryFacilityResults = data.facilityResults || [];
 
         function nodeLngLat(node) {
             if (node.amap_lng != null && node.amap_lat != null) {
@@ -978,6 +981,44 @@
         enhanceEndpointSearch(endSelect, "end");
         refreshEndpointSearchControls();
 
+        const facilityStartSearch = document.getElementById("facilityStartSearch");
+        const facilityStartSelect = document.getElementById("facilityStartNode");
+        function filterFacilityStartOptions() {
+            if (!facilityStartSearch || !facilityStartSelect) {
+                return [];
+            }
+            const query = facilityStartSearch.value.trim().toLowerCase();
+            const matches = [];
+            Array.from(facilityStartSelect.options).forEach(function (option) {
+                if (!option.value) {
+                    option.hidden = false;
+                    return;
+                }
+                const haystack = `${option.textContent || ""} ${option.dataset.search || ""}`.toLowerCase();
+                const matched = !query || haystack.includes(query);
+                option.hidden = !matched;
+                if (matched) {
+                    matches.push(option);
+                }
+            });
+            return matches;
+        }
+        if (facilityStartSearch && facilityStartSelect) {
+            facilityStartSearch.addEventListener("input", filterFacilityStartOptions);
+            facilityStartSearch.addEventListener("keydown", function (event) {
+                if (event.key !== "Enter") {
+                    return;
+                }
+                const matches = filterFacilityStartOptions();
+                if (!matches.length) {
+                    return;
+                }
+                event.preventDefault();
+                facilityStartSelect.value = matches[0].value;
+                facilityStartSelect.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+        }
+
         document.addEventListener("click", function (event) {
             endpointSearchControls.forEach(function (control) {
                 if (!control.root.contains(event.target)) {
@@ -1283,10 +1324,26 @@
         map.on("moveend", schedulePlanningMarkerRedraw);
 
         const facilityMarkers = [];
-        let facilityLayerVisible = false;
+        const pinnedFacilityMarkers = [];
+        const facilityQueryStartMarkers = [];
+        const facilityEntryStartMarkers = [];
+        const facilityEntryHintMarkers = [];
+        let facilityLayerVisible = Boolean(facilityQuery.active && queryFacilityResults.length);
+        let facilityQueryFitPending = Boolean(facilityQuery.active);
+        function isPinnedFacility(facility) {
+            return Boolean(
+                pinnedFacility
+                && facility
+                && String(facility.id || "") === String(pinnedFacility.id || "")
+            );
+        }
+
         function shouldShowFacilityMarker(facility, position) {
             if (!position) {
                 return false;
+            }
+            if (facilityQuery.active) {
+                return true;
             }
             if (map.getZoom() < 18.4) {
                 return false;
@@ -1300,7 +1357,11 @@
                 return;
             }
             removeOverlayList(facilityMarkers);
-            facilities.forEach(function (facility) {
+            const sourceFacilities = facilityQuery.active && queryFacilityResults.length ? queryFacilityResults : facilities;
+            sourceFacilities.forEach(function (facility) {
+                if (isPinnedFacility(facility)) {
+                    return;
+                }
                 const position = facilityLngLat(facility);
                 if (!shouldShowFacilityMarker(facility, position)) {
                     return;
@@ -1322,28 +1383,148 @@
                 facilityMarkers.push(new AMap.Marker({
                     position,
                     title: displayName,
-                    content: facilityMarkerContent(facility, `route-facility-marker ${mapZoomTierClass()}`),
+                    content: facilityMarkerContent(facility, `route-facility-marker ${facilityQuery.active ? "is-query-result" : ""} ${mapZoomTierClass()}`),
                     anchor: "center",
-                    zIndex: 84
+                    zIndex: facilityQuery.active ? 94 : 84
                 }));
             });
             if (facilityMarkers.length) {
                 map.add(facilityMarkers);
+                if (facilityQueryFitPending) {
+                    facilityQueryFitPending = false;
+                    window.setTimeout(function () {
+                        const fitOverlays = facilityMarkers.concat(facilityQueryStartMarkers);
+                        if (fitOverlays.length) {
+                            map.setFitView(fitOverlays, false, [62, 62, 62, 62], 18);
+                        }
+                    }, 180);
+                }
             }
         }
 
+        function redrawFacilityQueryStartMarker() {
+            removeOverlayList(facilityQueryStartMarkers);
+            if (collectMode || !facilityQuery.active || !facilityQuery.start) {
+                return;
+            }
+            const position = facilityLngLat(facilityQuery.start);
+            if (!position) {
+                return;
+            }
+            const displayName = facilityDisplayName(facilityQuery.start);
+            facilityQueryStartMarkers.push(new AMap.Marker({
+                position,
+                title: displayName,
+                content: facilityMarkerContent(facilityQuery.start, `route-facility-marker is-query-start ${mapZoomTierClass()}`),
+                anchor: "center",
+                zIndex: 116
+            }));
+            facilityQueryStartMarkers.push(new AMap.Marker({
+                position,
+                title: `${displayName} 查询起点`,
+                content: "<div class=\"route-target-number route-planning-badge is-start is-facility-query-start\"><span>\u59cb</span></div>",
+                anchor: "center",
+                zIndex: 126
+            }));
+            map.add(facilityQueryStartMarkers);
+        }
+
+        function showFacilityEntryHint() {
+            removeOverlayList(facilityEntryStartMarkers);
+            removeOverlayList(facilityEntryHintMarkers);
+            if (collectMode || facilityQuery.active || !facilityQuery.start) {
+                return;
+            }
+            const position = facilityLngLat(facilityQuery.start);
+            if (!position) {
+                return;
+            }
+            const displayName = facilityDisplayName(facilityQuery.start);
+            facilityEntryStartMarkers.push(new AMap.Marker({
+                position,
+                title: displayName,
+                content: facilityMarkerContent(facilityQuery.start, `route-facility-marker is-entry-start ${mapZoomTierClass()}`),
+                anchor: "center",
+                zIndex: 116
+            }));
+            facilityEntryHintMarkers.push(new AMap.Marker({
+                position,
+                title: "您当前在这",
+                content: "<div class=\"route-current-location-hint\">您当前在这</div>",
+                anchor: "center",
+                zIndex: 128
+            }));
+            map.add(facilityEntryStartMarkers);
+            map.add(facilityEntryHintMarkers);
+            window.setTimeout(function () {
+                removeOverlayList(facilityEntryHintMarkers);
+            }, 2000);
+        }
+
+        function redrawPinnedFacilityMarker() {
+            removeOverlayList(pinnedFacilityMarkers);
+            if (collectMode || !pinnedFacility) {
+                return;
+            }
+            const position = facilityLngLat(pinnedFacility);
+            if (!position || !mapBoundsContains(position)) {
+                return;
+            }
+            const displayName = facilityDisplayName(pinnedFacility);
+            const nearestPosition = facilityConnectionPosition(pinnedFacility, position);
+            if (nearestPosition) {
+                pinnedFacilityMarkers.push(new AMap.Polyline({
+                    path: [position, nearestPosition],
+                    strokeColor: "#d8b06f",
+                    strokeWeight: 3,
+                    strokeOpacity: 0.86,
+                    strokeStyle: "dashed",
+                    lineJoin: "round",
+                    lineCap: "round",
+                    zIndex: 88
+                }));
+            }
+            pinnedFacilityMarkers.push(new AMap.Marker({
+                position,
+                title: displayName,
+                content: facilityMarkerContent(pinnedFacility, `route-facility-marker is-route-target ${mapZoomTierClass()}`),
+                anchor: "center",
+                zIndex: 112
+            }));
+            pinnedFacilityMarkers.push(new AMap.Marker({
+                position,
+                title: `${displayName} 终点`,
+                content: "<div class=\"route-target-number route-planning-badge is-end is-food-target\"><span>\u7ec8</span></div>",
+                anchor: "center",
+                zIndex: 124
+            }));
+            if (pinnedFacilityMarkers.length) {
+                map.add(pinnedFacilityMarkers);
+            }
+        }
+
+        redrawPinnedFacilityMarker();
+        redrawFacilityQueryStartMarker();
+        showFacilityEntryHint();
         redrawFacilityMarkers();
         let facilityMarkerTimer = null;
         function scheduleFacilityMarkerRedraw() {
-            if (!facilityLayerVisible || collectMode) {
+            if (collectMode) {
                 return;
             }
             window.clearTimeout(facilityMarkerTimer);
-            facilityMarkerTimer = window.setTimeout(redrawFacilityMarkers, 120);
+            facilityMarkerTimer = window.setTimeout(function () {
+                redrawPinnedFacilityMarker();
+                redrawFacilityQueryStartMarker();
+                if (facilityLayerVisible) {
+                    redrawFacilityMarkers();
+                }
+            }, 120);
         }
         map.on("zoomend", scheduleFacilityMarkerRedraw);
         map.on("moveend", scheduleFacilityMarkerRedraw);
         if (showFacilityLayerToggle) {
+            syncLayerToggleButton(showFacilityLayerToggle, facilityLayerVisible);
             showFacilityLayerToggle.addEventListener("click", function () {
                 facilityLayerVisible = !facilityLayerVisible;
                 syncLayerToggleButton(showFacilityLayerToggle, facilityLayerVisible);

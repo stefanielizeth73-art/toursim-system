@@ -11,9 +11,9 @@
 </head>
 <body>
     <div class="topbar">
-        <div>个性化旅游系统 - Top-K 推荐</div>
+        <div>TourSim - Top-K 推荐</div>
         <div>
-            当前用户：{{ username }}
+            Hi，{{ username }}
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
             <a class="nav-link" href="{{ url_for('places') }}">查看全部地点</a>
             <a class="logout-link" href="{{ url_for('logout') }}">退出登录</a>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="container large-container">
-        <h2>个性化旅游推荐</h2>
+        <h2>按偏好挑地点</h2>
         <p class="subtitle">综合评分、热度和兴趣标签，使用小根堆 Top-K 算法保留前 K 个推荐结果。</p>
 
         <form method="post" class="recommend-form">
@@ -57,7 +57,7 @@
                 {% endfor %}
             </div>
 
-            <button type="submit">生成推荐结果</button>
+            <button type="submit">生成推荐</button>
         </form>
 
         <div class="result-info">
@@ -68,7 +68,7 @@
             {% if selected_tags %}
                 兴趣标签：{{ selected_tags|join('、') }}
             {% else %}
-                未选择兴趣标签，按基础推荐分排序。
+                未选择兴趣标签，先按基础推荐分排序。
             {% endif %}
         </div>
 

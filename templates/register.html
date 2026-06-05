@@ -85,7 +85,7 @@
         <header class="snami-modal-header" style="margin-top: 20px;">
             <span class="snami-modal-kicker">NEW MEMBER</span>
             <h2 class="snami-modal-title">创建账号</h2>
-            <p class="snami-modal-subtitle">注册以同步您规划的 Dijkstra 最优路线并加入游记社区。</p>
+            <p class="snami-modal-subtitle">注册后可以保存 Dijkstra 路线结果、收藏美食，也能写下自己的游记。</p>
         </header>
 
         <!-- Flash Errors Inside Standalone Page -->
@@ -103,17 +103,17 @@
         <form method="post" action="{{ url_for('register') }}" enctype="multipart/form-data" class="snami-form">
             <div class="snami-form-group">
                 <label class="snami-form-label" for="username">用户名</label>
-                <input class="snami-form-input" type="text" id="username" name="username" placeholder="请设置您的用户名" autocomplete="username" required>
+                <input class="snami-form-input" type="text" id="username" name="username" placeholder="取一个好记的用户名" autocomplete="username" required>
             </div>
 
             <div class="snami-form-group">
                 <label class="snami-form-label" for="password">密码</label>
-                <input class="snami-form-input" type="password" id="password" name="password" placeholder="请设置登录密码" autocomplete="new-password" required>
+                <input class="snami-form-input" type="password" id="password" name="password" placeholder="设置登录密码" autocomplete="new-password" required>
             </div>
 
             <div class="snami-form-group">
                 <label class="snami-form-label" for="confirm_password">确认密码</label>
-                <input class="snami-form-input" type="password" id="confirm_password" name="confirm_password" placeholder="请再次输入以确认" autocomplete="new-password" required>
+                <input class="snami-form-input" type="password" id="confirm_password" name="confirm_password" placeholder="再输入一次确认" autocomplete="new-password" required>
             </div>
 
             <!-- Avatar selection component -->
@@ -122,7 +122,7 @@
                 {{ avatar_picker(
                     preset_avatar_options(),
                     selected_path=request.form.get('preset_avatar', ''),
-                    title='选择您的 TourSim 专属头像'
+                    title='挑一个 TourSim 头像'
                 ) }}
             </div>
 

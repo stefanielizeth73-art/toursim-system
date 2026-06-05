@@ -6,23 +6,24 @@
     <title>{{ place.name }} - 景点档案</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
 <body class="place-detail-page place-dossier-page">
     <header class="topbar places-topbar places-darkroom-topbar place-dossier-topbar">
         <div class="places-topbar__brand">
-            <span class="places-topbar__mark" aria-hidden="true">T</span>
+            <span class="places-topbar__mark" aria-hidden="true">🏔️</span>
             <span class="places-topbar__brand-copy">
                 <strong>TourSim</strong>
-                <small>景点档案</small>
+                <small>景点详情</small>
             </span>
         </div>
         <nav aria-label="页面导航">
             <span class="places-topbar__user">{{ username }}</span>
-            <a class="nav-link" href="{{ url_for('places') }}">返回探索</a>
-            <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
+            <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
+            <a class="nav-link" href="{{ url_for('places') }}">返回探索</a>
         </nav>
     </header>
 
@@ -37,7 +38,7 @@
                     {% endif %}
                     <figcaption>
                         <span>景点封面</span>
-                        <strong>{{ place.cover_image_title or '实景照片' }}</strong>
+                        <strong>实景照片</strong>
                     </figcaption>
                 </figure>
 
@@ -59,17 +60,31 @@
                     <span><strong>{{ place.tags_list|length }}</strong>看点</span>
                 </div>
 
-                <div class="place-dossier-tags" aria-label="景点标签">
-                    {% for tag in place.tags_list %}
-                    <span>{{ tag }}</span>
+                <div class="place-dossier-tags" aria-label="景点标签" data-place-tag-popovers>
+                    <p class="place-tags-hint">想看同类地点，轻点下面的 tags。</p>
+                    {% for group in tag_collections %}
+                    <span class="place-tag-popover-wrap">
+                        <a
+                            class="place-dossier-tag-trigger"
+                            href="{{ group.search_url }}"
+                            aria-label="按 {{ group.tag }} 筛选景点">
+                            {{ group.tag }}
+                        </a>
+                    </span>
                     {% endfor %}
+                    <form method="post" action="{{ url_for('place_favorite', place_id=place.id) }}" class="place-favorite-form">
+                        <button type="submit" class="place-favorite-action {% if place_favorited %}is-favorited{% endif %}">
+                            <span aria-hidden="true">★</span>
+                            {% if place_favorited %}已收藏{% else %}收藏地点{% endif %}
+                        </button>
+                    </form>
                 </div>
 
                 <div class="place-dossier-actions" aria-label="下一步操作">
-                    <a href="{{ url_for('route', place_id=place.id) }}">进入路线规划</a>
+                    <a href="{{ url_for('route', place_id=place.id) }}">规划去这里</a>
                     <a href="{{ url_for('foods', place_name=place.name) }}">相关美食</a>
                     <a href="{{ url_for('diaries', destination=place.name) }}">旅游日记</a>
-                    <a href="{{ url_for('facilities') }}">附近设施</a>
+                    <a href="{{ url_for('route', place_id=place.id, active_panel='places') }}">附近设施</a>
                 </div>
             </article>
         </section>
@@ -77,11 +92,11 @@
         <section class="place-dossier-narrative" aria-label="出行建议">
             <div class="place-dossier-statement">
                 <span class="places-kicker">出行建议</span>
-                <h2>想去这里，可以这样开始。</h2>
+                <h2>想去这里？先这样开始。</h2>
             </div>
             <div class="place-dossier-notes">
-                <p><strong>适合谁</strong>如果你喜欢 {{ place.tags }}，这个地点值得加入候选行程。</p>
-                <p><strong>下一步</strong>可以先规划路线，也可以看看附近美食和其他游客的记录。</p>
+                <p><strong>适合谁</strong>喜欢 {{ place.tags }} 的话，可以先把它加入候选。</p>
+                <p><strong>下一步</strong>先规划路线，或者看看附近美食和大家的记录。</p>
             </div>
         </section>
 
@@ -92,7 +107,7 @@
                     <span class="places-kicker">大家的记录</span>
                     <h2 id="related-diaries-title"><span>相关游记</span></h2>
                 </div>
-                <p>出发前可以先看看其他游客写下的真实体验。</p>
+                <p>出发前看看别人怎么逛，也许能少走一点弯路。</p>
             </div>
 
             <div class="diary-grid">

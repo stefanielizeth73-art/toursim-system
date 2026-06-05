@@ -77,6 +77,24 @@ class DiaryDetailCardFlowTests(unittest.TestCase):
         self.assertEqual(after["compression"]["algorithm"], "dictionary")
         self.assertIn("文本压缩", response.get_data(as_text=True))
 
+    def test_detail_page_does_not_expose_temporary_edit_entry(self):
+        diary_id = toursim_app.create_diary(
+            "普通详情日记",
+            "校园",
+            "详情页只保留正式的用户操作入口。",
+            "detail_tester",
+            compression_algorithm="huffman",
+        )
+
+        response = self.client.get(f"/diary/{diary_id}?count_view=0")
+        html = response.get_data(as_text=True)
+        legacy_response = self.client.get(f"/diary/{diary_id}/dev-edit")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("临时编辑", html)
+        self.assertNotIn("diary_dev_edit", html)
+        self.assertEqual(legacy_response.status_code, 404)
+
     def test_detail_page_allows_one_rating_per_user_per_diary(self):
         diary_id = toursim_app.create_diary(
             "单次评分日记",

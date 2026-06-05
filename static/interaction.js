@@ -95,9 +95,21 @@
         });
     }
 
-    function initDeferredDiaryImages() {
-        const lazyImages = Array.from(document.querySelectorAll("img[data-diary-lazy-src]"));
-        const lazyVideos = Array.from(document.querySelectorAll("video[data-diary-lazy-video]"));
+    function scopedQuery(root, selector) {
+        const scope = root || document;
+        const nodes = [];
+        if (scope.matches && scope.matches(selector)) {
+            nodes.push(scope);
+        }
+        if (scope.querySelectorAll) {
+            nodes.push.apply(nodes, Array.from(scope.querySelectorAll(selector)));
+        }
+        return nodes;
+    }
+
+    function initDeferredDiaryImages(scope) {
+        const lazyImages = scopedQuery(scope || document, "img[data-diary-lazy-src]");
+        const lazyVideos = scopedQuery(scope || document, "video[data-diary-lazy-video]");
         if (!lazyImages.length && !lazyVideos.length) {
             return;
         }
@@ -133,7 +145,7 @@
 
         if (!("IntersectionObserver" in window)) {
             lazyImages.forEach(loadImage);
-            document.querySelectorAll("video[data-diary-lazy-video]").forEach(loadVideo);
+            lazyVideos.forEach(loadVideo);
             return;
         }
 
@@ -650,6 +662,146 @@
         media.addEventListener("loadedmetadata", scheduleMasonryLayout, { once: true });
     });
 
+    function initDiaryInfiniteScroll() {
+        const loader = document.getElementById("diaryInfiniteLoader");
+        const feed = document.querySelector(".js-masonry-feed");
+        if (!loader || !feed || loader.dataset.infiniteInit === "1") {
+            return;
+        }
+        loader.dataset.infiniteInit = "1";
+        body.classList.add("diary-infinite-ready");
+
+        let nextUrl = loader.getAttribute("data-next-url") || "";
+        let hasNext = loader.getAttribute("data-has-next") === "true" && Boolean(nextUrl);
+        let loading = false;
+
+        function setText(text) {
+            const textNode = loader.querySelector(".diary-infinite-loader__text");
+            if (textNode) {
+                textNode.textContent = text;
+            } else {
+                loader.textContent = text;
+            }
+        }
+
+        function buildAjaxUrl(urlValue) {
+            const url = new URL(urlValue, window.location.origin);
+            url.searchParams.set("ajax", "1");
+            return url.toString();
+        }
+
+        function bindNewEntry(entry) {
+            entry.addEventListener("click", function () {
+                const feedRoot = document.querySelector("[data-diary-feed-page]");
+                if (!feedRoot || !window.sessionStorage) {
+                    return;
+                }
+                const pageKey = location.pathname + location.search;
+                sessionStorage.setItem("diary-feed-scroll:" + pageKey, String(window.scrollY || window.pageYOffset || 0));
+                sessionStorage.setItem("diary-feed-restore", pageKey);
+            });
+            scopedQuery(entry, "img, video").forEach(function (media) {
+                media.addEventListener("load", scheduleMasonryLayout, { once: true });
+                media.addEventListener("loadedmetadata", scheduleMasonryLayout, { once: true });
+            });
+            initDeferredDiaryImages(entry);
+        }
+
+        function showRetry() {
+            loader.innerHTML = '<button type="button">加载失败，点击重试</button>';
+            const button = loader.querySelector("button");
+            if (button) {
+                button.addEventListener("click", function () {
+                    loader.innerHTML = '<span class="diary-infinite-loader__text">继续向下，加载更多日记</span>';
+                    loadMore();
+                }, { once: true });
+            }
+        }
+
+        async function loadMore() {
+            if (loading || !hasNext || !nextUrl) {
+                return;
+            }
+            loading = true;
+            setText("正在加载更多日记...");
+
+            try {
+                const response = await fetch(buildAjaxUrl(nextUrl), {
+                    headers: { "Accept": "application/json" }
+                });
+                if (response.status === 401 || (response.redirected && response.url.indexOf("/login") !== -1)) {
+                    window.location.assign(response.url || "/login");
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error("加载失败");
+                }
+                const contentType = response.headers.get("Content-Type") || "";
+                if (contentType.indexOf("application/json") === -1) {
+                    throw new Error("加载响应格式异常");
+                }
+                const payload = await response.json();
+                if (!payload.ok) {
+                    throw new Error(payload.error || "加载失败");
+                }
+
+                const fragment = document.createElement("template");
+                fragment.innerHTML = (payload.html || "").trim();
+                const newEntries = Array.from(fragment.content.querySelectorAll(".js-diary-entry"));
+                feed.appendChild(fragment.content);
+                newEntries.forEach(bindNewEntry);
+
+                hasNext = Boolean(payload.has_next && payload.next_url);
+                nextUrl = payload.next_url || "";
+                loader.setAttribute("data-has-next", hasNext ? "true" : "false");
+                loader.setAttribute("data-next-url", nextUrl);
+                if (hasNext) {
+                    setText("继续向下，加载更多日记");
+                    if (observer) {
+                        observer.observe(loader);
+                    }
+                } else {
+                    setText("已加载全部日记");
+                    if (observer) {
+                        observer.disconnect();
+                    }
+                }
+                scheduleMasonryLayout();
+            } catch (error) {
+                console.error(error);
+                showRetry();
+            } finally {
+                loading = false;
+            }
+        }
+
+        if (!hasNext) {
+            setText("已加载全部日记");
+            return;
+        }
+        let observer = null;
+        if ("IntersectionObserver" in window) {
+            observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        observer.unobserve(loader);
+                        loadMore();
+                    }
+                });
+            }, {
+                rootMargin: "220px 0px",
+                threshold: 0.01
+            });
+            observer.observe(loader);
+        } else {
+            loader.innerHTML = '<button type="button">加载更多日记</button>';
+            const button = loader.querySelector("button");
+            if (button) {
+                button.addEventListener("click", loadMore);
+            }
+        }
+    }
+
     function initIndoorRoutePicker() {
         if (!isIndoorPage || body.classList.contains("indoor-collector-page")) {
             return;
@@ -868,17 +1020,38 @@
         });
 
         if (clearButton) {
-            clearButton.addEventListener("click", function () {
-                const params = new URLSearchParams(window.location.search);
-                params.delete("start");
-                params.delete("end");
+            clearButton.addEventListener("click", function (event) {
+                if (typeof window.clearIndoorRouteSelection === "function") {
+                    window.clearIndoorRouteSelection(event, clearButton);
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+
+                const url = new URL("/indoor", window.location.origin);
+                const params = url.searchParams;
+                const buildingId = form.querySelector('input[name="building_id"]');
+                const buildingName = form.querySelector('input[name="building_name"]');
+
+                if (buildingId && buildingId.value) {
+                    params.set("building_id", buildingId.value);
+                }
+                if (buildingName && buildingName.value) {
+                    params.set("building_name", buildingName.value);
+                }
+                const verticalMode = form.querySelector('select[name="vertical_mode"]');
+                if (verticalMode && verticalMode.value) {
+                    params.set("vertical_mode", verticalMode.value);
+                }
                 params.set("clear", "1");
+
                 if (startSelect) startSelect.value = "";
                 if (endSelect) endSelect.value = "";
                 searchInputs.forEach(function (input) {
                     input.value = "";
                 });
-                window.location.href = window.location.pathname + "?" + params.toString();
+                hideSearchMenus();
+                window.location.assign(url.toString());
             });
         }
 
@@ -955,6 +1128,9 @@
 
             const panel = document.createElement("div");
             panel.className = "compact-datalist";
+            if (document.body.classList.contains("places-darkroom-page") || document.body.classList.contains("place-dossier-page")) {
+                panel.classList.add("places-compact-datalist");
+            }
             panel.hidden = true;
             panel.setAttribute("role", "listbox");
             document.body.appendChild(panel);
@@ -1054,54 +1230,79 @@
         window.addEventListener("resize", hidePanel);
     }
 
-    function initPlacesPointerAffordances() {
-        const page = document.body;
-        if (!page || (!page.classList.contains("places-darkroom-page") && !page.classList.contains("place-dossier-page"))) {
+    function initPlaceTagPopovers() {
+        const root = document.querySelector("[data-place-tag-popovers]");
+        if (!root) {
             return;
         }
-        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            return;
-        }
+        const triggers = Array.from(root.querySelectorAll("[data-place-tag-trigger]"));
 
-        const targets = Array.from(document.querySelectorAll([
-            ".places-contact-card",
-            ".place-dossier-photo-panel",
-            ".place-dossier-copy",
-            ".places-control-drawer",
-            ".place-dossier-actions a"
-        ].join(",")));
-
-        targets.forEach(function (target) {
-            let frame = 0;
-            let nextX = 50;
-            let nextY = 50;
-
-            function writeVars() {
-                frame = 0;
-                target.style.setProperty("--mx", nextX + "%");
-                target.style.setProperty("--my", nextY + "%");
-            }
-
-            target.addEventListener("pointermove", function (event) {
-                if (event.pointerType === "touch") {
+        function closeAll(except) {
+            triggers.forEach(function (trigger) {
+                if (trigger === except) {
                     return;
                 }
-                const rect = target.getBoundingClientRect();
-                if (!rect.width || !rect.height) {
-                    return;
-                }
-                nextX = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)).toFixed(2);
-                nextY = Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)).toFixed(2);
-                if (!frame) {
-                    frame = window.requestAnimationFrame(writeVars);
+                const panel = document.getElementById(trigger.getAttribute("aria-controls"));
+                trigger.setAttribute("aria-expanded", "false");
+                if (panel) {
+                    panel.hidden = true;
                 }
             });
+        }
 
-            target.addEventListener("pointerleave", function () {
-                target.style.removeProperty("--mx");
-                target.style.removeProperty("--my");
+        triggers.forEach(function (trigger) {
+            const panel = document.getElementById(trigger.getAttribute("aria-controls"));
+            if (!panel) {
+                return;
+            }
+            trigger.addEventListener("click", function () {
+                const willOpen = panel.hidden;
+                closeAll(trigger);
+                panel.hidden = !willOpen;
+                trigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
             });
         });
+
+        document.addEventListener("pointerdown", function (event) {
+            if (!root.contains(event.target)) {
+                closeAll();
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeAll();
+            }
+        });
+    }
+
+    function initProfilePlaceSearch() {
+        const input = document.querySelector("[data-profile-place-search]");
+        const grid = document.querySelector("[data-profile-place-grid]");
+        if (!input || !grid) {
+            return;
+        }
+        const cards = Array.from(grid.querySelectorAll(".profile-place-card"));
+        const empty = document.querySelector("[data-profile-place-empty]");
+
+        function applyFilter() {
+            const query = input.value.trim().toLowerCase();
+            let visibleCount = 0;
+            cards.forEach(function (card) {
+                const haystack = (card.dataset.placeSearch || card.textContent || "").toLowerCase();
+                const visible = !query || haystack.indexOf(query) !== -1;
+                card.hidden = !visible;
+                if (visible) {
+                    visibleCount += 1;
+                }
+            });
+            if (empty) {
+                empty.hidden = visibleCount !== 0;
+            }
+        }
+
+        input.addEventListener("input", applyFilter);
+        applyFilter();
     }
 
     initDiaryFeedMemory();
@@ -1110,9 +1311,11 @@
     initDiaryGallery();
     initCommentDrafts();
     initDiaryVideoGeneration();
+    initDiaryInfiniteScroll();
     initIndoorRoutePicker();
     initCompactDatalists();
-    initPlacesPointerAffordances();
+    initPlaceTagPopovers();
+    initProfilePlaceSearch();
 
     layoutMasonryFeeds();
     window.addEventListener("load", scheduleMasonryLayout);

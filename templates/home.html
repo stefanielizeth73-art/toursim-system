@@ -11,6 +11,7 @@
     <!-- Premium Stylesheet Loading -->
     <link rel="stylesheet" href="{{ url_for('static', filename='home_premium.css', v=asset_version('home_premium.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
 
     <!-- Defer loading of interactive scripts -->
     <script defer src="{{ url_for('static', filename='interaction.js') }}"></script>
@@ -44,18 +45,18 @@
 
                 <!-- Luxury Vial Statistics -->
                 <section class="lux-stats-rack" aria-label="旅游足迹状态仪">
-                    <div class="lux-stat-vial" id="stat-places-vial" title="您当前可探索的景点总数">
+                    <a class="lux-stat-vial" id="stat-places-vial" title="您当前可探索的景点总数" href="{{ url_for('places') }}">
                         <span class="lux-stat-value" id="stat-places-val">{{ places_count }}</span>
                         <span class="lux-stat-label">探索景点</span>
-                    </div>
-                    <div class="lux-stat-vial" id="stat-diaries-vial" title="您已发布的日记数">
+                    </a>
+                    <a class="lux-stat-vial" id="stat-diaries-vial" title="您已发布的日记数" href="{{ url_for('diaries') }}">
                         <span class="lux-stat-value" id="stat-diaries-val">{{ diaries_count }}</span>
                         <span class="lux-stat-label">旅游日记</span>
-                    </div>
-                    <div class="lux-stat-vial" id="stat-favorites-vial" title="您的收藏总数">
+                    </a>
+                    <a class="lux-stat-vial" id="stat-favorites-vial" title="您的收藏总数" href="{{ url_for('profile', tab='favorite-places') }}">
                         <span class="lux-stat-value" id="stat-favorites-val">{{ favorites_count }}</span>
                         <span class="lux-stat-label">我的收藏</span>
-                    </div>
+                    </a>
                 </section>
             </div>
 
@@ -238,15 +239,16 @@
             let isSpinning = false;
             let spinStart = 0;
             let lastMoveTime = Date.now();
+            let bubbleTimeoutId = null;
 
             const quotes = [
-                "🧭 寻找您的专属旅行灵感中...",
-                "🧭 探索未知，见所未见。",
-                "🧭 行者无疆，始于足下。",
-                "🧭 开启您的尊贵定制航线～",
-                "🧭 读万卷书，行万里路。",
-                "🧭 愿每次出发，都有温暖相伴。",
-                "🧭 听从内心的罗盘，即刻启程！"
+                "🧭 正在寻找今天的小灵感... (〃'▽'〃)",
+                "🧭 往没去过的地方看一眼！(*^▽^*)",
+                "🧭 先迈一步，路线就会长出来～ (๑•̀ㅂ•́)و✧",
+                "🧭 小路线准备中，马上出发！(｀・ω・´)",
+                "🧭 地图翻一翻，惊喜也许就在旁边。╰(*°▽°*)╯",
+                "🧭 今天也会有温暖的路标。(oﾟ▽ﾟ)o",
+                "🧭 跟着心里的罗盘走走看！(｡♥‿♥｡)"
             ];
 
             // 动态创建气泡
@@ -300,9 +302,14 @@
                     bubble.innerText = randomQuote;
                     bubble.classList.add("show");
 
-                    setTimeout(function () {
+                    if (bubbleTimeoutId) {
+                        clearTimeout(bubbleTimeoutId);
+                    }
+
+                    bubbleTimeoutId = setTimeout(function () {
                         bubble.classList.remove("show");
-                    }, 1800);
+                        bubbleTimeoutId = null;
+                    }, 3000);
                 });
             }
 

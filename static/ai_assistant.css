@@ -558,3 +558,78 @@ body .ai-assistant__chips-toggle:focus-visible {
     color: var(--ai-ink) !important;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
 }
+
+/* Huashu soft-line refinement: warmer corners while keeping the quiet line-only system. */
+body .ai-assistant {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+body .ai-assistant__head {
+    border-radius: 24px 24px 0 0;
+}
+
+body .ai-assistant__new,
+body .ai-assistant__action,
+body .ai-assistant__chip,
+body .ai-assistant__chips-toggle,
+body .ai-assistant__form button {
+    border-radius: 999px;
+}
+
+body .ai-assistant__close {
+    border-radius: 999px;
+}
+
+body .ai-assistant__message {
+    border-radius: 18px;
+}
+
+body .ai-assistant__message--assistant {
+    border-radius: 18px 18px 18px 8px;
+}
+
+body .ai-assistant__message--user {
+    border-radius: 18px 18px 8px 18px;
+}
+
+body .ai-assistant__card {
+    border-radius: 18px;
+}
+
+body .ai-assistant__card-image {
+    border-radius: 14px;
+}
+
+body .ai-assistant__form {
+    border-radius: 0 0 24px 24px;
+}
+
+body .ai-assistant__form input {
+    border-radius: 999px;
+}
+
+body .ai-assistant__resize::after {
+    border-radius: 999px;
+}
+
+body .ai-assistant-launcher,
+body:not(.route-v2) .ai-assistant-launcher,
+body.places-darkroom-page .ai-assistant-launcher {
+    border-radius: 999px;
+    background: transparent !important;
+}
+
+@media (max-width: 560px) {
+    body .ai-assistant {
+        border-radius: 20px;
+    }
+
+    body .ai-assistant__head {
+        border-radius: 20px 20px 0 0;
+    }
+
+    body .ai-assistant__form {
+        border-radius: 0 0 20px 20px;
+    }
+}

@@ -16,6 +16,7 @@ class AuthRouteServices:
     is_logged_in: object
     load_favorite_diaries: object
     load_favorite_foods: object
+    load_favorite_places: object
     load_places: object
     load_user_diaries: object
     save_user_avatar_choice: object
@@ -183,6 +184,7 @@ def create_auth_blueprint(services):
         my_diaries = services.load_user_diaries(current_user["username"], limit=6)
         favorite_diaries = services.load_favorite_diaries(current_user["id"], limit=6)
         favorite_foods = services.load_favorite_foods(current_user["id"], limit=6)
+        favorite_places = services.load_favorite_places(current_user["id"], limit=8)
         conn = services.get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
@@ -207,6 +209,7 @@ def create_auth_blueprint(services):
             my_diaries=my_diaries,
             favorite_diaries=favorite_diaries,
             favorite_foods=favorite_foods,
+            favorite_places=favorite_places,
             recent_comments=recent_comments,
         )
 

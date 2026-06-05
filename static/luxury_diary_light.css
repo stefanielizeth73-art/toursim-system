@@ -1891,9 +1891,7 @@ body.diary-detail-page .publish-trigger:hover,
 body.diary-detail-page .publish-trigger:focus-visible {
     color: rgba(47, 99, 91, 0.98) !important;
     border-color: rgba(74, 124, 115, 0.34) !important;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.82), transparent 70%),
-        linear-gradient(180deg, rgba(229, 242, 239, 0.98), rgba(250, 253, 252, 0.94)) !important;
+    background: rgba(229, 242, 239, 0.96) !important;
     box-shadow: 0 14px 34px rgba(74, 124, 115, 0.11), inset 0 0 0 1px rgba(255, 255, 255, 0.76) !important;
     text-shadow: none !important;
 }
@@ -2213,4 +2211,45 @@ body.diary-search-page .diary-search-proof span {
     border-color: rgba(74, 124, 115, 0.32) !important;
     background: #fff !important;
     box-shadow: none !important;
+}
+
+body.diary-hub-page .diary-infinite-loader {
+    min-height: 70px !important;
+    padding: 14px 0 20px !important;
+    color: rgba(92, 110, 124, 0.68) !important;
+    font-size: 0.84rem !important;
+    letter-spacing: 0.04em !important;
+}
+
+body.diary-hub-page .diary-infinite-loader button {
+    width: auto !important;
+    min-height: 34px !important;
+    padding: 0 16px !important;
+    border: 1px solid rgba(74, 124, 115, 0.24) !important;
+    border-radius: 999px !important;
+    color: rgba(61, 91, 84, 0.84) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+body.diary-hub-page .diary-infinite-loader button:hover,
+body.diary-hub-page .diary-infinite-loader button:focus-visible {
+    color: #2f5f57 !important;
+    border-color: rgba(74, 124, 115, 0.42) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* 覆盖 style.css 导致搜索按钮不可见的白底白字 bug */
+body.diary-hub-page header.diary-topbar .diary-search-shortcut,
+body.diary-detail-page header.diary-topbar .diary-search-shortcut {
+    background: var(--diary-accent) !important;
+    color: #ffffff !important;
+}
+body.diary-hub-page header.diary-topbar .diary-search-shortcut:hover,
+body.diary-detail-page header.diary-topbar .diary-search-shortcut:hover {
+    background: #3f6e66 !important;
+    color: #ffffff !important;
 }

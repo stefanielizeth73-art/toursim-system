@@ -144,7 +144,7 @@
         const model = payload && payload.model ? payload.model : "";
         const error = payload && payload.model_error ? payload.model_error : "";
         const text = provider === "local"
-            ? ("本地模式" + (error ? "，模型调用失败：" + error : ""))
+            ? ("本地检索" + (error ? "，模型暂时没接上：" + error : ""))
             : (provider.charAt(0).toUpperCase() + provider.slice(1) + (model ? " · " + model : ""));
         messages.appendChild(el("div", "ai-assistant__provider", text));
         messages.scrollTop = messages.scrollHeight;
@@ -153,7 +153,7 @@
     function appendIntro() {
         appendMessage(
             "assistant",
-            "我在。你可以直接说想吃什么、从哪到哪、想找哪类游记，或者只是随便问问题。我会自己判断要不要查 TourSim 里的美食、路线、室内导航和日记数据。"
+            "我在。你可以直接说想吃什么、从哪到哪、想找哪类游记，或者只是随便问问题。我会自己判断要不要翻 TourSim 里的美食、路线、室内导航和日记。"
         );
         renderSuggestions(conversationalSuggestions());
     }
@@ -373,7 +373,7 @@
         input.value = "";
         sendButton.disabled = true;
         appendMessage("user", message);
-        const loading = el("div", "ai-assistant__message ai-assistant__message--assistant is-loading", "我看一下上下文和系统数据...");
+        const loading = el("div", "ai-assistant__message ai-assistant__message--assistant is-loading", "我看一下上下文和本地数据...");
         messages.appendChild(loading);
 
         try {

@@ -92,6 +92,7 @@ from toursim.favorites import (
     is_item_favorited,
     load_favorite_diaries,
     load_favorite_foods,
+    load_favorite_places,
     load_user_diaries,
     load_user_favorites,
     toggle_user_favorite,
@@ -168,11 +169,9 @@ from toursim.diary_repository import (
     load_diary_comments,
     rate_diary,
     rate_diary_once,
-    remove_diary_media_files,
     stored_diary_media_items,
     toggle_diary_comment_like,
     update_diary_compression_algorithm,
-    update_diary_dev_fields,
     update_diary_media,
 )
 from toursim.geo import haversine_amap, polyline_distance
@@ -1492,6 +1491,11 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword="", max_
             continue
 
         item = facility.copy()
+        item["nearest_node"] = nearest_node
+        nearest = graph.get("node_map", {}).get(nearest_node)
+        if nearest:
+            item["nearest_lng"] = nearest.get("amap_lng", nearest.get("lon"))
+            item["nearest_lat"] = nearest.get("amap_lat", nearest.get("lat"))
         item["distance"] = round(path["total"], 1)
         if max_distance is not None and item["distance"] > max_distance:
             continue
@@ -1500,6 +1504,211 @@ def find_nearby_facilities(graph, start_node, facility_type="", keyword="", max_
         result.append(item)
 
     return sorted(result, key=lambda item: item["distance"])
+
+
+def _route_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def facility_map_payload(facility, graph, id_prefix="facility"):
+    facility_id = str((facility or {}).get("id") or "").strip()
+    name = str((facility or {}).get("name") or (facility or {}).get("category") or (facility or {}).get("type") or "场所").strip()
+    facility_type = str((facility or {}).get("type") or (facility or {}).get("category") or "场所").strip()
+    nearest_node = str((facility or {}).get("nearest_node") or "").strip()
+    node = graph.get("node_map", {}).get(nearest_node) if nearest_node else None
+
+    lng = _route_float((facility or {}).get("amap_lng", (facility or {}).get("lon")))
+    lat = _route_float((facility or {}).get("amap_lat", (facility or {}).get("lat")))
+    if (lng is None or lat is None) and node:
+        lng = _route_float(node.get("amap_lng", node.get("lon")))
+        lat = _route_float(node.get("amap_lat", node.get("lat")))
+    if lng is None or lat is None:
+        return None
+
+    payload = {
+        "id": f"{id_prefix}:{facility_id}" if facility_id and ":" not in facility_id else (facility_id or f"{id_prefix}:{name}"),
+        "source_id": facility_id,
+        "name": name,
+        "type": facility_type,
+        "category": facility_type,
+        "nearest_node": nearest_node,
+        "amap_lng": lng,
+        "amap_lat": lat,
+        "lon": lng,
+        "lat": lat,
+        "distance": (facility or {}).get("distance"),
+        "walk_minutes": (facility or {}).get("walk_minutes"),
+        "path_names": (facility or {}).get("path_names", ""),
+    }
+    if node:
+        payload["nearest_lng"] = node.get("amap_lng", node.get("lon"))
+        payload["nearest_lat"] = node.get("amap_lat", node.get("lat"))
+    return payload
+
+
+def food_facility_start_payload(food_key, place_id, graph, origin_node=""):
+    pinned = pinned_food_facility_for_route(food_key, place_id, graph, origin_node=origin_node)
+    if not pinned:
+        return None
+    return {
+        **pinned,
+        "id": f"food:{pinned.get('food_key') or food_key}",
+        "source_id": pinned.get("food_key") or food_key,
+        "type": pinned.get("type") or "美食",
+        "category": pinned.get("category") or "美食",
+    }
+
+
+def build_facility_start_options(graph, facilities, place_id):
+    options = []
+    for node in get_selectable_nodes(graph):
+        options.append({
+            "value": str(node.get("id", "")),
+            "name": str(node.get("name", "")),
+            "type": str(node.get("category") or node.get("kind") or "路线点"),
+            "source": "node",
+        })
+    for facility in facilities:
+        facility_id = str(facility.get("id") or "").strip()
+        marker = facility_map_payload(facility, graph, id_prefix="facility")
+        if not facility_id or not marker:
+            continue
+        options.append({
+            "value": f"facility:{facility_id}",
+            "name": marker["name"],
+            "type": marker["type"],
+            "source": "facility",
+        })
+    for food in build_food_candidates_for_place(place_id):
+        food_key = str(food.get("food_key") or "").strip()
+        nearest_node = str(food.get("nearest_node") or "").strip()
+        if not food_key or not nearest_node or nearest_node not in graph.get("node_map", {}):
+            continue
+        options.append({
+            "value": f"food:{food_key}",
+            "name": str(food.get("name") or "餐馆"),
+            "type": str(food.get("cuisine") or food.get("category") or "美食"),
+            "source": "food",
+        })
+    return options
+
+
+def resolve_facility_query_start(raw_value, place_id, graph, facilities, explicit_food_key=""):
+    raw_value = str(raw_value or "").strip()
+    explicit_food_key = str(explicit_food_key or "").strip()
+
+    if explicit_food_key:
+        marker = food_facility_start_payload(explicit_food_key, place_id, graph)
+        if marker and marker.get("nearest_node") in graph.get("node_map", {}):
+            return {
+                "value": f"food:{marker.get('source_id')}",
+                "node_id": marker["nearest_node"],
+                "label": marker["name"],
+                "kind": "food",
+                "marker": marker,
+            }
+
+    if raw_value.startswith("food:"):
+        food_key = raw_value.split(":", 1)[1]
+        marker = food_facility_start_payload(food_key, place_id, graph)
+        if marker and marker.get("nearest_node") in graph.get("node_map", {}):
+            return {
+                "value": raw_value,
+                "node_id": marker["nearest_node"],
+                "label": marker["name"],
+                "kind": "food",
+                "marker": marker,
+            }
+
+    if raw_value.startswith("facility:"):
+        facility_id = raw_value.split(":", 1)[1]
+        for facility in facilities:
+            if str(facility.get("id") or "").strip() != facility_id:
+                continue
+            nearest_node = resolve_facility_nearest_node(facility, graph, road_only=True)
+            marker = facility_map_payload({**facility, "nearest_node": nearest_node}, graph, id_prefix="facility")
+            if nearest_node in graph.get("node_map", {}) and marker:
+                return {
+                    "value": raw_value,
+                    "node_id": nearest_node,
+                    "label": marker["name"],
+                    "kind": "facility",
+                    "marker": marker,
+                }
+            break
+
+    if raw_value in graph.get("node_map", {}):
+        node = graph["node_map"][raw_value]
+        return {
+            "value": raw_value,
+            "node_id": raw_value,
+            "label": node.get("name") or raw_value,
+            "kind": "node",
+            "marker": None,
+        }
+
+    return {
+        "value": "",
+        "node_id": "",
+        "label": "",
+        "kind": "",
+        "marker": None,
+    }
+
+
+def pinned_food_facility_for_route(food_key, place_id, graph, origin_node=""):
+    food_key = str(food_key or "").strip()
+    if not food_key:
+        return None
+
+    food = get_food_by_key(food_key, place_id=place_id, origin_node=origin_node)
+    if not food:
+        return None
+
+    nearest_node = str(food.get("nearest_node") or food.get("graph_node_id") or "").strip()
+    node = graph.get("node_map", {}).get(nearest_node) if nearest_node else None
+
+    lng = food.get("amap_lng", food.get("lon"))
+    lat = food.get("amap_lat", food.get("lat"))
+    try:
+        lng = float(lng)
+        lat = float(lat)
+    except (TypeError, ValueError):
+        lng = None
+        lat = None
+
+    if (lng is None or lat is None) and node:
+        try:
+            lng = float(node.get("amap_lng", node.get("lon")))
+            lat = float(node.get("amap_lat", node.get("lat")))
+        except (TypeError, ValueError):
+            lng = None
+            lat = None
+
+    if lng is None or lat is None:
+        return None
+
+    pinned = {
+        "id": food.get("food_key") or food_key,
+        "food_key": food.get("food_key") or food_key,
+        "name": food.get("name") or "终点",
+        "type": food.get("cuisine") or food.get("category") or "美食终点",
+        "category": food.get("category") or food.get("cuisine") or "美食终点",
+        "nearest_node": nearest_node,
+        "amap_lng": lng,
+        "amap_lat": lat,
+        "lon": lng,
+        "lat": lat,
+    }
+
+    if node:
+        pinned["nearest_lng"] = node.get("amap_lng", node.get("lon"))
+        pinned["nearest_lat"] = node.get("amap_lat", node.get("lat"))
+
+    return pinned
 
 
 # =========================
@@ -1924,7 +2133,9 @@ def route():
     )
     visible_places, pagination_state = paginate_items(filtered_places, page, PLACES_PAGE_SIZE)
 
-    facility_start_node = request.args.get("facility_start_node", "").strip() or start
+    requested_facility_start = request.args.get("facility_start_node", "").strip()
+    requested_facility_start_food = request.args.get("facility_start_food", "").strip()
+    facility_query_requested = request.args.get("facility_query", "").strip() == "1"
     facility_type = request.args.get("facility_type", "").strip()
     facility_keyword = request.args.get("facility_keyword", "").strip()
     max_distance_raw = request.args.get("max_distance", "").strip()
@@ -1934,14 +2145,35 @@ def route():
         max_distance = None
 
     all_facilities = load_facilities(graph.get("place_id"))
-    facility_types = sorted({facility["type"] for facility in all_facilities if facility.get("type")})
-    facilities_result = find_nearby_facilities(
+    facility_start_context = resolve_facility_query_start(
+        requested_facility_start or start,
+        place_id,
         graph,
-        facility_start_node,
-        facility_type=facility_type,
-        keyword=facility_keyword,
-        max_distance=max_distance,
+        all_facilities,
+        explicit_food_key=requested_facility_start_food,
     )
+    facility_start_node = facility_start_context["value"]
+    facility_start_route_node = facility_start_context["node_id"]
+    facility_start_options = build_facility_start_options(graph, all_facilities, place_id)
+    facility_types = sorted({facility["type"] for facility in all_facilities if facility.get("type")})
+    facility_query_submitted = bool(facility_query_requested or facility_type or facility_keyword or max_distance_raw)
+    facilities_result = []
+    if facility_query_submitted and facility_start_route_node:
+        facilities_result = find_nearby_facilities(
+            graph,
+            facility_start_route_node,
+            facility_type=facility_type,
+            keyword=facility_keyword,
+            max_distance=max_distance,
+        )
+    map_facility_results = [
+        payload for payload in (
+            facility_map_payload(facility, graph, id_prefix="facility-result")
+            for facility in facilities_result
+        )
+        if payload
+    ]
+    facility_query_active = bool(facility_query_submitted and facility_start_route_node)
 
     base_query_params = {
         "place_id": place_id,
@@ -1962,6 +2194,8 @@ def route():
         "preferred_tags": selected_tags,
         "k": k,
         "facility_start_node": facility_start_node,
+        "facility_start_food": requested_facility_start_food,
+        "facility_query": "1" if facility_query_submitted else None,
         "facility_type": facility_type,
         "facility_keyword": facility_keyword,
         "max_distance": max_distance_raw,
@@ -1981,12 +2215,15 @@ def route():
         nearest_node = str(facility.get("nearest_node", "")).strip()
         if not nearest_node:
             continue
+        facility_id = str(facility.get("id") or "").strip()
+        facility_start_value = f"facility:{facility_id}" if facility_id else nearest_node
         facility["set_start_url"] = build_url_with_query(
             "route",
             {
                 **route_state_params,
                 "start": nearest_node,
-                "facility_start_node": nearest_node,
+                "facility_start_node": facility_start_value,
+                "facility_start_food": "",
             },
             anchor="routeSummary",
         )
@@ -1995,7 +2232,8 @@ def route():
             {
                 **route_state_params,
                 "end": nearest_node,
-                "facility_start_node": nearest_node,
+                "facility_start_node": facility_start_value,
+                "facility_start_food": "",
             },
             anchor="routeSummary",
         )
@@ -2003,12 +2241,19 @@ def route():
             "route",
             {
                 **route_state_params,
-                "facility_start_node": nearest_node,
+                "facility_start_node": facility_start_value,
+                "facility_start_food": "",
             },
             anchor="facilityResults",
         )
 
     route_foods, route_food_stats = get_route_linked_foods(place_id, graph, start, limit=5)
+    route_pinned_food_facility = pinned_food_facility_for_route(
+        return_food_key,
+        return_place_id or place_id,
+        graph,
+        origin_node=start,
+    )
     route_graph_args = {
         "place_id": place_id,
         "v": get_route_graph_version(place_id),
@@ -2045,6 +2290,7 @@ def route():
         route_return_to=return_to,
         route_return_food_key=return_food_key,
         route_return_place_id=return_place_id,
+        route_pinned_food_facility=route_pinned_food_facility,
         route_foods=route_foods,
         route_food_stats=route_food_stats,
         keyword=keyword,
@@ -2065,11 +2311,16 @@ def route():
         cities=place_filter_options["cities"],
         place_types=place_filter_options["place_types"],
         facility_start_node=facility_start_node,
+        facility_start_context=facility_start_context,
+        facility_start_options=facility_start_options,
         facility_type=facility_type,
         facility_keyword=facility_keyword,
         max_distance=max_distance_raw,
         facility_types=facility_types,
         facilities=facilities_result,
+        map_facility_results=map_facility_results,
+        facility_query_active=facility_query_active,
+        facility_query_submitted=facility_query_submitted,
         facility_total=len(facilities_result),
         facility_source_total=len(all_facilities),
         place_form_state={
@@ -2092,6 +2343,8 @@ def route():
             "food_pick": "1" if food_pick_mode else "",
             "edit_roads": "1" if edit_roads else "",
             "facility_start_node": facility_start_node,
+            "facility_start_food": requested_facility_start_food,
+            "facility_query": "1" if facility_query_submitted else "",
             "facility_type": facility_type,
             "facility_keyword": facility_keyword,
             "max_distance": max_distance_raw,
@@ -2119,6 +2372,8 @@ def route():
             "page": page,
             "preferred_tags": selected_tags,
             "facility_start_node": facility_start_node,
+            "facility_start_food": requested_facility_start_food,
+            "facility_query": "1" if facility_query_submitted else "",
             "facility_type": facility_type,
             "facility_keyword": facility_keyword,
             "max_distance": max_distance_raw,
@@ -2126,6 +2381,8 @@ def route():
         facility_form_state={
             "place_id": place_id,
             "facility_start_node": facility_start_node,
+            "facility_start_food": requested_facility_start_food,
+            "facility_query": "1" if facility_query_submitted else "",
             "facility_type": facility_type,
             "facility_keyword": facility_keyword,
             "max_distance": max_distance_raw,
@@ -2850,6 +3107,7 @@ configure_favorites(FavoriteServices(
     get_db_connection=get_db_connection,
     get_diary_by_id=get_diary_by_id,
     get_food_by_key=get_food_by_key,
+    get_place_by_id=get_place_by_id,
     load_diaries=load_diaries,
 ))
 
@@ -2908,6 +3166,7 @@ app.register_blueprint(create_auth_blueprint(AuthRouteServices(
     is_logged_in=lambda: globals()["is_logged_in"](),
     load_favorite_diaries=lambda *args, **kwargs: globals()["load_favorite_diaries"](*args, **kwargs),
     load_favorite_foods=lambda *args, **kwargs: globals()["load_favorite_foods"](*args, **kwargs),
+    load_favorite_places=lambda *args, **kwargs: globals()["load_favorite_places"](*args, **kwargs),
     load_places=lambda *args, **kwargs: globals()["load_places"](*args, **kwargs),
     load_user_diaries=lambda *args, **kwargs: globals()["load_user_diaries"](*args, **kwargs),
     save_user_avatar_choice=lambda *args, **kwargs: globals()["save_user_avatar_choice"](*args, **kwargs),
@@ -2921,6 +3180,8 @@ app.register_blueprint(create_places_blueprint(PlacesRouteServices(
     get_place_filter_options=lambda *args, **kwargs: globals()["get_place_filter_options"](*args, **kwargs),
     get_related_diaries_for_place=lambda *args, **kwargs: globals()["get_related_diaries_for_place"](*args, **kwargs),
     get_top_k_recommendations=lambda *args, **kwargs: globals()["get_top_k_recommendations"](*args, **kwargs),
+    get_logged_in_user=lambda: globals()["get_logged_in_user"](),
+    is_item_favorited=lambda *args, **kwargs: globals()["is_item_favorited"](*args, **kwargs),
     is_logged_in=lambda: globals()["is_logged_in"](),
     load_diaries=lambda *args, **kwargs: globals()["load_diaries"](*args, **kwargs),
     load_places=lambda *args, **kwargs: globals()["load_places"](*args, **kwargs),
@@ -2929,6 +3190,7 @@ app.register_blueprint(create_places_blueprint(PlacesRouteServices(
     places_page_size=lambda: globals()["PLACES_PAGE_SIZE"],
     save_place_image_record=lambda *args, **kwargs: globals()["save_place_image_record"](*args, **kwargs),
     save_uploaded_place_cover=lambda *args, **kwargs: globals()["save_uploaded_place_cover"](*args, **kwargs),
+    toggle_user_favorite=lambda *args, **kwargs: globals()["toggle_user_favorite"](*args, **kwargs),
 )))
 app.register_blueprint(create_foods_blueprint(FoodsRouteServices(
     build_food_candidates_for_place=lambda *args, **kwargs: globals()["build_food_candidates_for_place"](*args, **kwargs),
@@ -2986,7 +3248,6 @@ app.register_blueprint(create_diaries_blueprint(DiariesRouteServices(
     parse_positive_int=lambda *args, **kwargs: globals()["parse_positive_int"](*args, **kwargs),
     poll_bailian_video_task=lambda *args, **kwargs: globals()["poll_bailian_video_task"](*args, **kwargs),
     rate_diary_once=lambda *args, **kwargs: globals()["rate_diary_once"](*args, **kwargs),
-    remove_diary_media_files=lambda *args, **kwargs: globals()["remove_diary_media_files"](*args, **kwargs),
     save_diary_media_files=lambda *args, **kwargs: globals()["save_diary_media_files"](*args, **kwargs),
     select_diary_video_image=lambda *args, **kwargs: globals()["select_diary_video_image"](*args, **kwargs),
     stored_diary_media_items=lambda *args, **kwargs: globals()["stored_diary_media_items"](*args, **kwargs),
@@ -2994,7 +3255,6 @@ app.register_blueprint(create_diaries_blueprint(DiariesRouteServices(
     toggle_diary_comment_like=lambda *args, **kwargs: globals()["toggle_diary_comment_like"](*args, **kwargs),
     toggle_user_favorite=lambda *args, **kwargs: globals()["toggle_user_favorite"](*args, **kwargs),
     update_diary_compression_algorithm=lambda *args, **kwargs: globals()["update_diary_compression_algorithm"](*args, **kwargs),
-    update_diary_dev_fields=lambda *args, **kwargs: globals()["update_diary_dev_fields"](*args, **kwargs),
     update_diary_media=lambda *args, **kwargs: globals()["update_diary_media"](*args, **kwargs),
     update_diary_video_task=lambda *args, **kwargs: globals()["update_diary_video_task"](*args, **kwargs),
 )))
@@ -3041,7 +3301,6 @@ for legacy_endpoint, route_rule, route_methods in (
     ("diary_video_generation_start", "/api/diary/<int:diary_id>/video-generation", ["POST"]),
     ("diary_video_generation_latest", "/api/diary/<int:diary_id>/video-generation/latest", None),
     ("diary_video_generation_status", "/api/diary/<int:diary_id>/video-generation/<int:task_db_id>", None),
-    ("diary_dev_edit", "/diary/<int:diary_id>/dev-edit", ["GET", "POST"]),
     ("diary_favorite", "/diary/<int:diary_id>/favorite", ["POST"]),
     ("diary_comment_like", "/diary/<int:diary_id>/comments/<int:comment_id>/like", ["POST"]),
 ):
@@ -3069,6 +3328,7 @@ for legacy_endpoint, route_rule, route_methods in (
 for legacy_endpoint, route_rule, route_methods in (
     ("places", "/places", None),
     ("place_detail", "/place/<int:place_id>", None),
+    ("place_favorite", "/place/<int:place_id>/favorite", ["POST"]),
     ("upload_place_image", "/place/<int:place_id>/image/upload", ["POST"]),
     ("recommend_places", "/places/recommend", ["GET", "POST"]),
 ):

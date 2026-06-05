@@ -45,8 +45,6 @@ class DiariesRouteServices:
     download_diary_generated_video: object
     update_diary_video_task: object
     stored_diary_media_items: object
-    update_diary_dev_fields: object
-    remove_diary_media_files: object
     toggle_user_favorite: object
     get_db_connection: object
     toggle_diary_comment_like: object
@@ -65,6 +63,8 @@ def create_diaries_blueprint(services):
     @bp.route("/diaries", methods=["GET", "POST"])
     def diaries():
         if not services.is_logged_in():
+            if request.args.get("ajax") == "1":
+                return jsonify({"ok": False, "error": "auth_required"}), 401
             flash("请先登录")
             return redirect(url_for("login"))
 
@@ -102,6 +102,19 @@ def create_diaries_blueprint(services):
             pagination_state["total_pages"],
             {},
         )
+        if request.args.get("ajax") == "1":
+            html_content = render_template(
+                "diary_feed_items.html",
+                feed_diaries=diaries_list,
+                eager_limit=0,
+                show_diary_metrics=False,
+            )
+            return jsonify({
+                "ok": True,
+                "html": html_content,
+                "has_next": pagination["has_next"],
+                "next_url": pagination["next_url"] or "",
+            })
         current_user = services.get_logged_in_user()
         return render_template(
             "diaries.html",
@@ -119,6 +132,8 @@ def create_diaries_blueprint(services):
     @bp.route("/diaries/search")
     def diary_search():
         if not services.is_logged_in():
+            if request.args.get("ajax") == "1":
+                return jsonify({"ok": False, "error": "auth_required"}), 401
             flash("请先登录")
             return redirect(url_for("login"))
 
@@ -163,6 +178,19 @@ def create_diaries_blueprint(services):
                 "sort_by": sort_by,
             },
         )
+        if request.args.get("ajax") == "1":
+            html_content = render_template(
+                "diary_feed_items.html",
+                feed_diaries=diaries_list,
+                eager_limit=0,
+                show_diary_metrics=True,
+            )
+            return jsonify({
+                "ok": True,
+                "html": html_content,
+                "has_next": pagination["has_next"],
+                "next_url": pagination["next_url"] or "",
+            })
         recommendations = services.load_diaries(sort_by="hot_rating_desc")[:12]
         search_mode_options = [
             {"value": "exact", "label": "精确查询", "note": "标题完全一致"},
@@ -377,51 +405,6 @@ def create_diaries_blueprint(services):
             return jsonify({"ok": False, "error": str(exc), "task": task}), 502
 
         return jsonify({"ok": True, "task": task})
-
-
-    @bp.route("/diary/<int:diary_id>/dev-edit", methods=["GET", "POST"])
-    def diary_dev_edit(diary_id):
-        if not services.is_logged_in():
-            flash("请先登录")
-            return redirect(url_for("login"))
-
-        diary = services.get_diary_by_id(diary_id, increase_views=False)
-        if diary is None:
-            flash("未找到该旅游日记")
-            return redirect(url_for("diaries"))
-
-        all_places = services.load_places()
-        if request.method == "POST":
-            title = request.form.get("title", "").strip()
-            destination = request.form.get("destination", "").strip()
-            content = request.form.get("content", "").strip()
-            if not title or not destination or not content:
-                flash("标题、目的地和正文不能为空")
-                return redirect(url_for("diary_dev_edit", diary_id=diary_id))
-
-            removed_filenames = set(request.form.getlist("remove_media"))
-            media_items = [
-                item for item in services.stored_diary_media_items(diary)
-                if item.get("filename") not in removed_filenames
-            ]
-            appended_items = services.save_diary_media_files(diary_id, request.files.getlist("attachments"))
-            media_items.extend(appended_items)
-            compression_algorithm = diary.get("compression", {}).get("algorithm", "huffman")
-            services.update_diary_dev_fields(diary_id, title, destination, content, media_items, compression_algorithm)
-            if removed_filenames:
-                services.remove_diary_media_files(diary_id, removed_filenames)
-            flash("临时开发者编辑已保存")
-            return redirect(url_for("diary_detail", diary_id=diary_id, count_view=0))
-
-        current_user = services.get_logged_in_user()
-        return render_template(
-            "diary_dev_edit.html",
-            username=session["username"],
-            current_user=current_user,
-            current_user_avatar_url=services.get_user_avatar_url(current_user) if current_user else "",
-            diary=diary,
-            place_name_options=services.get_place_name_options(all_places),
-        )
 
 
     @bp.route("/diary/<int:diary_id>/favorite", methods=["POST"])

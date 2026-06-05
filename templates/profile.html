@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='avatar_picker.css', v=asset_version('avatar_picker.css')) }}">
 
     <!-- 引入个人中心专属高阶奢华样式表 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+    <link class="lux-int-ref" rel="stylesheet" href="{{ url_for('static', filename='luxury_profile_premium.css', v=asset_version('luxury_profile_premium.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
 
     <!-- 延迟加载交互式动效与助理脚本 -->
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
@@ -59,7 +60,7 @@
                     <h1 class="lux-greeting-title" id="greeting-text">
                         你好，<strong>{{ username }}</strong>
                     </h1>
-                    <p class="subtitle">这里可以管理头像和账号信息，查看你发布的日记、收藏和近期互动。</p>
+                    <p class="subtitle">头像、日记、收藏和评论都在这里，想回看哪段旅程就点开看看。</p>
                 </section>
             </div>
 
@@ -131,7 +132,7 @@
             <header class="lux-stage-header">
                 <span class="lux-stage-kicker">个人信息</span>
                 <h1 class="lux-stage-title">个人信息</h1>
-                <p class="subtitle">管理你的账号资料，查看日记、收藏和互动记录。</p>
+                <p class="subtitle">整理账号资料，也回看你留下的日记、收藏和评论。</p>
             </header>
 
             <!-- 水平高级数据统计星轨 (Vial Stats Rack) -->
@@ -144,7 +145,7 @@
                     <span class="lux-stat-value">{{ stats.comment_count }}</span>
                     <span class="lux-stat-label">评论</span>
                 </div>
-                <div class="lux-stat-vial" id="stat-total-favorites" title="你的收藏总数（包含日记与美食）">
+                <div class="lux-stat-vial" id="stat-total-favorites" title="你的收藏总数（包含景点、日记与美食）">
                     <span class="lux-stat-value">{{ stats.favorite_count }}</span>
                     <span class="lux-stat-label">全部收藏</span>
                 </div>
@@ -160,7 +161,7 @@
                 <section class="glass-panel glass-panel--wide" id="lux-panel-traveler-archives" aria-labelledby="heading-traveler-archives">
                     <div class="glass-panel-head" style="border-bottom: none; padding-bottom: 0; margin-bottom: 12px;">
                         <h2 id="heading-traveler-archives">我的内容</h2>
-                        <p>查看你发布的日记、收藏的日记和美食，以及近期评论记录。</p>
+                        <p>你的日记、收藏和评论都收在这里。</p>
                     </div>
 
                     <!-- 高定分段选择标签页 (Capsule Segmented Tab Control) -->
@@ -170,6 +171,9 @@
                         </button>
                         <button type="button" class="tab-trigger" data-tab="starred-diaries" role="tab" aria-selected="false" id="tab-btn-starred-diaries">
                             <span class="tab-icon">⭐</span> 收藏日记 ({{ stats.favorite_diary_count }})
+                        </button>
+                        <button type="button" class="tab-trigger" data-tab="favorite-places" role="tab" aria-selected="false" id="tab-btn-favorite-places">
+                            <span class="tab-icon">⌖</span> 收藏景点 ({{ stats.favorite_place_count }})
                         </button>
                         <button type="button" class="tab-trigger" data-tab="favorite-foods" role="tab" aria-selected="false" id="tab-btn-favorite-foods">
                             <span class="tab-icon">🍔</span> 收藏美食 ({{ stats.favorite_food_count }})
@@ -182,7 +186,7 @@
                     <!-- 标签页内容区域一：我撰写的旅行日记册 -->
                     <div class="tab-content active" id="tab-content-my-diaries" role="tabpanel" aria-labelledby="tab-btn-my-diaries">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px;">
-                            <span style="font-size: 0.8rem; color: var(--lux-slate-muted);">展示你在系统中发布的旅行日记。</span>
+                            <span style="font-size: 0.8rem; color: var(--lux-slate-muted);">你写过的旅行日记。</span>
                             <a href="{{ url_for('user_profile', user_id=current_user.id) }}" class="lux-footer-btn profile" style="font-size: 0.68rem; letter-spacing: 0.12em; white-space: nowrap;" id="lux-btn-public-profile">查看公开主页</a>
                         </div>
 
@@ -197,13 +201,13 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <div class="profile-empty">你还没有发布日记，可以去日记广场写第一篇。</div>
+                        <div class="profile-empty">还没有发布日记，去日记广场写第一篇吧。</div>
                         {% endif %}
                     </div>
 
                     <!-- 标签页内容区域二：星标归藏的旅游画卷 -->
                     <div class="tab-content" id="tab-content-starred-diaries" role="tabpanel" aria-labelledby="tab-btn-starred-diaries">
-                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">在日记详情页点亮星标后，会收藏到这里。</p>
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">点亮过星标的日记会来到这里。</p>
 
                         {% if favorite_diaries %}
                         <div class="profile-card-list">
@@ -216,13 +220,49 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <div class="profile-empty">暂时没有收藏日记，可以去日记广场看看。</div>
+                        <div class="profile-empty">暂时没有收藏日记，去日记广场逛逛看。</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 标签页内容区域：收藏景点 -->
+                    <div class="tab-content" id="tab-content-favorite-places" role="tabpanel" aria-labelledby="tab-btn-favorite-places">
+                        <div class="profile-place-toolbar">
+                            <p>收藏过的地点会在这里排成一张轻旅行清单。</p>
+                            <label class="profile-place-search">
+                                <span>查找景点</span>
+                                <input type="search" data-profile-place-search placeholder="输入城市、标签或地点名">
+                            </label>
+                        </div>
+
+                        {% if favorite_places %}
+                        <div class="profile-place-grid" data-profile-place-grid>
+                            {% for place in favorite_places %}
+                            <a class="profile-place-card" id="lux-favorite-place-{{ place.id }}" href="{{ url_for('place_detail', place_id=place.id) }}" data-place-search="{{ place.name }} {{ place.city }} {{ place.type }} {{ place.tags }}">
+                                <div class="profile-place-card__image">
+                                    {% if place.cover_image %}
+                                    <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 封面" loading="lazy" width="320" height="220">
+                                    {% else %}
+                                    <span>{{ place.name[:2] }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="profile-place-card__body">
+                                    <strong>{{ place.name }}</strong>
+                                    <span>{{ place.city }} · {{ place.type }} · 评分 {{ place.rating }}</span>
+                                    <p>{{ place.description }}</p>
+                                    <em>{{ place.favorite_created_at }}</em>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        <div class="profile-empty profile-place-empty" data-profile-place-empty hidden>没有找到匹配的收藏景点。</div>
+                        {% else %}
+                        <div class="profile-empty">还没有收藏景点，去景点探索页挑一个想去的地方。</div>
                         {% endif %}
                     </div>
 
                     <!-- 标签页内容区域三：舌尖上的星标收藏美食廊 -->
                     <div class="tab-content" id="tab-content-favorite-foods" role="tabpanel" aria-labelledby="tab-btn-favorite-foods">
-                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">这里会显示你收藏过的美食店铺。</p>
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">收藏过的美食店铺会出现在这里。</p>
 
                         {% if favorite_foods %}
                         <div class="profile-food-grid">
@@ -240,13 +280,13 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <div class="profile-empty">暂时没有收藏美食，可以去美食推荐页看看。</div>
+                        <div class="profile-empty">暂时没有收藏美食，去美食推荐页找一口喜欢的。</div>
                         {% endif %}
                     </div>
 
                     <!-- 标签页内容区域四：足迹回音时间线 -->
                     <div class="tab-content" id="tab-content-chronicle" role="tabpanel" aria-labelledby="tab-btn-chronicle">
-                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">这里显示你最近发表过的评论。</p>
+                        <p style="font-size: 0.8rem; color: var(--lux-slate-muted); margin-bottom: 20px;">最近说过的话，会在这里排成小时间线。</p>
 
                         {% if recent_comments %}
                         <div class="profile-chronicle">
@@ -269,7 +309,7 @@
                 <section class="glass-panel glass-panel--wide" id="lux-panel-account-credentials" aria-labelledby="heading-account-credentials">
                     <div class="glass-panel-head">
                         <h2 id="heading-account-credentials">账号设置</h2>
-                        <p>修改头像、用户名和登录密码。</p>
+                        <p>换头像，或更新用户名和密码。</p>
                     </div>
 
                     <!-- 双栏高密度布局，头像与字段表单并排放置 -->
@@ -302,7 +342,7 @@
 
                             <label for="lux-input-current-password">
                                 <span>当前密码</span>
-                                <input type="password" id="lux-input-current-password" name="current_password" placeholder="修改用户名或密码时需要填写" autocomplete="current-password">
+                                <input type="password" id="lux-input-current-password" name="current_password" placeholder="修改资料时需要填写" autocomplete="current-password">
                             </label>
 
                             <label for="lux-input-new-password">

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ building_name }} - 室内导航</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version('style.css')) }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='luxury_interactions.css', v=asset_version('luxury_interactions.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='indoor.css', v=asset_version('indoor.css')) }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ai_assistant.css', v=asset_version('ai_assistant.css')) }}">
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
@@ -17,9 +18,7 @@
         <aside class="indoor-console">
             <div class="indoor-console__dock">
                 <div class="indoor-console__brand">
-                    <span class="indoor-logo-mark" aria-hidden="true">
-                        <i></i>
-                    </span>
+                    <span class="indoor-logo-mark" aria-hidden="true">🏢</span>
                     <span>
                         <small>TourSim Indoor</small>
                         <strong>室内导航</strong>
@@ -31,13 +30,13 @@
             <section class="indoor-panel indoor-panel--controls">
                 <div class="indoor-panel__head">
                     <h2>导航设置</h2>
-                    <p>点击地图关键点，或用下方字段精确选择。</p>
+                    <p>点地图上的关键点，或在下面直接搜索。</p>
                 </div>
                 <div class="indoor-pick-status" aria-live="polite">
                     <span class="indoor-pick-status__dot" aria-hidden="true"></span>
                     <div>
                         <strong data-indoor-pick-title>正在设置起点</strong>
-                        <span data-indoor-pick-hint>点击地图上的采集点，直接设为起点。</span>
+                        <span data-indoor-pick-hint>点一下平面图上的点，就能设为起点。</span>
                     </div>
                 </div>
                 <div class="indoor-pick-mode" aria-label="地图点选模式">
@@ -79,18 +78,18 @@
                     <input type="hidden" name="building_name" value="{{ building_name }}">
                     <div class="indoor-form-actions">
                         <button type="submit">重新规划</button>
-                        <button type="button" class="indoor-clear-action" data-indoor-clear>清空选择</button>
+                        <button type="button" class="indoor-clear-action" data-indoor-clear onclick="return window.clearIndoorRouteSelection(event, this)">清空选择</button>
                     </div>
                 </form>
             </section>
 
             <section class="indoor-panel indoor-panel--steps">
                 <div class="indoor-panel__head">
-                    <h2>路线说明</h2>
+                    <h2>怎么走</h2>
                     {% if route_result %}
-                    <p>总距离 {{ "%.1f"|format(route_result.total) }} 米，已过滤道路采样点。</p>
+                    <p>总距离 {{ "%.1f"|format(route_result.total) }} 米，步骤已整理好。</p>
                     {% else %}
-                    <p>当前约束下未找到室内路线。</p>
+                    <p>这组选择暂时没找到室内路线。</p>
                     {% endif %}
                 </div>
                 {% if route_steps %}
@@ -103,7 +102,7 @@
                     {% endfor %}
                 </ol>
                 {% else %}
-                <div class="indoor-empty">请调整起点、终点或换层方式后重新规划。</div>
+                <div class="indoor-empty">换个起点、终点或换层方式，再试一次。</div>
                 {% endif %}
             </section>
         </aside>
@@ -112,11 +111,11 @@
             <div class="indoor-map-head">
                 <div>
                     <span class="eyebrow">FLOOR PLANS</span>
-                    <h2>{{ building_name }} · 1F-4F 楼层底图导航</h2>
-                    <p>采集点与路径叠加在真实楼层底图上，滚动查看各楼层。</p>
+                    <h2>{{ building_name }} · 楼层导航</h2>
+                    <p>路线会叠在楼层底图上，往下滚动就能看完整路径。</p>
                 </div>
                 <div class="indoor-legend" aria-label="图例">
-                    <span><i class="is-route"></i>荧光路线</span>
+                    <span><i class="is-route"></i>当前路线</span>
                     <span><i class="is-core"></i>采集点</span>
                 </div>
             </div>
@@ -137,6 +136,7 @@
                         {% endfor %}
                         <g class="indoor-node-layer">
                             {% for node in floor.display_nodes %}
+                            {% set label_width = 34 + (node.name|length * 13) %}
                             <g class="indoor-node-marker is-{{ node.type }} {% if node.is_path %}is-path-node{% endif %} {% if node.is_start %}is-start{% endif %} {% if node.is_end %}is-end{% endif %}"
                                transform="translate({{ node.x }}, {{ node.y }})"
                                tabindex="0"
@@ -147,8 +147,11 @@
                                data-node-floor="{{ node.floor }}">
                                 <title>{{ node.name }}</title>
                                 <circle class="indoor-node-halo" r="18"></circle>
-                                <circle class="indoor-node-dot" r="{% if node.is_start or node.is_end %}11{% else %}8{% endif %}"></circle>
-                                <text class="indoor-node-label" x="16" y="-14">{{ node.name }}</text>
+                                <circle class="indoor-node-dot" r="8"></circle>
+                                <g class="indoor-node-label-card" transform="{% if node.x > floor.width - 260 %}translate(-{{ label_width + 13 }} -27){% else %}translate(13 -27){% endif %}">
+                                    <rect x="0" y="0" width="{{ label_width }}" height="24" rx="12" ry="12"></rect>
+                                    <text class="indoor-node-label" x="12" y="16">{{ node.name }}</text>
+                                </g>
                             </g>
                             {% endfor %}
                         </g>
@@ -165,5 +168,36 @@
             </div>
         </section>
     </main>
+    <script>
+        window.clearIndoorRouteSelection = function (event, button) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof event.stopImmediatePropagation === "function") {
+                    event.stopImmediatePropagation();
+                }
+            }
+
+            const form = button && button.form ? button.form : document.getElementById("indoorRouteForm");
+            const url = new URL("{{ url_for('indoor') }}", window.location.origin);
+            const params = url.searchParams;
+            const buildingId = form ? form.querySelector('input[name="building_id"]') : null;
+            const buildingName = form ? form.querySelector('input[name="building_name"]') : null;
+            const verticalMode = form ? form.querySelector('select[name="vertical_mode"]') : null;
+
+            if (buildingId && buildingId.value) {
+                params.set("building_id", buildingId.value);
+            }
+            if (buildingName && buildingName.value) {
+                params.set("building_name", buildingName.value);
+            }
+            if (verticalMode && verticalMode.value) {
+                params.set("vertical_mode", verticalMode.value);
+            }
+            params.set("clear", "1");
+            window.location.assign(url.toString());
+            return false;
+        };
+    </script>
 </body>
 </html>

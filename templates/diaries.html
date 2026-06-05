@@ -18,6 +18,7 @@
     <div class="diary-shell" data-diary-feed-page>
         <header class="diary-topbar">
             <div class="diary-brand diary-brand--compact">
+                <span class="diary-brand-mark" aria-hidden="true">📝</span>
                 <div class="diary-brand-copy">
                     <h1>旅游日记广场</h1>
                 </div>
@@ -118,29 +119,9 @@
                 {% endfor %}
             </section>
             {% if pagination is defined and pagination.total_pages > 1 %}
-            <nav class="pagination-bar diary-pagination" aria-label="日记列表分页">
-                {% if pagination.has_prev %}
-                <a class="pagination-btn" href="{{ pagination.prev_url }}">上一页</a>
-                {% else %}
-                <span class="pagination-btn is-disabled">上一页</span>
-                {% endif %}
-
-                <div class="pagination-pages">
-                    {% for item in pagination.pages %}
-                    {% if item.is_current %}
-                    <span class="pagination-page is-current">{{ item.page }}</span>
-                    {% else %}
-                    <a class="pagination-page" href="{{ item.url }}">{{ item.page }}</a>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-
-                {% if pagination.has_next %}
-                <a class="pagination-btn" href="{{ pagination.next_url }}">下一页</a>
-                {% else %}
-                <span class="pagination-btn is-disabled">下一页</span>
-                {% endif %}
-            </nav>
+            <div class="diary-infinite-loader" id="diaryInfiniteLoader" data-next-url="{{ pagination.next_url or '' }}" data-has-next="{% if pagination.has_next %}true{% else %}false{% endif %}" aria-live="polite">
+                <span class="diary-infinite-loader__text">继续向下，加载更多日记</span>
+            </div>
             {% endif %}
             {% else %}
             <section class="empty-state">
