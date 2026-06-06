@@ -174,6 +174,7 @@ from toursim.diary_repository import (
     update_diary_compression_algorithm,
     update_diary_media,
 )
+from toursim.diary_seed import seed_demo_diaries
 from toursim.geo import haversine_amap, polyline_distance
 from toursim.food_repository import (
     FoodRepositoryConfig,
@@ -430,6 +431,8 @@ RUNTIME_DATA_DIR = os.getenv("DATA_DIR", APP_DIR)
 DB_NAME = os.getenv("DB_NAME", "tourism.db")
 DB_PATH = DB_NAME if os.path.isabs(DB_NAME) else os.path.join(RUNTIME_DATA_DIR, DB_NAME)
 SEED_DB_PATH = os.path.join(APP_DIR, "tourism.db")
+DEMO_DIARY_SEED_PATH = os.path.join(APP_DIR, "data", "demo_diaries_seed.json")
+DEMO_DIARY_SEED_ENABLED = os.getenv("TOURSIM_DEMO_DIARY_SEED", "0").lower() in ("1", "true", "yes", "on")
 
 PLACES_FILE = os.path.join(APP_DIR, "data", "places.csv")
 FACILITIES_FILE = os.path.join(APP_DIR, "data", "facilities.csv")
@@ -802,8 +805,10 @@ def initialize_database():
         if resolved_avatar != user["avatar_path"]:
             cursor.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (resolved_avatar, user["id"]))
 
+    seeded_diary_count = seed_demo_diaries(cursor, DEMO_DIARY_SEED_PATH) if DEMO_DIARY_SEED_ENABLED else 0
+
     cursor.execute("SELECT COUNT(*) FROM diaries")
-    if cursor.fetchone()[0] == 0:
+    if seeded_diary_count == 0 and cursor.fetchone()[0] == 0:
         samples = [
             ("沙河校区半日游", "北京邮电大学沙河校区", "从南门进入，先到中心广场，再经过图书馆和观景湖，最后在第一食堂休息。路线短，适合首次参观校园。", "system"),
             ("故宫历史路线记录", "故宫", "适合喜欢历史文化的同学，建议提前规划路线并避开高峰时段，重点关注建筑轴线和展馆介绍。", "system"),
