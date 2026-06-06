@@ -23,10 +23,10 @@ except ImportError:
 class DiaryMediaConfig:
     upload_dir: str
     generated_video_dir: str
-    thumbnail_dirname: str = "_thumbs_v3"
-    thumbnail_version: str = "3"
-    thumbnail_max_size: tuple = (960, 1200)
-    thumbnail_jpeg_quality: int = 88
+    thumbnail_dirname: str = "_thumbs_v4"
+    thumbnail_version: str = "4"
+    thumbnail_max_size: tuple = (720, 900)
+    thumbnail_jpeg_quality: int = 82
     allowed_image_exts: set = None
     allowed_video_exts: set = None
 
@@ -166,7 +166,7 @@ def resolve_diary_generated_video_path(diary_id, filename):
 def diary_thumbnail_filename(source_path):
     stat = os.stat(source_path)
     source_name = os.path.basename(source_path)
-    digest = hashlib.sha1(f"{source_name}:{stat.st_mtime_ns}:{stat.st_size}".encode("utf-8")).hexdigest()[:16]
+    digest = hashlib.sha1(f"{source_name}:{stat.st_size}".encode("utf-8")).hexdigest()[:16]
     stem = os.path.splitext(secure_filename(source_name) or "media")[0]
     return f"{stem}-{digest}.jpg"
 
@@ -187,8 +187,10 @@ def ensure_diary_image_thumbnail(diary_id, filename):
     try:
         with Image.open(source_path) as image:
             image = ImageOps.exif_transpose(image).convert("RGB")
-            image.thumbnail(DIARY_THUMBNAIL_MAX_SIZE, Image.Resampling.LANCZOS)
-            image.save(thumb_path, "JPEG", quality=DIARY_THUMBNAIL_JPEG_QUALITY, optimize=True, progressive=True)
+            max_size = tuple(DIARY_THUMBNAIL_MAX_SIZE)
+            jpeg_quality = int(str(DIARY_THUMBNAIL_JPEG_QUALITY))
+            image.thumbnail(max_size, Image.Resampling.LANCZOS)
+            image.save(thumb_path, "JPEG", quality=jpeg_quality, optimize=True, progressive=True)
     except Exception:
         return None
     return thumb_path
