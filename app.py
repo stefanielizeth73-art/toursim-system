@@ -1741,36 +1741,82 @@ def indoor():
 
     default_start, default_end = indoor_default_endpoints(graph)
     clear_selection = request.args.get("clear", "").strip() == "1"
+    has_start_arg = "start" in request.args
+    has_end_arg = "end" in request.args
+    has_endpoint_args = has_start_arg or has_end_arg
 
     if clear_selection:
         start = ""
         end = ""
+    elif has_endpoint_args:
+        start = request.args.get("start", "").strip()
+        end = request.args.get("end", "").strip()
     else:
         start = request.args.get("start", default_start).strip() or default_start
         end = request.args.get("end", default_end).strip() or default_end
     vertical_mode = request.args.get("vertical_mode", "auto").strip().lower()
 
     if start and start not in graph["node_map"]:
-        start = default_start
+        start = default_start if not has_endpoint_args else ""
     if end and end not in graph["node_map"]:
-        end = default_end
+        end = default_end if not has_endpoint_args else ""
     if vertical_mode not in INDOOR_VERTICAL_MODES:
         vertical_mode = "auto"
 
+    pick_mode = request.args.get("pick_mode", "").strip().lower()
+    if pick_mode not in {"start", "end"}:
+        pick_mode = "end" if start and not end else "start"
+
+    def indoor_selection_url(**overrides):
+        params = {
+            "building_id": building_id,
+            "building_name": building_name,
+            "vertical_mode": vertical_mode,
+        }
+        if start:
+            params["start"] = start
+        if end:
+            params["end"] = end
+        params.update(overrides)
+        params = {key: value for key, value in params.items() if value not in ("", None)}
+        query = urlencode(params)
+        return url_for("indoor") + (f"?{query}" if query else "")
+
     route_result = indoor_shortest_path(graph, start, end, vertical_mode=vertical_mode) if start and end else None
     node_options = indoor_node_options(graph)
+    floors = prepare_indoor_floors(graph, route_result)
+    for floor in floors:
+        for node in floor.get("display_nodes", []):
+            next_start = start
+            next_end = end
+            if pick_mode == "end":
+                next_end = node["id"]
+            else:
+                next_start = node["id"]
+            node["pick_target"] = pick_mode
+            node["pick_url"] = indoor_selection_url(
+                start=next_start,
+                end=next_end,
+                pick_mode="start" if next_start and next_end else ("start" if pick_mode == "end" else "end"),
+            )
+            node["pick_label"] = f"设为{'终点' if pick_mode == 'end' else '起点'}：{node.get('name', node['id'])}"
+
     return render_template(
         "indoor.html",
         username=session["username"],
         building_id=building_id,
         building_name=building_name,
+        clear_selection=clear_selection,
+        pick_mode=pick_mode,
+        pick_start_url=indoor_selection_url(pick_mode="start"),
+        pick_end_url=indoor_selection_url(pick_mode="end"),
         start=start,
         end=end,
         start_node=graph["node_map"].get(start),
         end_node=graph["node_map"].get(end),
         vertical_mode=vertical_mode,
         node_options=node_options,
-        floors=prepare_indoor_floors(graph, route_result),
+        floors=floors,
         route_result=route_result,
         route_steps=indoor_route_steps(route_result, graph),
         vertical_modes=[

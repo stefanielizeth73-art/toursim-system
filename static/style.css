@@ -23160,6 +23160,32 @@ body.place-dossier-page .place-tags-hint {
     letter-spacing: 0;
 }
 
+body.place-dossier-page .place-dossier-photo-panel {
+    align-self: start !important;
+    gap: 10px !important;
+    padding-bottom: 12px !important;
+}
+
+body.place-dossier-page .place-dossier-proof {
+    gap: 6px !important;
+    align-items: center !important;
+}
+
+body.place-dossier-page .place-dossier-proof span {
+    min-height: 24px !important;
+    padding: 0 9px !important;
+    border-radius: 8px !important;
+    border-color: rgba(247, 239, 218, 0.13) !important;
+    color: rgba(217, 188, 136, 0.86) !important;
+    background: rgba(255, 253, 248, 0.035) !important;
+    box-shadow: none !important;
+    font-size: 0.72rem !important;
+    font-weight: 780 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+}
+
 body.place-dossier-page .place-tag-popover-wrap,
 body.place-dossier-page .place-dossier-tags span {
     min-height: 0 !important;

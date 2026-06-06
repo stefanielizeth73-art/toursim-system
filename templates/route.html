@@ -189,23 +189,27 @@
                         {{ hidden_inputs(route_form_state, skip=['facility_start_node', 'facility_start_food', 'facility_query', 'facility_type', 'facility_keyword', 'max_distance']) }}
                         <input type="hidden" name="active_panel" value="places">
                         <input type="hidden" name="facility_query" value="1">
-                        <div class="explore-grid explore-grid--two">
+                        <div class="explore-grid explore-grid--full">
                             <label class="explore-field">
                                 <span>起点</span>
-                                <input class="facility-start-search" type="search" id="facilityStartSearch" placeholder="搜索路线点、餐馆或场所" autocomplete="off">
-                                <select name="facility_start_node" id="facilityStartNode">
-                                    <option value="">沿用当前路线起点</option>
-                                    {% for option in facility_start_options %}
-                                        <option value="{{ option.value }}" data-source="{{ option.source }}" data-search="{{ option.name }} {{ option.type }}" {% if facility_start_node == option.value %}selected{% endif %}>
-                                            {{ option.name }} · {{ option.type }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                <div class="explore-field-row">
+                                    <input class="facility-start-search" type="search" id="facilityStartSearch" placeholder="搜索路线点、餐馆或场所" autocomplete="off">
+                                    <select name="facility_start_node" id="facilityStartNode">
+                                        <option value="">沿用当前路线起点</option>
+                                        {% for option in facility_start_options %}
+                                            <option value="{{ option.value }}" data-source="{{ option.source }}" data-search="{{ option.name }} {{ option.type }}" {% if facility_start_node == option.value %}selected{% endif %}>
+                                                {{ option.name }} · {{ option.type }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                                 {% if facility_start_context.label %}
                                     <small class="explore-field__hint">当前起点：{{ facility_start_context.label }}</small>
                                 {% endif %}
                             </label>
+                        </div>
 
+                        <div class="explore-grid explore-grid--three">
                             <label class="explore-field">
                                 <span>设施类型</span>
                                 <select name="facility_type">
@@ -215,9 +219,7 @@
                                     {% endfor %}
                                 </select>
                             </label>
-                        </div>
 
-                        <div class="explore-grid explore-grid--two">
                             <label class="explore-field">
                                 <span>最大距离</span>
                                 <select name="max_distance">

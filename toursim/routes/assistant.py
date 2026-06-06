@@ -50,15 +50,14 @@ def create_assistant_blueprint(services):
         executable_route_answer = services.ai_executable_route_answer(local_payload)
         if executable_route_answer:
             local_payload["answer"] = executable_route_answer
-        else:
-            try:
-                model_answer = services.ai_provider_answer(message, page_context, local_payload, history)
-            except Exception as exc:
-                model_answer = None
-                model_error = f"{type(exc).__name__}: {exc}"
-            if model_answer:
-                local_payload["answer"] = model_answer
-                provider = config["provider"]
+        try:
+            model_answer = services.ai_provider_answer(message, page_context, local_payload, history)
+        except Exception as exc:
+            model_answer = None
+            model_error = f"{type(exc).__name__}: {exc}"
+        if model_answer:
+            local_payload["answer"] = model_answer
+            provider = config["provider"]
 
         services.ai_store_chat_message(user_id, conversation_id, "user", message)
         response_payload = {

@@ -816,12 +816,8 @@
         const endSelect = form.querySelector('select[name="end"]');
         const searchInputs = Array.from(document.querySelectorAll("[data-indoor-node-search]"));
         const searchMenus = Array.from(document.querySelectorAll("[data-indoor-search-menu]"));
-        const pickButtons = Array.from(document.querySelectorAll("[data-indoor-pick-mode]"));
-        const pickTitle = document.querySelector("[data-indoor-pick-title]");
-        const pickHint = document.querySelector("[data-indoor-pick-hint]");
         const submitButton = form.querySelector('button[type="submit"]');
-        const clearButton = document.querySelector("[data-indoor-clear]");
-        let pickMode = "start";
+        const clearButton = document.querySelector("[data-indoor-clear-selection]");
 
         const nodeOptions = Array.from((startSelect || endSelect || { options: [] }).options)
             .filter(function (option) {
@@ -840,22 +836,6 @@
             return nodeOptions.find(function (node) {
                 return node.id === nodeId;
             }) || null;
-        }
-
-        function setPickMode(mode) {
-            pickMode = mode === "end" ? "end" : "start";
-            body.setAttribute("data-indoor-pick-mode", pickMode);
-            pickButtons.forEach(function (button) {
-                button.classList.toggle("is-active", button.getAttribute("data-indoor-pick-mode") === pickMode);
-            });
-            if (pickTitle) {
-                pickTitle.textContent = pickMode === "end" ? "正在设置终点" : "正在设置起点";
-            }
-            if (pickHint) {
-                pickHint.textContent = pickMode === "end"
-                    ? "点击地图上的采集点，直接设为目标位置。"
-                    : "点击地图上的采集点，直接设为出发位置。";
-            }
         }
 
         function selectForMode(mode) {
@@ -939,6 +919,7 @@
                 button.addEventListener("click", function () {
                     setNodeValue(mode, node.id);
                     hideSearchMenus();
+                    submitRoute();
                 });
                 menu.appendChild(button);
             });
@@ -978,11 +959,249 @@
             }
         }
 
-        pickButtons.forEach(function (button) {
-            button.addEventListener("click", function () {
-                setPickMode(button.getAttribute("data-indoor-pick-mode"));
+        const nodeLinks = Array.from(document.querySelectorAll(".indoor-node-link[data-node-id]"));
+        const hoverTooltip = document.createElement("div");
+        hoverTooltip.className = "indoor-node-focus-tooltip";
+        hoverTooltip.setAttribute("role", "status");
+        hoverTooltip.setAttribute("aria-hidden", "true");
+        document.body.appendChild(hoverTooltip);
+        let pointerFrame = 0;
+        let lastPointer = null;
+
+        function nodeMarkerFor(link) {
+            return link.querySelector(".indoor-node-marker");
+        }
+
+        function nodePointFor(link) {
+            const point = link.querySelector(".indoor-node-hit") || link.querySelector(".indoor-node-dot") || nodeMarkerFor(link);
+            if (!point) {
+                return null;
+            }
+            const rect = point.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        function hideNodeTooltip() {
+            hoverTooltip.classList.remove("is-visible", "is-below");
+            hoverTooltip.setAttribute("aria-hidden", "true");
+            nodeLinks.forEach(function (link) {
+                const marker = nodeMarkerFor(link);
+                if (marker) {
+                    marker.classList.remove("is-hovered-node");
+                }
             });
-        });
+        }
+
+        function placeNodeTooltip(x, y) {
+            const margin = 14;
+            const width = hoverTooltip.offsetWidth || 160;
+            const height = hoverTooltip.offsetHeight || 40;
+            const left = Math.min(Math.max(x, margin + width / 2), window.innerWidth - margin - width / 2);
+            const shouldShowBelow = y - height - 24 < margin;
+            hoverTooltip.style.left = left + "px";
+            hoverTooltip.style.top = (shouldShowBelow ? y + 18 : y - 18) + "px";
+            hoverTooltip.classList.toggle("is-below", shouldShowBelow);
+        }
+
+        function showNodeTooltip(link, x, y) {
+            const marker = nodeMarkerFor(link);
+            const name = link.getAttribute("data-node-name") || link.getAttribute("aria-label") || "";
+            if (!marker || !name) {
+                return;
+            }
+            nodeLinks.forEach(function (item) {
+                const itemMarker = nodeMarkerFor(item);
+                if (itemMarker && itemMarker !== marker) {
+                    itemMarker.classList.remove("is-hovered-node");
+                }
+            });
+            marker.classList.add("is-hovered-node");
+            hoverTooltip.textContent = name;
+            hoverTooltip.setAttribute("aria-hidden", "false");
+            hoverTooltip.classList.add("is-visible");
+            placeNodeTooltip(x, y);
+        }
+
+        function updateNearbyNodeLabels(x, y) {
+            const radius = 112;
+            const radiusSquared = radius * radius;
+            nodeLinks.forEach(function (link) {
+                const marker = nodeMarkerFor(link);
+                const point = nodePointFor(link);
+                if (!marker || !point) {
+                    return;
+                }
+                const dx = point.x - x;
+                const dy = point.y - y;
+                marker.classList.toggle("is-near-cursor", dx * dx + dy * dy <= radiusSquared);
+            });
+        }
+
+        function closestNodeLinkToPointer(x, y, maxRadius) {
+            let closest = null;
+            let closestDistance = maxRadius * maxRadius;
+            nodeLinks.forEach(function (link) {
+                const marker = nodeMarkerFor(link);
+                const point = nodePointFor(link);
+                if (!marker || !point) {
+                    return;
+                }
+                const dx = point.x - x;
+                const dy = point.y - y;
+                const distance = dx * dx + dy * dy;
+                if (distance <= closestDistance) {
+                    closestDistance = distance;
+                    closest = link;
+                }
+            });
+            return closest;
+        }
+
+        function clearNearbyNodeLabels() {
+            if (pointerFrame) {
+                window.cancelAnimationFrame(pointerFrame);
+                pointerFrame = 0;
+            }
+            lastPointer = null;
+            nodeLinks.forEach(function (link) {
+                const marker = nodeMarkerFor(link);
+                if (marker) {
+                    marker.classList.remove("is-near-cursor", "is-hovered-node");
+                }
+            });
+            hideNodeTooltip();
+        }
+
+        function scheduleNearbyNodeLabels(event) {
+            lastPointer = {
+                x: event.clientX,
+                y: event.clientY
+            };
+            const hoverLink = event.target.closest ? event.target.closest(".indoor-node-link[data-node-id]") : null;
+            const nearestLink = hoverLink || closestNodeLinkToPointer(event.clientX, event.clientY, 34);
+            if (nearestLink) {
+                showNodeTooltip(nearestLink, event.clientX, event.clientY);
+            } else {
+                hideNodeTooltip();
+            }
+            if (pointerFrame) {
+                return;
+            }
+            pointerFrame = window.requestAnimationFrame(function () {
+                pointerFrame = 0;
+                if (lastPointer) {
+                    updateNearbyNodeLabels(lastPointer.x, lastPointer.y);
+                }
+            });
+        }
+
+        const indoorMap = document.getElementById("indoorMap");
+        if (indoorMap && nodeLinks.length) {
+            indoorMap.addEventListener("pointermove", scheduleNearbyNodeLabels);
+            indoorMap.addEventListener("pointerleave", function () {
+                lastPointer = null;
+                clearNearbyNodeLabels();
+            });
+            nodeLinks.forEach(function (link) {
+                link.addEventListener("click", function (event) {
+                    const href = link.getAttribute("href");
+                    if (!href || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                        return;
+                    }
+                    event.preventDefault();
+                    window.location.assign(href);
+                });
+                link.addEventListener("pointerenter", function (event) {
+                    showNodeTooltip(link, event.clientX, event.clientY);
+                });
+                link.addEventListener("pointermove", function (event) {
+                    showNodeTooltip(link, event.clientX, event.clientY);
+                });
+                link.addEventListener("pointerleave", hideNodeTooltip);
+                link.addEventListener("focus", function () {
+                    const rect = link.getBoundingClientRect();
+                    showNodeTooltip(link, rect.left + rect.width / 2, rect.top);
+                });
+                link.addEventListener("blur", hideNodeTooltip);
+            });
+        }
+
+        function updateClearedRouteUrl() {
+            const url = new URL(window.location.href);
+            const buildingId = form.querySelector('input[name="building_id"]')?.value || "";
+            const buildingName = form.querySelector('input[name="building_name"]')?.value || "";
+            const verticalMode = form.querySelector('select[name="vertical_mode"]')?.value || "";
+
+            url.searchParams.delete("start");
+            url.searchParams.delete("end");
+            url.searchParams.delete("clear");
+            url.searchParams.set("pick_mode", "start");
+            if (buildingId) {
+                url.searchParams.set("building_id", buildingId);
+            }
+            if (buildingName) {
+                url.searchParams.set("building_name", buildingName);
+            }
+            if (verticalMode) {
+                url.searchParams.set("vertical_mode", verticalMode);
+            }
+            window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+        }
+
+        function clearRenderedRoute() {
+            document.querySelectorAll(".indoor-node-marker").forEach(function (marker) {
+                marker.classList.remove("is-path-node", "is-start", "is-end", "is-near-cursor", "is-hovered-node");
+            });
+            document.querySelectorAll(".indoor-edge.is-path").forEach(function (edge) {
+                edge.classList.remove("is-path", "is-path-glow", "is-path-core");
+                edge.style.display = "none";
+                edge.setAttribute("aria-hidden", "true");
+            });
+
+            const stepsPanel = document.querySelector(".indoor-panel--steps");
+            if (!stepsPanel) {
+                return;
+            }
+            const summary = stepsPanel.querySelector(".indoor-panel__head p");
+            if (summary) {
+                summary.textContent = "已清空起点和终点，点选地图或搜索关键点重新规划。";
+            }
+            const existingList = stepsPanel.querySelector(".indoor-step-list");
+            const empty = stepsPanel.querySelector(".indoor-empty") || document.createElement("div");
+            empty.className = "indoor-empty";
+            empty.textContent = "已清空选择。";
+            if (existingList) {
+                existingList.replaceWith(empty);
+            } else if (!empty.parentNode) {
+                stepsPanel.appendChild(empty);
+            }
+        }
+
+        function clearRouteSelection(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            [startSelect, endSelect].forEach(function (select) {
+                if (select) {
+                    select.value = "";
+                }
+            });
+            searchInputs.forEach(function (input) {
+                input.value = "";
+            });
+            body.setAttribute("data-indoor-pick-mode", "start");
+            hideSearchMenus();
+            clearNearbyNodeLabels();
+            clearRenderedRoute();
+            updateClearedRouteUrl();
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener("click", clearRouteSelection);
+        }
 
         searchInputs.forEach(function (input) {
             const mode = input.getAttribute("data-indoor-node-search") === "end" ? "end" : "start";
@@ -1018,62 +1237,6 @@
                 submitButton.textContent = "正在规划";
             }
         });
-
-        if (clearButton) {
-            clearButton.addEventListener("click", function (event) {
-                if (typeof window.clearIndoorRouteSelection === "function") {
-                    window.clearIndoorRouteSelection(event, clearButton);
-                    return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-
-                const url = new URL("/indoor", window.location.origin);
-                const params = url.searchParams;
-                const buildingId = form.querySelector('input[name="building_id"]');
-                const buildingName = form.querySelector('input[name="building_name"]');
-
-                if (buildingId && buildingId.value) {
-                    params.set("building_id", buildingId.value);
-                }
-                if (buildingName && buildingName.value) {
-                    params.set("building_name", buildingName.value);
-                }
-                const verticalMode = form.querySelector('select[name="vertical_mode"]');
-                if (verticalMode && verticalMode.value) {
-                    params.set("vertical_mode", verticalMode.value);
-                }
-                params.set("clear", "1");
-
-                if (startSelect) startSelect.value = "";
-                if (endSelect) endSelect.value = "";
-                searchInputs.forEach(function (input) {
-                    input.value = "";
-                });
-                hideSearchMenus();
-                window.location.assign(url.toString());
-            });
-        }
-
-        document.querySelectorAll(".indoor-node-marker[data-node-id]").forEach(function (marker) {
-            function chooseNode() {
-                const nodeId = marker.getAttribute("data-node-id");
-                if (!nodeId || !setNodeValue(pickMode, nodeId)) {
-                    return;
-                }
-                submitRoute();
-            }
-
-            marker.addEventListener("click", chooseNode);
-            marker.addEventListener("keydown", function (event) {
-                if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    chooseNode();
-                }
-            });
-        });
-
-        setPickMode(pickMode);
     }
 
     function initCompactDatalists() {

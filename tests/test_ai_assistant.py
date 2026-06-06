@@ -211,8 +211,8 @@ class AiAssistantTests(unittest.TestCase):
         self.assertEqual(params["end"], "route_point_金泉楼_130")
         self.assertTrue(result["cards"])
 
-    @mock.patch("app.ai_provider_answer", return_value="现在看到的路线还是上一轮南门到德旺图书馆，暂时没法规划。")
-    def test_chat_api_keeps_executable_route_answer_over_model_contradiction(self, mocked_answer):
+    @mock.patch("app.ai_provider_answer", return_value="DeepSeek 已结合路线结果回答。")
+    def test_chat_api_still_uses_provider_for_executable_route_answer(self, mocked_answer):
         self.login()
 
         response = self.client.post(
@@ -230,13 +230,39 @@ class AiAssistantTests(unittest.TestCase):
         payload = response.get_json()
 
         self.assertEqual(response.status_code, 200)
-        mocked_answer.assert_not_called()
-        self.assertEqual(payload["provider"], "local")
-        self.assertIn("快递服务中心", payload["answer"])
-        self.assertIn("金泉楼", payload["answer"])
+        mocked_answer.assert_called_once()
+        self.assertEqual(payload["provider"], "deepseek")
+        self.assertEqual(payload["answer"], "DeepSeek 已结合路线结果回答。")
         params = payload["actions"][0]["command"]["params"]
         self.assertEqual(params["start"], "route_point_快递服务中心_080")
         self.assertEqual(params["end"], "route_point_金泉楼_130")
+
+    def test_chat_api_uses_provider_across_module_pages(self):
+        self.login()
+        cases = [
+            ("foods", "想吃清淡点"),
+            ("route", "从大门到图书馆"),
+            ("indoor", "只坐电梯怎么走"),
+            ("diaries", "找几篇拍照游记"),
+            ("places", "当前页面有什么好玩的"),
+        ]
+
+        for page, message in cases:
+            with self.subTest(page=page), mock.patch("app.ai_provider_answer", return_value=f"provider:{page}") as mocked_answer:
+                response = self.client.post(
+                    "/api/assistant/chat",
+                    json={
+                        "message": message,
+                        "conversation_id": f"provider-page-{page}",
+                        "page_context": {"page": page, "place_id": "xmu_manual"},
+                    },
+                )
+                payload = response.get_json()
+
+                self.assertEqual(response.status_code, 200)
+                mocked_answer.assert_called_once()
+                self.assertEqual(payload["provider"], "deepseek")
+                self.assertEqual(payload["answer"], f"provider:{page}")
 
     @mock.patch.dict(os.environ, {"DEEPSEEK_API_KEY": "", "OPENAI_API_KEY": "", "AI_PROVIDER": "deepseek"}, clear=False)
     def test_route_followup_reuses_recent_chat_endpoints(self):

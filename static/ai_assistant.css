@@ -414,6 +414,7 @@
 }
 
 @media (max-width: 560px) {
+
     .ai-assistant,
     .ai-assistant-launcher {
         right: 12px;
@@ -426,123 +427,128 @@
     }
 }
 
+
+/* 统一的 AI 助手样式系统，完全对齐系统主页样式（强制覆盖页面污染与尺寸调整） */
+
 body .ai-assistant-launcher {
-    background:
-        radial-gradient(circle at 35% 24%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.5) 45%, rgba(197, 168, 128, 0.2)),
-        var(--ai-paper-soft);
+    width: 52px !important;
+    height: 52px !important;
+    border: 1px solid rgba(31, 32, 38, 0.34) !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--ai-ink) !important;
+    box-shadow: none !important;
+    letter-spacing: 0.08em !important;
+    border-radius: 999px !important;
 }
 
-body:not(.route-v2) .ai-assistant-launcher {
-    background:
-        radial-gradient(circle at 35% 24%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.5) 45%, rgba(197, 168, 128, 0.2)),
-        var(--ai-paper-soft);
+body .ai-assistant-launcher::before,
+body .ai-assistant-launcher::after {
+    display: none !important;
+}
+
+body .ai-assistant-launcher:hover,
+body .ai-assistant-launcher:focus-visible {
+    border-color: rgba(197, 168, 128, 0.72) !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--ai-ink) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 6px rgba(197, 168, 128, 0.08) !important;
+}
+
+body .ai-assistant {
+    width: min(380px, calc(100vw - 24px)) !important;
+    border-radius: 24px !important;
+    overflow: hidden !important;
+}
+
+body .ai-assistant__head {
+    border-radius: 24px 24px 0 0 !important;
+    padding: 14px 18px 12px !important;
 }
 
 body .ai-assistant__new,
 body .ai-assistant__close,
 body .ai-assistant__action,
+body .ai-assistant__chip,
+body .ai-assistant__chips-toggle {
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.44) !important;
+    background-image: none !important;
+    color: var(--ai-ink-soft) !important;
+    box-shadow: none !important;
+    border: 1px solid var(--ai-line) !important;
+    text-shadow: none !important;
+    transform: none !important;
+}
+
+body .ai-assistant__new {
+    height: 34px !important;
+    line-height: 32px !important;
+    padding: 0 14px !important;
+    min-width: 64px !important;
+    width: auto !important;
+    font-size: 11.5px !important;
+    box-sizing: border-box !important;
+}
+
+body .ai-assistant__close {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    padding: 0 !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    box-sizing: border-box !important;
+    font-size: 20px !important;
+}
+
+body .ai-assistant__chips-toggle {
+    width: auto !important;
+    min-height: 28px !important;
+    padding: 0 10px !important;
+    border: 1px solid var(--ai-line) !important;
+}
+
+body .ai-assistant__suggestionbar {
+    padding: 8px 18px 6px !important;
+}
+
+body .ai-assistant__chips {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 0 18px 10px !important;
+    gap: 6px !important;
+}
+
 body .ai-assistant__chip {
-    background: rgba(255, 255, 255, 0.44);
-    color: var(--ai-ink-soft);
+    min-height: 30px !important;
+    padding: 5px 10px !important;
+    font-size: 11.5px !important;
+    box-sizing: border-box !important;
 }
 
-body:not(.route-v2) .ai-assistant__new,
-body:not(.route-v2) .ai-assistant__close,
-body:not(.route-v2) .ai-assistant__action,
-body:not(.route-v2) .ai-assistant__chip,
-body:not(.route-v2) .ai-assistant__chips-toggle {
-    background: rgba(255, 255, 255, 0.44);
-    color: var(--ai-ink-soft);
-    box-shadow: none;
+body .ai-assistant__form {
+    padding: 12px 18px 14px !important;
+    gap: 8px !important;
 }
 
-body:not(.route-v2) .ai-assistant__chips-toggle {
-    width: auto;
-    min-height: 30px;
-    padding: 0 10px;
-    border: 1px solid var(--ai-line);
-    border-radius: 0;
+body .ai-assistant__form input {
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 12.5px !important;
+    border-radius: 999px !important;
 }
 
 body .ai-assistant__form button {
-    background: var(--ai-gold-soft);
-    color: var(--ai-ink);
-}
-
-body:not(.route-v2) .ai-assistant__form button {
-    background: var(--ai-gold-soft);
-    color: var(--ai-ink);
-    box-shadow: none;
-}
-
-body .ai-assistant__new:hover,
-body .ai-assistant__close:hover,
-body .ai-assistant__action:hover,
-body .ai-assistant__chip:hover,
-body .ai-assistant__form button:hover,
-body .ai-assistant__new:focus-visible,
-body .ai-assistant__close:focus-visible,
-body .ai-assistant__action:focus-visible,
-body .ai-assistant__chip:focus-visible,
-body .ai-assistant__form button:focus-visible {
-    border-color: var(--ai-line-strong);
-    background: rgba(255, 255, 255, 0.78);
-    outline: none;
-}
-
-body:not(.route-v2) .ai-assistant__new:hover,
-body:not(.route-v2) .ai-assistant__close:hover,
-body:not(.route-v2) .ai-assistant__action:hover,
-body:not(.route-v2) .ai-assistant__chip:hover,
-body:not(.route-v2) .ai-assistant__chips-toggle:hover,
-body:not(.route-v2) .ai-assistant__form button:hover,
-body:not(.route-v2) .ai-assistant__new:focus-visible,
-body:not(.route-v2) .ai-assistant__close:focus-visible,
-body:not(.route-v2) .ai-assistant__action:focus-visible,
-body:not(.route-v2) .ai-assistant__chip:focus-visible,
-body:not(.route-v2) .ai-assistant__chips-toggle:focus-visible,
-body:not(.route-v2) .ai-assistant__form button:focus-visible {
-    border-color: var(--ai-line-strong);
-    background: rgba(255, 255, 255, 0.78);
-    outline: none;
-}
-
-/* Global AI entry: quiet line-only circle, aligned with the home page vocabulary. */
-body .ai-assistant-launcher,
-body:not(.route-v2) .ai-assistant-launcher {
-    width: 52px;
-    height: 52px;
-    border: 1px solid rgba(31, 32, 38, 0.34);
-    background: transparent !important;
-    color: var(--ai-ink);
-    box-shadow: none;
-    letter-spacing: 0.08em;
-}
-
-body .ai-assistant-launcher::before,
-body .ai-assistant-launcher::after,
-body:not(.route-v2) .ai-assistant-launcher::before,
-body:not(.route-v2) .ai-assistant-launcher::after {
-    display: none;
-}
-
-body .ai-assistant-launcher:hover,
-body .ai-assistant-launcher:focus-visible,
-body:not(.route-v2) .ai-assistant-launcher:hover,
-body:not(.route-v2) .ai-assistant-launcher:focus-visible {
-    border-color: rgba(197, 168, 128, 0.72);
-    background: transparent !important;
-    color: var(--ai-ink);
-    outline: none;
-    box-shadow: 0 0 0 6px rgba(197, 168, 128, 0.08);
-}
-
-body.places-darkroom-page .ai-assistant-launcher {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: transparent !important;
-    box-shadow: none;
+    height: 36px !important;
+    font-size: 12.5px !important;
+    border-radius: 999px !important;
+    background: var(--ai-gold-soft) !important;
+    background-image: none !important;
+    color: var(--ai-ink) !important;
+    box-shadow: none !important;
+    border: 1px solid var(--ai-line-strong) !important;
 }
 
 body .ai-assistant__new:hover,
@@ -550,86 +556,61 @@ body .ai-assistant__close:hover,
 body .ai-assistant__action:hover,
 body .ai-assistant__chip:hover,
 body .ai-assistant__chips-toggle:hover,
+body .ai-assistant__form button:hover,
 body .ai-assistant__new:focus-visible,
 body .ai-assistant__close:focus-visible,
 body .ai-assistant__action:focus-visible,
 body .ai-assistant__chip:focus-visible,
-body .ai-assistant__chips-toggle:focus-visible {
+body .ai-assistant__chips-toggle:focus-visible,
+body .ai-assistant__form button:focus-visible {
+    border-color: var(--ai-line-strong) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    background-image: none !important;
     color: var(--ai-ink) !important;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
-}
-
-/* Huashu soft-line refinement: warmer corners while keeping the quiet line-only system. */
-body .ai-assistant {
-    border-radius: 24px;
-    overflow: hidden;
-}
-
-body .ai-assistant__head {
-    border-radius: 24px 24px 0 0;
-}
-
-body .ai-assistant__new,
-body .ai-assistant__action,
-body .ai-assistant__chip,
-body .ai-assistant__chips-toggle,
-body .ai-assistant__form button {
-    border-radius: 999px;
-}
-
-body .ai-assistant__close {
-    border-radius: 999px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68) !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 body .ai-assistant__message {
-    border-radius: 18px;
+    border-radius: 18px !important;
 }
 
 body .ai-assistant__message--assistant {
-    border-radius: 18px 18px 18px 8px;
+    border-radius: 18px 18px 18px 8px !important;
 }
 
 body .ai-assistant__message--user {
-    border-radius: 18px 18px 8px 18px;
+    border-radius: 18px 18px 8px 18px !important;
 }
 
 body .ai-assistant__card {
-    border-radius: 18px;
+    border-radius: 18px !important;
 }
 
 body .ai-assistant__card-image {
-    border-radius: 14px;
+    border-radius: 14px !important;
 }
 
 body .ai-assistant__form {
-    border-radius: 0 0 24px 24px;
-}
-
-body .ai-assistant__form input {
-    border-radius: 999px;
+    border-radius: 0 0 24px 24px !important;
 }
 
 body .ai-assistant__resize::after {
-    border-radius: 999px;
-}
-
-body .ai-assistant-launcher,
-body:not(.route-v2) .ai-assistant-launcher,
-body.places-darkroom-page .ai-assistant-launcher {
-    border-radius: 999px;
-    background: transparent !important;
+    border-radius: 999px !important;
 }
 
 @media (max-width: 560px) {
     body .ai-assistant {
-        border-radius: 20px;
+        width: calc(100vw - 24px) !important;
+        border-radius: 20px !important;
     }
 
     body .ai-assistant__head {
-        border-radius: 20px 20px 0 0;
+        border-radius: 20px 20px 0 0 !important;
     }
 
     body .ai-assistant__form {
-        border-radius: 0 0 20px 20px;
+        border-radius: 0 0 20px 20px !important;
     }
 }

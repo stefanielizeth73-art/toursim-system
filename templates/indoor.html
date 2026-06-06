@@ -11,7 +11,7 @@
     <script defer src="{{ url_for('static', filename='interaction.js', v=asset_version('interaction.js')) }}"></script>
     <script defer src="{{ url_for('static', filename='ai_assistant.js', v=asset_version('ai_assistant.js')) }}"></script>
 </head>
-<body class="indoor-page">
+<body class="indoor-page" data-indoor-pick-mode="{{ pick_mode }}">
     <a class="skip-link" href="#indoorMap">跳到室内平面图</a>
 
     <main class="indoor-shell">
@@ -24,7 +24,9 @@
                         <strong>室内导航</strong>
                     </span>
                 </div>
+                {% if not clear_selection %}
                 <a class="indoor-home-pill" href="{{ url_for('home') }}">返回主页</a>
+                {% endif %}
             </div>
 
             <section class="indoor-panel indoor-panel--controls">
@@ -35,13 +37,13 @@
                 <div class="indoor-pick-status" aria-live="polite">
                     <span class="indoor-pick-status__dot" aria-hidden="true"></span>
                     <div>
-                        <strong data-indoor-pick-title>正在设置起点</strong>
-                        <span data-indoor-pick-hint>点一下平面图上的点，就能设为起点。</span>
+                        <strong data-indoor-pick-title>正在设置{{ '终点' if pick_mode == 'end' else '起点' }}</strong>
+                        <span data-indoor-pick-hint>{{ '点击地图上的采集点，直接设为目标位置。' if pick_mode == 'end' else '点击地图上的采集点，直接设为出发位置。' }}</span>
                     </div>
                 </div>
                 <div class="indoor-pick-mode" aria-label="地图点选模式">
-                    <button type="button" class="is-active" data-indoor-pick-mode="start">点选起点</button>
-                    <button type="button" data-indoor-pick-mode="end">点选终点</button>
+                    <a href="{{ pick_start_url }}" class="{% if pick_mode == 'start' %}is-active{% endif %}" data-indoor-pick-mode="start">点选起点</a>
+                    <a href="{{ pick_end_url }}" class="{% if pick_mode == 'end' %}is-active{% endif %}" data-indoor-pick-mode="end">点选终点</a>
                 </div>
                 <form method="get" class="indoor-form" id="indoorRouteForm">
                     <label class="indoor-search-field">
@@ -76,11 +78,10 @@
                     </label>
                     <input type="hidden" name="building_id" value="{{ building_id }}">
                     <input type="hidden" name="building_name" value="{{ building_name }}">
-                    <div class="indoor-form-actions">
-                        <button type="submit">重新规划</button>
-                        <button type="button" class="indoor-clear-action" data-indoor-clear onclick="return window.clearIndoorRouteSelection(event, this)">清空选择</button>
-                    </div>
                 </form>
+                <div class="indoor-form-actions">
+                    <button type="button" class="indoor-clear-action" data-indoor-clear-selection>清空选择</button>
+                </div>
             </section>
 
             <section class="indoor-panel indoor-panel--steps">
@@ -136,23 +137,28 @@
                         {% endfor %}
                         <g class="indoor-node-layer">
                             {% for node in floor.display_nodes %}
-                            {% set label_width = 34 + (node.name|length * 13) %}
-                            <g class="indoor-node-marker is-{{ node.type }} {% if node.is_path %}is-path-node{% endif %} {% if node.is_start %}is-start{% endif %} {% if node.is_end %}is-end{% endif %}"
-                               transform="translate({{ node.x }}, {{ node.y }})"
-                               tabindex="0"
-                               role="button"
-                               aria-label="选择 {{ node.name }}"
+                            {% set label_width = 44 + (node.name|length * 16) %}
+                            <a class="indoor-node-link"
+                               href="{{ node.pick_url }}"
+                               aria-label="{{ node.pick_label }}"
                                data-node-id="{{ node.id }}"
                                data-node-name="{{ node.name }}"
-                               data-node-floor="{{ node.floor }}">
-                                <title>{{ node.name }}</title>
-                                <circle class="indoor-node-halo" r="18"></circle>
-                                <circle class="indoor-node-dot" r="8"></circle>
-                                <g class="indoor-node-label-card" transform="{% if node.x > floor.width - 260 %}translate(-{{ label_width + 13 }} -27){% else %}translate(13 -27){% endif %}">
-                                    <rect x="0" y="0" width="{{ label_width }}" height="24" rx="12" ry="12"></rect>
-                                    <text class="indoor-node-label" x="12" y="16">{{ node.name }}</text>
+                               data-node-floor="{{ node.floor }}"
+                               data-node-pick-target="{{ node.pick_target }}">
+                                <g class="indoor-node-marker is-{{ node.type }} {% if node.is_path %}is-path-node{% endif %} {% if node.is_start %}is-start{% endif %} {% if node.is_end %}is-end{% endif %}"
+                                   transform="translate({{ node.x }}, {{ node.y }})"
+                                   data-node-id="{{ node.id }}"
+                                   data-node-name="{{ node.name }}"
+                                   data-node-floor="{{ node.floor }}">
+                                    <circle class="indoor-node-hit" r="28"></circle>
+                                    <circle class="indoor-node-halo" r="18"></circle>
+                                    <circle class="indoor-node-dot" r="8"></circle>
+                                    <g class="indoor-node-label-card" transform="{% if node.x > floor.width - 300 %}translate(-{{ label_width + 15 }} -34){% else %}translate(15 -34){% endif %}">
+                                        <rect x="0" y="0" width="{{ label_width }}" height="31" rx="15.5" ry="15.5"></rect>
+                                        <text class="indoor-node-label" x="14" y="21">{{ node.name }}</text>
+                                    </g>
                                 </g>
-                            </g>
+                            </a>
                             {% endfor %}
                         </g>
                         <g class="indoor-floor-pill {% if floor.active %}is-active{% endif %}" transform="translate(24 24)" aria-hidden="true">
@@ -168,36 +174,5 @@
             </div>
         </section>
     </main>
-    <script>
-        window.clearIndoorRouteSelection = function (event, button) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                if (typeof event.stopImmediatePropagation === "function") {
-                    event.stopImmediatePropagation();
-                }
-            }
-
-            const form = button && button.form ? button.form : document.getElementById("indoorRouteForm");
-            const url = new URL("{{ url_for('indoor') }}", window.location.origin);
-            const params = url.searchParams;
-            const buildingId = form ? form.querySelector('input[name="building_id"]') : null;
-            const buildingName = form ? form.querySelector('input[name="building_name"]') : null;
-            const verticalMode = form ? form.querySelector('select[name="vertical_mode"]') : null;
-
-            if (buildingId && buildingId.value) {
-                params.set("building_id", buildingId.value);
-            }
-            if (buildingName && buildingName.value) {
-                params.set("building_name", buildingName.value);
-            }
-            if (verticalMode && verticalMode.value) {
-                params.set("vertical_mode", verticalMode.value);
-            }
-            params.set("clear", "1");
-            window.location.assign(url.toString());
-            return false;
-        };
-    </script>
 </body>
 </html>

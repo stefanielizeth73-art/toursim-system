@@ -210,13 +210,265 @@ body.place-dossier-page .place-dossier-tags span:hover {
     border-color: rgba(197, 168, 128, 0.4) !important;
 }
 
+/* 景点详情页底部区域入场升起淡入动效 */
+body.place-dossier-page .place-dossier-narrative,
+body.place-dossier-page .place-dossier-related {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: dossierSectionFadeIn 0.8s cubic-bezier(0.25, 1, 0.33, 1) forwards;
+}
+body.place-dossier-page .place-dossier-narrative {
+    animation-delay: 0.08s;
+}
+body.place-dossier-page .place-dossier-related {
+    animation-delay: 0.16s;
+}
+@keyframes dossierSectionFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 基础容器升级为高雅玻璃质感配极细边框 */
+body.place-dossier-page .place-dossier-narrative,
+body.place-dossier-page .place-dossier-related {
+    border: 1px solid rgba(17, 20, 26, 0.06) !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.65) !important;
+    box-shadow:
+        0 20px 48px rgba(17, 20, 26, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+body.place-dossier-page .place-dossier-narrative:hover,
+body.place-dossier-page .place-dossier-related:hover {
+    border-color: rgba(185, 155, 111, 0.2) !important;
+    box-shadow:
+        0 24px 56px rgba(185, 155, 111, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ==========================================================================
+   出行建议板块极简细线与 Hover 动效
+   ========================================================================== */
+body.place-dossier-page .place-dossier-statement {
+    position: relative;
+    padding-bottom: 12px;
+}
+body.place-dossier-page .dossier-line-accent {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 48px;
+    height: 1px;
+    background: var(--lux-gold);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.33, 1);
+}
+body.place-dossier-page .place-dossier-narrative:hover .dossier-line-accent {
+    width: 120px;
+}
+
+/* 出行建议笔记分栏 */
+body.place-dossier-page .place-dossier-notes {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+}
+
+/* 出行建议独立极细线盒子 */
+body.place-dossier-page .dossier-note-card {
+    position: relative;
+    padding: 22px 24px;
+    border: 1px solid rgba(17, 20, 26, 0.05);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease, background-color 0.4s ease;
+    overflow: hidden;
+}
+body.place-dossier-page .dossier-note-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(185, 155, 111, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* 盒子内边缘金线滑动伸展 */
+body.place-dossier-page .note-card-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(185, 155, 111, 0.15);
+    transition: background-color 0.4s ease, width 0.4s cubic-bezier(0.25, 1, 0.33, 1);
+}
+body.place-dossier-page .dossier-note-card:hover .note-card-line {
+    width: 5px;
+    background-color: var(--lux-gold);
+}
+body.place-dossier-page .note-card-title {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--places-ink);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    transition: color 0.3s ease;
+}
+body.place-dossier-page .dossier-note-card:hover .note-card-title {
+    color: #a48455;
+}
+body.place-dossier-page .note-card-body {
+    margin: 0;
+    color: var(--places-muted);
+    font-size: 0.92rem;
+    line-height: 1.68;
+}
+
+/* ==========================================================================
+   相关游记板块极简细线与流光动效
+   ========================================================================== */
+body.place-dossier-page .places-darkroom-section-head h2 span {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 8px;
+}
+body.place-dossier-page .places-darkroom-section-head h2 span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 1.5px;
+    background: var(--lux-gold);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.33, 1);
+}
+body.place-dossier-page .place-dossier-related:hover .places-darkroom-section-head h2 span::after {
+    width: 100%;
+}
+
+/* 游记卡片网络网格 */
+body.place-dossier-page .diary-grid {
+    gap: 20px !important;
+    margin-top: 24px;
+}
+
+/* 游记卡片极简线条化重塑 */
 body.place-dossier-page .diary-grid .diary-card {
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.33, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.4s ease;
+    position: relative;
+    padding: 24px !important;
+    border: 1px solid rgba(17, 20, 26, 0.06) !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.45) !important;
+    box-shadow: 0 10px 30px rgba(17, 20, 26, 0.02) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.33, 1), border-color 0.5s ease, background-color 0.5s ease, box-shadow 0.5s cubic-bezier(0.25, 1, 0.33, 1) !important;
+    overflow: hidden;
+}
+body.place-dossier-page .diary-grid .diary-card::before {
+    display: none !important;
 }
 body.place-dossier-page .diary-grid .diary-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(124, 58, 237, 0.25) !important;
-    box-shadow: 0 16px 32px rgba(124, 58, 237, 0.05) !important;
+    transform: translateY(-8px) !important;
+    border-color: rgba(185, 155, 111, 0.42) !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    box-shadow:
+        0 20px 40px rgba(185, 155, 111, 0.08),
+        0 4px 12px rgba(17, 20, 26, 0.01) !important;
+}
+
+/* 游记卡片顶部滑动光效金线 */
+body.place-dossier-page .diary-card .diary-card-line-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--lux-gold) 0%, rgba(185, 155, 111, 0.1) 100%);
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.33, 1);
+}
+body.place-dossier-page .diary-grid .diary-card:hover .diary-card-line-accent {
+    width: 100%;
+}
+
+/* 标题、目的地、预览文字 */
+body.place-dossier-page .diary-card h3 {
+    margin: 0 0 10px 0 !important;
+    color: var(--places-ink) !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.01em;
+    transition: color 0.3s ease !important;
+}
+body.place-dossier-page .diary-grid .diary-card:hover h3 {
+    color: #a48455 !important;
+}
+body.place-dossier-page .diary-card .diary-destination-info {
+    margin: 0 0 12px 0 !important;
+    color: var(--places-gold) !important;
+    font-size: 0.85rem !important;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+body.place-dossier-page .diary-card .diary-destination-info strong {
+    color: rgba(17, 20, 26, 0.4) !important;
+    font-weight: 800;
+}
+body.place-dossier-page .diary-card .diary-preview-text {
+    margin: 0 0 20px 0 !important;
+    color: var(--places-muted) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.65 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 元数据排布与极细圆角胶囊 */
+body.place-dossier-page .diary-grid .diary-meta-grid {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px !important;
+    margin-top: auto;
+}
+body.place-dossier-page .diary-grid .diary-meta-chip {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 12px !important;
+    min-height: 24px !important;
+    border: 1px solid rgba(17, 20, 26, 0.05) !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: none !important;
+    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease !important;
+}
+body.place-dossier-page .diary-grid .diary-card:hover .diary-meta-chip {
+    border-color: rgba(185, 155, 111, 0.15) !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+}
+body.place-dossier-page .diary-grid .diary-meta-chip:hover {
+    border-color: rgba(185, 155, 111, 0.35) !important;
+    background: #fffaf2 !important;
+    transform: translateY(-1px);
+}
+body.place-dossier-page .diary-grid .diary-meta-chip span {
+    margin: 0 !important;
+    display: inline-block !important;
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+}
+body.place-dossier-page .diary-grid .diary-meta-chip span:first-child {
+    color: rgba(17, 20, 26, 0.38) !important;
+    font-weight: 700 !important;
+}
+body.place-dossier-page .diary-grid .diary-meta-chip span:last-child {
+    color: var(--places-ink) !important;
+    font-weight: 800 !important;
 }
 
 /* ==========================================================================
@@ -889,4 +1141,103 @@ body.route-map-page.route-v2.explore-page .route-target-number.is-waypoint {
 body.route-map-page.route-v2.explore-page .route-target-number span {
     font-size: 0.8rem !important;
     font-weight: 900 !important;
+}
+
+/* ==========================================================================
+   ROUTE MAP - FACILITY QUERY LAYOUT OPTIMIZATION (场所查询UI布局优化)
+   ========================================================================== */
+
+/* 1. 起点行布局 - 独占整行，内部组件采用 Flex 左右平分 */
+body.route-map-page.explore-page #facilityResults .explore-grid--full {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 14px !important;
+}
+
+body.route-map-page.explore-page #facilityResults .explore-field-row {
+    display: flex !important;
+    gap: 12px !important;
+    width: 100% !important;
+    align-items: center !important;
+}
+
+/* 2. 起点输入框和下拉选择框 - 样式美化与等高对齐 */
+body.route-map-page.explore-page #facilityResults .explore-field-row input.facility-start-search,
+body.route-map-page.explore-page #facilityResults .explore-field-row select#facilityStartNode {
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border: 1px solid rgba(39, 84, 116, 0.16) !important;
+    border-radius: 12px !important;
+    padding: 0 12px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #123042 !important;
+    font: inherit !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+}
+
+/* 3. 筛选参数三列等宽并排布局 */
+body.route-map-page.explore-page #facilityResults .explore-grid--three {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+    width: 100% !important;
+}
+
+/* 4. 其它选项样式优化与 Hover/Focus 动态交互 */
+body.route-map-page.explore-page #facilityResults select[name="facility_type"],
+body.route-map-page.explore-page #facilityResults select[name="max_distance"],
+body.route-map-page.explore-page #facilityResults input[name="facility_keyword"] {
+    height: 42px !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border: 1px solid rgba(39, 84, 116, 0.16) !important;
+    border-radius: 12px !important;
+    padding: 0 12px !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: #123042 !important;
+    font: inherit !important;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+}
+
+/* 统一 Hover 和 Focus 发光动效，突出琥珀金/淡金奢华风 */
+body.route-map-page.explore-page #facilityResults input:hover,
+body.route-map-page.explore-page #facilityResults select:hover {
+    border-color: rgba(217, 119, 6, 0.35) !important;
+    background-color: #ffffff !important;
+}
+
+body.route-map-page.explore-page #facilityResults input:focus,
+body.route-map-page.explore-page #facilityResults select:focus {
+    outline: none !important;
+    border-color: var(--color-amber) !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15) !important;
+    background-color: #ffffff !important;
+}
+
+/* 起点提示小字间距优化 */
+body.route-map-page.explore-page #facilityResults .explore-field__hint {
+    margin-top: 6px !important;
+    display: block !important;
+    color: #7c93a4 !important;
+    font-size: 0.75rem !important;
+}
+
+/* 5. 响应式布局优化 (移动端自动堆叠，保证不变形) */
+@media (max-width: 768px) {
+    body.route-map-page.explore-page #facilityResults .explore-field-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    body.route-map-page.explore-page #facilityResults .explore-grid--three {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
 }

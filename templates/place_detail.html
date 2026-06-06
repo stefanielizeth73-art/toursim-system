@@ -93,10 +93,19 @@
             <div class="place-dossier-statement">
                 <span class="places-kicker">出行建议</span>
                 <h2>想去这里？先这样开始。</h2>
+                <div class="dossier-line-accent"></div>
             </div>
             <div class="place-dossier-notes">
-                <p><strong>适合谁</strong>喜欢 {{ place.tags }} 的话，可以先把它加入候选。</p>
-                <p><strong>下一步</strong>先规划路线，或者看看附近美食和大家的记录。</p>
+                <div class="dossier-note-card">
+                    <div class="note-card-line"></div>
+                    <strong class="note-card-title">适合谁</strong>
+                    <p class="note-card-body">喜欢 {{ place.tags }} 的话，可以先把它加入候选。</p>
+                </div>
+                <div class="dossier-note-card">
+                    <div class="note-card-line"></div>
+                    <strong class="note-card-title">下一步</strong>
+                    <p class="note-card-body">先规划路线，或者看看附近美食和大家的记录。</p>
+                </div>
             </div>
         </section>
 
@@ -113,9 +122,10 @@
             <div class="diary-grid">
                 {% for diary in related_diaries %}
                 <a class="diary-card" href="{{ url_for('diary_detail', diary_id=diary.id) }}">
+                    <div class="diary-card-line-accent"></div>
                     <h3>{{ diary.title }}</h3>
-                    <p><strong>目的地：</strong>{{ diary.destination }}</p>
-                    <p>{{ diary.content_preview }}</p>
+                    <p class="diary-destination-info"><strong>目的地：</strong>{{ diary.destination }}</p>
+                    <p class="diary-preview-text">{{ diary.content_preview }}</p>
                     <div class="diary-meta-grid">
                         <div class="diary-meta-chip"><span>作者</span><span>{{ diary.author }}</span></div>
                         <div class="diary-meta-chip"><span>浏览</span><span>{{ diary.views }}</span></div>

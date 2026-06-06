@@ -1072,6 +1072,7 @@ def ai_build_model_prompt(message, page_context, local_payload, history=None):
         "memory": memory,
         "routing": local_payload.get("routing", {}),
         "assistant_mode": local_payload.get("mode", "general"),
+        "local_answer": local_payload.get("answer", ""),
     }
     if local_payload.get("mode") == "general":
         base["instruction"] = (
@@ -1093,6 +1094,7 @@ def ai_build_model_prompt(message, page_context, local_payload, history=None):
         "回答前参考 memory.recent_messages、memory.last_cards 和 memory.last_actions，理解用户是否在追问上一轮结果。"
         "先像人一样回应用户当前需求，再把检索到的地点、美食、路线、室内导航或游记自然融入建议。"
         "只能基于 local_tool_context 里的真实结果说具体名称、价格、路线和链接，不要编造。"
+        "如果 local_answer 已经给出可执行路线或确定性操作结果，必须以 local_answer 为准，不要改写成相反结论。"
         "如果结果不足，说明还差哪个关键信息，并给一个可继续操作的下一步。"
         "回答控制在 3 到 6 句。"
     )
