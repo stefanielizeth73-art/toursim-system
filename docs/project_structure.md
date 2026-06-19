@@ -4,7 +4,7 @@ TourSim is organized as a Flask single-service project. The repository keeps the
 
 ```text
 toursim_system/
-|-- app.py                         # Flask app entrypoint, DB wiring, remaining route/collector pages, and blueprint registration
+|-- app.py                         # Flask app entrypoint, DB wiring, remaining route/collector/indoor pages, and blueprint registration
 |-- init_db.py                     # SQLite schema initialization
 |-- requirements.txt               # Python dependencies
 |-- render.yaml                    # Render deployment configuration
@@ -32,7 +32,7 @@ toursim_system/
 |   |-- routes/                    # Flask blueprints extracted from app.py
 |   |   |-- assistant.py           # AI assistant API routes
 |   |   |-- auth.py                # Login, registration, home, profile, and public user pages
-|   |   |-- diaries.py            # Diary feed, search, detail, edit, favorite, comment, and video routes
+|   |   |-- diaries.py             # Diary feed, search, detail, edit, favorite, comment, and video routes
 |   |   |-- diary_media.py         # Diary media and generated-video file routes
 |   |   |-- facilities.py          # Facility filter compatibility redirect route
 |   |   |-- foods.py               # Food list, detail, and favorite routes
@@ -48,7 +48,7 @@ toursim_system/
 |   |-- graphs/                    # Delivery route graph data
 |   |-- manual/                    # Manual route/facility/food collector source data
 |   |-- indoor/                    # Indoor navigation collector data
-|   `-- uploads/                   # Demo diary media kept for presentation
+|   `-- uploads/                   # Demo diary media and current generated thumbnails kept for presentation
 |
 |-- templates/                     # Jinja page templates
 |-- static/
@@ -71,8 +71,8 @@ toursim_system/
 |   |-- technical_design.md        # Consolidated module, data pipeline, and recommendation notes
 |   |-- acceptance_checklist.md    # Local acceptance smoke-test checklist
 |   |-- handoff_checklist.md       # Handoff verification checklist
-|   |-- 数据结构课程设计-2026.pdf     # Course design PDF
-|   |-- 个性化旅游系统期中汇报项目说明.docx # Midterm report docx
+|   |-- course design PDF          # Original course-design requirement file
+|   |-- midterm report docx        # Midterm project report
 |   `-- referenced_diary_media_paths.txt # Reference diary media list
 |
 `-- tests/                         # Pytest regression tests
@@ -87,6 +87,7 @@ The following paths are not required in the clean handoff and are ignored by Git
 - `output/`, `tmp/`, `.pytest_cache/`, `.playwright-cli/`, `__pycache__/`: logs, screenshots, browser profiles, and verification artifacts.
 - `data/raw/` and `data/generated/`: crawler and intermediate candidate outputs. Scripts can recreate them when needed.
 - `static/uploads/`: runtime upload area. Preset avatars now live in `static/images/avatars/`.
+- `data/uploads/diaries/*/_thumbs/`, `_thumbs_v2/`, and `_thumbs_v3/`: old diary thumbnail generations. Current thumbnails use `_thumbs_v4`.
 
 The following paths are retained as source handoff support, but are not needed at runtime:
 
@@ -95,6 +96,6 @@ The following paths are retained as source handoff support, but are not needed a
 
 ## Current Structure Notes
 
-- `app.py` is now smaller but still a meaningful maintainability risk because it contains route planning pages, collector API routes, indoor collector wiring, and DB bootstrapping in one file. The extraction waves moved avatars, user accounts, favorites, filesystem helpers, pagination, diary compression, diary repository/media/video helpers, diary page routes, AI assistant orchestration, search helpers, place matching, place repository/media persistence, diary search, route graph loading, route algorithms, indoor route logic, food repository/ranking helpers, collector normalization, collector repository/graph rebuild logic, and the first Blueprint route groups into `toursim/`.
+- `app.py` is now smaller but still a meaningful maintainability risk because it contains route planning pages, collector API routes, indoor collector wiring, and DB bootstrapping in one file. The extraction waves moved avatars, user accounts, favorites, filesystem helpers, pagination, diary compression, diary repository/media/video helpers, diary page routes, AI assistant orchestration, search helpers, place matching, place repository/media persistence, diary search, route graph loading, route algorithms, indoor route logic, food repository/ranking helpers, collector normalization, collector repository/graph rebuild logic, and multiple Blueprint route groups into `toursim/`.
 - `static/style.css` is also large and layered from several UI iterations. Future cleanup should split it by page or feature while preserving template links.
 - Large JSON files under `data/graphs/`, `data/manual/`, and `data/indoor/` are business data rather than source code; do not split or delete them unless the route graph workflow changes.

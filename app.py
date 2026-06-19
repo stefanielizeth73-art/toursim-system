@@ -863,24 +863,40 @@ def build_diary_comment_tree(comment_rows):
         parent_id = comment.get("parent_id")
         if parent_id and parent_id in lookup:
             parent_comment = lookup[parent_id]
-            comment["depth"] = int(parent_comment.get("depth", 1)) + 1
-            comment["parent_author"] = parent_comment.get("author", "")
             parent_comment["replies"].append(comment)
         else:
             roots.append(comment)
 
-    def comment_sort_key(item):
+    # 1. 自顶向下递归 DFS 计算评论层级和父作者名，确保层级与数据库取出时的排序顺序无关
+    def calculate_depth_and_relation(nodes, current_depth=1, parent_name=""):
+        for node in nodes:
+            node["depth"] = current_depth
+            node["parent_author"] = parent_name
+            if node["replies"]:
+                calculate_depth_and_relation(node["replies"], current_depth + 1, node["author"])
+
+    calculate_depth_and_relation(roots, current_depth=1, parent_name="")
+
+    # 2. 排序设计：一级评论以点赞数(热度)排序；二级及以下评论属于对话树，应严格按时间正序，防止点赞后乱序错位
+    def root_sort_key(item):
         created_at = item.get("created_at", "")
         return (-int(item.get("like_count", 0) or 0), created_at, item.get("id", 0))
 
-    def sort_comment_branch(items):
-        items.sort(key=comment_sort_key)
+    def reply_sort_key(item):
+        created_at = item.get("created_at", "")
+        return (created_at, item.get("id", 0))
+
+    def sort_comment_branch(items, is_root=True):
+        if is_root:
+            items.sort(key=root_sort_key)
+        else:
+            items.sort(key=reply_sort_key)
         for item in items:
-            sort_comment_branch(item["replies"])
+            sort_comment_branch(item["replies"], is_root=False)
             item["reply_count"] = len(item["replies"])
         return items
 
-    return sort_comment_branch(roots), lookup
+    return sort_comment_branch(roots, is_root=True), lookup
 
 
 def flatten_diary_comment_replies(replies):

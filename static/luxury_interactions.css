@@ -1241,3 +1241,19 @@ body.route-map-page.explore-page #facilityResults .explore-field__hint {
         gap: 10px !important;
     }
 }
+
+/* 6. 解决采集模式入口与路线规划卡片重叠的问题 */
+body.route-map-page.explore-page .route-console-footer {
+    position: relative !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+body.route-map-page.explore-page .route-summary {
+    margin-bottom: 16px !important;
+}

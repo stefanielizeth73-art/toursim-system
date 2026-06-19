@@ -3313,20 +3313,20 @@
       ]
     },
     {
-      "id": "route_point_齐齐哈尔家庭烤肉_210",
-      "name": "齐齐哈尔家庭烤肉",
+      "amap_lat": 24.607742,
+      "amap_lng": 118.30293,
       "category": "食堂",
-      "tags": [
-        "食堂"
-      ],
-      "role": "route_point",
+      "id": "route_point_齐齐哈尔家庭烤肉_210",
       "kind": "canteen",
       "lat": 24.607742,
       "lon": 118.30293,
-      "amap_lng": 118.30293,
-      "amap_lat": 24.607742,
+      "name": "齐齐哈尔家庭烤肉",
+      "role": "route_point",
       "selectable": true,
-      "source": "manual_collector_node"
+      "source": "manual_collector_node",
+      "tags": [
+        "食堂"
+      ]
     }
   ]
 }

@@ -87,12 +87,12 @@ def normalize_diary_video_duration(value):
     try:
         duration = int(value)
     except (TypeError, ValueError):
-        duration = DIARY_VIDEO_DEFAULT_DURATION
+        duration = int(DIARY_VIDEO_DEFAULT_DURATION)
     return max(2, min(15, duration))
 
 def normalize_diary_video_resolution(value):
     resolution = str(value or DIARY_VIDEO_DEFAULT_RESOLUTION).upper().strip()
-    return resolution if resolution in {"720P", "1080P"} else DIARY_VIDEO_DEFAULT_RESOLUTION
+    return resolution if resolution in {"720P", "1080P"} else str(DIARY_VIDEO_DEFAULT_RESOLUTION)
 
 def normalize_diary_video_status(value):
     status = str(value or "PENDING").upper().strip()

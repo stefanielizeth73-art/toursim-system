@@ -541,6 +541,14 @@
             return templateUrl.replace(/\/0(?=($|[?#]))/, "/" + taskId);
         }
 
+        async function readVideoJson(response, fallbackMessage) {
+            const contentType = response.headers.get("Content-Type") || "";
+            if (contentType.indexOf("application/json") === -1) {
+                throw new Error(fallbackMessage || "图文生视频接口返回异常，请稍后重试。");
+            }
+            return response.json();
+        }
+
         function showVideo(url) {
             if (!url || !player || !preview) {
                 return;
@@ -583,7 +591,7 @@
             try {
                 pollCount += 1;
                 const response = await fetch(taskStatusUrl(taskId), { headers: { "Accept": "application/json" } });
-                const payload = await response.json();
+                const payload = await readVideoJson(response, "查询生成进度失败，请稍后重试。");
                 if (!response.ok || !payload.ok) {
                     throw new Error(payload.error || "查询生成进度失败");
                 }
@@ -628,7 +636,7 @@
                         prompt: promptInput ? promptInput.value.trim() : ""
                     })
                 });
-                const payload = await response.json();
+                const payload = await readVideoJson(response, "创建生成任务失败，请稍后重试。");
                 if (!response.ok || !payload.ok) {
                     throw new Error(payload.error || "创建生成任务失败");
                 }

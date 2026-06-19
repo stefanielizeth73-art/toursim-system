@@ -12,6 +12,10 @@ This project is ready to deploy on Render and get a stable public URL like:
 4. Render will detect `render.yaml` and use the included settings.
 5. After the first deploy finishes, open the generated `onrender.com` URL.
 
+Before pushing, run the local verification commands in
+`docs/acceptance_checklist.md` and make sure `.env`, `tourism.db`, caches, and
+local screenshots are not staged.
+
 ## Important note about data
 
 The URL is stable, but the default free web service filesystem is not persistent.
@@ -27,3 +31,6 @@ This app stores users and diaries in SQLite, so if you want server-side data to 
 - `PORT`: injected by Render automatically.
 - `DATA_DIR`: directory where `tourism.db` is stored.
 - `DB_NAME`: optional database filename or absolute path.
+- `AMAP_JS_KEY`, `AMAP_SECURITY_JS_CODE`, `AMAP_WEB_KEY`: map keys for route collection and display.
+- `DEEPSEEK_API_KEY` or `OPENAI_API_KEY`: optional model provider key for the AI assistant.
+- `DASHSCOPE_API_KEY`: optional key for diary image-to-video generation.

@@ -27,6 +27,8 @@ INDOOR_VERTICAL_CORES = {
 
 
 def indoor_edge_weight(edge, vertical_mode="auto"):
+    # 室内导航把楼层内走廊、电梯、楼梯统一看成图的边。
+    # vertical_mode用于过滤垂直交通方式：只坐电梯时不走楼梯，只走楼梯时不走电梯。
     mode = edge.get("mode", "walk")
     if vertical_mode == "elevator" and mode == "stairs":
         return None
@@ -38,15 +40,19 @@ def indoor_shortest_path(graph, start, end, vertical_mode="auto"):
     if start not in graph["node_map"] or end not in graph["node_map"]:
         return None
 
+    # 与室外路线规划相同，这里复用堆优化Dijkstra：
+    # distances记录起点到每个室内节点的最短距离，previous用于最终回溯路径。
     distances = {node_id: float("inf") for node_id in graph["node_map"]}
     previous = {}
     distances[start] = 0
+    # heap按当前累计距离排序，每次优先扩展距离最短的节点。
     heap = [(0, start)]
 
     while heap:
         current_distance, current = heapq.heappop(heap)
         if current == end:
             break
+        # 同一节点可能多次入堆；如果弹出的是旧距离，就跳过，保证松弛逻辑正确。
         if current_distance > distances[current]:
             continue
         for edge in graph["adjacency"].get(current, []):
@@ -56,6 +62,7 @@ def indoor_shortest_path(graph, start, end, vertical_mode="auto"):
             neighbor = edge["neighbor"]
             new_distance = current_distance + weight
             if new_distance < distances[neighbor]:
+                # 松弛操作：找到更短的室内路径后，更新距离和前驱边。
                 distances[neighbor] = new_distance
                 previous[neighbor] = (current, edge, weight)
                 heapq.heappush(heap, (new_distance, neighbor))
@@ -67,6 +74,7 @@ def indoor_shortest_path(graph, start, end, vertical_mode="auto"):
     edges = []
     cursor = end
     while cursor != start:
+        # 从终点沿previous反向回溯，得到经过的房间、走廊点、电梯/楼梯节点。
         previous_node, edge, weight = previous[cursor]
         edges.append({**edge, "weight": weight})
         cursor = previous_node
@@ -100,6 +108,8 @@ def indoor_route_steps(result, graph):
         )
 
     def is_key_node(node):
+        # 生成文字步骤时只保留用户关心的关键点；
+        # 纯走廊采样点用于算法寻路，但不直接展示给用户。
         node_type = str(node.get("type") or "")
         if node.get("selectable") is False:
             return False
@@ -153,6 +163,7 @@ def indoor_route_steps(result, graph):
         edge = result["edges"][index - 1]
         edge_mode = edge.get("mode", "walk")
         if edge_mode != current_mode and current_nodes:
+            # 按walk/elevator/stairs切分路线，把连续同类型边压缩成一步讲解。
             text = compact_step_text(current_nodes, current_mode)
             steps.append({
                 "mode": current_mode,
@@ -388,6 +399,8 @@ def normalize_indoor_collector_edge(payload, nodes, existing_items=None):
     }
 
 def indoor_collector_ref_point(ref, nodes, edges):
+    # 吸附关系既可以连接关键点，也可以连接道路采样点；
+    # 这里把不同类型引用统一解析成坐标，后续才能计算连接边距离。
     ref_type = str((ref or {}).get("type") or "").strip()
     if ref_type in {"node", "poi"}:
         node_id = str((ref or {}).get("id") or (ref or {}).get("poi") or "").strip()
@@ -459,6 +472,8 @@ def normalize_indoor_collector_link(payload, nodes, edges, existing_items=None):
     }
 
 def build_indoor_graph_from_collector(payload):
+    # 将采集器保存的楼层JSON转换成算法可用的图：
+    # nodes是图节点，edges是无向边，road_point_lookup把道路采样点映射为隐藏节点。
     nodes = []
     edges = []
     node_map = {}
@@ -474,6 +489,7 @@ def build_indoor_graph_from_collector(payload):
     def add_edge(from_id, to_id, distance, mode="walk"):
         if not from_id or not to_id or from_id == to_id:
             return
+        # 先按单向边保存，构建adjacency时再补反向边，因此最终图是无向可通行图。
         edges.append({
             "from": from_id,
             "to": to_id,
@@ -497,6 +513,8 @@ def build_indoor_graph_from_collector(payload):
                 edge = normalize_indoor_collector_edge(raw_edge, floor_payload.get("nodes", []), floor_payload.get("edges", []))
             except (TypeError, ValueError):
                 continue
+            # 每条室内道路折线会被拆成多个隐藏road节点，节点之间按折线长度连边。
+            # 这样路线展示可以贴合真实走廊形状，而不是只在两个端点之间画直线。
             previous_node_id = ""
             for point_index, point in enumerate(edge.get("geometry") or []):
                 road_node_id = f"road_{edge['id']}_{point_index:03d}"
@@ -515,6 +533,7 @@ def build_indoor_graph_from_collector(payload):
                     add_edge(previous_node_id, road_node_id, indoor_point_distance([previous["x"], previous["y"]], point), edge.get("mode", "walk"))
                 previous_node_id = road_node_id
             for link in edge.get("poi_links", []):
+                # poi_links把房间、电梯、楼梯等可选关键点连接到最近的道路采样点。
                 road_node_id = road_point_lookup.get((edge["id"], link.get("index")))
                 if road_node_id and link.get("poi") in node_map:
                     add_edge(link["poi"], road_node_id, indoor_point_distance(
@@ -522,6 +541,7 @@ def build_indoor_graph_from_collector(payload):
                         [node_map[road_node_id]["x"], node_map[road_node_id]["y"]],
                     ))
             for link in edge.get("road_links", []):
+                # road_links连接不同道路折线的采样点，形成可转弯、可换走廊的连通图。
                 from_id = road_point_lookup.get((edge["id"], link.get("index")))
                 to_id = road_point_lookup.get((link.get("edge"), link.get("target_index")))
                 if from_id and to_id:
@@ -553,6 +573,8 @@ def build_indoor_graph_from_collector(payload):
         return normalize_search_text(str(node.get("name") or "").strip())
 
     for floor in sorted(INDOOR_FLOOR_ASSETS)[:-1]:
+        # 垂直交通建模：把相邻楼层同名/同core的电梯或楼梯连成跨层边。
+        # 这使得普通Dijkstra无需特殊跨层逻辑，也能完成1F到4F的路径规划。
         current = [node for node in nodes if node.get("floor") == floor and node.get("type") in {"elevator", "stairs"}]
         upper = [node for node in nodes if node.get("floor") == floor + 1 and node.get("type") in {"elevator", "stairs"}]
         for node in current:
@@ -584,6 +606,7 @@ def build_indoor_graph_from_collector(payload):
     for edge in edges:
         if edge["from"] not in adjacency or edge["to"] not in adjacency:
             continue
+        # adjacency是Dijkstra直接读取的邻接表；每条室内边补成双向边。
         adjacency[edge["from"]].append({**edge, "neighbor": edge["to"]})
         adjacency[edge["to"]].append({
             **edge,

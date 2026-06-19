@@ -1,4 +1,5 @@
 import heapq
+import random
 import re
 
 from .search import normalize_search_text, split_search_terms
@@ -12,12 +13,15 @@ def parse_place_tag_query(tag_keyword):
     ]
 
 def place_matches_filters(place, keyword="", tag_keyword="", place_type="", city=""):
+    # 查询阶段先做候选集过滤：关键词拆词后必须都命中景点信息块。
+    # 这样后面的排序/Top-K只处理有效候选，避免把无关数据送入推荐堆。
     if keyword:
         keyword_terms = split_search_terms(keyword) or [normalize_search_text(keyword)]
         place_blob = place_search_blob(place)
         if not all(term in place_blob for term in keyword_terms if term):
             return False
 
+    # 标签查询单独处理，支持用户按兴趣标签缩小候选范围。
     if tag_keyword:
         query_tags = [normalize_search_text(item) for item in parse_place_tag_query(tag_keyword)]
         place_tags = normalize_search_text(place.get("tags", ""))
@@ -239,24 +243,78 @@ def calculate_base_score(place):
     热度占 40%
     热度做一个缩放，避免数值差太大
     """
+    # 基础推荐分：rating * 60突出景点评价质量；
+    # popularity * 0.4引入热度但做缩放，避免热度数值过大压制评分。
     return place["rating"] * 60 + place["popularity"] * 0.4
 
 def calculate_personalized_score(place, preferred_tags):
     score = calculate_base_score(place)
 
+    # 个性化部分使用兴趣标签命中数加分；标签越贴合用户偏好，排序越靠前。
     matched_tags = 0
     for tag in preferred_tags:
         if tag and tag in place["tags_list"]:
             matched_tags += 1
 
-    # 每匹配一个兴趣标签，加 15 分
+    # 每命中一个兴趣标签加15分，既能体现偏好，又不会完全覆盖评分和热度。
     score += matched_tags * 15
     return score
 
-def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", city="", keyword="", tag_keyword=""):
-    if preferred_tags is None:
-        preferred_tags = []
+def normalize_preferred_place_tags(places, preferred_tags):
+    available_tags = {
+        tag
+        for place in places
+        for tag in place.get("tags_list", [])
+    }
+    normalized = []
+    seen = set()
+    for tag in preferred_tags or []:
+        tag = str(tag).strip()
+        if tag and tag in available_tags and tag not in seen:
+            normalized.append(tag)
+            seen.add(tag)
+    return normalized
 
+def place_matches_preferred_tags(place, preferred_tags):
+    if not preferred_tags:
+        return True
+    return count_preferred_tag_matches(place, preferred_tags) > 0
+
+def count_preferred_tag_matches(place, preferred_tags):
+    place_tags = set(place.get("tags_list", []))
+    return sum(1 for tag in preferred_tags if tag in place_tags)
+
+def place_identity(place):
+    return str(place.get("id") or place.get("name") or "")
+
+def random_fill_places(places, selected_places, fill_count):
+    if fill_count <= 0:
+        return []
+
+    selected_keys = {place_identity(place) for place in selected_places}
+    fill_pool = [
+        place for place in places
+        if place_identity(place) and place_identity(place) not in selected_keys
+    ]
+    if not fill_pool:
+        return []
+
+    fillers = random.sample(fill_pool, min(fill_count, len(fill_pool)))
+    result = []
+    for place in fillers:
+        place_copy = place.copy()
+        place_copy["recommend_score"] = calculate_base_score(place_copy)
+        place_copy["matched_preferred_tag_count"] = 0
+        place_copy["matched_all_preferred_tags"] = False
+        place_copy["is_random_fill"] = True
+        result.append(place_copy)
+    return result
+
+def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", city="", keyword="", tag_keyword=""):
+    preferred_tags = normalize_preferred_place_tags(places, preferred_tags)
+
+    # 小根堆只保存当前最优的K个景点。课程要求关注前10个结果，
+    # 因此不必对全部候选完整排序，复杂度从O(N log N)降为O(N log K)。
     heap = []
     scanned_count = 0
     candidate_count = 0
@@ -272,22 +330,40 @@ def get_top_k_recommendations(places, preferred_tags=None, k=10, place_type="", 
         ):
             continue
 
+        if not place_matches_preferred_tags(place, preferred_tags):
+            continue
+
         candidate_count += 1
         place_copy = place.copy()
+        matched_tag_count = count_preferred_tag_matches(place_copy, preferred_tags)
         place_copy["recommend_score"] = calculate_personalized_score(place_copy, preferred_tags)
+        place_copy["matched_preferred_tag_count"] = matched_tag_count
+        place_copy["matched_all_preferred_tags"] = bool(preferred_tags) and matched_tag_count == len(preferred_tags)
 
-        item = (place_copy["recommend_score"], index, place_copy)
+        ranking_key = (
+            1 if place_copy["matched_all_preferred_tags"] else 0,
+            matched_tag_count,
+            place_copy["recommend_score"],
+        )
+        item = (ranking_key, -index, place_copy)
         if len(heap) < k:
             heapq.heappush(heap, item)
-        elif item[0] > heap[0][0]:
+        elif item[:2] > heap[0][:2]:
+            # 当前候选优于堆顶的“第K名”时才替换，堆内始终保持前K个高分景点。
             heapq.heapreplace(heap, item)
 
+    # 最后只对K个入选结果做展示排序，不再对全部候选排序。
     # Only the k selected records are sorted for display.
-    result = [item[2] for item in sorted(heap, key=lambda x: x[0], reverse=True)]
+    result = [item[2] for item in sorted(heap, key=lambda x: (x[0], x[1]), reverse=True)]
+    random_fill_count = max(0, k - len(result))
+    if random_fill_count:
+        result.extend(random_fill_places(places, result, random_fill_count))
     stats = {
         "scanned_count": scanned_count,
         "candidate_count": candidate_count,
         "returned_count": len(result),
+        "random_fill_count": random_fill_count,
+        "preferred_tags": preferred_tags,
         "algorithm": "模糊查找 + 小根堆 Top-K",
     }
     return result, stats

@@ -92481,13 +92481,6 @@
       "walk": true
     },
     {
-      "id": "edge_0678",
-      "name": "手动道路",
-      "road_type": "narrow",
-      "from": "",
-      "to": "",
-      "poi_links": [],
-      "road_links": [],
       "amap_geometry": [
         [
           118.302731,
@@ -92530,20 +92523,20 @@
           24.607789
         ]
       ],
-      "distance": 27.0,
-      "walk": true,
       "bike": false,
       "congestion": 0.68,
-      "source": "manual_collector_edge"
-    },
-    {
-      "id": "edge_0679",
-      "name": "手动道路",
-      "road_type": "narrow",
+      "distance": 27,
       "from": "",
-      "to": "",
+      "id": "edge_0678",
+      "name": "手动道路",
       "poi_links": [],
       "road_links": [],
+      "road_type": "narrow",
+      "source": "manual_collector_edge",
+      "to": "",
+      "walk": true
+    },
+    {
       "amap_geometry": [
         [
           118.302803,
@@ -92590,11 +92583,18 @@
           24.607793
         ]
       ],
-      "distance": 39.4,
-      "walk": true,
       "bike": false,
       "congestion": 0.68,
-      "source": "manual_collector_edge"
+      "distance": 39.4,
+      "from": "",
+      "id": "edge_0679",
+      "name": "手动道路",
+      "poi_links": [],
+      "road_links": [],
+      "road_type": "narrow",
+      "source": "manual_collector_edge",
+      "to": "",
+      "walk": true
     }
   ]
 }

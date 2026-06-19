@@ -19,6 +19,8 @@ tourism.db
 docs/research/credentials.md
 test-results/
 *.log
+~$*.docx
+*.bak
 data/raw/
 data/generated/
 data/uploads/*
@@ -34,3 +36,4 @@ data/uploads/diaries/*/*new-demo*
 output/
 tmp/
 static/uploads/
+.pytest-tmp/

@@ -169,7 +169,7 @@
                 </details>
             </section>
 
-            <section class="places-darkroom-rank" aria-labelledby="places-rank-title">
+            <section id="places-rank" class="places-darkroom-rank" aria-labelledby="places-rank-title">
                 <div class="places-darkroom-section-head">
                     <div>
                         <span class="places-kicker">Curated for You</span>
@@ -178,10 +178,10 @@
                     <p>喜欢哪张照片就点进去，评分和热度慢慢比。</p>
                 </div>
 
-                <div class="places-contact-sheet places-contact-sheet--ranked{% if recommended_places|length == 5 %} places-contact-sheet--top-five{% elif recommended_places|length >= 10 %} places-contact-sheet--has-ten{% endif %}" role="list">
+                <div class="places-contact-sheet places-contact-sheet--ranked{% if k == 5 %} places-contact-sheet--top-five{% elif k >= 10 %} places-contact-sheet--has-ten{% endif %}" role="list">
                     {% for place in recommended_places %}
                     <article class="places-contact-card places-contact-card--rank-{{ loop.index if loop.index <= 10 else 'default' }}" role="listitem">
-                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id) }}" aria-label="查看 {{ place.name }} 详情">
+                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id, return_url=current_places_url ~ '#places-rank') }}" aria-label="查看 {{ place.name }} 详情">
                             <figure class="places-contact-photo">
                                 {% if place.cover_image %}
                                 <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 图片" loading="{{ 'eager' if loop.index <= 4 else 'lazy' }}">
@@ -229,7 +229,7 @@
                 <div class="places-contact-sheet places-contact-sheet--archive" role="list">
                     {% for place in places %}
                     <article class="places-contact-card places-contact-card--small" role="listitem">
-                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id) }}" aria-label="查看 {{ place.name }} 详情">
+                        <a class="places-contact-link" href="{{ url_for('place_detail', place_id=place.id, return_url=current_places_url ~ '#places-results') }}" aria-label="查看 {{ place.name }} 详情">
                             <figure class="places-contact-photo">
                                 {% if place.cover_image %}
                                 <img src="{{ url_for('static', filename=place.cover_image) }}" alt="{{ place.name }} 图片" loading="lazy">

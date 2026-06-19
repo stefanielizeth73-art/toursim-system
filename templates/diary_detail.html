@@ -449,6 +449,52 @@
             <option value="{{ place_name }}"></option>
             {% endfor %}
         </datalist>
+
+        <script>
+            // 拦截评论点赞的表单提交，改为优雅的 AJAX 异步交互，保持页面位置与元素位置完全不变
+            document.addEventListener('submit', function(e) {
+                const form = e.target.closest('.comment-like-form');
+                if (!form) return;
+
+                e.preventDefault();
+
+                const button = form.querySelector('.comment-like-btn');
+                const span = button.querySelector('span');
+                if (!button || !span) return;
+
+                const isLiked = button.classList.contains('is-liked');
+
+                // 1. 乐观更新：本地状态与动画即时响应
+                button.classList.toggle('is-liked');
+                let count = parseInt(span.textContent.trim() || '0', 10);
+                if (isLiked) {
+                    count = Math.max(0, count - 1);
+                } else {
+                    count = count + 1;
+                }
+                span.textContent = count;
+
+                // 2. 异步点赞请求
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(new FormData(form))
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                })
+                .catch(err => {
+                    console.error("点赞请求失败，正在回滚状态...", err);
+                    // 发生错误时回滚 UI
+                    button.classList.toggle('is-liked');
+                    span.textContent = isLiked ? (count + 1) : Math.max(0, count - 1);
+                });
+            });
+        </script>
     </div>
 </body>
 

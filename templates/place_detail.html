@@ -23,7 +23,7 @@
             <span class="places-topbar__user">{{ username }}</span>
             <a class="nav-link" href="{{ url_for('home') }}">返回主页</a>
             <a class="nav-link" href="{{ url_for('profile') }}">个人中心</a>
-            <a class="nav-link" href="{{ url_for('places') }}">返回探索</a>
+            <a class="nav-link" href="{{ places_return_url }}">返回探索</a>
         </nav>
     </header>
 
@@ -73,6 +73,7 @@
                     </span>
                     {% endfor %}
                     <form method="post" action="{{ url_for('place_favorite', place_id=place.id) }}" class="place-favorite-form">
+                        <input type="hidden" name="return_url" value="{{ places_return_url }}">
                         <button type="submit" class="place-favorite-action {% if place_favorited %}is-favorited{% endif %}">
                             <span aria-hidden="true">★</span>
                             {% if place_favorited %}已收藏{% else %}收藏地点{% endif %}

@@ -36473,17 +36473,10 @@
       "walk": true
     },
     {
-      "id": "link_1274",
-      "kind": "road_road",
       "a": {
-        "type": "road",
         "edge": "edge_0678",
-        "point_index": 0
-      },
-      "b": {
-        "type": "road",
-        "edge": "edge_0053",
-        "point_index": 11
+        "point_index": 0,
+        "type": "road"
       },
       "amap_geometry": [
         [
@@ -36495,24 +36488,24 @@
           24.607536
         ]
       ],
-      "distance": 2.6,
-      "walk": true,
+      "b": {
+        "edge": "edge_0053",
+        "point_index": 11,
+        "type": "road"
+      },
       "bike": true,
       "congestion": 0.82,
-      "source": "manual_collector_link"
+      "distance": 2.6,
+      "id": "link_1274",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
     },
     {
-      "id": "link_1275",
-      "kind": "road_road",
       "a": {
-        "type": "road",
         "edge": "edge_0679",
-        "point_index": 0
-      },
-      "b": {
-        "type": "road",
-        "edge": "edge_0678",
-        "point_index": 6
+        "point_index": 0,
+        "type": "road"
       },
       "amap_geometry": [
         [
@@ -36524,24 +36517,24 @@
           24.607706
         ]
       ],
-      "distance": 3.0,
-      "walk": true,
+      "b": {
+        "edge": "edge_0678",
+        "point_index": 6,
+        "type": "road"
+      },
       "bike": true,
       "congestion": 0.82,
-      "source": "manual_collector_link"
+      "distance": 3,
+      "id": "link_1275",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
     },
     {
-      "id": "link_1276",
-      "kind": "road_road",
       "a": {
-        "type": "road",
         "edge": "edge_0679",
-        "point_index": 10
-      },
-      "b": {
-        "type": "road",
-        "edge": "edge_0677",
-        "point_index": 6
+        "point_index": 10,
+        "type": "road"
       },
       "amap_geometry": [
         [
@@ -36553,23 +36546,23 @@
           24.607843
         ]
       ],
-      "distance": 5.8,
-      "walk": true,
+      "b": {
+        "edge": "edge_0677",
+        "point_index": 6,
+        "type": "road"
+      },
       "bike": true,
       "congestion": 0.82,
-      "source": "manual_collector_link"
+      "distance": 5.8,
+      "id": "link_1276",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
     },
     {
-      "id": "link_1277",
-      "kind": "poi_road",
       "a": {
-        "type": "poi",
-        "id": "route_point_齐齐哈尔家庭烤肉_210"
-      },
-      "b": {
-        "type": "road",
-        "edge": "edge_0679",
-        "point_index": 3
+        "id": "route_point_齐齐哈尔家庭烤肉_210",
+        "type": "poi"
       },
       "amap_geometry": [
         [
@@ -36581,24 +36574,24 @@
           24.607718
         ]
       ],
-      "distance": 5.2,
-      "walk": true,
+      "b": {
+        "edge": "edge_0679",
+        "point_index": 3,
+        "type": "road"
+      },
       "bike": true,
       "congestion": 0.82,
-      "source": "manual_collector_link"
+      "distance": 5.2,
+      "id": "link_1277",
+      "kind": "poi_road",
+      "source": "manual_collector_link",
+      "walk": true
     },
     {
-      "id": "link_1278",
-      "kind": "road_road",
       "a": {
-        "type": "road",
         "edge": "edge_0634",
-        "point_index": 10
-      },
-      "b": {
-        "type": "road",
-        "edge": "edge_0521",
-        "point_index": 25
+        "point_index": 10,
+        "type": "road"
       },
       "amap_geometry": [
         [
@@ -36610,11 +36603,18 @@
           24.610767
         ]
       ],
-      "distance": 3.0,
-      "walk": true,
+      "b": {
+        "edge": "edge_0521",
+        "point_index": 25,
+        "type": "road"
+      },
       "bike": true,
       "congestion": 0.82,
-      "source": "manual_collector_link"
+      "distance": 3,
+      "id": "link_1278",
+      "kind": "road_road",
+      "source": "manual_collector_link",
+      "walk": true
     }
   ]
 }

@@ -84,6 +84,25 @@ class DiaryVideoGenerationTests(unittest.TestCase):
         self.assertEqual(submit_payload["parameters"]["duration"], 5)
         self.assertEqual(submit_payload["parameters"]["resolution"], "720P")
 
+    def test_start_video_generation_uses_default_duration_when_missing(self):
+        diary_id = self.create_diary_with_image()
+
+        with patch.object(toursim_app, "submit_bailian_image_to_video_task") as submit_task:
+            submit_task.return_value = {"task_id": "task-defaults", "status": "PENDING", "raw_response": {}}
+            response = self.client.post(
+                f"/api/diary/{diary_id}/video-generation",
+                json={"prompt": "镜头慢慢扫过校园。"},
+            )
+
+        payload = response.get_json()
+
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.headers["Content-Type"], "application/json")
+        self.assertEqual(payload["task"]["task_id"], "task-defaults")
+        submit_payload = submit_task.call_args.args[0]
+        self.assertEqual(submit_payload["parameters"]["duration"], 5)
+        self.assertEqual(submit_payload["parameters"]["resolution"], "720P")
+
     def test_poll_video_generation_downloads_successful_result_to_local_media(self):
         diary_id = self.create_diary_with_image()
         task = toursim_app.create_diary_video_task(

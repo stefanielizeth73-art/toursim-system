@@ -879809,7 +879809,7 @@
   ],
   "collector_source_signature": {
     "algorithm": "sha256",
-    "digest": "c509c2cc21f95ead8cfffc1be8d94e0816b1a3db70021d4bf4bd74853042187e",
+    "digest": "ca4f5f7a3037f93dd553cac7e1db355b8cf739fbd994219cf0870c73dc6e5b95",
     "files": [
       {
         "name": "xmu_collector_nodes.json",
@@ -879817,15 +879817,15 @@
       },
       {
         "name": "xmu_collector_edges.json",
-        "bytes": 1606300
+        "bytes": 1606298
       },
       {
         "name": "xmu_collector_links.json",
-        "bytes": 739397
+        "bytes": 739393
       },
       {
         "name": "xmu_collector_facilities.json",
-        "bytes": 72196
+        "bytes": 72194
       },
       {
         "name": "xmu_collector_meta.json",

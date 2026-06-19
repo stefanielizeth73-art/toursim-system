@@ -3,6 +3,7 @@
     {
       "amap_lat": 24.610277,
       "amap_lng": 118.316533,
+      "cuisine": "快餐",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0001",
       "name": "肯德基",
@@ -12,8 +13,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "快餐"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610506,
@@ -32,6 +32,7 @@
     {
       "amap_lat": 24.610645,
       "amap_lng": 118.316924,
+      "cuisine": "奶茶",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0003",
       "name": "益禾堂",
@@ -41,12 +42,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "奶茶"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610645,
       "amap_lng": 118.316924,
+      "cuisine": "奶茶",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0004",
       "name": "益禾堂",
@@ -56,12 +57,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "奶茶"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610484,
       "amap_lng": 118.316983,
+      "cuisine": "奶茶",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0005",
       "name": "古茗",
@@ -71,8 +72,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "奶茶"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610374,
@@ -217,6 +217,7 @@
     {
       "amap_lat": 24.611071,
       "amap_lng": 118.317418,
+      "cuisine": "食堂",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0018",
       "name": "竞丰餐厅",
@@ -226,12 +227,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "食堂"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607032,
       "amap_lng": 118.30936,
+      "cuisine": "食堂",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0019",
       "name": "芙蓉餐厅",
@@ -241,12 +242,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "食堂"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.611668,
       "amap_lng": 118.30907,
+      "cuisine": "食堂",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0020",
       "name": "思源餐厅",
@@ -256,12 +257,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "食堂"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.608181,
       "amap_lng": 118.30275,
+      "cuisine": "食堂",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0022",
       "name": "丰庭餐厅",
@@ -271,8 +272,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "食堂"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.613015,
@@ -292,6 +292,7 @@
     {
       "amap_lat": 24.609942,
       "amap_lng": 118.318003,
+      "cuisine": "家常菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0024",
       "name": "昕昕饭店",
@@ -301,8 +302,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "家常菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.605544,
@@ -336,6 +336,7 @@
     {
       "amap_lat": 24.606168,
       "amap_lng": 118.31082,
+      "cuisine": "快餐",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0027",
       "name": "豆恩咖餐",
@@ -345,8 +346,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "快餐"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.605102,
@@ -715,6 +715,7 @@
     {
       "amap_lat": 24.610838,
       "amap_lng": 118.317228,
+      "cuisine": "咖啡",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0059",
       "name": "瑞幸咖啡",
@@ -724,12 +725,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "咖啡"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.611732,
       "amap_lng": 118.30884,
+      "cuisine": "咖啡",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0060",
       "name": "瑞幸咖啡",
@@ -739,8 +740,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "咖啡"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.609146,
@@ -941,6 +941,7 @@
     {
       "amap_lat": 24.607933,
       "amap_lng": 118.303206,
+      "cuisine": "奶茶",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0077",
       "name": "蜜雪冰城",
@@ -950,12 +951,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "奶茶"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610713,
       "amap_lng": 118.317675,
+      "cuisine": "奶茶",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0078",
       "name": "蜜雪冰城",
@@ -965,8 +966,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "奶茶"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607783,
@@ -1433,6 +1433,7 @@
     {
       "amap_lat": 24.611879,
       "amap_lng": 118.309108,
+      "cuisine": "火锅",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0115",
       "name": "百里牛香潮汕自助牛肉火锅",
@@ -1442,12 +1443,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "火锅"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607867,
       "amap_lng": 118.302614,
+      "cuisine": "火锅",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0116",
       "name": "贵州特色地摊火锅",
@@ -1457,12 +1458,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "火锅"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.603071,
       "amap_lng": 118.301153,
+      "cuisine": "烧烤",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0118",
       "name": "香山里营地/露营团建",
@@ -1472,12 +1473,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "烧烤"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607283,
       "amap_lng": 118.309392,
+      "cuisine": "烤鱼",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0119",
       "name": "无忧烙锅纸包鱼",
@@ -1487,12 +1488,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "烤鱼"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.611489,
       "amap_lng": 118.308933,
+      "cuisine": "小吃",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0120",
       "name": "喜姐炸串",
@@ -1502,12 +1503,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "小吃"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607274,
       "amap_lng": 118.302515,
+      "cuisine": "家常菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0121",
       "name": "雍景轩食府",
@@ -1517,12 +1518,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "家常菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.607613,
       "amap_lng": 118.312762,
+      "cuisine": "家常菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0122",
       "name": "芙蓉苑古厝餐厅",
@@ -1532,12 +1533,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "家常菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.610341,
       "amap_lng": 118.316264,
+      "cuisine": "粤菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0123",
       "name": "喜米乐潮汕鸡煲",
@@ -1547,12 +1548,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "粤菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.611382,
       "amap_lng": 118.309461,
+      "cuisine": "粤菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0124",
       "name": "广东石磨肠粉烧饼哥",
@@ -1562,12 +1563,12 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "粤菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.611132,
       "amap_lng": 118.316418,
+      "cuisine": "印度菜",
       "description": "餐饮，手动采集，模块三按道路图距离排序。",
       "id": "facility_0126",
       "name": "印度食堂 little India",
@@ -1577,8 +1578,7 @@
       "tags": [
         "餐饮"
       ],
-      "type": "餐饮",
-      "cuisine": "印度菜"
+      "type": "餐饮"
     },
     {
       "amap_lat": 24.61169,
@@ -1645,771 +1645,771 @@
       "type": "餐饮"
     },
     {
+      "amap_lat": 24.607669,
+      "amap_lng": 118.302836,
+      "cuisine": "家常菜",
+      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
       "id": "facility_0132",
       "name": "一家人餐厅",
-      "type": "餐饮",
-      "cuisine": "家常菜",
+      "nearest_node": "road_edge_0679_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "家常菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0679_000",
-      "amap_lng": 118.302836,
-      "amap_lat": 24.607669,
-      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.607742,
+      "amap_lng": 118.303005,
+      "cuisine": "烧烤",
+      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
       "id": "facility_0133",
       "name": "齐齐哈尔家庭烤肉",
-      "type": "餐饮",
-      "cuisine": "烧烤",
+      "nearest_node": "road_edge_0679_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "烧烤"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0679_006",
-      "amap_lng": 118.303005,
-      "amap_lat": 24.607742,
-      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.608041,
+      "amap_lng": 118.313789,
+      "cuisine": "粤菜",
+      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
       "id": "facility_0134",
       "name": "港式茶点",
-      "type": "餐饮",
-      "cuisine": "粤菜",
+      "nearest_node": "road_edge_0610_012",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "粤菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0610_012",
-      "amap_lng": 118.313789,
-      "amap_lat": 24.608041,
-      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.607234,
+      "amap_lng": 118.309456,
+      "cuisine": "烤鱼",
+      "description": "餐饮 · 烤鱼，手动采集，按道路图距离排序。",
       "id": "facility_0135",
       "name": "无忧烙锅纸包鱼",
-      "type": "餐饮",
-      "cuisine": "烤鱼",
+      "nearest_node": "road_edge_0309_004",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "烤鱼"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0309_004",
-      "amap_lng": 118.309456,
-      "amap_lat": 24.607234,
-      "description": "餐饮 · 烤鱼，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.606969,
+      "amap_lng": 118.309362,
+      "cuisine": "西餐",
+      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
       "id": "facility_0136",
       "name": "悬浮餐厅",
-      "type": "餐饮",
-      "cuisine": "西餐",
+      "nearest_node": "road_edge_0305_023",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "西餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0305_023",
-      "amap_lng": 118.309362,
-      "amap_lat": 24.606969,
-      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.607101,
+      "amap_lng": 118.309459,
+      "cuisine": "小吃",
+      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
       "id": "facility_0137",
       "name": "沙县小吃",
-      "type": "餐饮",
-      "cuisine": "小吃",
+      "nearest_node": "road_edge_0309_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "小吃"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0309_000",
-      "amap_lng": 118.309459,
-      "amap_lat": 24.607101,
-      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.607104,
+      "amap_lng": 118.309357,
+      "cuisine": "面食",
+      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
       "id": "facility_0138",
       "name": "紫溪粉面",
-      "type": "餐饮",
-      "cuisine": "面食",
+      "nearest_node": "road_edge_0309_000",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "面食"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0309_000",
-      "amap_lng": 118.309357,
-      "amap_lat": 24.607104,
-      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610322,
+      "amap_lng": 118.307201,
+      "cuisine": "川菜",
+      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
       "id": "facility_0139",
       "name": "香锅冒菜",
-      "type": "餐饮",
-      "cuisine": "川菜",
+      "nearest_node": "road_edge_0606_053",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "川菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_053",
-      "amap_lng": 118.307201,
-      "amap_lat": 24.610322,
-      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610232,
+      "amap_lng": 118.307167,
+      "cuisine": "火锅",
+      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
       "id": "facility_0140",
       "name": "萍姐火锅",
-      "type": "餐饮",
-      "cuisine": "火锅",
+      "nearest_node": "road_edge_0606_057",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "火锅"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_057",
-      "amap_lng": 118.307167,
-      "amap_lat": 24.610232,
-      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610052,
+      "amap_lng": 118.307215,
+      "cuisine": "奶茶",
+      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
       "id": "facility_0141",
       "name": "一点点",
-      "type": "餐饮",
-      "cuisine": "奶茶",
+      "nearest_node": "road_edge_0606_064",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "奶茶"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_064",
-      "amap_lng": 118.307215,
-      "amap_lat": 24.610052,
-      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609988,
+      "amap_lng": 118.307186,
+      "cuisine": "咖啡",
+      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
       "id": "facility_0142",
       "name": "瑞幸咖啡",
-      "type": "餐饮",
-      "cuisine": "咖啡",
+      "nearest_node": "road_edge_0606_066",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "咖啡"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_066",
-      "amap_lng": 118.307186,
-      "amap_lat": 24.609988,
-      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610407,
+      "amap_lng": 118.307468,
+      "cuisine": "快餐",
+      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
       "id": "facility_0143",
       "name": "阿胖快餐店",
-      "type": "餐饮",
-      "cuisine": "快餐",
+      "nearest_node": "road_edge_0606_045",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "快餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_045",
-      "amap_lng": 118.307468,
-      "amap_lat": 24.610407,
-      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613942,
+      "amap_lng": 118.309721,
+      "cuisine": "湘菜",
+      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
       "id": "facility_0144",
       "name": "老湘村-湘菜馆",
-      "type": "餐饮",
-      "cuisine": "湘菜",
+      "nearest_node": "road_edge_0620_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "湘菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0620_003",
-      "amap_lng": 118.309721,
-      "amap_lat": 24.613942,
-      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.614027,
+      "amap_lng": 118.309908,
+      "cuisine": "东北菜",
+      "description": "餐饮 · 东北菜，手动采集，按道路图距离排序。",
       "id": "facility_0145",
       "name": "东北饺子馆",
-      "type": "餐饮",
-      "cuisine": "东北菜",
+      "nearest_node": "road_edge_0619_007",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "东北菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_007",
-      "amap_lng": 118.309908,
-      "amap_lat": 24.614027,
-      "description": "餐饮 · 东北菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613985,
+      "amap_lng": 118.310195,
+      "cuisine": "川菜",
+      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
       "id": "facility_0146",
       "name": "蜀香诱惑",
-      "type": "餐饮",
-      "cuisine": "川菜",
+      "nearest_node": "road_edge_0619_016",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "川菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_016",
-      "amap_lng": 118.310195,
-      "amap_lat": 24.613985,
-      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.614038,
+      "amap_lng": 118.310326,
+      "cuisine": "湘菜",
+      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
       "id": "facility_0147",
       "name": "望湘家土菜馆",
-      "type": "餐饮",
-      "cuisine": "湘菜",
+      "nearest_node": "road_edge_0619_020",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "湘菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_020",
-      "amap_lng": 118.310326,
-      "amap_lat": 24.614038,
-      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613975,
+      "amap_lng": 118.310503,
+      "cuisine": "火锅",
+      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
       "id": "facility_0148",
       "name": "海底捞",
-      "type": "餐饮",
-      "cuisine": "火锅",
+      "nearest_node": "road_edge_0619_026",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "火锅"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_026",
-      "amap_lng": 118.310503,
-      "amap_lat": 24.613975,
-      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613975,
+      "amap_lng": 118.310731,
+      "cuisine": "自助",
+      "description": "餐饮 · 自助，手动采集，按道路图距离排序。",
       "id": "facility_0149",
       "name": "悦享来",
-      "type": "餐饮",
-      "cuisine": "自助",
+      "nearest_node": "road_edge_0619_036",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "自助"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_036",
-      "amap_lng": 118.310731,
-      "amap_lat": 24.613975,
-      "description": "餐饮 · 自助，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613897,
+      "amap_lng": 118.310806,
+      "cuisine": "烧烤",
+      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
       "id": "facility_0150",
       "name": "莲旺烧烤",
-      "type": "餐饮",
-      "cuisine": "烧烤",
+      "nearest_node": "road_edge_0619_041",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "烧烤"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0619_041",
-      "amap_lng": 118.310806,
-      "amap_lat": 24.613897,
-      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613848,
+      "amap_lng": 118.309738,
+      "cuisine": "快餐",
+      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
       "id": "facility_0151",
       "name": "1+8快餐",
-      "type": "餐饮",
-      "cuisine": "快餐",
+      "nearest_node": "road_edge_0620_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "快餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0620_006",
-      "amap_lng": 118.309738,
-      "amap_lat": 24.613848,
-      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.613777,
+      "amap_lng": 118.309803,
+      "cuisine": "奶茶",
+      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
       "id": "facility_0152",
       "name": "古茗",
-      "type": "餐饮",
-      "cuisine": "奶茶",
+      "nearest_node": "road_edge_0620_009",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "奶茶"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0620_009",
-      "amap_lng": 118.309803,
-      "amap_lat": 24.613777,
-      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609918,
+      "amap_lng": 118.306944,
+      "cuisine": "咖啡",
+      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
       "id": "facility_0153",
       "name": "星巴克",
-      "type": "餐饮",
-      "cuisine": "咖啡",
+      "nearest_node": "road_edge_0607_014",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "咖啡"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0607_014",
-      "amap_lng": 118.306944,
-      "amap_lat": 24.609918,
-      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610147,
+      "amap_lng": 118.307228,
+      "cuisine": "小吃",
+      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
       "id": "facility_0154",
       "name": "和平小炒",
-      "type": "餐饮",
-      "cuisine": "小吃",
+      "nearest_node": "road_edge_0606_060",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "小吃"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_060",
-      "amap_lng": 118.307228,
-      "amap_lat": 24.610147,
-      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610391,
+      "amap_lng": 118.307191,
+      "cuisine": "面食",
+      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
       "id": "facility_0155",
       "name": "阿叶鲜捞",
-      "type": "餐饮",
-      "cuisine": "面食",
+      "nearest_node": "road_edge_0607_049",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "面食"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0607_049",
-      "amap_lng": 118.307191,
-      "amap_lat": 24.610391,
-      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610318,
+      "amap_lng": 118.307462,
+      "cuisine": "粤菜",
+      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
       "id": "facility_0156",
       "name": "粤知一二",
-      "type": "餐饮",
-      "cuisine": "粤菜",
+      "nearest_node": "road_edge_0606_044",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "粤菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0606_044",
-      "amap_lng": 118.307462,
-      "amap_lat": 24.610318,
-      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.608126,
+      "amap_lng": 118.303152,
+      "cuisine": "西餐",
+      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
       "id": "facility_0157",
       "name": "一树",
-      "type": "餐饮",
-      "cuisine": "西餐",
+      "nearest_node": "road_edge_0059_013",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "西餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0059_013",
-      "amap_lng": 118.303152,
-      "amap_lat": 24.608126,
-      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.608019,
+      "amap_lng": 118.302676,
+      "cuisine": "家常菜",
+      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
       "id": "facility_0158",
       "name": "家知味",
-      "type": "餐饮",
-      "cuisine": "家常菜",
+      "nearest_node": "road_edge_0050_014",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "家常菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0050_014",
-      "amap_lng": 118.302676,
-      "amap_lat": 24.608019,
-      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.607863,
+      "amap_lng": 118.303186,
+      "cuisine": "超市便利",
+      "description": "餐饮 · 超市便利，手动采集，按道路图距离排序。",
       "id": "facility_0159",
       "name": "好想来",
-      "type": "餐饮",
-      "cuisine": "超市便利",
+      "nearest_node": "road_edge_0677_006",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "超市便利"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0677_006",
-      "amap_lng": 118.303186,
-      "amap_lat": 24.607863,
-      "description": "餐饮 · 超市便利，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611245,
+      "amap_lng": 118.309574,
+      "cuisine": "东北菜",
+      "description": "餐饮 · 东北菜，手动采集，按道路图距离排序。",
       "id": "facility_0160",
       "name": "小炉灶东北菜铁锅炖",
-      "type": "餐饮",
-      "cuisine": "东北菜",
+      "nearest_node": "road_edge_0169_051",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "东北菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0169_051",
-      "amap_lng": 118.309574,
-      "amap_lat": 24.611245,
-      "description": "餐饮 · 东北菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.60987,
+      "amap_lng": 118.308156,
+      "cuisine": "湘菜",
+      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
       "id": "facility_0161",
       "name": "农耕记湘菜小炒盖码饭",
-      "type": "餐饮",
-      "cuisine": "湘菜",
+      "nearest_node": "road_edge_0608_039",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "湘菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_039",
-      "amap_lng": 118.308156,
-      "amap_lat": 24.60987,
-      "description": "餐饮 · 湘菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609765,
+      "amap_lng": 118.308153,
+      "cuisine": "川菜",
+      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
       "id": "facility_0162",
       "name": "川香园家常菜",
-      "type": "餐饮",
-      "cuisine": "川菜",
+      "nearest_node": "road_edge_0608_044",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "川菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_044",
-      "amap_lng": 118.308153,
-      "amap_lat": 24.609765,
-      "description": "餐饮 · 川菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.60965,
+      "amap_lng": 118.308161,
+      "cuisine": "火锅",
+      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
       "id": "facility_0163",
       "name": "鸿运四季铜锅涮肉",
-      "type": "餐饮",
-      "cuisine": "火锅",
+      "nearest_node": "road_edge_0608_047",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "火锅"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_047",
-      "amap_lng": 118.308161,
-      "amap_lat": 24.60965,
-      "description": "餐饮 · 火锅，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609836,
+      "amap_lng": 118.307842,
+      "cuisine": "自助",
+      "description": "餐饮 · 自助，手动采集，按道路图距离排序。",
       "id": "facility_0164",
       "name": "老班长自助烤骨头",
-      "type": "餐饮",
-      "cuisine": "自助",
+      "nearest_node": "road_edge_0608_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "自助"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_022",
-      "amap_lng": 118.307842,
-      "amap_lat": 24.609836,
-      "description": "餐饮 · 自助，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609528,
+      "amap_lng": 118.308156,
+      "cuisine": "烧烤",
+      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
       "id": "facility_0165",
       "name": "老北京地摊烧烤",
-      "type": "餐饮",
-      "cuisine": "烧烤",
+      "nearest_node": "road_edge_0608_052",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "烧烤"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_052",
-      "amap_lng": 118.308156,
-      "amap_lat": 24.609528,
-      "description": "餐饮 · 烧烤，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609731,
+      "amap_lng": 118.307834,
+      "cuisine": "快餐",
+      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
       "id": "facility_0166",
       "name": "霸碗盖码饭",
-      "type": "餐饮",
-      "cuisine": "快餐",
+      "nearest_node": "road_edge_0608_018",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "快餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_018",
-      "amap_lng": 118.307834,
-      "amap_lat": 24.609731,
-      "description": "餐饮 · 快餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609585,
+      "amap_lng": 118.307839,
+      "cuisine": "奶茶",
+      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
       "id": "facility_0167",
       "name": "书亦烧仙草",
-      "type": "餐饮",
-      "cuisine": "奶茶",
+      "nearest_node": "road_edge_0608_012",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "奶茶"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_012",
-      "amap_lng": 118.307839,
-      "amap_lat": 24.609585,
-      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.606967,
+      "amap_lng": 118.309735,
+      "cuisine": "咖啡",
+      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
       "id": "facility_0168",
       "name": "小咖咖啡",
-      "type": "餐饮",
-      "cuisine": "咖啡",
+      "nearest_node": "road_edge_0306_042",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "咖啡"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0306_042",
-      "amap_lng": 118.309735,
-      "amap_lat": 24.606967,
-      "description": "餐饮 · 咖啡，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610674,
+      "amap_lng": 118.316577,
+      "cuisine": "小吃",
+      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
       "id": "facility_0169",
       "name": "鸡柳大人",
-      "type": "餐饮",
-      "cuisine": "小吃",
+      "nearest_node": "road_edge_0521_022",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "小吃"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0521_022",
-      "amap_lng": 118.316577,
-      "amap_lat": 24.610674,
-      "description": "餐饮 · 小吃，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610874,
+      "amap_lng": 118.31761,
+      "cuisine": "面食",
+      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
       "id": "facility_0170",
       "name": "醉面",
-      "type": "餐饮",
-      "cuisine": "面食",
+      "nearest_node": "road_edge_0526_003",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "面食"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0526_003",
-      "amap_lng": 118.31761,
-      "amap_lat": 24.610874,
-      "description": "餐饮 · 面食，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611858,
+      "amap_lng": 118.308425,
+      "cuisine": "粉面",
+      "description": "餐饮 · 粉面，手动采集，按道路图距离排序。",
       "id": "facility_0171",
       "name": "阿佑鲜烫牛肉米线",
-      "type": "餐饮",
-      "cuisine": "粉面",
+      "nearest_node": "road_edge_0150_048",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "粉面"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0150_048",
-      "amap_lng": 118.308425,
-      "amap_lat": 24.611858,
-      "description": "餐饮 · 粉面，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611653,
+      "amap_lng": 118.308451,
+      "cuisine": "粤菜",
+      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
       "id": "facility_0172",
       "name": "粤京熹手工顺德菜",
-      "type": "餐饮",
-      "cuisine": "粤菜",
+      "nearest_node": "road_edge_0150_040",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "粤菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0150_040",
-      "amap_lng": 118.308451,
-      "amap_lat": 24.611653,
-      "description": "餐饮 · 粤菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.609449,
+      "amap_lng": 118.307833,
+      "cuisine": "西餐",
+      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
       "id": "facility_0173",
       "name": "HUB西餐厅",
-      "type": "餐饮",
-      "cuisine": "西餐",
+      "nearest_node": "road_edge_0608_007",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "西餐"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0608_007",
-      "amap_lng": 118.307833,
-      "amap_lat": 24.609449,
-      "description": "餐饮 · 西餐，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610938,
+      "amap_lng": 118.316818,
+      "cuisine": "印度菜",
+      "description": "餐饮 · 印度菜，手动采集，按道路图距离排序。",
       "id": "facility_0174",
       "name": "皇家咖喱印度餐厅",
-      "type": "餐饮",
-      "cuisine": "印度菜",
+      "nearest_node": "road_edge_0521_034",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "印度菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0521_034",
-      "amap_lng": 118.316818,
-      "amap_lat": 24.610938,
-      "description": "餐饮 · 印度菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611054,
+      "amap_lng": 118.317243,
+      "cuisine": "食堂",
+      "description": "餐饮 · 食堂，手动采集，按道路图距离排序。",
       "id": "facility_0175",
       "name": "人民公社大食堂",
-      "type": "餐饮",
-      "cuisine": "食堂",
+      "nearest_node": "road_edge_0525_005",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "食堂"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0525_005",
-      "amap_lng": 118.317243,
-      "amap_lat": 24.611054,
-      "description": "餐饮 · 食堂，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611932,
+      "amap_lng": 118.308834,
+      "cuisine": "家常菜",
+      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
       "id": "facility_0176",
       "name": "卓面郎家常菜",
-      "type": "餐饮",
-      "cuisine": "家常菜",
+      "nearest_node": "road_edge_0154_024",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "家常菜"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0154_024",
-      "amap_lng": 118.308834,
-      "amap_lat": 24.611932,
-      "description": "餐饮 · 家常菜，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.611855,
+      "amap_lng": 118.305668,
+      "cuisine": "超市便利",
+      "description": "餐饮 · 超市便利，手动采集，按道路图距离排序。",
       "id": "facility_0177",
       "name": "乐购达超市",
-      "type": "餐饮",
-      "cuisine": "超市便利",
+      "nearest_node": "road_edge_0130_005",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "超市便利"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0130_005",
-      "amap_lng": 118.305668,
-      "amap_lat": 24.611855,
-      "description": "餐饮 · 超市便利，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.610536,
+      "amap_lng": 118.316443,
+      "cuisine": "奶茶",
+      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
       "id": "facility_0178",
       "name": "茶叙牡丹亭",
-      "type": "餐饮",
-      "cuisine": "奶茶",
+      "nearest_node": "road_edge_0521_015",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "餐饮",
         "奶茶"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0521_015",
-      "amap_lng": 118.316443,
-      "amap_lat": 24.610536,
-      "description": "餐饮 · 奶茶，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "餐饮"
     },
     {
+      "amap_lat": 24.614721,
+      "amap_lng": 118.316683,
+      "cuisine": "",
+      "description": "卫生间，手动采集，按道路图距离排序。",
       "id": "facility_0179",
       "name": "采集点",
-      "type": "卫生间",
-      "cuisine": "",
+      "nearest_node": "road_edge_0518_077",
+      "parent_place": "xmu_manual",
+      "source": "manual_collector_facility",
       "tags": [
         "卫生间"
       ],
-      "parent_place": "xmu_manual",
-      "nearest_node": "road_edge_0518_077",
-      "amap_lng": 118.316683,
-      "amap_lat": 24.614721,
-      "description": "卫生间，手动采集，按道路图距离排序。",
-      "source": "manual_collector_facility"
+      "type": "卫生间"
     }
   ]
 }

@@ -10,6 +10,8 @@ A Flask-based tourism simulation and recommendation system with scenic spots, fo
 - Route planning
 - Facilities lookup
 - Travel diary publishing and rating
+- Indoor navigation
+- Floating AI travel assistant
 
 ## Local development
 
@@ -26,7 +28,8 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`.
+Open `http://127.0.0.1:5000`. If `FLASK_PORT` or `PORT` is set in `.env`,
+use that port instead.
 
 ## Data and graph workflow
 
@@ -82,29 +85,31 @@ set `OPENAI_API_KEY`.
 Open the collector:
 
 ```text
-http://127.0.0.1:5005/route?collect=1
+http://127.0.0.1:5000/route?collect=1
 ```
 
 Click POIs and draw roads on the map. The backend saves collector files under
 `data/manual/` and rebuilds `data/graphs/xmu_manual.json` automatically. The
 route page defaults to this manual graph, and Dijkstra runs on the local
-`nodes/edges` data.
+`nodes/edges` data. If your local server runs on another port, replace `5000`.
 
 More details are in:
 
 - `docs/project_structure.md`
 - `docs/technical_design.md`
 - `docs/acceptance_checklist.md`
+- `docs/handoff_checklist.md`
+- `docs/deployment/DEPLOY_RENDER.md`
 
 ## Project layout
 
 ```text
-app.py                 Flask app entrypoint, DB wiring, remaining route/collector pages, and blueprint registration
+app.py                 Flask app entrypoint, DB wiring, remaining route/collector/indoor pages, and blueprint registration
 init_db.py             SQLite schema initialization
-toursim/               Extracted modules for AI assistant orchestration, blueprints, user/favorites, place/collector repositories, diary repository/media/video/routes, route graph loading/algorithms, food repository/ranking, search, avatars, compression, and file utilities
+toursim/               Extracted modules for AI assistant orchestration, blueprints, user/favorites, place/collector repositories, diary repository/media/video/routes, route graph loading/algorithms, food repository/ranking, indoor logic, search, avatars, compression, and file utilities
 templates/             Jinja pages
 static/                CSS, JavaScript, images, videos, and demo media
-data/                  Curated CSV data, route graphs, collector data, diary media
+data/                  Curated CSV data, route graphs, collector data, indoor data, and diary media
 scripts/               Optional data maintenance and sharing utilities
 docs/                  Structure, deployment, technical design, acceptance, and handoff notes
 tests/                 Pytest regression tests
@@ -121,9 +126,13 @@ runtime, but are kept because the docs reference them for data regeneration.
 ## Verification
 
 ```powershell
-python -m py_compile app.py init_db.py
+python -m compileall app.py init_db.py toursim tests
 python -m pytest -q
+git diff --check
 ```
+
+Before final submission, also open the main pages listed in
+`docs/acceptance_checklist.md`.
 
 ## Share temporarily from your own computer
 

@@ -32,6 +32,15 @@ def create_places_blueprint(services):
         value = services.places_page_size
         return value() if callable(value) else value
 
+    def current_places_url():
+        return request.full_path.rstrip("?")
+
+    def safe_places_return_url(value):
+        value = (value or "").strip()
+        if value == "/places" or value.startswith("/places?") or value.startswith("/places#"):
+            return value
+        return url_for("places")
+
     @bp.route("/places")
     def places():
         if not services.is_logged_in():
@@ -51,6 +60,12 @@ def create_places_blueprint(services):
         k = max(1, min(k, 20))
 
         all_places = services.load_places()
+        filter_options = services.get_place_filter_options(all_places)
+        available_tags = set(filter_options["tags"])
+        selected_tags = [
+            tag for tag in selected_tags
+            if tag in available_tags
+        ]
         filtered_places = services.filter_and_sort_places(
             all_places,
             keyword=keyword,
@@ -59,7 +74,6 @@ def create_places_blueprint(services):
             city=city,
             sort_by=sort_by,
         )
-        filter_options = services.get_place_filter_options(all_places)
         recommended_places, recommendation_stats = services.get_top_k_recommendations(
             all_places,
             preferred_tags=selected_tags,
@@ -89,6 +103,7 @@ def create_places_blueprint(services):
         return render_template(
             "places.html",
             username=session["username"],
+            current_places_url=current_places_url(),
             places=visible_places,
             recommended_places=recommended_places,
             recommendation_stats=recommendation_stats,
@@ -124,6 +139,7 @@ def create_places_blueprint(services):
             limit=6,
         )
         current_user = services.get_logged_in_user()
+        places_return_url = safe_places_return_url(request.args.get("return_url", ""))
         tag_collections = [
             {
                 "tag": tag,
@@ -139,6 +155,7 @@ def create_places_blueprint(services):
             related_diaries=related_diaries,
             place_favorited=services.is_item_favorited(current_user["id"], "place", place_id) if current_user else False,
             tag_collections=tag_collections,
+            places_return_url=places_return_url,
         )
 
     @bp.route("/place/<int:place_id>/favorite", methods=["POST"])
@@ -148,6 +165,7 @@ def create_places_blueprint(services):
             return redirect(url_for("login"))
 
         current_user = services.get_logged_in_user()
+        places_return_url = safe_places_return_url(request.form.get("return_url", ""))
         place = services.get_place_by_id(place_id)
         if current_user is None or place is None:
             flash("没有找到这个地点")
@@ -170,7 +188,7 @@ def create_places_blueprint(services):
             },
         )
         flash("已收藏这个地点" if favorited else "已取消收藏")
-        return redirect(url_for("place_detail", place_id=place_id))
+        return redirect(url_for("place_detail", place_id=place_id, return_url=places_return_url))
 
     @bp.route("/place/<int:place_id>/image/upload", methods=["POST"])
     def upload_place_image(place_id):

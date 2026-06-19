@@ -153,6 +153,13 @@
                         </div>
 
                         <button type="submit" class="primary-action">计算路线</button>
+                        <div class="route-console-footer" aria-label="采集模式入口">
+                            {% if route_collect_mode %}
+                                <a class="route-collector-link" href="{{ url_for('route', place_id=place_id, active_panel='planner') }}">退出采集模式</a>
+                            {% else %}
+                                <a class="route-collector-link" href="{{ url_for('route', place_id=place_id, collect='1', active_panel='planner') }}">采集模式</a>
+                            {% endif %}
+                        </div>
                     </form>
 
                     <section class="route-summary route-summary-v2 {% if not result and not multi_result and (end or targets) and transport == 'bike' %}is-route-blocked{% endif %}" id="routeSummary">

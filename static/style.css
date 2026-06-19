@@ -22043,6 +22043,68 @@ body.route-map-page.route-v2.explore-page .route-card {
     padding: 11px !important;
 }
 
+body.route-map-page.route-v2.explore-page .route-console-footer {
+    position: static !important;
+    inset: auto !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    min-height: 34px !important;
+    margin-top: 2px !important;
+    padding-top: 10px !important;
+    padding-right: 0 !important;
+    padding-bottom: 2px !important;
+    padding-left: 0 !important;
+    display: block !important;
+    border-top: 1px solid var(--route-line-faint) !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.route-map-page.route-v2.explore-page .route-collector-link {
+    position: relative !important;
+    z-index: 3 !important;
+    width: fit-content !important;
+    min-height: 32px !important;
+    padding: 0 2px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: rgba(22, 26, 32, 0.46) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    font-size: 0.72rem !important;
+    font-weight: 780 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em !important;
+    text-decoration: none !important;
+    text-transform: uppercase !important;
+    pointer-events: auto !important;
+}
+
+body.route-map-page.route-v2.explore-page .route-collector-link::before {
+    content: "" !important;
+    width: 6px !important;
+    height: 6px !important;
+    border: 1px solid currentColor !important;
+    border-radius: 50% !important;
+}
+
+body.route-map-page.route-v2.explore-page .route-collector-link:hover,
+body.route-map-page.route-v2.explore-page .route-collector-link:focus-visible {
+    color: var(--route-blue) !important;
+    outline: none !important;
+}
+
 body.route-map-page.route-v2.explore-page .route-planner-v2,
 body.route-map-page.route-v2.explore-page .explore-form {
     gap: 8px !important;
