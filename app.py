@@ -431,6 +431,13 @@ RUNTIME_DATA_DIR = os.getenv("DATA_DIR", APP_DIR)
 DB_NAME = os.getenv("DB_NAME", "tourism.db")
 DB_PATH = DB_NAME if os.path.isabs(DB_NAME) else os.path.join(RUNTIME_DATA_DIR, DB_NAME)
 SEED_DB_PATH = os.path.join(APP_DIR, "tourism.db")
+SEED_UPLOAD_DIR = os.path.join(APP_DIR, "data", "uploads")
+UPLOAD_DATA_DIR = os.getenv("UPLOAD_DATA_DIR")
+if not UPLOAD_DATA_DIR:
+    if os.path.abspath(RUNTIME_DATA_DIR) == os.path.abspath(APP_DIR):
+        UPLOAD_DATA_DIR = SEED_UPLOAD_DIR
+    else:
+        UPLOAD_DATA_DIR = os.path.join(RUNTIME_DATA_DIR, "uploads")
 DEMO_DIARY_SEED_PATH = os.path.join(APP_DIR, "data", "demo_diaries_seed.json")
 DEMO_DIARY_SEED_ENABLED = os.getenv("TOURSIM_DEMO_DIARY_SEED", "0").lower() in ("1", "true", "yes", "on")
 
@@ -517,8 +524,8 @@ FOOD_CAMPUS_CONTEXTS = {
         "default_sort": "recommend_score_desc",
     }
 }
-DIARY_UPLOAD_DIR = os.path.join(APP_DIR, "data", "uploads", "diaries")
-DIARY_GENERATED_VIDEO_DIR = os.path.join(APP_DIR, "data", "uploads", "diary-generated-videos")
+DIARY_UPLOAD_DIR = os.path.join(UPLOAD_DATA_DIR, "diaries")
+DIARY_GENERATED_VIDEO_DIR = os.path.join(UPLOAD_DATA_DIR, "diary-generated-videos")
 DIARY_THUMBNAIL_DIRNAME = "_thumbs_v4"
 DIARY_THUMBNAIL_VERSION = "4"
 DIARY_THUMBNAIL_MAX_SIZE = (720, 900)
@@ -661,8 +668,30 @@ def save_user_avatar_choice(uploaded_file, selected_avatar_path, username, user_
     return select_preset_avatar_path(selected_avatar_path, username, user_id)
 
 
+def seed_runtime_directory(seed_dir, target_dir):
+    if os.path.abspath(seed_dir) == os.path.abspath(target_dir) or not os.path.isdir(seed_dir):
+        return
+    for root, dirs, files in os.walk(seed_dir):
+        rel_root = os.path.relpath(root, seed_dir)
+        target_root = target_dir if rel_root == "." else os.path.join(target_dir, rel_root)
+        os.makedirs(target_root, exist_ok=True)
+        for dirname in dirs:
+            os.makedirs(os.path.join(target_root, dirname), exist_ok=True)
+        for filename in files:
+            source_path = os.path.join(root, filename)
+            target_path = os.path.join(target_root, filename)
+            if not os.path.exists(target_path):
+                shutil.copy2(source_path, target_path)
+
+
+def seed_runtime_uploads():
+    seed_runtime_directory(os.path.join(SEED_UPLOAD_DIR, "diaries"), DIARY_UPLOAD_DIR)
+    seed_runtime_directory(os.path.join(SEED_UPLOAD_DIR, "diary-generated-videos"), DIARY_GENERATED_VIDEO_DIR)
+
+
 def initialize_database():
     ensure_parent_dir(DB_PATH)
+    seed_runtime_uploads()
 
     if (
         not os.path.exists(DB_PATH)
