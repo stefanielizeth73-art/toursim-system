@@ -1,3 +1,4 @@
+@import url('/static/local_fonts.css');
 @font-face {
     font-family: 'Dream Avenue';
     src: url('/static/fonts/Dream%20Avenue.ttf') format('truetype');
@@ -34,8 +35,8 @@
     --snami-white: #ffffff;
     --snami-shadow: 0 30px 90px rgba(21, 19, 15, 0.14);
     --snami-ease: cubic-bezier(0.215, 0.61, 0.355, 1);
-    --font-serif: 'Dream Avenue', 'Bodoni Moda', Georgia, serif;
-    --font-sans: 'basis-grotesque-regular-pro', 'Plus Jakarta Sans', 'Microsoft YaHei', sans-serif;
+    --font-serif: var(--tour-font-serif);
+    --font-sans: var(--tour-font-sans);
 }
 
 * {

@@ -1,0 +1,28 @@
+@font-face {
+    font-family: "TourSerif";
+    src: url("/static/fonts/Dream%20Avenue.ttf") format("truetype");
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TourSans";
+    src: url("/static/fonts/basis-grotesque-regular-pro.woff2") format("woff2");
+    font-weight: 300 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TourSans";
+    src: url("/static/fonts/basis-grotesque-bold-pro.woff2") format("woff2");
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --tour-font-serif: "TourSerif", Georgia, "Times New Roman", serif;
+    --tour-font-sans: "TourSans", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+}

@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('/static/local_fonts.css');
 
 /* ==========================================================================
    DESIGN SYSTEM VARIABLES (Premium Light Theme & Glassmorphism)
    ========================================================================== */
 :root {
     /* Fonts */
-    --font-display: 'Outfit', 'Inter', -apple-system, sans-serif;
-    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-display: var(--tour-font-sans);
+    --font-body: var(--tour-font-sans);
 
     /* Light Theme Core Colors */
     --bg-light-base: #f4f7fc;

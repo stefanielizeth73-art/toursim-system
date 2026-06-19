@@ -1,3 +1,4 @@
+@import url('/static/local_fonts.css');
 .ai-assistant-launcher,
 .ai-assistant {
     --ai-paper: rgba(247, 248, 250, 0.92);
@@ -11,7 +12,7 @@
     --ai-gold-soft: rgba(197, 168, 128, 0.14);
     --ai-shadow: 0 24px 64px rgba(31, 32, 38, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.74);
     box-sizing: border-box;
-    font-family: var(--font-body, "Inter", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif);
+    font-family: var(--font-body, var(--tour-font-sans));
 }
 
 .ai-assistant-launcher {
@@ -29,7 +30,7 @@
         radial-gradient(circle at 35% 24%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.5) 45%, rgba(197, 168, 128, 0.2)),
         var(--ai-paper-soft);
     color: var(--ai-ink);
-    font: 800 12px/1 var(--font-display-sans, "Outfit", "Inter", sans-serif);
+    font: 800 12px/1 var(--font-display-sans, var(--tour-font-sans));
     letter-spacing: 0.12em;
     box-shadow: var(--ai-shadow);
     cursor: grab;
@@ -115,7 +116,7 @@
 .ai-assistant__head span {
     color: var(--ai-gold);
     font-size: 11px;
-    font-family: var(--font-display-serif, "Cinzel", Georgia, serif);
+    font-family: var(--font-display-serif, var(--tour-font-serif));
     font-weight: 900;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -125,7 +126,7 @@
     margin-top: 3px;
     color: var(--ai-ink);
     font-size: 19px;
-    font-family: var(--font-display-sans, "Outfit", "Inter", sans-serif);
+    font-family: var(--font-display-sans, var(--tour-font-sans));
     font-weight: 800;
     letter-spacing: 0;
 }

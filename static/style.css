@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('/static/local_fonts.css');
 
 :root {
     --surface: rgba(16, 30, 46, 0.8);
@@ -19,8 +19,8 @@
     --radius-lg: 28px;
     --radius-md: 18px;
     --radius-sm: 12px;
-    --font-display: "STZhongsong", "Songti SC", "SimSun", serif;
-    --font-body: "HarmonyOS Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+    --font-display: var(--tour-font-serif);
+    --font-body: var(--tour-font-sans);
 }
 
 /* Route map refinement: brighter premium campus navigation */
@@ -15853,9 +15853,9 @@ body.route-v2.explore-page .explore-empty-state p {
 
 /* Food product pages aligned with the home/profile luxury line system. */
 body.food-product-page {
-    --food-display: var(--font-display-serif, "Cinzel", Georgia, serif);
-    --food-ui: var(--font-display-sans, "Outfit", "Inter", "Microsoft YaHei", "PingFang SC", sans-serif);
-    --food-body: var(--font-body, "Inter", "Microsoft YaHei", "PingFang SC", sans-serif);
+    --food-display: var(--font-display-serif, var(--tour-font-serif));
+    --food-ui: var(--font-display-sans, var(--tour-font-sans));
+    --food-body: var(--font-body, var(--tour-font-sans));
     --food-ink: var(--lux-charcoal, #0e0f12);
     --food-ink-soft: var(--lux-slate-dark, #1f2026);
     --food-muted: var(--lux-slate-muted, #5e616b);
@@ -17201,7 +17201,7 @@ body.place-dossier-page {
     --dossier-black: #111316;
     --dossier-cream: #fbf7ed;
     color: var(--places-ink);
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     background:
         radial-gradient(circle at 8% 4%, rgba(197, 168, 128, 0.15), transparent 26rem),
         radial-gradient(circle at 94% 12%, rgba(134, 184, 216, 0.09), transparent 24rem),
@@ -17633,7 +17633,7 @@ body.place-dossier-page .place-dossier-topbar span {
 
 .place-dossier-related .places-darkroom-section-head h2 {
     color: var(--places-ink);
-    font-family: "Cinzel", Georgia, serif;
+    font-family: var(--tour-font-serif);
     font-size: clamp(2.7rem, 6vw, 6rem);
     font-weight: 400;
 }
@@ -17642,7 +17642,7 @@ body.place-dossier-page .place-dossier-topbar span {
     display: block;
     margin-top: 10px;
     color: var(--places-muted);
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     font-size: 1rem;
     font-style: normal;
     font-weight: 800;
@@ -17757,7 +17757,7 @@ body.places-product-page.places-darkroom-page {
     --darkroom-line: rgba(251, 247, 237, 0.16);
     --darkroom-gold: #c7aa78;
     color: var(--places-ink);
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     background:
         radial-gradient(circle at 8% 2%, rgba(197, 168, 128, 0.16), transparent 26rem),
         radial-gradient(circle at 94% 12%, rgba(134, 184, 216, 0.11), transparent 24rem),
@@ -17967,7 +17967,7 @@ body.places-darkroom-page .places-darkroom-intro h1 {
     max-width: 820px;
     margin: 10px 0 0;
     color: var(--places-ink);
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     font-size: clamp(3rem, 5vw, 5.15rem);
     font-weight: 850;
     line-height: 0.98;
@@ -18137,7 +18137,7 @@ body.places-darkroom-page .places-darkroom-section-head {
 body.places-darkroom-page .places-darkroom-section-head h2 {
     margin: 12px 0 0;
     color: var(--darkroom-ink);
-    font-family: "Cinzel", Georgia, serif;
+    font-family: var(--tour-font-serif);
     font-size: clamp(3rem, 6.3vw, 6.4rem);
     font-weight: 400;
     line-height: 0.94;
@@ -18146,7 +18146,7 @@ body.places-darkroom-page .places-darkroom-section-head h2 {
 
 body.places-darkroom-page .places-darkroom-section-head h2 span {
     max-width: 11ch;
-    font-family: "Cormorant Garamond", "Bodoni 72", "Cinzel", Georgia, serif;
+    font-family: var(--tour-font-serif);
     font-style: italic;
 }
 
@@ -18154,7 +18154,7 @@ body.places-darkroom-page .places-darkroom-section-head h2 em {
     display: block;
     margin-top: 14px;
     color: rgba(251, 247, 237, 0.62);
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     font-size: clamp(1rem, 1.5vw, 1.35rem);
     font-style: normal;
     font-weight: 750;
@@ -18350,7 +18350,7 @@ body.places-darkroom-page .places-contact-card--rank-7 .places-contact-photo {
 }
 
 body.places-darkroom-page .places-contact-caption h3 {
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-family: var(--tour-font-sans);
     font-weight: 850;
 }
 
@@ -18515,7 +18515,7 @@ body.route-map-page.route-v2.explore-page {
     overflow: hidden;
     color: var(--route-home-ink);
     background: linear-gradient(135deg, var(--route-home-ivory) 0%, #f4f6f9 48%, var(--route-home-platinum) 100%) !important;
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif !important;
+    font-family: var(--tour-font-sans) !important;
     letter-spacing: 0;
 }
 
@@ -18701,7 +18701,7 @@ body.route-map-page.route-v2.explore-page .route-console-hero .eyebrow {
 body.route-map-page.route-v2.explore-page .route-console-hero h1 {
     margin: 0 !important;
     color: var(--route-home-slate) !important;
-    font-family: "Cinzel", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: clamp(1.34rem, 2.2vw, 1.58rem) !important;
     font-weight: 800 !important;
     line-height: 1.16 !important;
@@ -19005,7 +19005,7 @@ body.route-map-page.route-v2.explore-page .route-summary {
 body.route-map-page.route-v2.explore-page .route-summary h2 {
     margin: 0 0 4px !important;
     color: var(--route-home-slate) !important;
-    font-family: "Outfit", "Microsoft YaHei", sans-serif !important;
+    font-family: var(--tour-font-sans) !important;
     font-size: 0.94rem !important;
     font-weight: 900 !important;
     letter-spacing: 0 !important;
@@ -19021,7 +19021,7 @@ body.route-map-page.route-v2.explore-page .route-summary p {
 body.route-map-page.route-v2.explore-page .route-summary .route-total {
     margin: 3px 0 6px !important;
     color: var(--route-home-blue) !important;
-    font-family: "Cinzel", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 1.55rem !important;
     font-weight: 800 !important;
     line-height: 1 !important;
@@ -19096,7 +19096,7 @@ body.route-map-page.route-v2.explore-page .explore-card__meta span {
 
 body.route-map-page.route-v2.explore-page .explore-card__header strong {
     color: var(--route-home-coral) !important;
-    font-family: "Cinzel", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 1rem !important;
 }
 
@@ -20514,7 +20514,7 @@ body.indoor-page:not(.indoor-collector-page) {
         radial-gradient(circle at 7% 8%, rgba(197, 168, 128, 0.14), transparent 30rem),
         radial-gradient(circle at 96% 12%, rgba(79, 127, 232, 0.11), transparent 28rem),
         linear-gradient(135deg, var(--indoor-ivory) 0%, #f4f6f9 48%, var(--indoor-platinum) 100%) !important;
-    font-family: "Outfit", "Microsoft YaHei", "PingFang SC", sans-serif !important;
+    font-family: var(--tour-font-sans) !important;
     letter-spacing: 0;
 }
 
@@ -20611,7 +20611,7 @@ body.indoor-page:not(.indoor-collector-page) .indoor-topbar__copy small {
 
 body.indoor-page:not(.indoor-collector-page) .indoor-topbar__copy strong {
     color: var(--indoor-slate);
-    font-family: "Cinzel", Georgia, "Microsoft YaHei", serif;
+    font-family: var(--tour-font-serif);
     font-size: 1rem;
     font-weight: 800;
     letter-spacing: 0.02em;
@@ -20736,7 +20736,7 @@ body.indoor-page:not(.indoor-collector-page) .indoor-panel__head h2,
 body.indoor-page:not(.indoor-collector-page) .indoor-map-head h2 {
     margin: 0 !important;
     color: var(--indoor-slate) !important;
-    font-family: "Cinzel", Georgia, "Microsoft YaHei", serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-weight: 850 !important;
     letter-spacing: 0 !important;
 }
@@ -20779,7 +20779,7 @@ body.indoor-page:not(.indoor-collector-page) .indoor-hero__metrics span {
 
 body.indoor-page:not(.indoor-collector-page) .indoor-hero__metrics strong {
     color: var(--indoor-blue);
-    font-family: "Cinzel", Georgia, serif;
+    font-family: var(--tour-font-serif);
     font-size: 1.08rem;
     line-height: 1;
 }
@@ -21182,7 +21182,7 @@ body.indoor-page:not(.indoor-collector-page) .indoor-floor-pill rect {
 
 body.indoor-page:not(.indoor-collector-page) .indoor-floor-pill text {
     fill: var(--indoor-slate) !important;
-    font-family: "Cinzel", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 18px !important;
     font-weight: 850 !important;
     letter-spacing: 0 !important;
@@ -21339,7 +21339,7 @@ body.indoor-page:not(.indoor-collector-page) .indoor-console__brand small {
 
 body.indoor-page:not(.indoor-collector-page) .indoor-console__brand strong {
     color: var(--indoor-slate);
-    font-family: "Cinzel", Georgia, "Microsoft YaHei", serif;
+    font-family: var(--tour-font-serif);
     font-size: 0.98rem;
     font-weight: 850;
     letter-spacing: 0;
@@ -21902,7 +21902,7 @@ body.route-map-page.route-v2.explore-page .route-topbar {
 
 body.route-map-page.route-v2.explore-page .route-topbar > div:first-child {
     color: var(--route-line-ink) !important;
-    font-family: "Cinzel", "Noto Serif SC", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 0.82rem !important;
     letter-spacing: 0.08em !important;
 }
@@ -22001,7 +22001,7 @@ body.route-map-page.route-v2.explore-page .route-console-hero .eyebrow {
 }
 
 body.route-map-page.route-v2.explore-page .route-console-hero h1 {
-    font-family: "Cinzel", "Noto Serif SC", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: clamp(1.18rem, 1.8vw, 1.36rem) !important;
     line-height: 1.12 !important;
     font-weight: 820 !important;
@@ -22401,7 +22401,7 @@ body.route-map-page.route-v2.explore-page .route-summary {
 
 body.route-map-page.route-v2.explore-page .route-summary .route-total {
     color: var(--route-blue) !important;
-    font-family: "Cinzel", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 1.32rem !important;
 }
 
@@ -22538,7 +22538,7 @@ body.route-map-page.route-v2.explore-page .amap-route-popup strong {
     max-width: calc(100% - 32px) !important;
     overflow: hidden !important;
     color: var(--route-line-ink) !important;
-    font-family: "Cinzel", "Noto Serif SC", Georgia, serif !important;
+    font-family: var(--tour-font-serif) !important;
     font-size: 0.94rem !important;
     font-weight: 820 !important;
     line-height: 1.25 !important;
